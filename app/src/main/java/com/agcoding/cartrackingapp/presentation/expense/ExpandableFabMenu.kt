@@ -32,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.R
 
 @Composable
 fun ExpandableFabMenu(
@@ -68,7 +70,7 @@ fun ExpandableFabMenu(
                 ) {
                     FabMenuItem(
                         icon = Icons.Default.Receipt,
-                        label = "Expense",
+                        label = stringResource(R.string.fab_menu_expense),
                         onClick = {
                             onExpenseClick()
                             isExpanded = false
@@ -77,7 +79,7 @@ fun ExpandableFabMenu(
 
                     FabMenuItem(
                         icon = Icons.Default.LocalGasStation,
-                        label = "Refill",
+                        label = stringResource(R.string.fab_menu_refill),
                         onClick = {
                             onRefillClick()
                             isExpanded = false
@@ -94,7 +96,9 @@ fun ExpandableFabMenu(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = if (isExpanded) "Close menu" else "Open menu",
+                    contentDescription = stringResource(
+                        if (isExpanded) R.string.fab_menu_close else R.string.fab_menu_open
+                    ),
                     modifier = Modifier.rotate(rotation)
                 )
             }

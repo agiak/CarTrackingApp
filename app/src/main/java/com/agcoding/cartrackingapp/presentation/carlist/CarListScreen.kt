@@ -28,9 +28,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.carlist.components.AddCarDialog
 import com.agcoding.cartrackingapp.presentation.carlist.components.CarCard
 
@@ -48,7 +50,7 @@ fun CarListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Cars") }
+                title = { Text(stringResource(R.string.car_list_title)) }
             )
         },
         floatingActionButton = {
@@ -57,7 +59,7 @@ fun CarListScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Car"
+                    contentDescription = stringResource(R.string.car_list_add_car_cd)
                 )
             }
         }
@@ -131,13 +133,13 @@ private fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "No cars added yet",
+            text = stringResource(R.string.car_list_no_cars_title),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Add your first car to start tracking fuel expenses",
+            text = stringResource(R.string.car_list_no_cars_desc),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -150,7 +152,7 @@ private fun EmptyState(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Add Car")
+            Text(stringResource(R.string.car_list_add_car))
         }
     }
 }
@@ -165,7 +167,7 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Error",
+            text = stringResource(R.string.error_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )
@@ -177,4 +179,3 @@ private fun ErrorState(
         )
     }
 }
-

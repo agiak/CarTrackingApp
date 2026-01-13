@@ -34,10 +34,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,7 +49,7 @@ import java.util.Locale
 fun ExpenseDetailsScreen(
     onNavigateBack: () -> Unit,
     onEditExpense: () -> Unit,
-    viewModel: com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsViewModel = hiltViewModel()
+    viewModel: ExpenseDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
@@ -55,12 +57,12 @@ fun ExpenseDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Expense Details") },
+                title = { Text(stringResource(R.string.expense_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -68,13 +70,13 @@ fun ExpenseDetailsScreen(
                     IconButton(onClick = onEditExpense) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit"
+                            contentDescription = stringResource(R.string.edit)
                         )
                     }
                     IconButton(onClick = { viewModel.showDeleteDialog() }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -120,20 +122,20 @@ fun ExpenseDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
-            title = { Text("Delete Expense") },
-            text = { Text("Are you sure you want to delete this expense?") },
+            title = { Text(stringResource(R.string.delete_expense_title)) },
+            text = { Text(stringResource(R.string.delete_expense_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteExpense(onSuccess = onNavigateBack)
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -146,7 +148,10 @@ private fun ExpenseDetailsContent(
     carName: String,
     modifier: Modifier = Modifier
 ) {
-    val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d, yyyy, h:mm a", Locale.getDefault()) }
+    val datePattern = stringResource(R.string.date_format_full_with_time)
+    val dateFormat = remember(datePattern) {
+        SimpleDateFormat(datePattern, Locale.getDefault())
+    }
 
     Column(
         modifier = modifier
@@ -214,7 +219,7 @@ private fun ExpenseDetailsContent(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Notes",
+                        text = stringResource(R.string.notes),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -230,4 +235,3 @@ private fun ExpenseDetailsContent(
         }
     }
 }
-

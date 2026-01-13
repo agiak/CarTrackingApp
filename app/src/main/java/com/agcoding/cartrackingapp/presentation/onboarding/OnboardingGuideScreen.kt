@@ -56,10 +56,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.R
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -103,7 +105,7 @@ fun OnboardingGuideScreen(
         ) {
             TextButton(onClick = onSkip) {
                 Text(
-                    text = "Skip",
+                    text = stringResource(R.string.skip),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -221,7 +223,7 @@ fun OnboardingGuideScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Previous")
+                    Text(stringResource(R.string.previous))
                 }
             }
 
@@ -259,7 +261,7 @@ fun OnboardingGuideScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = if (isLastSlide) "Get Started" else "Next")
+                        Text(text = if (isLastSlide) stringResource(R.string.get_started) else stringResource(R.string.next))
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -320,7 +322,7 @@ private fun SlideContent(
 
         // Title
         Text(
-            text = slide.title,
+            text = stringResource(slide.titleRes),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -331,7 +333,7 @@ private fun SlideContent(
 
         // Description
         Text(
-            text = slide.description,
+            text = stringResource(slide.descriptionRes),
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

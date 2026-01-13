@@ -52,11 +52,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.DistanceTrendData
 import com.agcoding.cartrackingapp.domain.model.MonthlyDistance
 import com.agcoding.cartrackingapp.domain.model.TrendPeriod
@@ -70,7 +71,7 @@ import java.util.Locale
 @Composable
 fun DistanceGraphScreen(
     onNavigateBack: () -> Unit,
-    viewModel: DistanceGraphViewModel = hiltViewModel()
+    viewModel: DistanceGraphViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedPeriod by viewModel.selectedPeriod.collectAsState()
@@ -84,7 +85,7 @@ fun DistanceGraphScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -171,6 +172,10 @@ private fun DistanceGraphContent(
     modifier: Modifier = Modifier
 ) {
     val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
+    val tripDatePattern = stringResource(R.string.distance_graph_trip_date_format)
+    val tripDateFormat = remember(tripDatePattern) {
+        SimpleDateFormat(tripDatePattern, Locale.getDefault())
+    }
 
     Column(
         modifier = modifier
@@ -200,13 +205,13 @@ private fun DistanceGraphContent(
 
         // Title and subtitle
         Text(
-            text = "Distance Traveled",
+            text = stringResource(R.string.distance_graph_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Track your total kilometers driven",
+            text = stringResource(R.string.distance_graph_subtitle),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -243,13 +248,16 @@ private fun DistanceGraphContent(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Total Distance",
+                    text = stringResource(R.string.distance_graph_total_distance_label),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${numberFormat.format(trendData.totalDistance.toLong())} km",
+                    text = stringResource(
+                        R.string.distance_graph_km_format,
+                        numberFormat.format(trendData.totalDistance.toLong())
+                    ),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -263,14 +271,20 @@ private fun DistanceGraphContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                label = "Average",
-                value = "${numberFormat.format(trendData.averageTripDistance.toLong())} km",
+                label = stringResource(R.string.distance_graph_average_label),
+                value = stringResource(
+                    R.string.distance_graph_km_format,
+                    numberFormat.format(trendData.averageTripDistance.toLong())
+                ),
                 indicatorColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                label = "Longest Trip",
-                value = "${numberFormat.format(trendData.longestTrip.toLong())} km",
+                label = stringResource(R.string.distance_graph_longest_trip_label),
+                value = stringResource(
+                    R.string.distance_graph_km_format,
+                    numberFormat.format(trendData.longestTrip.toLong())
+                ),
                 indicatorColor = Color(0xFF34C759),
                 modifier = Modifier.weight(1f)
             )
@@ -278,8 +292,11 @@ private fun DistanceGraphContent(
 
         // Stats Row 2: Shortest Trip (full width)
         StatCard(
-            label = "Shortest Trip",
-            value = "${numberFormat.format(trendData.shortestTrip.toLong())} km",
+            label = stringResource(R.string.distance_graph_shortest_trip_label),
+            value = stringResource(
+                R.string.distance_graph_km_format,
+                numberFormat.format(trendData.shortestTrip.toLong())
+            ),
             indicatorColor = Color(0xFFFF9500),
             modifier = Modifier.fillMaxWidth()
         )
@@ -306,7 +323,7 @@ private fun DistanceGraphContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Monthly Distance",
+                            text = stringResource(R.string.distance_graph_monthly_distance_title),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -322,7 +339,7 @@ private fun DistanceGraphContent(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "by month",
+                                text = stringResource(R.string.distance_graph_by_month),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -347,7 +364,7 @@ private fun DistanceGraphContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Recent Trips",
+                    text = stringResource(R.string.distance_graph_recent_trips_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -359,7 +376,7 @@ private fun DistanceGraphContent(
                     )
                 ) {
                     Text(
-                        text = "${trendData.totalTrips} total",
+                        text = stringResource(R.string.distance_graph_total_trips_format, trendData.totalTrips),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -371,7 +388,7 @@ private fun DistanceGraphContent(
 
             // Trip list
             trendData.recentTrips.take(10).forEach { trip ->
-                TripItem(trip = trip)
+                TripItem(trip = trip, dateFormat = tripDateFormat)
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -546,9 +563,9 @@ private fun MonthlyDistanceBarChart(
 
 @Composable
 private fun TripItem(
-    trip: TripInfo
+    trip: TripInfo,
+    dateFormat: SimpleDateFormat
 ) {
-    val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
     val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
 
     Card(
@@ -598,13 +615,16 @@ private fun TripItem(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "${numberFormat.format(trip.distance.toLong())} km",
+                    text = stringResource(
+                        R.string.distance_graph_km_format,
+                        numberFormat.format(trip.distance.toLong())
+                    ),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = String.format("%.1f L", trip.liters),
+                    text = stringResource(R.string.distance_graph_liters_format, trip.liters),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -624,13 +644,13 @@ private fun PeriodSelectorSheet(
             .padding(bottom = 32.dp)
     ) {
         Text(
-            text = "Select Period",
+            text = stringResource(R.string.distance_graph_select_period_title),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         )
 
-        TrendPeriod.values().filter { it != TrendPeriod.CUSTOM }.forEach { period ->
+        TrendPeriod.entries.filter { it != TrendPeriod.CUSTOM }.forEach { period ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -670,14 +690,14 @@ private fun NoDataState(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "No trips recorded yet",
+                text = stringResource(R.string.distance_graph_no_trips_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Add refills to start tracking your distance",
+                text = stringResource(R.string.distance_graph_no_trips_desc),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -700,7 +720,7 @@ private fun ErrorState(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Error",
+                text = stringResource(R.string.error_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.error
@@ -714,9 +734,8 @@ private fun ErrorState(
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextButton(onClick = onRetry) {
-                Text("Retry")
+                Text(stringResource(R.string.retry))
             }
         }
     }
 }
-

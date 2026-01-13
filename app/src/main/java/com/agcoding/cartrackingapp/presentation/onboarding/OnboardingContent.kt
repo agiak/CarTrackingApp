@@ -1,54 +1,56 @@
 package com.agcoding.cartrackingapp.presentation.onboarding
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.agcoding.cartrackingapp.R
 
 /**
- * Data class representing a single onboarding slide
+ * Data class representing a single onboarding slide.
+ * Keep resources as IDs so we can localize and resolve them in Composables.
  */
 data class OnboardingSlide(
-    val title: String,
-    val description: String,
+    @StringRes val titleRes: Int,
+    @StringRes val descriptionRes: Int,
     val iconResId: Int? = null, // For drawable resources
     val iconVector: ImageVector? = null, // For vector icons
     val iconColor: Color = Color.Unspecified
 )
 
 /**
- * Onboarding slides content - easily extensible
+ * Onboarding slides content - easily extensible.
  */
 object OnboardingContent {
     val slides = listOf(
         OnboardingSlide(
-            title = "Welcome to Fuel Tracker",
-            description = "Track your car expenses, fuel consumption, and maintenance all in one place. Get insights into your driving habits and save money.",
+            titleRes = R.string.onboarding_welcome_title,
+            descriptionRes = R.string.onboarding_welcome_desc,
             iconResId = null,
-            iconColor = Color(0xFF4CAF50) // Green
+            iconColor = Color(0xFF4CAF50)
         ),
         OnboardingSlide(
-            title = "Track Refills",
-            description = "Log every fuel refill with details like cost, liters, and distance traveled. Calculate your real-time fuel consumption automatically.",
+            titleRes = R.string.onboarding_refills_title,
+            descriptionRes = R.string.onboarding_refills_desc,
             iconResId = null,
-            iconColor = Color(0xFF2196F3) // Blue
+            iconColor = Color(0xFF2196F3)
         ),
         OnboardingSlide(
-            title = "Service & Maintenance",
-            description = "Keep track of all service visits and maintenance costs. Add notes to remember what was done and when.",
+            titleRes = R.string.onboarding_service_title,
+            descriptionRes = R.string.onboarding_service_desc,
             iconResId = null,
-            iconColor = Color(0xFF4CAF50) // Green
+            iconColor = Color(0xFF4CAF50)
         ),
         OnboardingSlide(
-            title = "Other Expenses",
-            description = "Record parking fees, tolls, car washes, insurance, and any other car-related expenses to see your total spending.",
+            titleRes = R.string.onboarding_expenses_title,
+            descriptionRes = R.string.onboarding_expenses_desc,
             iconResId = null,
-            iconColor = Color(0xFFFF9800) // Orange
+            iconColor = Color(0xFFFF9800)
         ),
         OnboardingSlide(
-            title = "Detailed Statistics",
-            description = "View comprehensive charts and graphs showing your consumption trends, costs over time, and distance traveled.",
+            titleRes = R.string.onboarding_stats_title,
+            descriptionRes = R.string.onboarding_stats_desc,
             iconResId = null,
-            iconColor = Color(0xFF9C27B0) // Purple
+            iconColor = Color(0xFF9C27B0)
         )
     )
 }
-

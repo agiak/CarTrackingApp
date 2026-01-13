@@ -1,10 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.settings
 
 import android.Manifest
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -30,7 +27,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
@@ -51,7 +47,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -74,11 +69,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
 import kotlinx.coroutines.launch
@@ -94,6 +91,7 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
 
     // Refresh storage size every time the screen is opened/resumed
     LaunchedEffect(Unit) {
@@ -124,7 +122,8 @@ fun SettingsScreen(
         }
         scope.launch {
             snackbarHostState.showSnackbar(
-                if (isGranted) "Notifications enabled!" else "Permission denied"
+                if (isGranted) context.getString(R.string.notifications_enabled)
+                else context.getString(R.string.permission_denied)
             )
         }
     }
@@ -145,14 +144,18 @@ fun SettingsScreen(
     // Handle export/import success/error messages
     LaunchedEffect(uiState.exportSuccess) {
         uiState.exportSuccess?.let {
-            snackbarHostState.showSnackbar("Data exported to: $it")
+            snackbarHostState.showSnackbar(
+                context.getString(R.string.data_exported_to, it)
+            )
             viewModel.resetExportImportState()
         }
     }
 
     LaunchedEffect(uiState.exportError) {
         uiState.exportError?.let {
-            snackbarHostState.showSnackbar("Export failed: $it")
+            snackbarHostState.showSnackbar(
+                context.getString(R.string.export_failed, it)
+            )
             viewModel.resetExportImportState()
         }
     }
@@ -166,7 +169,9 @@ fun SettingsScreen(
 
     LaunchedEffect(uiState.importError) {
         uiState.importError?.let {
-            snackbarHostState.showSnackbar("Import failed: $it")
+            snackbarHostState.showSnackbar(
+                context.getString(R.string.import_failed, it)
+            )
             viewModel.resetExportImportState()
         }
     }
@@ -174,7 +179,7 @@ fun SettingsScreen(
     // Show success snackbar when data generation completes
     LaunchedEffect(uiState.dataGenerationSuccess) {
         if (uiState.dataGenerationSuccess) {
-            snackbarHostState.showSnackbar("Sample data generated successfully!")
+            snackbarHostState.showSnackbar(context.getString(R.string.sample_data_generated))
             viewModel.resetDataGenerationSuccess()
         }
     }
@@ -183,9 +188,9 @@ fun SettingsScreen(
     if (showImportConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showImportConfirmDialog = false },
-            title = { Text("Import Data") },
+            title = { Text(stringResource(R.string.import_data_title)) },
             text = {
-                Text("Importing data will replace all existing data. This action cannot be undone. Are you sure you want to continue?")
+                Text(stringResource(R.string.import_data_confirm))
             },
             confirmButton = {
                 TextButton(
@@ -194,12 +199,12 @@ fun SettingsScreen(
                         filePickerLauncher.launch(arrayOf("application/json"))
                     }
                 ) {
-                    Text("Import")
+                    Text(stringResource(R.string.import_action))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showImportConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -209,9 +214,9 @@ fun SettingsScreen(
     if (showClearConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showClearConfirmDialog = false },
-            title = { Text("Clear All Data") },
+            title = { Text(stringResource(R.string.clear_all_data_title)) },
             text = {
-                Text("This will permanently delete all your cars, refills, and expenses. This action cannot be undone. Are you sure?")
+                Text(stringResource(R.string.clear_all_data_confirm))
             },
             confirmButton = {
                 TextButton(
@@ -220,23 +225,24 @@ fun SettingsScreen(
                         viewModel.clearAllData()
                     }
                 ) {
-                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.clear), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = stringResource(R.string.settings),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -256,7 +262,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // APPEARANCE Section
-            SectionHeader(title = "APPEARANCE")
+            SectionHeader(title = stringResource(R.string.settings_section_appearance))
 
             AppearanceCard(
                 currentTheme = uiState.appSettings.theme,
@@ -266,7 +272,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // LANGUAGE Section
-            SectionHeader(title = "LANGUAGE")
+            SectionHeader(title = stringResource(R.string.settings_section_language))
 
             LanguageCard(
                 selectedLanguage = uiState.appSettings.language,
@@ -276,7 +282,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // PREFERENCES Section
-            SectionHeader(title = "PREFERENCES")
+            SectionHeader(title = stringResource(R.string.settings_section_preferences))
 
             PreferencesCard(
                 notificationsEnabled = uiState.appSettings.notificationsEnabled && notificationPermissionGranted,
@@ -293,7 +299,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // DATA & STORAGE Section
-            SectionHeader(title = "DATA & STORAGE")
+            SectionHeader(title = stringResource(R.string.settings_section_data_storage))
 
             StorageCard(
                 storageInfo = uiState.storageInfo,
@@ -307,7 +313,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // HELP & ABOUT Section
-            SectionHeader(title = "HELP & ABOUT")
+            SectionHeader(title = stringResource(R.string.settings_section_help_about))
 
             HelpAboutCard(
                 appVersion = uiState.appVersion,
@@ -317,7 +323,7 @@ fun SettingsScreen(
             // Debug Section (only visible in debug builds)
             if (uiState.isDebugMode) {
                 Spacer(modifier = Modifier.height(8.dp))
-                SectionHeader(title = "DEVELOPER OPTIONS")
+                SectionHeader(title = stringResource(R.string.settings_section_developer_options))
 
                 DebugCard(
                     isGenerating = uiState.isGeneratingData,
@@ -326,7 +332,9 @@ fun SettingsScreen(
                             onSuccess = { },
                             onError = { error ->
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Error: $error")
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.settings_error_format, error)
+                                    )
                                 }
                             }
                         )
@@ -401,16 +409,16 @@ private fun AppearanceCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Dark Mode",
+                        text = stringResource(R.string.appearance_dark_mode),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = when (currentTheme) {
-                            AppTheme.SYSTEM -> "Following system"
-                            AppTheme.LIGHT -> "Light theme active"
-                            AppTheme.DARK -> "Dark theme active"
+                            AppTheme.SYSTEM -> stringResource(R.string.settings_following_system)
+                            AppTheme.LIGHT -> stringResource(R.string.appearance_light_theme_active)
+                            AppTheme.DARK -> stringResource(R.string.settings_dark_theme_active)
                         },
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -470,13 +478,13 @@ private fun LanguageCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "App Language",
+                        text = stringResource(R.string.settings_app_language),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Choose your preferred language",
+                        text = stringResource(R.string.language_choose),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -522,7 +530,10 @@ private fun LanguageOption(
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = language.displayName,
+            text = when (language) {
+                AppLanguage.ENGLISH -> stringResource(R.string.language_english)
+                AppLanguage.GREEK -> stringResource(R.string.language_greek)
+            },
             fontSize = 15.sp,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
             color = MaterialTheme.colorScheme.onSurface,
@@ -551,8 +562,8 @@ private fun PreferencesCard(
                 icon = Icons.Default.Notifications,
                 iconBackgroundColor = Color(0xFF4CAF50).copy(alpha = 0.1f),
                 iconTint = Color(0xFF4CAF50),
-                title = "Notifications",
-                subtitle = if (notificationsEnabled) "Enabled" else "Disabled",
+                title = stringResource(R.string.preferences_notifications),
+                subtitle = if (notificationsEnabled) stringResource(R.string.settings_notifications_enabled) else stringResource(R.string.settings_notifications_disabled),
                 trailing = {
                     Switch(
                         checked = notificationsEnabled,
@@ -611,13 +622,13 @@ private fun StorageCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "App Storage",
+                        text = stringResource(R.string.data_storage_app_storage),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "${storageInfo.formattedTotalSize} used",
+                        text = stringResource(R.string.settings_storage_used_format, storageInfo.formattedTotalSize),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -632,7 +643,7 @@ private fun StorageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "App Data",
+                    text = stringResource(R.string.data_storage_app_data),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -652,7 +663,7 @@ private fun StorageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Cache",
+                    text = stringResource(R.string.data_storage_cache),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -668,7 +679,7 @@ private fun StorageCard(
 
             // Export/Import explanation
             Text(
-                text = "Backup & Transfer",
+                text = stringResource(R.string.settings_backup_transfer_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -677,7 +688,7 @@ private fun StorageCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Export saves your data as a file in Downloads. Use it to backup your data or transfer to another device. Import restores data from a previously exported file.",
+                text = stringResource(R.string.settings_backup_transfer_desc),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 16.sp
@@ -692,7 +703,7 @@ private fun StorageCard(
             ) {
                 StorageActionButton(
                     icon = Icons.Default.Upload,
-                    text = if (isExporting) "Exporting..." else "Export",
+                    text = if (isExporting) stringResource(R.string.settings_exporting) else stringResource(R.string.export),
                     onClick = onExport,
                     enabled = !isExporting && !isImporting,
                     isLoading = isExporting,
@@ -700,7 +711,7 @@ private fun StorageCard(
                 )
                 StorageActionButton(
                     icon = Icons.Default.Download,
-                    text = if (isImporting) "Importing..." else "Import",
+                    text = if (isImporting) stringResource(R.string.settings_importing) else stringResource(R.string.import_action),
                     onClick = onImport,
                     enabled = !isExporting && !isImporting,
                     isLoading = isImporting,
@@ -708,7 +719,7 @@ private fun StorageCard(
                 )
                 StorageActionButton(
                     icon = Icons.Default.Delete,
-                    text = "Clear",
+                    text = stringResource(R.string.clear),
                     onClick = onClear,
                     enabled = !isExporting && !isImporting,
                     modifier = Modifier.weight(1f)
@@ -718,7 +729,7 @@ private fun StorageCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "⚠️ Import replaces all existing data",
+                text = stringResource(R.string.settings_import_replaces_data_warning),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
             )
@@ -786,8 +797,8 @@ private fun HelpAboutCard(
                 icon = Icons.AutoMirrored.Filled.Help,
                 iconBackgroundColor = Color(0xFF4CAF50).copy(alpha = 0.1f),
                 iconTint = Color(0xFF4CAF50),
-                title = "View App Guide",
-                subtitle = "Learn how to use the app",
+                title = stringResource(R.string.settings_view_app_guide),
+                subtitle = stringResource(R.string.settings_learn_how_to_use_the_app),
                 onClick = onViewGuide,
                 trailing = {
                     Icon(
@@ -812,13 +823,13 @@ private fun HelpAboutCard(
                 icon = Icons.Default.Info,
                 iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 iconTint = MaterialTheme.colorScheme.primary,
-                title = "About",
+                title = stringResource(R.string.settings_about),
                 subtitle = null,
                 trailing = {
                     Column(horizontalAlignment = Alignment.End) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Version",
+                                text = stringResource(R.string.version),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -831,7 +842,7 @@ private fun HelpAboutCard(
                             )
                         }
                         Text(
-                            text = "Offline-first",
+                            text = stringResource(R.string.offline_first),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -933,13 +944,13 @@ private fun DebugCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Debug Mode",
+                        text = stringResource(R.string.settings_debug_mode),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Development tools for testing",
+                        text = stringResource(R.string.settings_debug_tools_desc),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -964,16 +975,16 @@ private fun DebugCard(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Generating...")
+                    Text(stringResource(R.string.settings_generating))
                 } else {
-                    Text("Generate Sample Data")
+                    Text(stringResource(R.string.settings_generate_sample_data))
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Creates 2 cars with refills and expenses covering 1.5 years of data.",
+                text = stringResource(R.string.settings_sample_data_details),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 14.sp

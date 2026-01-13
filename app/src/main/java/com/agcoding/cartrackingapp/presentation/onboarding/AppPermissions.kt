@@ -1,40 +1,42 @@
 package com.agcoding.cartrackingapp.presentation.onboarding
 
 import android.Manifest
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.agcoding.cartrackingapp.R
 
 /**
- * Data class representing a permission that the app needs
- * This is data-driven and extensible for future permissions
+ * Data class representing a permission that the app needs.
+ * Data-driven and extensible for future permissions.
  */
 data class PermissionItem(
     val permission: String,
-    val title: String,
-    val description: String,
+    @StringRes val titleRes: Int,
+    @StringRes val descriptionRes: Int,
     val icon: ImageVector,
     val isRequired: Boolean = false // true = app won't work properly without it
 )
 
 /**
- * List of permissions the app needs - easily extensible
- * Add new permissions here when needed
+ * List of permissions the app needs - easily extensible.
+ * Add new permissions here when needed.
  */
 object AppPermissions {
     val permissions = listOf(
         PermissionItem(
             permission = Manifest.permission.ACCESS_FINE_LOCATION,
-            title = "Location",
-            description = "Used to automatically save where a fuel refill happened. This helps you remember which gas stations you visited.",
+            titleRes = R.string.permission_location_title,
+            descriptionRes = R.string.permission_location_desc,
             icon = Icons.Default.LocationOn,
             isRequired = false
         ),
         PermissionItem(
             permission = Manifest.permission.POST_NOTIFICATIONS,
-            title = "Notifications",
-            description = "Get reminders about upcoming service dates, insurance renewals, and other important car-related events.",
+            titleRes = R.string.permission_notifications_title,
+            descriptionRes = R.string.permission_notifications_desc,
             icon = Icons.Default.Notifications,
             isRequired = false
         )
@@ -44,4 +46,3 @@ object AppPermissions {
     val permissionStrings: List<String>
         get() = permissions.map { it.permission }
 }
-

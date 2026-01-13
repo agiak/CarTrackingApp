@@ -25,6 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.agcoding.cartrackingapp.R
+import java.util.Locale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,11 +83,11 @@ fun CarCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Refill",
+                        contentDescription = stringResource(R.string.car_card_add_refill_cd),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Refill", fontSize = 13.sp)
+                    Text(stringResource(R.string.car_card_refill), fontSize = 13.sp)
                 }
             }
 
@@ -98,15 +101,21 @@ fun CarCard(
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
                         icon = Icons.Default.Speed,
-                        label = "Odometer",
-                        value = "${String.format("%.0f", car.currentOdometer)} km"
+                        label = stringResource(R.string.car_card_odometer),
+                        value = stringResource(
+                            R.string.car_card_km_format,
+                            String.format(Locale.getDefault(), "%.0f", car.currentOdometer)
+                        )
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
                         icon = Icons.Default.AttachMoney,
-                        label = "Total Cost",
-                        value = "€${String.format("%.2f", car.totalCost)}"
+                        label = stringResource(R.string.car_card_total_cost),
+                        value = stringResource(
+                            R.string.car_card_currency_eur_format,
+                            String.format(Locale.getDefault(), "%.2f", car.totalCost)
+                        )
                     )
                 }
             }
@@ -120,18 +129,24 @@ fun CarCard(
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
                         icon = Icons.Default.Speed,
-                        label = "Distance",
-                        value = "${String.format("%.0f", car.totalDistance)} km"
+                        label = stringResource(R.string.car_card_distance),
+                        value = stringResource(
+                            R.string.car_card_km_format,
+                            String.format(Locale.getDefault(), "%.0f", car.totalDistance)
+                        )
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
                         icon = Icons.Default.Speed,
-                        label = "Avg. Consumption",
+                        label = stringResource(R.string.car_card_avg_consumption),
                         value = if (car.averageConsumption > 0) {
-                            "${String.format("%.1f", car.averageConsumption)} L/100km"
+                            stringResource(
+                                R.string.car_card_consumption_format,
+                                String.format(Locale.getDefault(), "%.1f", car.averageConsumption)
+                            )
                         } else {
-                            "N/A"
+                            stringResource(R.string.not_available)
                         }
                     )
                 }
@@ -174,4 +189,3 @@ fun MetricItem(
         }
     }
 }
-

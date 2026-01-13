@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -44,24 +43,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 
-enum class MonthlyTrendsFilter(val label: String, val months: Int?) {
-    LAST_3_MONTHS("Last 3 months", 3),
-    LAST_6_MONTHS("Last 6 months", 6),
-    LAST_YEAR("Last year", 12),
-    ALL_TIME("All time", null)
+enum class MonthlyTrendsFilter(val labelRes: Int, val months: Int?) {
+    LAST_3_MONTHS(R.string.filter_last_3_months, 3),
+    LAST_6_MONTHS(R.string.filter_last_6_months, 6),
+    LAST_YEAR(R.string.filter_last_year, 12),
+    ALL_TIME(R.string.filter_all_time, null)
 }
 
-enum class MonthlyTrendsSortBy(val label: String) {
-    TIME("Time"),
-    COST("Cost"),
-    DISTANCE("Distance"),
-    TRANSACTIONS("Transactions")
+enum class MonthlyTrendsSortBy(val labelRes: Int) {
+    TIME(R.string.sort_time),
+    COST(R.string.sort_cost),
+    DISTANCE(R.string.sort_distance),
+    TRANSACTIONS(R.string.sort_transactions)
 }
 
 enum class SortOrder {
@@ -85,12 +86,12 @@ fun MonthlyTrendsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Monthly Trends") },
+                title = { Text(stringResource(R.string.monthly_trends_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.app_name)
                         )
                     }
                 }
@@ -122,7 +123,7 @@ fun MonthlyTrendsScreen(
                             FilterChip(
                                 selected = selectedFilter == filter,
                                 onClick = { selectedFilter = filter },
-                                label = { Text(filter.label) },
+                                label = { Text(stringResource(filter.labelRes)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary
@@ -140,7 +141,7 @@ fun MonthlyTrendsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Sort by",
+                            text = stringResource(R.string.sort_by_label),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -155,7 +156,7 @@ fun MonthlyTrendsScreen(
                                     onClick = { showSortMenu = true },
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text(selectedSortBy.label)
+                                    Text(stringResource(selectedSortBy.labelRes))
                                 }
 
                                 DropdownMenu(
@@ -166,7 +167,7 @@ fun MonthlyTrendsScreen(
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    text = sortBy.label,
+                                                    text = stringResource(sortBy.labelRes),
                                                     fontWeight = if (selectedSortBy == sortBy)
                                                         FontWeight.SemiBold else FontWeight.Normal,
                                                     color = if (selectedSortBy == sortBy)
@@ -194,7 +195,7 @@ fun MonthlyTrendsScreen(
                                     imageVector = if (sortOrder == SortOrder.DESCENDING)
                                         Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
                                     contentDescription = if (sortOrder == SortOrder.DESCENDING)
-                                        "Descending" else "Ascending",
+                                        stringResource(R.string.sort_order_descending) else stringResource(R.string.sort_order_ascending),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -211,12 +212,12 @@ fun MonthlyTrendsScreen(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "No data available",
+                                text = stringResource(R.string.no_data_available),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "Add some refills or expenses to see monthly trends",
+                                text = stringResource(R.string.add_refills_or_expenses),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -299,7 +300,7 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                 .padding(16.dp)
         ) {
             Text(
-                text = "${filter.label} Summary",
+                text = stringResource(R.string.summary_label_format, stringResource(filter.labelRes)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -313,7 +314,7 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Total Spending",
+                    text = stringResource(R.string.total_spending),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -332,8 +333,8 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SummaryItem(label = "Fuel Cost", value = "€${String.format("%.2f", totalRefillCost)}")
-                SummaryItem(label = "Expenses", value = "€${String.format("%.2f", totalExpenseCost)}")
+                SummaryItem(label = stringResource(R.string.fuel_cost), value = "€${String.format("%.2f", totalRefillCost)}")
+                SummaryItem(label = stringResource(R.string.expenses_cost), value = "€${String.format("%.2f", totalExpenseCost)}")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -342,8 +343,8 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SummaryItem(label = "Total Fuel", value = "${String.format("%.1f", totalLiters)} L")
-                SummaryItem(label = "Distance", value = "${String.format("%.0f", totalDistance)} km")
+                SummaryItem(label = stringResource(R.string.total_fuel), value = "${String.format("%.1f", totalLiters)} L")
+                SummaryItem(label = stringResource(R.string.distance_label), value = "${String.format("%.0f", totalDistance)} km")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -352,14 +353,14 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SummaryItem(label = "Avg Consumption", value = "${String.format("%.1f", avgConsumption)} L/100km")
-                SummaryItem(label = "Transactions", value = "${totalRefills + totalExpenses}")
+                SummaryItem(label = stringResource(R.string.avg_consumption), value = "${String.format("%.1f", avgConsumption)} L/100km")
+                SummaryItem(label = stringResource(R.string.transactions_label), value = "${totalRefills + totalExpenses}")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$totalRefills refills, $totalExpenses expenses in ${trends.size} months",
+                text = stringResource(R.string.refills_count_format, totalRefills) + ", " + stringResource(R.string.expenses_count_format, totalExpenses) + " in ${trends.size} " + stringResource(R.string.transactions_label).lowercase(),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -442,13 +443,13 @@ private fun MonthlyTrendItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Fuel: €${String.format("%.2f", trend.totalCost)}",
+                    text = "${stringResource(R.string.fuel)}: €${String.format("%.2f", trend.totalCost)}",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
                 if (trend.expenseCost > 0) {
                     Text(
-                        text = "Expenses: €${String.format("%.2f", trend.expenseCost)}",
+                        text = "${stringResource(R.string.expenses)}: €${String.format("%.2f", trend.expenseCost)}",
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -462,7 +463,7 @@ private fun MonthlyTrendItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${trend.refillCount} refills",
+                    text = stringResource(R.string.refills_count_format, trend.refillCount),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -488,7 +489,7 @@ private fun MonthlyTrendItem(
             if (trend.expenseCount > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${trend.expenseCount} expense${if (trend.expenseCount > 1) "s" else ""}",
+                    text = stringResource(R.string.expenses_count_format, trend.expenseCount),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -496,4 +497,3 @@ private fun MonthlyTrendItem(
         }
     }
 }
-

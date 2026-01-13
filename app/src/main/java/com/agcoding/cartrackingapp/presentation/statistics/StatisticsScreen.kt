@@ -39,10 +39,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 
@@ -61,7 +64,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistics") },
+                title = { Text(stringResource(R.string.statistics)) },
                 navigationIcon = {
                     if (onNavigateBack != null) {
                         IconButton(onClick = onNavigateBack) {
@@ -98,7 +101,7 @@ fun StatisticsScreen(
                     // Summary section
                     item {
                         Text(
-                            text = "Overall Summary",
+                            text = stringResource(R.string.overall_summary),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
@@ -116,7 +119,7 @@ fun StatisticsScreen(
                     if (state.statistics.perCarStatistics.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Per-Car Breakdown",
+                                text = stringResource(R.string.per_car_breakdown),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -136,7 +139,7 @@ fun StatisticsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Monthly Trends",
+                                    text = stringResource(R.string.monthly_trends),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -145,7 +148,7 @@ fun StatisticsScreen(
                                         onClick = onMonthlyTrendsClick
                                     ) {
                                         Text(
-                                            text = "See All",
+                                            text = stringResource(R.string.see_all),
                                             color = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -170,7 +173,7 @@ fun StatisticsScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Text("View All ${state.statistics.monthlyTrends.size} Months")
+                                    Text(stringResource(R.string.view_all_months_format, state.statistics.monthlyTrends.size))
                                 }
                             }
                         }
@@ -179,7 +182,7 @@ fun StatisticsScreen(
                     // Insights section
                     item {
                         Text(
-                            text = "Insights",
+                            text = stringResource(R.string.insights),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
@@ -222,14 +225,14 @@ private fun SummarySection(
         ) {
             SummaryCard(
                 icon = Icons.Default.AttachMoney,
-                title = "Total Cost",
+                title = stringResource(R.string.total_cost),
                 value = "€${String.format("%.2f", statistics.totalCost)}",
-                subtitle = "Fuel + Expenses",
+                subtitle = stringResource(R.string.fuel_plus_expenses),
                 modifier = Modifier.weight(1f)
             )
             SummaryCard(
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
-                title = "Avg. Consumption",
+                title = stringResource(R.string.avg_consumption),
                 value = "${String.format("%.1f", statistics.averageConsumption)} L/100km",
                 modifier = Modifier.weight(1f),
                 onClick = onConsumptionGraphClick
@@ -243,14 +246,14 @@ private fun SummarySection(
         ) {
             SummaryCard(
                 icon = Icons.Default.Route,
-                title = "Total Distance",
+                title = stringResource(R.string.total_distance),
                 value = "${String.format("%.0f", statistics.totalDistance)} km",
                 modifier = Modifier.weight(1f),
                 onClick = onDistanceGraphClick
             )
             SummaryCard(
                 icon = Icons.Default.LocalGasStation,
-                title = "Total Refills",
+                title = stringResource(R.string.total_refills),
                 value = "${statistics.totalRefills}",
                 modifier = Modifier.weight(1f)
             )
@@ -260,7 +263,7 @@ private fun SummarySection(
         if (statistics.totalExpensesCost > 0) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Cost Breakdown",
+                text = stringResource(R.string.cost_breakdown),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -272,7 +275,7 @@ private fun SummarySection(
         if (statistics.totalExpenseCount > 0) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Expenses Overview",
+                text = stringResource(R.string.expenses_overview),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -282,13 +285,13 @@ private fun SummarySection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ExpenseCard(
-                    title = "Service",
+                    title = stringResource(R.string.service),
                     cost = statistics.totalServiceExpenses,
                     count = statistics.serviceExpenseCount,
                     modifier = Modifier.weight(1f)
                 )
                 ExpenseCard(
-                    title = "Other",
+                    title = stringResource(R.string.other),
                     cost = statistics.totalOtherExpenses,
                     count = statistics.otherExpenseCount,
                     modifier = Modifier.weight(1f)
@@ -300,9 +303,9 @@ private fun SummarySection(
         if (statistics.totalDistance > 0) {
             SummaryCard(
                 icon = Icons.Default.AttachMoney,
-                title = "Cost per Kilometer",
+                title = stringResource(R.string.cost_per_kilometer),
                 value = "€${String.format("%.3f", statistics.costPerKilometer)}/km",
-                subtitle = "Total cost ÷ Distance",
+                subtitle = stringResource(R.string.total_cost_divide_distance),
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -390,19 +393,19 @@ private fun CostBreakdownCard(statistics: GlobalStatistics) {
             val expensePercentage = if (statistics.totalCost > 0) (statistics.totalExpensesCost / statistics.totalCost) * 100 else 0.0
 
             CostBreakdownItem(
-                label = "Fuel Cost",
+                label = stringResource(R.string.fuel_cost),
                 amount = fuelCost,
                 percentage = fuelPercentage,
                 color = MaterialTheme.colorScheme.primary
             )
             CostBreakdownItem(
-                label = "Service Expenses",
+                label = stringResource(R.string.service_expenses),
                 amount = statistics.totalServiceExpenses,
                 percentage = if (statistics.totalCost > 0) (statistics.totalServiceExpenses / statistics.totalCost) * 100 else 0.0,
                 color = MaterialTheme.colorScheme.tertiary
             )
             CostBreakdownItem(
-                label = "Other Expenses",
+                label = stringResource(R.string.other_expenses),
                 amount = statistics.totalOtherExpenses,
                 percentage = if (statistics.totalCost > 0) (statistics.totalOtherExpenses / statistics.totalCost) * 100 else 0.0,
                 color = MaterialTheme.colorScheme.secondary
@@ -483,7 +486,7 @@ private fun ExpenseCard(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "$count expenses",
+                text = pluralStringResource(R.plurals.expense_lowercase_count, count, count),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -538,12 +541,12 @@ private fun MonthlyTrendCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Fuel: €${String.format("%.2f", trend.totalCost)}",
+                        text = stringResource(R.string.fuel_label_format, String.format("%.2f", trend.totalCost)),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Expenses: €${String.format("%.2f", trend.expenseCost)}",
+                        text = stringResource(R.string.expenses_label_format, String.format("%.2f", trend.expenseCost)),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -557,7 +560,7 @@ private fun MonthlyTrendCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${trend.refillCount} refills",
+                    text = pluralStringResource(R.plurals.refills_count, trend.refillCount, trend.refillCount),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -583,7 +586,7 @@ private fun MonthlyTrendCard(
             if (trend.expenseCount > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${trend.expenseCount} expense${if (trend.expenseCount > 1) "s" else ""}",
+                    text = pluralStringResource(R.plurals.expense_lowercase_count, trend.expenseCount, trend.expenseCount),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -622,21 +625,21 @@ private fun InsightsSection(statistics: GlobalStatistics) {
             } else 0.0
 
             InsightRow(
-                label = "Average cost per refill:",
+                label = stringResource(R.string.average_cost_per_refill),
                 value = "€${String.format("%.2f", avgCostPerRefill)}"
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             InsightRow(
-                label = "Average liters per refill:",
+                label = stringResource(R.string.average_liters_per_refill),
                 value = "${String.format("%.1f", avgLitersPerRefill)} L"
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             InsightRow(
-                label = "Cost per km:",
+                label = stringResource(R.string.cost_per_km_label),
                 value = "€${String.format("%.3f", costPerKm)}"
             )
         }
@@ -706,29 +709,29 @@ private fun PerCarBreakdownCard(
             ) {
                 // Column 1
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = "Total Cost:", value = "€${String.format("%.2f", carStats.totalCost)}")
+                    StatItem(label = stringResource(R.string.total_cost_label), value = "€${String.format("%.2f", carStats.totalCost)}")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Refills:", value = "${carStats.totalRefills}")
+                    StatItem(label = stringResource(R.string.refills_label), value = "${carStats.totalRefills}")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Consumption:", value = "${String.format("%.1f", carStats.averageConsumption)} L/100km")
+                    StatItem(label = stringResource(R.string.consumption_label), value = "${String.format("%.1f", carStats.averageConsumption)} L/100km")
                 }
 
                 // Column 2
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = "Distance:", value = "${String.format("%.0f", carStats.totalDistance)} km")
+                    StatItem(label = stringResource(R.string.distance_label), value = "${String.format("%.0f", carStats.totalDistance)} km")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Service:", value = "€${String.format("%.2f", carStats.serviceExpensesCost)}")
+                    StatItem(label = stringResource(R.string.service_label), value = "€${String.format("%.2f", carStats.serviceExpensesCost)}")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Other:", value = "€${String.format("%.2f", carStats.otherExpensesCost)}")
+                    StatItem(label = stringResource(R.string.other_label), value = "€${String.format("%.2f", carStats.otherExpensesCost)}")
                 }
 
                 // Column 3
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = "Cost/km:", value = "€${String.format("%.3f", carStats.costPerKilometer)}")
+                    StatItem(label = stringResource(R.string.cost_per_km_short), value = "€${String.format("%.3f", carStats.costPerKilometer)}")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Services:", value = "${carStats.serviceExpenseCount}")
+                    StatItem(label = stringResource(R.string.services_short), value = "${carStats.serviceExpenseCount}")
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = "Others:", value = "${carStats.otherExpenseCount}")
+                    StatItem(label = stringResource(R.string.others_short), value = "${carStats.otherExpenseCount}")
                 }
             }
         }

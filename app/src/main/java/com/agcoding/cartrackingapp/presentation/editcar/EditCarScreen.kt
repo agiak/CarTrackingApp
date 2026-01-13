@@ -37,11 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsUiState
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsViewModel
 import java.text.SimpleDateFormat
@@ -62,12 +64,12 @@ fun EditCarScreen(
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("Edit Car") },
+                        title = { Text(stringResource(R.string.edit_car_title)) },
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back"
+                                    contentDescription = stringResource(R.string.back)
                                 )
                             }
                         }
@@ -134,12 +136,12 @@ fun EditCarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Car") },
+                title = { Text(stringResource(R.string.edit_car_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -169,7 +171,7 @@ fun EditCarScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "Save"
+                            contentDescription = stringResource(R.string.save_label)
                         )
                     }
                 }
@@ -186,7 +188,7 @@ fun EditCarScreen(
         ) {
             // Basic Info Section
             Text(
-                text = "Basic Information",
+                text = stringResource(R.string.edit_car_section_basic_information),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -196,8 +198,8 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Car Name") },
-                placeholder = { Text("e.g., Toyota Corolla") },
+                label = { Text(stringResource(R.string.edit_car_field_car_name)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_car_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -205,8 +207,8 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = licensePlate,
                 onValueChange = { licensePlate = it.uppercase() },
-                label = { Text("License Plate") },
-                placeholder = { Text("e.g., ABC-1234") },
+                label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_license_plate)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -214,8 +216,8 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = odometer,
                 onValueChange = { odometer = it },
-                label = { Text("Current Odometer (km)") },
-                placeholder = { Text("e.g., 45000") },
+                label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -223,7 +225,7 @@ fun EditCarScreen(
 
             // Insurance Section
             Text(
-                text = "Insurance Information",
+                text = stringResource(R.string.edit_car_section_insurance_information),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -232,15 +234,16 @@ fun EditCarScreen(
 
             DatePickerField(
                 value = insuranceExpirationDate,
-                label = "Insurance Expiration Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_insurance_expiration_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showInsuranceDatePicker = true }
             )
 
             // Legal & Compliance Section
             Text(
-                text = "Legal & Compliance",
+                text = stringResource(R.string.edit_car_section_legal_compliance),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -250,16 +253,18 @@ fun EditCarScreen(
 
             DatePickerField(
                 value = kteoExpirationDate,
-                label = "KTEO Expiration Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_kteo_expiration_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showKteoDatePicker = true }
             )
 
             DatePickerField(
                 value = emissionsCardExpirationDate,
-                label = "Emissions Card Expiration",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_emissions_card_expiration,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showEmissionsDatePicker = true }
             )
@@ -267,8 +272,8 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = roadTaxAmount,
                 onValueChange = { roadTaxAmount = it },
-                label = { Text("Road Tax Amount (€)") },
-                placeholder = { Text("e.g., 120.00") },
+                label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_road_tax_amount)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -276,15 +281,16 @@ fun EditCarScreen(
 
             DatePickerField(
                 value = roadTaxDueDate,
-                label = "Road Tax Due Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_road_tax_due_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showRoadTaxDueDatePicker = true }
             )
 
             // Maintenance Section
             Text(
-                text = "Maintenance History",
+                text = stringResource(R.string.edit_car_section_maintenance_history),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -293,23 +299,25 @@ fun EditCarScreen(
 
             DatePickerField(
                 value = lastServiceDate,
-                label = "Last Service Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_last_service_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showServiceDatePicker = true }
             )
 
             DatePickerField(
                 value = lastTireChangeDate,
-                label = "Last Tire Change Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_last_tire_change_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showTireChangeDatePicker = true }
             )
 
             // Tires Section
             Text(
-                text = "Tires Information",
+                text = stringResource(R.string.edit_car_section_tires_information),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -319,8 +327,8 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = tireBrand,
                 onValueChange = { tireBrand = it },
-                label = { Text("Tire Brand / Model") },
-                placeholder = { Text("e.g., Michelin Pilot Sport 4") },
+                label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_brand_model)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -328,16 +336,17 @@ fun EditCarScreen(
             OutlinedTextField(
                 value = tireDimensions,
                 onValueChange = { tireDimensions = it },
-                label = { Text("Tire Dimensions") },
-                placeholder = { Text("e.g., 205/55 R16") },
+                label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_dimensions)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             DatePickerField(
                 value = tireInstallationDate,
-                label = "Tire Installation Date",
-                placeholder = "Select date",
+                labelRes = R.string.edit_car_field_tire_installation_date,
+                placeholderRes = R.string.edit_car_placeholder_select_date,
+                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
                 dateFormatter = dateFormatter,
                 onClick = { showTireInstallationDatePicker = true }
             )
@@ -358,10 +367,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     insuranceExpirationDate = datePickerState.selectedDateMillis
                     showInsuranceDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showInsuranceDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showInsuranceDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -380,10 +389,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     kteoExpirationDate = datePickerState.selectedDateMillis
                     showKteoDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showKteoDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showKteoDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -401,10 +410,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     emissionsCardExpirationDate = datePickerState.selectedDateMillis
                     showEmissionsDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showEmissionsDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showEmissionsDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -422,10 +431,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     roadTaxDueDate = datePickerState.selectedDateMillis
                     showRoadTaxDueDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showRoadTaxDueDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showRoadTaxDueDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -443,10 +452,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     lastServiceDate = datePickerState.selectedDateMillis
                     showServiceDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showServiceDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showServiceDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -464,10 +473,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     lastTireChangeDate = datePickerState.selectedDateMillis
                     showTireChangeDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showTireChangeDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showTireChangeDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -485,10 +494,10 @@ fun EditCarScreen(
                 TextButton(onClick = {
                     tireInstallationDate = datePickerState.selectedDateMillis
                     showTireInstallationDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok_label)) }
             },
             dismissButton = {
-                TextButton(onClick = { showTireInstallationDatePicker = false }) { Text("Cancel") }
+                TextButton(onClick = { showTireInstallationDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -499,8 +508,9 @@ fun EditCarScreen(
 @Composable
 private fun DatePickerField(
     value: Long?,
-    label: String,
-    placeholder: String,
+    labelRes: Int,
+    placeholderRes: Int,
+    trailingIconContentDescriptionRes: Int,
     dateFormatter: SimpleDateFormat,
     onClick: () -> Unit
 ) {
@@ -512,14 +522,14 @@ private fun DatePickerField(
         OutlinedTextField(
             value = value?.let { dateFormatter.format(Date(it)) } ?: "",
             onValueChange = {},
-            label = { Text(label) },
-            placeholder = { Text(placeholder) },
+            label = { Text(stringResource(labelRes)) },
+            placeholder = { Text(stringResource(placeholderRes)) },
             readOnly = true,
             enabled = false,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.CalendarToday,
-                    contentDescription = "Select date"
+                    contentDescription = stringResource(trailingIconContentDescriptionRes)
                 )
             },
             modifier = Modifier.fillMaxWidth(),
@@ -533,4 +543,3 @@ private fun DatePickerField(
         )
     }
 }
-

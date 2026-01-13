@@ -39,9 +39,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,12 +61,12 @@ fun EditRefillScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Refill") },
+                title = { Text(stringResource(R.string.edit_refill_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -95,8 +97,8 @@ fun EditRefillScreen(
                 OutlinedTextField(
                     value = uiState.amountPaid,
                     onValueChange = viewModel::updateAmountPaid,
-                    label = { Text("Amount Paid (€)") },
-                    placeholder = { Text("e.g., 65.50") },
+                    label = { Text(stringResource(R.string.amount_paid_eur)) },
+                    placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -108,8 +110,8 @@ fun EditRefillScreen(
                 OutlinedTextField(
                     value = uiState.litersAdded,
                     onValueChange = viewModel::updateLitersAdded,
-                    label = { Text("Liters Added") },
-                    placeholder = { Text("e.g., 45.5") },
+                    label = { Text(stringResource(R.string.liters_added)) },
+                    placeholder = { Text(stringResource(R.string.liters_added_hint)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -121,9 +123,9 @@ fun EditRefillScreen(
                 OutlinedTextField(
                     value = uiState.tripDistance,
                     onValueChange = viewModel::updateTripDistance,
-                    label = { Text("Trip Distance (km)") },
-                    placeholder = { Text("e.g., 550") },
-                    supportingText = { Text("Distance driven since last refill") },
+                    label = { Text(stringResource(R.string.trip_distance_km)) },
+                    placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
+                    supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -135,8 +137,8 @@ fun EditRefillScreen(
                 OutlinedTextField(
                     value = uiState.odometerReading,
                     onValueChange = viewModel::updateOdometerReading,
-                    label = { Text("Odometer Reading (km)") },
-                    placeholder = { Text("e.g., 15000") },
+                    label = { Text(stringResource(R.string.odometer_reading_km)) },
+                    placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -145,19 +147,19 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Date field
-                val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                val dateFormat = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault())
                 val dateText = dateFormat.format(Date(uiState.selectedDateMillis))
 
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { },
-                    label = { Text("Date") },
+                    label = { Text(stringResource(R.string.date)) },
                     readOnly = true,
                     trailingIcon = {
                         IconButton(onClick = { viewModel.showDatePicker() }) {
                             Icon(
                                 imageVector = Icons.Default.CalendarToday,
-                                contentDescription = "Select date"
+                                contentDescription = stringResource(R.string.select_date)
                             )
                         }
                     },
@@ -170,8 +172,8 @@ fun EditRefillScreen(
                 OutlinedTextField(
                     value = uiState.notes,
                     onValueChange = viewModel::updateNotes,
-                    label = { Text("Notes (optional)") },
-                    placeholder = { Text("Add any notes...") },
+                    label = { Text(stringResource(R.string.expense_notes_optional)) },
+                    placeholder = { Text(stringResource(R.string.expense_notes_hint)) },
                     minLines = 2,
                     maxLines = 4,
                     modifier = Modifier.fillMaxWidth()
@@ -198,18 +200,18 @@ fun EditRefillScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Location",
+                                contentDescription = stringResource(R.string.location),
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = if (uiState.location != null) "Location captured" else "No location",
+                                text = if (uiState.location != null) stringResource(R.string.location_captured) else stringResource(R.string.no_location),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                         TextButton(onClick = { viewModel.refreshLocation() }) {
-                            Text("Update")
+                            Text(stringResource(R.string.update))
                         }
                     }
                 }
@@ -239,19 +241,25 @@ fun EditRefillScreen(
                                 .padding(12.dp)
                         ) {
                             Text(
-                                text = "Calculated",
+                                text = stringResource(R.string.calculated),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Price per liter: €${String.format("%.3f", pricePerLiter)}",
+                                text = stringResource(
+                                    R.string.price_per_liter_format,
+                                    String.format("%.3f", pricePerLiter)
+                                ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
                             )
                             if (consumption != null) {
                                 Text(
-                                    text = "Fuel consumption: ${String.format("%.2f", consumption)} L/100km",
+                                    text = stringResource(
+                                        R.string.fuel_consumption_format,
+                                        String.format("%.2f", consumption)
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
@@ -292,7 +300,7 @@ fun EditRefillScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Text("Save Changes")
+                    Text(stringResource(R.string.save_changes))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -315,12 +323,12 @@ fun EditRefillScreen(
                             }
                         }
                     ) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok_label))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { viewModel.hideDatePicker() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             ) {

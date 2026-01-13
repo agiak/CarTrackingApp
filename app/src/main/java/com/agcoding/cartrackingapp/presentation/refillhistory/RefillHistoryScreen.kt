@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.refillhistory
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,22 +38,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-enum class RefillSortOption(val displayName: String) {
-    MOST_RECENT("Most Recent"),
-    OLDEST("Oldest"),
-    MOST_EXPENSIVE("Most Expensive"),
-    LEAST_EXPENSIVE("Least Expensive"),
-    BEST_CONSUMPTION("Best Consumption"),
-    WORST_CONSUMPTION("Worst Consumption")
+enum class RefillSortOption(@StringRes val labelRes: Int) {
+    MOST_RECENT(R.string.most_recent),
+    OLDEST(R.string.oldest),
+    MOST_EXPENSIVE(R.string.most_expensive),
+    LEAST_EXPENSIVE(R.string.least_expensive),
+    BEST_CONSUMPTION(R.string.best_consumption),
+    WORST_CONSUMPTION(R.string.worst_consumption)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,12 +72,12 @@ fun RefillHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Refill History") },
+                title = { Text(stringResource(R.string.refill_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -83,18 +86,18 @@ fun RefillHistoryScreen(
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
-                                contentDescription = "Sort"
+                                contentDescription = stringResource(R.string.sort)
                             )
                         }
                         DropdownMenu(
                             expanded = showSortMenu,
                             onDismissRequest = { showSortMenu = false }
                         ) {
-                            RefillSortOption.values().forEach { option ->
+                            RefillSortOption.entries.forEach { option ->
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = option.displayName,
+                                            text = stringResource(option.labelRes),
                                             fontWeight = if (selectedSort == option) FontWeight.Bold else FontWeight.Normal,
                                             color = if (selectedSort == option)
                                                 MaterialTheme.colorScheme.primary
@@ -140,13 +143,17 @@ fun RefillHistoryScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "${state.carName}",
+                                text = state.carName,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                text = "${state.refills.size} refills • Sorted by: ${selectedSort.displayName}",
+                                text = stringResource(
+                                    R.string.refills_sorted_by_format,
+                                    state.refills.size,
+                                    stringResource(selectedSort.labelRes)
+                                ),
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -186,12 +193,12 @@ fun RefillHistoryScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "No refills yet",
+                            text = stringResource(R.string.no_refills_yet),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "Add your first refill to start tracking",
+                            text = stringResource(R.string.add_first_refill),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -207,7 +214,8 @@ private fun RefillHistoryCard(
     refill: FuelRefill,
     onClick: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
+    val datePattern = stringResource(R.string.distance_graph_trip_date_format)
+    val dateFormat = remember(datePattern) { SimpleDateFormat(datePattern, Locale.getDefault()) }
 
     Card(
         modifier = Modifier
@@ -237,7 +245,7 @@ private fun RefillHistoryCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "€${String.format("%.2f", refill.amountPaid)}",
+                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", refill.amountPaid)),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -253,7 +261,13 @@ private fun RefillHistoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${String.format("%.1f", refill.litersAdded)} L • €${String.format("%.3f", pricePerLiter)}/L • ${String.format("%.0f", refill.tripDistance)} km • ${String.format("%.1f", refill.fuelConsumption)} L/100km",
+                    text = stringResource(
+                        R.string.refill_item_subtitle_format,
+                        String.format("%.1f", refill.litersAdded),
+                        String.format("%.3f", pricePerLiter),
+                        String.format("%.0f", refill.tripDistance),
+                        String.format("%.1f", refill.fuelConsumption)
+                    ),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -261,4 +275,3 @@ private fun RefillHistoryCard(
         }
     }
 }
-

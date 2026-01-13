@@ -50,10 +50,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.R
 import androidx.core.content.ContextCompat
 
 @Composable
@@ -374,14 +376,14 @@ private fun PermissionCard(
             // Permission details
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = permission.title,
+                    text = stringResource(permission.titleRes),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = permission.description,
+                    text = stringResource(permission.descriptionRes),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 20.sp
@@ -400,7 +402,7 @@ private fun PermissionCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Granted",
+                        contentDescription = stringResource(R.string.granted),
                         modifier = Modifier.size(16.dp),
                         tint = Color.White
                     )

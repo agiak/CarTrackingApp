@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CarTrackingApp</string>
+
+    <!-- Monthly Trends -->
+    <string name="monthly_trends_title">Μηνιαίες τάσεις</string>
+    <string name="sort_by_label">Ταξινόμηση κατά</string>
+    <string name="sort_time">Χρόνος</string>
+    <string name="sort_cost">Κόστος</string>
+    <string name="sort_distance">Απόσταση</string>
+    <string name="sort_transactions">Συναλλαγές</string>
+    <string name="sort_order_ascending">Αύξουσα</string>
+    <string name="sort_order_descending">Φθίνουσα</string>
+
+    <string name="filter_last_3_months">Τελευταίοι 3 μήνες</string>
+    <string name="filter_last_6_months">Τελευταίοι 6 μήνες</string>
+    <string name="filter_last_year">Τελευταίο έτος</string>
+    <string name="filter_all_time">Όλο το διάστημα</string>
+
+    <string name="no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα</string>
+    <string name="add_refills_or_expenses">Προσθέστε ανεφοδιασμούς ή έξοδα για να δείτε τις μηνιαίες τάσεις</string>
+
+    <!-- Summary card labels -->
+    <string name="summary_label_format">Σύνοψη %1$s</string>
+    <string name="total_spending">Συνολική δαπάνη</string>
+    <string name="fuel_cost">Κόστος καυσίμου</string>
+    <string name="expenses_cost">Έξοδα</string>
+    <string name="total_fuel">Σύνολο καυσίμου</string>
+    <string name="distance_label">Απόσταση</string>
+    <string name="avg_consumption">Μέση κατανάλωση</string>
+    <string name="transactions_label">Συναλλαγές</string>
+
+    <!-- Monthly Trend item labels -->
+    <string name="refills_count_format">%1$d ανεφοδιασμοί</string>
+    <string name="expenses_count_format">%1$d έξοδα</string>
+
+    <!-- Month Details Screen -->
+    <string name="month_details_title">%1$s</string>
+    <string name="monthly_summary">Μηνιαία σύνοψη</string>
+    <string name="insights_label">Στατιστικά</string>
+    <string name="refills_label">Ανεφοδιασμοί</string>
+    <string name="expenses_label">Έξοδα</string>
+    <string name="no_transactions_this_month">Δεν υπάρχουν συναλλαγές αυτόν τον μήνα</string>
+
+    <string name="liters_label">Λίτρα</string>
+    <string name="consumption_label">Κατανάλωση</string>
+    <string name="average_price_per_liter">Μέση τιμή ανά λίτρο</string>
+    <string name="cost_per_km">Κόστος ανά χιλιόμετρο</string>
+    <string name="fuel_percentage_of_spending">Καύσιμο ως % της δαπάνης</string>
+    <string name="vehicles_with_activity">Οχήματα με δραστηριότητα</string>
+    <string name="biggest_refill">Μεγαλύτερος ανεφοδιασμός</string>
+    <string name="biggest_expense">Μεγαλύτερο έξοδο</string>
+
+
+    <!-- Simple labels used in code -->
+    <string name="fuel">Καύσιμο</string>
+    <string name="expenses">Έξοδα</string>
+    <string name="distance">Απόσταση</string>
+    <string name="transactions">Συναλλαγές</string>
+    <string name="view_details">Προβολή λεπτομερειών</string>
+
+    <!-- Refill History -->
+    <string name="refill_history_title">Ιστορικό ανεφοδιασμών</string>
+    <string name="back">Πίσω</string>
+    <string name="sort">Ταξινόμηση</string>
+    <string name="most_recent">Πιο πρόσφατα</string>
+    <string name="oldest">Παλαιότερα</string>
+    <string name="most_expensive">Πιο ακριβά</string>
+    <string name="least_expensive">Πιο φθηνά</string>
+    <string name="best_consumption">Καλύτερη κατανάλωση</string>
+    <string name="worst_consumption">Χειρότερη κατανάλωση</string>
+    <string name="no_refills_yet">Δεν υπάρχουν ανεφοδιασμοί ακόμα</string>
+    <string name="add_first_refill">Προσθέστε τον πρώτο ανεφοδιασμό για να ξεκινήσετε την παρακολούθηση</string>
+    <string name="refills_sorted_by_format">%1$d ανεφοδιασμοί • Ταξινόμηση: %2$s</string>
+
+    <!-- Onboarding Slides -->
+    <string name="onboarding_welcome_title">Καλώς ήρθατε στο Fuel Tracker</string>
+    <string name="onboarding_welcome_desc">Παρακολουθήστε τα έξοδα αυτοκινήτου, την κατανάλωση καυσίμου και τη συντήρηση σε ένα μέρος. Δείτε πληροφορίες για τις συνήθειες οδήγησής σας και εξοικονομήστε χρήματα.</string>
+    <string name="onboarding_refills_title">Καταγραφή ανεφοδιασμών</string>
+    <string name="onboarding_refills_desc">Καταγράψτε κάθε ανεφοδιασμό με λεπτομέρειες όπως κόστος, λίτρα και απόσταση. Υπολογίστε αυτόματα την κατανάλωση καυσίμου.</string>
+    <string name="onboarding_service_title">Σέρβις &amp; Συντήρηση</string>
+    <string name="onboarding_service_desc">Κρατήστε αρχείο όλων των επισκέψεων συνεργείου και των εξόδων συντήρησης. Προσθέστε σημειώσεις για να θυμάστε τι έγινε και πότε.</string>
+    <string name="onboarding_expenses_title">Άλλα έξοδα</string>
+    <string name="onboarding_expenses_desc">Καταγράψτε διόδια, parking, πλυσίματα, ασφάλεια και οποιαδήποτε άλλα έξοδα για να δείτε τη συνολική σας δαπάνη.</string>
+    <string name="onboarding_stats_title">Αναλυτικά στατιστικά</string>
+    <string name="onboarding_stats_desc">Δείτε γραφήματα και στατιστικά για τάσεις κατανάλωσης, κόστη στο χρόνο και απόσταση που διανύθηκε.</string>
+
+    <!-- Onboarding Navigation -->
+    <string name="skip">Παράλειψη</string>
+    <string name="previous">Προηγούμενο</string>
+    <string name="next">Επόμενο</string>
+    <string name="get_started">Ξεκινήστε</string>
+
+    <!-- Permissions -->
+    <string name="permission_location_title">Τοποθεσία</string>
+    <string name="permission_location_desc">Χρησιμοποιείται για την αυτόματη αποθήκευση της τοποθεσίας ενός ανεφοδιασμού. Έτσι θυμάστε σε ποια πρατήρια πήγατε.</string>
+    <string name="permission_notifications_title">Ειδοποιήσεις</string>
+    <string name="permission_notifications_desc">Λάβετε υπενθυμίσεις για επερχόμενα σέρβις, ανανεώσεις ασφάλειας και άλλα σημαντικά γεγονότα.</string>
+    <string name="granted">Επιτράπηκε</string>
+
+    <!-- Settings Section Headers -->
+    <string name="settings_appearance">ΕΜΦΑΝΙΣΗ</string>
+    <string name="settings_language">ΓΛΩΣΣΑ</string>
+    <string name="settings_preferences">ΠΡΟΤΙΜΗΣΕΙΣ</string>
+    <string name="settings_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
+    <string name="settings_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
+    <string name="settings_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
+
+    <!-- Settings Dialogs & Buttons -->
+    <string name="import_data_title">Εισαγωγή δεδομένων</string>
+    <string name="import_data_confirm">Η εισαγωγή θα αντικαταστήσει όλα τα υπάρχοντα δεδομένα. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Θέλετε να συνεχίσετε;</string>
+    <string name="import_action">Εισαγωγή</string>
+    <string name="cancel">Ακύρωση</string>
+    <string name="clear_all_data_title">Εκκαθάριση όλων των δεδομένων</string>
+    <string name="clear_all_data_confirm">Αυτό θα διαγράψει μόνιμα όλα τα οχήματα, τους ανεφοδιασμούς και τα έξοδα. Η ενέργεια δεν μπορεί να αναιρεθεί. Είστε σίγουροι;</string>
+    <string name="clear">Εκκαθάριση</string>
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="notifications_enabled">Οι ειδοποιήσεις ενεργοποιήθηκαν!</string>
+    <string name="permission_denied">Η άδεια απορρίφθηκε</string>
+    <string name="data_exported_to">Τα δεδομένα εξήχθησαν στο: %1$s</string>
+    <string name="export_failed">Η εξαγωγή απέτυχε: %1$s</string>
+    <string name="import_failed">Η εισαγωγή απέτυχε: %1$s</string>
+    <string name="sample_data_generated">Τα δείγματα δεδομένων δημιουργήθηκαν επιτυχώς!</string>
+
+    <!-- Settings Cards & Items -->
+    <string name="appearance_dark_mode">Σκοτεινή λειτουργία</string>
+    <string name="appearance_light_theme_active">Ενεργό ανοιχτό θέμα</string>
+    <string name="language_choose">Επιλέξτε την προτιμώμενη γλώσσα</string>
+    <string name="preferences_notifications">Ειδοποιήσεις</string>
+    <string name="preferences_units">Μονάδες</string>
+    <string name="data_storage_app_storage">Αποθήκευση εφαρμογής</string>
+    <string name="data_storage_app_data">Δεδομένα εφαρμογής</string>
+    <string name="data_storage_cache">Cache</string>
+    <string name="export">Εξαγωγή</string>
+    <string name="view_app_guide">Οδηγός εφαρμογής</string>
+    <string name="learn_how_to_use">Μάθετε πώς να χρησιμοποιείτε την εφαρμογή</string>
+    <string name="about">Σχετικά</string>
+    <string name="version">Έκδοση</string>
+    <string name="storage_mode">Λειτουργία αποθήκευσης</string>
+    <string name="offline_first">Offline-first</string>
+
+    <!-- Car Details Screen -->
+    <string name="car_details_title">Λεπτομέρειες αυτοκινήτου</string>
+    <string name="more">Περισσότερα</string>
+    <string name="edit_car">Επεξεργασία αυτοκινήτου</string>
+    <string name="delete_car">Διαγραφή αυτοκινήτου</string>
+    <string name="delete_car_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το αυτοκίνητο; Όλες οι εγγραφές ανεφοδιασμών θα διαγραφούν επίσης.</string>
+    <string name="delete">Διαγραφή</string>
+    <string name="not_available">Μ/Δ</string>
+    <string name="odometer">Οδόμετρο</string>
+    <string name="cost_per_kilometer">Κόστος ανά χιλιόμετρο</string>
+    <string name="extra_information">Επιπλέον πληροφορίες</string>
+    <string name="add_extra_information">Προσθήκη επιπλέον πληροφοριών</string>
+    <string name="add_extra_information_desc">Προσθέστε ελαστικά, ασφάλεια, ΚΤΕΟ, ημερομηνίες σέρβις και άλλα</string>
+    <string name="add_info">Προσθήκη</string>
+    <string name="insurance_expiration">Λήξη ασφάλειας</string>
+    <string name="kteo_expiration">Λήξη ΚΤΕΟ</string>
+    <string name="emissions_card_expiration">Λήξη κάρτας καυσαερίων</string>
+    <string name="road_tax_amount">Τέλη κυκλοφορίας</string>
+    <string name="road_tax_due_date">Ημερομηνία πληρωμής τελών</string>
+    <string name="last_service">Τελευταίο σέρβις</string>
+    <string name="last_tire_change">Τελευταία αλλαγή ελαστικών</string>
+    <string name="tire_brand_model">Μάρκα / Μοντέλο ελαστικών</string>
+    <string name="tire_dimensions">Διαστάσεις ελαστικών</string>
+    <string name="tire_installation_date">Ημερομηνία τοποθέτησης ελαστικών</string>
+    <string name="tyre_size_legacy">Μέγεθος ελαστικών (παλιό)</string>
+    <string name="recent_expenses">Πρόσφατα έξοδα</string>
+
+    <!-- Settings Screen (UI text) -->
+    <string name="settings_section_appearance">ΕΜΦΑΝΙΣΗ</string>
+    <string name="settings_section_language">ΓΛΩΣΣΑ</string>
+    <string name="settings_section_preferences">ΠΡΟΤΙΜΗΣΕΙΣ</string>
+    <string name="settings_section_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
+    <string name="settings_section_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
+    <string name="settings_section_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
+
+    <string name="settings_following_system">Ακολουθεί το σύστημα</string>
+    <string name="settings_dark_theme_active">Ενεργό σκοτεινό θέμα</string>
+
+    <string name="settings_notifications_enabled">Ενεργό</string>
+    <string name="settings_notifications_disabled">Ανενεργό</string>
+
+    <string name="settings_backup_transfer_title">Αντίγραφο &amp; μεταφορά</string>
+    <string name="settings_backup_transfer_desc">Η Εξαγωγή αποθηκεύει τα δεδομένα σας ως αρχείο στις Λήψεις. Χρησιμοποιήστε το για αντίγραφο ασφαλείας ή για μεταφορά σε άλλη συσκευή. Η Εισαγωγή επαναφέρει δεδομένα από αρχείο που εξήχθη προηγουμένως.</string>
+    <string name="settings_import_replaces_data_warning">⚠️ Η εισαγωγή αντικαθιστά όλα τα υπάρχοντα δεδομένα</string>
+
+    <string name="settings_exporting">Γίνεται εξαγωγή…</string>
+    <string name="settings_importing">Γίνεται εισαγωγή…</string>
+
+    <string name="settings_debug_mode">Λειτουργία εντοπισμού σφαλμάτων</string>
+    <string name="settings_debug_tools_desc">Εργαλεία ανάπτυξης για δοκιμές</string>
+    <string name="settings_generate_sample_data">Δημιουργία δειγματικών δεδομένων</string>
+    <string name="settings_generating">Δημιουργία…</string>
+    <string name="settings_sample_data_details">Δημιουργεί δείγμα οχημάτων με ανεφοδιασμούς και έξοδα σε μεγάλο χρονικό διάστημα.</string>
+
+    <string name="settings_error_format">Σφάλμα: %1$s</string>
+
+    <!-- Storage summary -->
+    <string name="settings_storage_used_format">%1$s χρησιμοποιούνται</string>
+
+    <!-- Additional strings -->
+    <string name="settings_app_language">Γλώσσα εφαρμογής</string>
+    <string name="settings_view_app_guide">Οδηγός εφαρμογής</string>
+    <string name="settings_learn_how_to_use_the_app">Μάθετε πώς να χρησιμοποιείτε την εφαρμογή</string>
+    <string name="settings_about">Σχετικά</string>
+
+    <!-- Edit Car -->
+    <string name="edit_car_title">Επεξεργασία αυτοκινήτου</string>
+    <string name="edit_car_section_basic_information">Βασικές πληροφορίες</string>
+    <string name="edit_car_section_insurance_information">Πληροφορίες ασφάλειας</string>
+    <string name="edit_car_section_legal_compliance">Νομικά &amp; Συμμόρφωση</string>
+    <string name="edit_car_section_maintenance_history">Ιστορικό συντήρησης</string>
+    <string name="edit_car_section_tires_information">Πληροφορίες ελαστικών</string>
+
+    <string name="edit_car_field_car_name">Όνομα αυτοκινήτου</string>
+    <string name="edit_car_placeholder_car_name">π.χ., Toyota Corolla</string>
+
+    <string name="edit_car_field_license_plate">Πινακίδα</string>
+    <string name="edit_car_placeholder_license_plate">π.χ., ABC-1234</string>
+
+    <string name="edit_car_field_current_odometer_km">Τρέχον οδόμετρο (km)</string>
+    <string name="edit_car_placeholder_odometer">π.χ., 45000</string>
+
+    <string name="edit_car_field_insurance_expiration_date">Ημερομηνία λήξης ασφάλειας</string>
+    <string name="edit_car_field_kteo_expiration_date">Ημερομηνία λήξης ΚΤΕΟ</string>
+    <string name="edit_car_field_emissions_card_expiration">Λήξη κάρτας καυσαερίων</string>
+
+    <string name="edit_car_field_road_tax_amount_eur">Τέλη κυκλοφορίας (€)</string>
+    <string name="edit_car_placeholder_road_tax_amount">π.χ., 120.00</string>
+
+    <string name="edit_car_field_road_tax_due_date">Ημερομηνία πληρωμής τελών</string>
+
+    <string name="edit_car_field_last_service_date">Ημερομηνία τελευταίου σέρβις</string>
+    <string name="edit_car_field_last_tire_change_date">Ημερομηνία τελευταίας αλλαγής ελαστικών</string>
+
+    <string name="edit_car_field_tire_brand_model">Μάρκα / Μοντέλο ελαστικών</string>
+    <string name="edit_car_placeholder_tire_brand_model">π.χ., Michelin Pilot Sport 4</string>
+
+    <string name="edit_car_field_tire_dimensions">Διαστάσεις ελαστικών</string>
+    <string name="edit_car_placeholder_tire_dimensions">π.χ., 205/55 R16</string>
+
+    <string name="edit_car_field_tire_installation_date">Ημερομηνία τοποθέτησης ελαστικών</string>
+
+    <string name="edit_car_placeholder_select_date">Επιλέξτε ημερομηνία</string>
+    <string name="edit_car_cd_select_date">Επιλέξτε ημερομηνία</string>
+
+    <string name="ok_label">ΟΚ</string>
+    <string name="save_label">Αποθήκευση</string>
+
+    <!-- Distance Graph -->
+    <string name="distance_graph_title">Απόσταση που διανύθηκε</string>
+    <string name="distance_graph_subtitle">Παρακολουθήστε τα συνολικά χιλιόμετρα</string>
+    <string name="distance_graph_total_distance_label">Συνολική απόσταση</string>
+    <string name="distance_graph_average_label">Μέσος όρος</string>
+    <string name="distance_graph_longest_trip_label">Μεγαλύτερη διαδρομή</string>
+    <string name="distance_graph_shortest_trip_label">Μικρότερη διαδρομή</string>
+    <string name="distance_graph_monthly_distance_title">Μηνιαία απόσταση</string>
+    <string name="distance_graph_by_month">ανά μήνα</string>
+    <string name="distance_graph_recent_trips_title">Πρόσφατες διαδρομές</string>
+    <string name="distance_graph_select_period_title">Επιλογή περιόδου</string>
+
+    <string name="distance_graph_km_format">%1$s km</string>
+    <string name="distance_graph_liters_format">%.1f L</string>
+    <string name="distance_graph_total_trips_format">%1$d σύνολο</string>
+
+    <string name="distance_graph_no_trips_title">Δεν έχουν καταγραφεί διαδρομές ακόμα</string>
+    <string name="distance_graph_no_trips_desc">Προσθέστε ανεφοδιασμούς για να ξεκινήσετε να παρακολουθείτε την απόσταση</string>
+
+    <string name="distance_graph_trip_date_format">MMM d, yyyy</string>
+
+    <!-- Generic -->
+    <string name="error_title">Σφάλμα</string>
+    <string name="retry">Δοκιμή ξανά</string>
+
+    <!-- Car List Screen -->
+    <string name="car_list_title">Τα αυτοκίνητά μου</string>
+    <string name="car_list_add_car">Προσθήκη αυτοκινήτου</string>
+    <string name="car_list_no_cars_title">Δεν έχουν προστεθεί αυτοκίνητα</string>
+    <string name="car_list_no_cars_desc">Προσθέστε το πρώτο σας αυτοκίνητο για να ξεκινήσετε την παρακολούθηση των εξόδων</string>
+    <string name="car_list_add_car_cd">Προσθήκη αυτοκινήτου</string>
+
+    <!-- Add Car Dialog -->
+    <string name="add_car_title">Προσθήκη νέου αυτοκινήτου</string>
+    <string name="add_car_action">Προσθήκη</string>
+    <string name="add_car_field_name">Όνομα αυτοκινήτου</string>
+    <string name="add_car_field_license_plate">Πινακίδα</string>
+    <string name="add_car_field_odometer">Τρέχον οδόμετρο (km)</string>
+    <string name="add_car_placeholder_name">π.χ., Toyota Corolla</string>
+    <string name="add_car_placeholder_license_plate">π.χ., ABC-1234</string>
+    <string name="add_car_placeholder_odometer">π.χ., 45000</string>
+
+    <!-- Car Card -->
+    <string name="car_card_add_refill_cd">Προσθήκη ανεφοδιασμού</string>
+    <string name="car_card_refill">Ανεφοδιασμός</string>
+    <string name="car_card_odometer">Οδόμετρο</string>
+    <string name="car_card_total_cost">Συνολικό κόστος</string>
+    <string name="car_card_distance">Απόσταση</string>
+    <string name="car_card_avg_consumption">Μ.Ο. κατανάλωση</string>
+    <string name="car_card_km_format">%1$s km</string>
+    <string name="car_card_currency_eur_format">€%1$s</string>
+    <string name="car_card_consumption_format">%1$s L/100km</string>
+
+    <!-- Expandable FAB Menu -->
+    <string name="fab_menu_open">Άνοιγμα μενού</string>
+    <string name="fab_menu_close">Κλείσιμο μενού</string>
+    <string name="fab_menu_expense">Έξοδο</string>
+    <string name="fab_menu_refill">Ανεφοδιασμός</string>
+
+    <!-- Add Expense Bottom Sheet -->
+    <string name="add_expense_title">Προσθήκη εξόδου</string>
+    <string name="close">Κλείσιμο</string>
+    <string name="expense_category">Κατηγορία</string>
+    <string name="expense_category_hint">Επιλέξτε ή πληκτρολογήστε κατηγορία</string>
+    <string name="expense_show_categories">Εμφάνιση κατηγοριών</string>
+    <string name="expense_amount_eur">Ποσό (€)</string>
+    <string name="expense_notes_optional">Σημειώσεις (προαιρετικό)</string>
+    <string name="expense_notes_hint">Προσθέστε σημειώσεις…</string>
+    <string name="save_expense">Αποθήκευση εξόδου</string>
+    <string name="pick_date">Επιλογή ημερομηνίας</string>
+    <string name="date_format_dd_mmm_yyyy">dd MMM yyyy</string>
+
+    <!-- Edit Expense Screen -->
+    <string name="edit_expense_title">Επεξεργασία εξόδου</string>
+    <string name="amount_placeholder">0.00</string>
+    <string name="expense_details_hint">Προσθέστε λεπτομέρειες για αυτό το έξοδο…</string>
+    <string name="save_changes">Αποθήκευση αλλαγών</string>
+
+    <!-- Edit Refill Screen -->
+    <string name="edit_refill_title">Επεξεργασία ανεφοδιασμού</string>
+    <string name="amount_paid_eur">Ποσό πληρωμής (€)</string>
+    <string name="amount_paid_hint">π.χ., 65.50</string>
+    <string name="liters_added">Λίτρα που προστέθηκαν</string>
+    <string name="liters_added_hint">π.χ., 45.5</string>
+    <string name="trip_distance_km">Απόσταση διαδρομής (km)</string>
+    <string name="trip_distance_hint">π.χ., 550</string>
+    <string name="trip_distance_supporting">Απόσταση από τον προηγούμενο ανεφοδιασμό</string>
+    <string name="odometer_reading_km">Ένδειξη οδομέτρου (km)</string>
+    <string name="odometer_reading_hint">π.χ., 15000</string>
+    <string name="select_date">Επιλογή ημερομηνίας</string>
+    <string name="location">Τοποθεσία</string>
+    <string name="location_captured">Η τοποθεσία καταγράφηκε</string>
+    <string name="no_location">Χωρίς τοποθεσία</string>
+    <string name="update">Ενημέρωση</string>
+    <string name="calculated">Υπολογισμένο</string>
+    <string name="price_per_liter_format">Τιμή ανά λίτρο: €%1$s</string>
+    <string name="fuel_consumption_format">Κατανάλωση: %1$s L/100km</string>
+
+    <!-- Edit Car Dialog (legacy) -->
+    <string name="edit_car_details_title">Επεξεργασία στοιχείων αυτοκινήτου</string>
+    <string name="basic_information">Βασικές πληροφορίες</string>
+    <string name="tyre_size_optional">Μέγεθος ελαστικών (προαιρετικό)</string>
+    <string name="tyre_size_hint">π.χ., 205/55 R16</string>
+    <string name="license_expiration_optional">Λήξη άδειας (προαιρετικό)</string>
+    <string name="license_expiration_hint">π.χ., 31/12/2026</string>
+    <string name="kteo_expiration_date">Ημερομηνία λήξης ΚΤΕΟ</string>
+
+    <!-- Common Labels -->
+    <string name="date">Ημερομηνία</string>
+
+    <!-- Refill Details -->
+    <string name="refill_details_title">Λεπτομέρειες ανεφοδιασμού</string>
+    <string name="unknown_car">Άγνωστο αυτοκίνητο</string>
+    <string name="total_amount_paid">Συνολικό ποσό πληρωμής</string>
+    <string name="metric_fuel_volume">Όγκος καυσίμου</string>
+    <string name="metric_price_per_liter">Τιμή ανά λίτρο</string>
+    <string name="metric_trip_distance">Απόσταση διαδρομής</string>
+    <string name="metric_consumption">Κατανάλωση</string>
+    <string name="additional_information">Επιπλέον πληροφορίες</string>
+    <string name="date_time">Ημερομηνία &amp; ώρα</string>
+    <string name="location_label">Τοποθεσία</string>
+    <string name="location_lat_lng_format">Πλάτος: %1$.6f, Μήκος: %2$.6f</string>
+    <string name="cost_analysis">Ανάλυση κόστους</string>
+    <string name="cost_per_kilometer_label">Κόστος ανά χιλιόμετρο:</string>
+    <string name="fuel_efficiency_label">Αποδοτικότητα καυσίμου:</string>
+    <string name="total_liters_label">Σύνολο λίτρων:</string>
+
+    <!-- Expense Details -->
+    <string name="expense_details_title">Λεπτομέρειες εξόδου</string>
+    <string name="edit">Επεξεργασία</string>
+    <string name="delete_expense_title">Διαγραφή εξόδου</string>
+    <string name="delete_expense_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το έξοδο;</string>
+    <string name="notes">Σημειώσεις</string>
+
+    <!-- Refill Delete Dialog -->
+    <string name="delete_refill_title">Διαγραφή ανεφοδιασμού</string>
+    <string name="delete_refill_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον ανεφοδιασμό;</string>
+
+    <!-- Add Refill Bottom Sheet -->
+    <string name="add_fuel_refill_title">Προσθήκη ανεφοδιασμού</string>
+    <string name="save_refill">Αποθήκευση ανεφοδιασμού</string>
+
+    <!-- Expense History -->
+    <string name="expense_history_title">Ιστορικό εξόδων</string>
+    <string name="no_expenses_yet">Δεν υπάρχουν έξοδα ακόμα</string>
+    <string name="all">Όλα</string>
+    <string name="no_expenses_in_category_format">Δεν υπάρχουν έξοδα στην κατηγορία "%1$s"</string>
+    <string name="show_all_expenses">Εμφάνιση όλων των εξόδων</string>
+    <string name="sorted_by_format">Ταξινόμηση: %1$s</string>
+
+    <plurals name="expenses_count">
+        <item quantity="one">%1$d έξοδο</item>
+        <item quantity="other">%1$d έξοδα</item>
+    </plurals>
+
+    <plurals name="expense_lowercase_count">
+        <item quantity="one">%1$d έξοδο</item>
+        <item quantity="other">%1$d έξοδα</item>
+    </plurals>
+
+    <plurals name="refills_count">
+        <item quantity="one">%1$d ανεφοδιασμός</item>
+        <item quantity="other">%1$d ανεφοδιασμοί</item>
+    </plurals>
+
+    <!-- Date formats -->
+    <string name="date_format_full">EEEE, MMMM d, yyyy</string>
+    <string name="date_format_full_with_time">EEEE, MMMM d, yyyy, h:mm a</string>
+    <string name="date_format_dd_mm_yyyy">dd/MM/yyyy</string>
+
+    <!-- Value formats -->
+    <string name="currency_eur_format">€%1$s</string>
+    <string name="liters_format">%1$s L</string>
+    <string name="kilometers_format">%1$s km</string>
+    <string name="consumption_l_per_100km_format">%1$s L/100km</string>
+    <string name="cost_per_km_format">€%1$s/km</string>
+    <string name="km_per_l_format">%1$s km/L</string>
+
+    <!-- Refill History formatting -->
+    <string name="refill_history_details_format">%1$s L • €%2$s/L • %3$s km • %4$s L/100km</string>
+
+    <!-- Month Details formatting -->
+    <string name="refills_with_count_format">Ανεφοδιασμοί (%1$d)</string>
+    <string name="expenses_with_count_format">Έξοδα (%1$d)</string>
+    <string name="refill_item_subtitle_format">%1$s L • %2$s km</string>
+    <string name="percent_format">%1$s%%</string>
+    <string name="biggest_refill_value_format">€%1$s • %2$s L</string>
+    <string name="biggest_expense_value_format">€%1$s • %2$s</string>
+
+    <!-- Date formats (UI) -->
+    <string name="date_format_mmm_d_yyyy">MMM d, yyyy</string>
+    <string name="date_format_month_year">MMMM yyyy</string>
+    <string name="date_format_dd_mmm_hh_mm">dd MMM, HH:mm</string>
+
+    <!-- Language labels -->
+    <string name="language_english">English</string>
+    <string name="language_greek">Ελληνικά</string>
+
+    <!-- Statistics Screen -->
+    <string name="statistics">Στατιστικά</string>
+    <string name="overall_summary">Συνολική Περίληψη</string>
+    <string name="per_car_breakdown">Ανάλυση ανά Αυτοκίνητο</string>
+    <string name="monthly_trends">Μηνιαίες Τάσεις</string>
+    <string name="see_all">Προβολή Όλων</string>
+    <string name="view_all_months_format">Προβολή Όλων των %1$d Μηνών</string>
+    <string name="insights">Πληροφορίες</string>
+    <string name="total_cost">Συνολικό Κόστος</string>
+    <string name="fuel_plus_expenses">Καύσιμα + Έξοδα</string>
+    <string name="total_distance">Συνολική Απόσταση</string>
+    <string name="total_refills">Συνολικοί Ανεφοδιασμοί</string>
+    <string name="cost_breakdown">Ανάλυση Κόστους</string>
+    <string name="expenses_overview">Επισκόπηση Εξόδων</string>
+    <string name="service">Σέρβις</string>
+    <string name="other">Άλλα</string>
+    <string name="total_cost_divide_distance">Συνολικό κόστος ÷ Απόσταση</string>
+    <string name="service_expenses">Έξοδα Σέρβις</string>
+    <string name="other_expenses">Άλλα Έξοδα</string>
+    <string name="fuel_label_format">Καύσιμα: €%1$s</string>
+    <string name="expenses_label_format">Έξοδα: €%1$s</string>
+    <string name="refill_count_format">%1$d ανεφοδιασμός</string>
+    <string name="average_cost_per_refill">Μέσο κόστος ανά ανεφοδιασμό:</string>
+    <string name="average_liters_per_refill">Μέσος όγκος ανά ανεφοδιασμό:</string>
+    <string name="cost_per_km_label">Κόστος ανά χλμ:</string>
+    <string name="services_count_format">Σέρβις:</string>
+    <string name="others_count_format">Άλλα:</string>
+    <string name="total_cost_label">Συνολικό Κόστος:</string>
+    <string name="service_label">Σέρβις:</string>
+    <string name="other_label">Άλλα:</string>
+    <string name="cost_per_km_short">Κόστος/χλμ:</string>
+    <string name="services_short">Σέρβις:</string>
+    <string name="others_short">Άλλα:</string>
+</resources>
+

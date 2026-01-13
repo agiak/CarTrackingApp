@@ -25,9 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -66,11 +68,12 @@ fun EditCarDialog(
     var showInsuranceDatePicker by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val datePattern = stringResource(R.string.date_format_dd_mm_yyyy)
+    val dateFormatter = remember(datePattern) { SimpleDateFormat(datePattern, Locale.getDefault()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Car Details") },
+        title = { Text(stringResource(R.string.edit_car_details_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -80,7 +83,7 @@ fun EditCarDialog(
             ) {
                 // Basic Info Section
                 Text(
-                    text = "Basic Information",
+                    text = stringResource(R.string.basic_information),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth()
@@ -89,8 +92,8 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Car Name") },
-                    placeholder = { Text("e.g., Toyota Corolla") },
+                    label = { Text(stringResource(R.string.edit_car_field_car_name)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_car_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -98,8 +101,8 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = licensePlate,
                     onValueChange = { licensePlate = it.uppercase() },
-                    label = { Text("License Plate") },
-                    placeholder = { Text("e.g., ABC-1234") },
+                    label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_license_plate)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -107,8 +110,8 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = odometer,
                     onValueChange = { odometer = it },
-                    label = { Text("Current Odometer (km)") },
-                    placeholder = { Text("e.g., 45000") },
+                    label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -117,8 +120,8 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = tyreSize,
                     onValueChange = { tyreSize = it },
-                    label = { Text("Tyre Size (optional)") },
-                    placeholder = { Text("e.g., 205/55 R16") },
+                    label = { Text(stringResource(R.string.tyre_size_optional)) },
+                    placeholder = { Text(stringResource(R.string.tyre_size_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -126,15 +129,15 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = licenseExpiration,
                     onValueChange = { licenseExpiration = it },
-                    label = { Text("License Expiration (optional)") },
-                    placeholder = { Text("e.g., 31/12/2026") },
+                    label = { Text(stringResource(R.string.license_expiration_optional)) },
+                    placeholder = { Text(stringResource(R.string.license_expiration_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 // Extra Info Section
                 Text(
-                    text = "Extra Information",
+                    text = stringResource(R.string.extra_information),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth()
@@ -144,13 +147,13 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = kteoExpirationDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
-                    label = { Text("KTEO Expiration Date") },
-                    placeholder = { Text("Select date") },
+                    label = { Text(stringResource(R.string.kteo_expiration_date)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
                     readOnly = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Select date"
+                            contentDescription = stringResource(R.string.edit_car_cd_select_date)
                         )
                     },
                     modifier = Modifier
@@ -162,13 +165,13 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = lastServiceDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
-                    label = { Text("Last Service Date") },
-                    placeholder = { Text("Select date") },
+                    label = { Text(stringResource(R.string.edit_car_field_last_service_date)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
                     readOnly = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Select date"
+                            contentDescription = stringResource(R.string.edit_car_cd_select_date)
                         )
                     },
                     modifier = Modifier
@@ -180,13 +183,13 @@ fun EditCarDialog(
                 OutlinedTextField(
                     value = insuranceExpirationDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
-                    label = { Text("Insurance Expiration Date") },
-                    placeholder = { Text("Select date") },
+                    label = { Text(stringResource(R.string.edit_car_field_insurance_expiration_date)) },
+                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
                     readOnly = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Select date"
+                            contentDescription = stringResource(R.string.edit_car_cd_select_date)
                         )
                     },
                     modifier = Modifier
@@ -213,12 +216,12 @@ fun EditCarDialog(
                 },
                 enabled = name.isNotBlank() && odometer.isNotBlank()
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save_label))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -235,12 +238,12 @@ fun EditCarDialog(
                     kteoExpirationDate = datePickerState.selectedDateMillis
                     showKteoDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok_label))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showKteoDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -260,12 +263,12 @@ fun EditCarDialog(
                     lastServiceDate = datePickerState.selectedDateMillis
                     showServiceDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok_label))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showServiceDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -285,12 +288,12 @@ fun EditCarDialog(
                     insuranceExpirationDate = datePickerState.selectedDateMillis
                     showInsuranceDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok_label))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showInsuranceDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {

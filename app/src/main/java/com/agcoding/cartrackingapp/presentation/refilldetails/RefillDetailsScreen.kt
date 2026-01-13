@@ -50,10 +50,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -77,7 +79,7 @@ fun RefillDetailsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -85,13 +87,13 @@ fun RefillDetailsScreen(
                     IconButton(onClick = onEditClick) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit"
+                            contentDescription = stringResource(R.string.edit)
                         )
                     }
                     IconButton(onClick = { viewModel.showDeleteDialog() }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -139,7 +141,7 @@ fun RefillDetailsScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     TextButton(onClick = viewModel::retry) {
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
@@ -148,20 +150,20 @@ fun RefillDetailsScreen(
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { viewModel.hideDeleteDialog() },
-                title = { Text("Delete Refill") },
-                text = { Text("Are you sure you want to delete this refill?") },
+                title = { Text(stringResource(R.string.delete_refill_title)) },
+                text = { Text(stringResource(R.string.delete_refill_confirm)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             viewModel.deleteRefill { onNavigateBack() }
                         }
                     ) {
-                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -186,7 +188,7 @@ private fun RefillDetailsContent(
     ) {
         // Header Section
         Text(
-            text = "Refill Details",
+            text = stringResource(R.string.refill_details_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -194,7 +196,7 @@ private fun RefillDetailsContent(
         )
 
         Text(
-            text = if (car != null) "${car.name} • ${car.licensePlate}" else "Unknown Car",
+            text = if (car != null) "${car.name} • ${car.licensePlate}" else stringResource(R.string.unknown_car),
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -218,7 +220,7 @@ private fun RefillDetailsContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Total Amount Paid",
+                    text = stringResource(R.string.total_amount_paid),
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.9f),
                     fontWeight = FontWeight.Medium
@@ -248,13 +250,13 @@ private fun RefillDetailsContent(
         ) {
             MetricCard(
                 icon = Icons.Default.LocalGasStation,
-                label = "Fuel Volume",
+                label = stringResource(R.string.metric_fuel_volume),
                 value = "%.1f L".format(refill.litersAdded),
                 modifier = Modifier.weight(1f)
             )
             MetricCard(
                 icon = Icons.Default.AttachMoney,
-                label = "Price per Liter",
+                label = stringResource(R.string.metric_price_per_liter),
                 value = "€%.2f".format(refill.pricePerLiter),
                 modifier = Modifier.weight(1f)
             )
@@ -269,13 +271,13 @@ private fun RefillDetailsContent(
         ) {
             MetricCard(
                 icon = Icons.Default.Route,
-                label = "Trip Distance",
+                label = stringResource(R.string.metric_trip_distance),
                 value = "%.0f km".format(refill.tripDistance),
                 modifier = Modifier.weight(1f)
             )
             MetricCard(
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
-                label = "Consumption",
+                label = stringResource(R.string.metric_consumption),
                 value = "%.1f L/100km".format(refill.fuelConsumption),
                 modifier = Modifier.weight(1f)
             )
@@ -299,7 +301,7 @@ private fun RefillDetailsContent(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Additional Information",
+                    text = stringResource(R.string.additional_information),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -308,7 +310,7 @@ private fun RefillDetailsContent(
 
                 InfoItem(
                     icon = Icons.Default.CalendarToday,
-                    label = "Date & Time",
+                    label = stringResource(R.string.date_time),
                     value = formatDateTime(refill.timestamp),
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
@@ -316,8 +318,12 @@ private fun RefillDetailsContent(
                 refill.location?.let { location ->
                     InfoItem(
                         icon = Icons.Default.LocationOn,
-                        label = "Location",
-                        value = addressString ?: "Lat: %.6f, Lng: %.6f".format(location.latitude, location.longitude),
+                        label = stringResource(R.string.location_label),
+                        value = addressString ?: stringResource(
+                            R.string.location_lat_lng_format,
+                            location.latitude,
+                            location.longitude
+                        ),
                         modifier = Modifier.clickable {
                             openGoogleMaps(context, location.latitude, location.longitude)
                         }
@@ -329,7 +335,7 @@ private fun RefillDetailsContent(
         // Notes if available
         if (!refill.notes.isNullOrBlank()) {
             Text(
-                text = "Notes",
+                text = stringResource(R.string.notes),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -361,7 +367,7 @@ private fun RefillDetailsContent(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Cost Analysis",
+                    text = stringResource(R.string.cost_analysis),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -379,7 +385,7 @@ private fun RefillDetailsContent(
 
                 // Cost per kilometer
                 AnalysisRow(
-                    label = "Cost per kilometer:",
+                    label = stringResource(R.string.cost_per_kilometer_label),
                     value = "€%.3f/km".format(costPerKm)
                 )
 
@@ -387,7 +393,7 @@ private fun RefillDetailsContent(
 
                 // Fuel efficiency
                 AnalysisRow(
-                    label = "Fuel efficiency:",
+                    label = stringResource(R.string.fuel_efficiency_label),
                     value = "%.1f km/L".format(fuelEfficiency)
                 )
 
@@ -395,7 +401,7 @@ private fun RefillDetailsContent(
 
                 // Total liters
                 AnalysisRow(
-                    label = "Total liters:",
+                    label = stringResource(R.string.total_liters_label),
                     value = "%.2f L".format(refill.litersAdded)
                 )
             }
@@ -532,6 +538,7 @@ private fun AnalysisRow(
 }
 
 private fun formatDate(timestamp: Long): String {
+    // Keep as a constant pattern; resources require Android context.
     val sdf = SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault())
     return sdf.format(Date(timestamp))
 }
@@ -540,6 +547,3 @@ private fun formatDateTime(timestamp: Long): String {
     val sdf = SimpleDateFormat("MMM d, yyyy, h:mm a", Locale.getDefault())
     return sdf.format(Date(timestamp))
 }
-
-
-

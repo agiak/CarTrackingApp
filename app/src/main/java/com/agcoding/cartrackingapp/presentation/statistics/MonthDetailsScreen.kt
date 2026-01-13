@@ -37,14 +37,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import java.text.SimpleDateFormat
@@ -68,7 +71,11 @@ fun MonthDetailsScreen(
     }
 
     val calendar = Calendar.getInstance().apply { set(year, month, 1) }
-    val monthName = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
+    val monthTitlePattern = stringResource(R.string.date_format_full)
+    val monthYearPattern = stringResource(R.string.date_format_month_year)
+    val monthName = remember(monthTitlePattern, monthYearPattern, month, year) {
+        SimpleDateFormat(monthYearPattern, Locale.getDefault()).format(calendar.time)
+    }
 
     Scaffold(
         topBar = {
@@ -78,7 +85,7 @@ fun MonthDetailsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -119,7 +126,7 @@ fun MonthDetailsScreen(
                     if (state.refills.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Refills (${state.refills.size})",
+                                text = stringResource(R.string.refills_label) + " (${state.refills.size})",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -128,7 +135,7 @@ fun MonthDetailsScreen(
                         items(state.refills) { refill ->
                             RefillItem(
                                 refill = refill,
-                                carName = state.carNames[refill.carId] ?: "Unknown",
+                                carName = state.carNames[refill.carId] ?: stringResource(R.string.unknown_car),
                                 onClick = { onRefillClick(refill.id) }
                             )
                         }
@@ -138,7 +145,7 @@ fun MonthDetailsScreen(
                     if (state.expenses.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Expenses (${state.expenses.size})",
+                                text = stringResource(R.string.expenses_label) + " (${state.expenses.size})",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -147,7 +154,7 @@ fun MonthDetailsScreen(
                         items(state.expenses) { expense ->
                             ExpenseItem(
                                 expense = expense,
-                                carName = state.carNames[expense.carId] ?: "Unknown",
+                                carName = state.carNames[expense.carId] ?: stringResource(R.string.unknown_car),
                                 onClick = { onExpenseClick(expense.id) }
                             )
                         }
@@ -163,7 +170,7 @@ fun MonthDetailsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "No transactions this month",
+                                    text = stringResource(R.string.no_transactions_this_month),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -203,7 +210,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Monthly Summary",
+                text = stringResource(R.string.monthly_summary),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -217,12 +224,12 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Total Spending",
+                    text = stringResource(R.string.total_spending),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "€${String.format("%.2f", state.totalCost)}",
+                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", state.totalCost)),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -237,14 +244,14 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatItem(
-                    label = "Fuel",
-                    value = "€${String.format("%.2f", state.refillsCost)}",
+                    label = stringResource(R.string.fuel),
+                    value = stringResource(R.string.currency_eur_format, String.format("%.2f", state.refillsCost)),
                     icon = Icons.Default.LocalGasStation,
                     iconTint = MaterialTheme.colorScheme.primary
                 )
                 StatItem(
-                    label = "Expenses",
-                    value = "€${String.format("%.2f", state.expensesCost)}",
+                    label = stringResource(R.string.expenses),
+                    value = stringResource(R.string.currency_eur_format, String.format("%.2f", state.expensesCost)),
                     icon = Icons.Default.Receipt,
                     iconTint = MaterialTheme.colorScheme.secondary
                 )
@@ -258,38 +265,41 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
             ) {
                 Column {
                     Text(
-                        text = "Liters",
+                        text = stringResource(R.string.liters_label),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "${String.format("%.1f", state.totalLiters)} L",
+                        text = stringResource(R.string.liters_format, String.format("%.1f", state.totalLiters)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
                 Column {
                     Text(
-                        text = "Distance",
+                        text = stringResource(R.string.distance),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "${String.format("%.0f", state.totalDistance)} km",
+                        text = stringResource(R.string.kilometers_format, String.format("%.0f", state.totalDistance)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
                 Column {
                     Text(
-                        text = "Consumption",
+                        text = stringResource(R.string.consumption_label),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = if (state.averageConsumption > 0)
-                            "${String.format("%.1f", state.averageConsumption)} L/100km"
-                            else "-",
+                            stringResource(
+                                R.string.consumption_l_per_100km_format,
+                                String.format("%.1f", state.averageConsumption)
+                            )
+                        else stringResource(R.string.not_available),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -345,7 +355,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Insights",
+                text = stringResource(R.string.insights_label),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -356,16 +366,22 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
             // Avg price per liter
             if (state.totalLiters > 0) {
                 InsightRow(
-                    label = "Average price per liter",
-                    value = "€${String.format("%.3f", state.refillsCost / state.totalLiters)}"
+                    label = stringResource(R.string.average_price_per_liter),
+                    value = stringResource(
+                        R.string.currency_eur_format,
+                        String.format("%.3f", state.refillsCost / state.totalLiters)
+                    )
                 )
             }
 
             // Cost per km
             if (state.totalDistance > 0) {
                 InsightRow(
-                    label = "Cost per kilometer",
-                    value = "€${String.format("%.3f", state.totalCost / state.totalDistance)}"
+                    label = stringResource(R.string.cost_per_km),
+                    value = stringResource(
+                        R.string.cost_per_km_format,
+                        String.format("%.3f", state.totalCost / state.totalDistance)
+                    )
                 )
             }
 
@@ -373,15 +389,15 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
             if (state.totalCost > 0) {
                 val fuelPercentage = (state.refillsCost / state.totalCost) * 100
                 InsightRow(
-                    label = "Fuel as % of spending",
-                    value = "${String.format("%.1f", fuelPercentage)}%"
+                    label = stringResource(R.string.fuel_percentage_of_spending),
+                    value = stringResource(R.string.km_per_l_format, String.format("%.1f", fuelPercentage))
                 )
             }
 
             // Cars used
             if (state.carNames.isNotEmpty()) {
                 InsightRow(
-                    label = "Vehicles with activity",
+                    label = stringResource(R.string.vehicles_with_activity),
                     value = "${state.carNames.size}"
                 )
             }
@@ -389,16 +405,22 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
             // Biggest refill
             state.refills.maxByOrNull { it.amountPaid }?.let { biggestRefill ->
                 InsightRow(
-                    label = "Biggest refill",
-                    value = "€${String.format("%.2f", biggestRefill.amountPaid)} (${String.format("%.1f", biggestRefill.litersAdded)} L)"
+                    label = stringResource(R.string.biggest_refill),
+                    value = stringResource(
+                        R.string.currency_eur_format,
+                        String.format("%.2f", biggestRefill.amountPaid)
+                    )
                 )
             }
 
             // Biggest expense
             state.expenses.maxByOrNull { it.amount }?.let { biggestExpense ->
                 InsightRow(
-                    label = "Biggest expense",
-                    value = "€${String.format("%.2f", biggestExpense.amount)} (${biggestExpense.category})"
+                    label = stringResource(R.string.biggest_expense),
+                    value = stringResource(
+                        R.string.currency_eur_format,
+                        String.format("%.2f", biggestExpense.amount)
+                    )
                 )
             }
         }
@@ -433,7 +455,8 @@ private fun RefillItem(
     carName: String,
     onClick: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
+    val itemDatePattern = stringResource(R.string.date_format_full_with_time)
+    val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -474,12 +497,14 @@ private fun RefillItem(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = dateFormat.format(refill.timestamp),
+                    text = dateFormat.format(java.util.Date(refill.timestamp)),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${String.format("%.1f", refill.litersAdded)} L • ${String.format("%.0f", refill.tripDistance)} km",
+                    text = stringResource(R.string.liters_format, String.format("%.1f", refill.litersAdded)) +
+                        " • " +
+                        stringResource(R.string.kilometers_format, String.format("%.0f", refill.tripDistance)),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -487,7 +512,7 @@ private fun RefillItem(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "€${String.format("%.2f", refill.amountPaid)}",
+                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", refill.amountPaid)),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
@@ -495,7 +520,10 @@ private fun RefillItem(
                 if (refill.tripDistance > 0) {
                     val consumption = (refill.litersAdded / refill.tripDistance) * 100
                     Text(
-                        text = "${String.format("%.1f", consumption)} L/100km",
+                        text = stringResource(
+                            R.string.consumption_l_per_100km_format,
+                            String.format("%.1f", consumption)
+                        ),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -511,7 +539,8 @@ private fun ExpenseItem(
     carName: String,
     onClick: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
+    val itemDatePattern = stringResource(R.string.date_format_full_with_time)
+    val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -557,14 +586,14 @@ private fun ExpenseItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = dateFormat.format(expense.timestamp),
+                    text = dateFormat.format(java.util.Date(expense.timestamp)),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Text(
-                text = "€${String.format("%.2f", expense.amount)}",
+                text = stringResource(R.string.currency_eur_format, String.format("%.2f", expense.amount)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.secondary
@@ -572,4 +601,3 @@ private fun ExpenseItem(
         }
     }
 }
-

@@ -1,18 +1,14 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -21,8 +17,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -53,6 +47,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.agcoding.cartrackingapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,7 +121,7 @@ fun AddExpenseBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Add Expense",
+                    text = stringResource(R.string.add_expense_title),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 IconButton(onClick = {
@@ -140,7 +136,7 @@ fun AddExpenseBottomSheet(
                 }) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
+                        contentDescription = stringResource(R.string.close)
                     )
                 }
             }
@@ -157,13 +153,13 @@ fun AddExpenseBottomSheet(
                             viewModel.toggleCategoryDropdown()
                         }
                     },
-                    label = { Text("Category") },
-                    placeholder = { Text("Select or type a category") },
+                    label = { Text(stringResource(R.string.expense_category)) },
+                    placeholder = { Text(stringResource(R.string.expense_category_hint)) },
                     trailingIcon = {
                         IconButton(onClick = { viewModel.toggleCategoryDropdown() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Show categories"
+                                contentDescription = stringResource(R.string.expense_show_categories)
                             )
                         }
                     },
@@ -192,8 +188,8 @@ fun AddExpenseBottomSheet(
             OutlinedTextField(
                 value = amount,
                 onValueChange = viewModel::updateAmount,
-                label = { Text("Amount (€)") },
-                placeholder = { Text("e.g., 120.00") },
+                label = { Text(stringResource(R.string.expense_amount_eur)) },
+                placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -203,14 +199,17 @@ fun AddExpenseBottomSheet(
 
             // Date field
             OutlinedTextField(
-                value = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(selectedDate)),
+                value = SimpleDateFormat(
+                    stringResource(R.string.date_format_dd_mmm_yyyy),
+                    Locale.getDefault()
+                ).format(Date(selectedDate)),
                 onValueChange = {},
-                label = { Text("Date") },
+                label = { Text(stringResource(R.string.date)) },
                 trailingIcon = {
                     IconButton(onClick = { viewModel.showDatePicker() }) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Pick date"
+                            contentDescription = stringResource(R.string.pick_date)
                         )
                     }
                 },
@@ -224,8 +223,8 @@ fun AddExpenseBottomSheet(
             OutlinedTextField(
                 value = notes,
                 onValueChange = viewModel::updateNotes,
-                label = { Text("Notes (optional)") },
-                placeholder = { Text("Add any notes...") },
+                label = { Text(stringResource(R.string.expense_notes_optional)) },
+                placeholder = { Text(stringResource(R.string.expense_notes_hint)) },
                 minLines = 2,
                 maxLines = 4,
                 modifier = Modifier.fillMaxWidth()
@@ -265,7 +264,7 @@ fun AddExpenseBottomSheet(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Save Expense")
+                Text(stringResource(R.string.save_expense))
             }
         }
 
@@ -286,12 +285,12 @@ fun AddExpenseBottomSheet(
                             viewModel.hideDatePicker()
                         }
                     ) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok_label))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { viewModel.hideDatePicker() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             ) {

@@ -49,10 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -78,12 +80,12 @@ fun CarDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Car Details") },
+                title = { Text(stringResource(R.string.car_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -92,7 +94,7 @@ fun CarDetailsScreen(
                         IconButton(onClick = { showMenu = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "More"
+                                contentDescription = stringResource(R.string.more)
                             )
                         }
                         DropdownMenu(
@@ -100,7 +102,7 @@ fun CarDetailsScreen(
                             onDismissRequest = { showMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Edit Car") },
+                                text = { Text(stringResource(R.string.edit_car)) },
                                 onClick = {
                                     showMenu = false
                                     onEditCarClick()
@@ -113,7 +115,7 @@ fun CarDetailsScreen(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Delete Car") },
+                                text = { Text(stringResource(R.string.delete_car)) },
                                 onClick = {
                                     showMenu = false
                                     viewModel.showDeleteDialog()
@@ -183,13 +185,13 @@ fun CarDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Refill History",
+                                text = stringResource(R.string.refill_history_title),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                text = "See all",
+                                text = stringResource(R.string.see_all),
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,
@@ -215,13 +217,13 @@ fun CarDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Recent Expenses",
+                                    text = stringResource(R.string.recent_expenses),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
-                                    text = "See all",
+                                    text = stringResource(R.string.see_all),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.SemiBold,
@@ -256,20 +258,20 @@ fun CarDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
-            title = { Text("Delete Car") },
-            text = { Text("Are you sure you want to delete this car? All refill records will also be deleted.") },
+            title = { Text(stringResource(R.string.delete_car)) },
+            text = { Text(stringResource(R.string.delete_car_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteCar(onSuccess = onNavigateBack)
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -309,15 +311,15 @@ private fun StatisticsGrid(statistics: com.agcoding.cartrackingapp.domain.model.
         ) {
             MetricCard(
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
-                label = "Avg. Consumption",
+                label = stringResource(R.string.avg_consumption),
                 value = if (statistics.averageConsumption > 0) {
                     "${String.format("%.1f", statistics.averageConsumption)} L/100km"
-                } else "N/A",
+                } else stringResource(R.string.not_available),
                 modifier = Modifier.weight(1f)
             )
             MetricCard(
                 icon = Icons.Default.AttachMoney,
-                label = "Total Cost",
+                label = stringResource(R.string.total_cost),
                 value = "€${String.format("%.2f", statistics.totalCost)}",
                 modifier = Modifier.weight(1f)
             )
@@ -330,13 +332,13 @@ private fun StatisticsGrid(statistics: com.agcoding.cartrackingapp.domain.model.
         ) {
             MetricCard(
                 icon = Icons.Default.Route,
-                label = "Total Distance",
+                label = stringResource(R.string.total_distance),
                 value = "${String.format("%.0f", statistics.totalDistance)} km",
                 modifier = Modifier.weight(1f)
             )
             MetricCard(
                 icon = Icons.Default.Speed,
-                label = "Odometer",
+                label = stringResource(R.string.odometer),
                 value = "${String.format("%.0f", statistics.car.currentOdometer)} km",
                 modifier = Modifier.weight(1f)
             )
@@ -349,10 +351,10 @@ private fun StatisticsGrid(statistics: com.agcoding.cartrackingapp.domain.model.
 
         MetricCard(
             icon = Icons.Default.AttachMoney,
-            label = "Cost per Kilometer",
+            label = stringResource(R.string.cost_per_kilometer),
             value = if (statistics.totalDistance > 0) {
                 "€${String.format("%.3f", costPerKm)}/km"
-            } else "N/A",
+            } else stringResource(R.string.not_available),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -528,7 +530,7 @@ private fun ExtraInfoSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Extra Information",
+                text = stringResource(R.string.extra_information),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
@@ -556,21 +558,21 @@ private fun ExtraInfoSection(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Add Extra Information",
+                            text = stringResource(R.string.add_extra_information),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Add tires, insurance, KTEO, service dates, and more",
+                            text = stringResource(R.string.add_extra_information_desc),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
                     }
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Add info",
+                        contentDescription = stringResource(R.string.add_info),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
@@ -596,7 +598,7 @@ private fun ExtraInfoSection(
                     // Insurance Information
                     car.insuranceExpirationDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Insurance Expiration",
+                            label = stringResource(R.string.insurance_expiration),
                             value = dateFormatter.format(Date(date))
                         )
                     }
@@ -604,28 +606,28 @@ private fun ExtraInfoSection(
                     // Legal & Compliance
                     car.kteoExpirationDate?.let { date ->
                         ExtraInfoItem(
-                            label = "KTEO Expiration",
+                            label = stringResource(R.string.kteo_expiration),
                             value = dateFormatter.format(Date(date))
                         )
                     }
 
                     car.emissionsCardExpirationDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Emissions Card Expiration",
+                            label = stringResource(R.string.emissions_card_expiration),
                             value = dateFormatter.format(Date(date))
                         )
                     }
 
                     car.roadTaxAmount?.let { amount ->
                         ExtraInfoItem(
-                            label = "Road Tax Amount",
+                            label = stringResource(R.string.road_tax_amount),
                             value = "€${String.format("%.2f", amount)}"
                         )
                     }
 
                     car.roadTaxDueDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Road Tax Due Date",
+                            label = stringResource(R.string.road_tax_due_date),
                             value = dateFormatter.format(Date(date))
                         )
                     }
@@ -633,14 +635,14 @@ private fun ExtraInfoSection(
                     // Maintenance History
                     car.lastServiceDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Last Service",
+                            label = stringResource(R.string.last_service),
                             value = dateFormatter.format(Date(date))
                         )
                     }
 
                     car.lastTireChangeDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Last Tire Change",
+                            label = stringResource(R.string.last_tire_change),
                             value = dateFormatter.format(Date(date))
                         )
                     }
@@ -648,21 +650,21 @@ private fun ExtraInfoSection(
                     // Tires Information
                     if (!car.tireBrand.isNullOrBlank()) {
                         ExtraInfoItem(
-                            label = "Tire Brand / Model",
+                            label = stringResource(R.string.tire_brand_model),
                             value = car.tireBrand
                         )
                     }
 
                     if (!car.tireDimensions.isNullOrBlank()) {
                         ExtraInfoItem(
-                            label = "Tire Dimensions",
+                            label = stringResource(R.string.tire_dimensions),
                             value = car.tireDimensions
                         )
                     }
 
                     car.tireInstallationDate?.let { date ->
                         ExtraInfoItem(
-                            label = "Tire Installation Date",
+                            label = stringResource(R.string.tire_installation_date),
                             value = dateFormatter.format(Date(date))
                         )
                     }
@@ -670,7 +672,7 @@ private fun ExtraInfoSection(
                     // Legacy field (for backward compatibility)
                     if (!car.tyreSize.isNullOrBlank()) {
                         ExtraInfoItem(
-                            label = "Tyre Size (Legacy)",
+                            label = stringResource(R.string.tyre_size_legacy),
                             value = car.tyreSize
                         )
                     }
@@ -761,4 +763,3 @@ private fun ExpenseCard(
         }
     }
 }
-

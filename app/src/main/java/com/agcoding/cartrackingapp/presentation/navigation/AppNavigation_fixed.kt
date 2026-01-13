@@ -348,7 +348,8 @@ fun AppNavigation(
                 DistanceGraphScreen(
                     onNavigateBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    viewModel = hiltViewModel()
                 )
             }
 

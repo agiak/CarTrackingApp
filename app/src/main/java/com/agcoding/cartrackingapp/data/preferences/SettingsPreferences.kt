@@ -22,9 +22,9 @@ enum class AppTheme {
     DARK
 }
 
-enum class AppLanguage(val displayName: String, val code: String) {
-    ENGLISH("English", "en"),
-    GREEK("Ελληνικά (Greek)", "el")
+enum class AppLanguage(val code: String) {
+    ENGLISH("en"),
+    GREEK("el")
 }
 
 data class AppSettings(
@@ -73,4 +73,3 @@ class SettingsPreferences @Inject constructor(
         }
     }
 }
-

@@ -42,10 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -65,12 +67,12 @@ fun ExpenseHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Expense History") },
+                title = { Text(stringResource(R.string.expense_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -78,7 +80,7 @@ fun ExpenseHistoryScreen(
                     IconButton(onClick = { showSortMenu = true }) {
                         Icon(
                             imageVector = Icons.Default.FilterList,
-                            contentDescription = "Sort"
+                            contentDescription = stringResource(R.string.sort)
                         )
                     }
                     DropdownMenu(
@@ -123,7 +125,7 @@ fun ExpenseHistoryScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No expenses yet",
+                            text = stringResource(R.string.no_expenses_yet),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -147,7 +149,7 @@ fun ExpenseHistoryScreen(
                                 FilterChip(
                                     selected = selectedCategory == null,
                                     onClick = { viewModel.setSelectedCategory(null) },
-                                    label = { Text("All") }
+                                    label = { Text(stringResource(R.string.all)) }
                                 )
 
                                 // Category chips
@@ -174,12 +176,14 @@ fun ExpenseHistoryScreen(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "No expenses in \"$selectedCategory\"",
+                                        text = selectedCategory?.let {
+                                            stringResource(R.string.no_expenses_in_category_format, it)
+                                        } ?: stringResource(R.string.no_expenses_yet),
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     TextButton(onClick = { viewModel.setSelectedCategory(null) }) {
-                                        Text("Show all expenses")
+                                        Text(stringResource(R.string.show_all_expenses))
                                     }
                                 }
                             }
@@ -197,12 +201,16 @@ fun ExpenseHistoryScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Sorted by: ${sortOption.displayName}",
+                                            text = stringResource(R.string.sorted_by_format, sortOption.displayName),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
-                                            text = "${state.expenses.size} expense${if (state.expenses.size != 1) "s" else ""}",
+                                            text = androidx.compose.ui.res.pluralStringResource(
+                                                R.plurals.expenses_count,
+                                                state.expenses.size,
+                                                state.expenses.size
+                                            ),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -297,4 +305,3 @@ private fun ExpenseHistoryCard(
         }
     }
 }
-

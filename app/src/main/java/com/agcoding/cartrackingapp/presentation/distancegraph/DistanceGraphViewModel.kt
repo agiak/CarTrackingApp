@@ -59,7 +59,7 @@ class DistanceGraphViewModel @Inject constructor(
             )
                 .catch { e ->
                     _uiState.value = DistanceGraphUiState.Error(
-                        e.message ?: "Failed to load distance data"
+                        e.message ?: ""
                     )
                 }
                 .collect { trendData ->
@@ -83,4 +83,3 @@ sealed class DistanceGraphUiState {
     data class Success(val trendData: DistanceTrendData) : DistanceGraphUiState()
     data class Error(val message: String) : DistanceGraphUiState()
 }
-

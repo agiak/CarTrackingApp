@@ -2,6 +2,8 @@ package com.agcoding.cartrackingapp.presentation.settings
 
 import android.content.Context
 import android.net.Uri
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.BuildConfig
@@ -29,7 +31,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.Calendar
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -201,7 +202,14 @@ class SettingsViewModel @Inject constructor(
 
     fun updateLanguage(language: AppLanguage) {
         viewModelScope.launch {
+            // Save the language preference first
             settingsPreferences.updateLanguage(language)
+
+            // Apply the locale immediately - this will recreate the activity
+            withContext(Dispatchers.Main) {
+                val localeList = LocaleListCompat.forLanguageTags(language.code)
+                AppCompatDelegate.setApplicationLocales(localeList)
+            }
         }
     }
 

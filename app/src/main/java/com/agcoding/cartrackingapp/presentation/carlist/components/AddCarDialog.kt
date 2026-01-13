@@ -14,8 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.agcoding.cartrackingapp.R
 
 @Composable
 fun AddCarDialog(
@@ -28,7 +30,7 @@ fun AddCarDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Car") },
+        title = { Text(stringResource(R.string.add_car_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -37,8 +39,8 @@ fun AddCarDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Car Name") },
-                    placeholder = { Text("e.g., Toyota Corolla") },
+                    label = { Text(stringResource(R.string.add_car_field_name)) },
+                    placeholder = { Text(stringResource(R.string.add_car_placeholder_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -46,8 +48,8 @@ fun AddCarDialog(
                 OutlinedTextField(
                     value = licensePlate,
                     onValueChange = { licensePlate = it.uppercase() },
-                    label = { Text("License Plate") },
-                    placeholder = { Text("e.g., ABC-1234") },
+                    label = { Text(stringResource(R.string.add_car_field_license_plate)) },
+                    placeholder = { Text(stringResource(R.string.add_car_placeholder_license_plate)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -55,8 +57,8 @@ fun AddCarDialog(
                 OutlinedTextField(
                     value = odometer,
                     onValueChange = { odometer = it },
-                    label = { Text("Current Odometer (km)") },
-                    placeholder = { Text("e.g., 45000") },
+                    label = { Text(stringResource(R.string.add_car_field_odometer)) },
+                    placeholder = { Text(stringResource(R.string.add_car_placeholder_odometer)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -72,14 +74,13 @@ fun AddCarDialog(
                 },
                 enabled = name.isNotBlank() && licensePlate.isNotBlank() && odometer.isNotBlank()
             ) {
-                Text("Add")
+                Text(stringResource(R.string.add_car_action))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
-

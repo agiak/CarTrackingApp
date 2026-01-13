@@ -11,10 +11,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,12 +39,12 @@ fun EditExpenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Expense") },
+                title = { Text(stringResource(R.string.edit_expense_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -83,8 +85,8 @@ fun EditExpenseScreen(
                     OutlinedTextField(
                         value = amount,
                         onValueChange = viewModel::updateAmount,
-                        label = { Text("Amount (€)") },
-                        placeholder = { Text("0.00") },
+                        label = { Text(stringResource(R.string.expense_amount_eur)) },
+                        placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                         leadingIcon = {
                             Text(
                                 text = "€",
@@ -99,14 +101,14 @@ fun EditExpenseScreen(
 
                     // Date field
                     OutlinedTextField(
-                        value = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(selectedDate)),
+                        value = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault()).format(Date(selectedDate)),
                         onValueChange = {},
-                        label = { Text("Date") },
+                        label = { Text(stringResource(R.string.date)) },
                         trailingIcon = {
                             IconButton(onClick = { viewModel.showDatePicker() }) {
                                 Icon(
                                     imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = "Pick date"
+                                    contentDescription = stringResource(R.string.pick_date)
                                 )
                             }
                         },
@@ -118,8 +120,8 @@ fun EditExpenseScreen(
                     OutlinedTextField(
                         value = notes,
                         onValueChange = viewModel::updateNotes,
-                        label = { Text("Notes (optional)") },
-                        placeholder = { Text("Add details about this expense...") },
+                        label = { Text(stringResource(R.string.expense_notes_optional)) },
+                        placeholder = { Text(stringResource(R.string.expense_details_hint)) },
                         minLines = 3,
                         maxLines = 5,
                         modifier = Modifier.fillMaxWidth()
@@ -151,7 +153,7 @@ fun EditExpenseScreen(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
-                            Text("Save Changes")
+                            Text(stringResource(R.string.save_changes))
                         }
                     }
                 }
@@ -173,12 +175,12 @@ fun EditExpenseScreen(
                                     viewModel.hideDatePicker()
                                 }
                             ) {
-                                Text("OK")
+                                Text(stringResource(R.string.ok_label))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { viewModel.hideDatePicker() }) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.cancel))
                             }
                         }
                     ) {
@@ -200,4 +202,3 @@ fun EditExpenseScreen(
         }
     }
 }
-
