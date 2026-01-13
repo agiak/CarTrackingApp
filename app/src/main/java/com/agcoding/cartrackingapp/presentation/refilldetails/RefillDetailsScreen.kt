@@ -47,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -202,14 +201,14 @@ private fun RefillDetailsContent(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Total Amount Card - Green colored
+        // Total Amount Card - Primary color themed
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF34C759) // Green color like in design
+                containerColor = MaterialTheme.colorScheme.primary
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
@@ -222,7 +221,7 @@ private fun RefillDetailsContent(
                 Text(
                     text = stringResource(R.string.total_amount_paid),
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -230,13 +229,13 @@ private fun RefillDetailsContent(
                     text = "€%.2f".format(refill.amountPaid),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = formatDate(refill.timestamp),
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                 )
             }
         }

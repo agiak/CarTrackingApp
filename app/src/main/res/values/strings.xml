@@ -199,6 +199,18 @@
     <!-- Storage summary -->
     <string name="settings_storage_used_format">%1$s used</string>
 
+    <!-- Expense History Screen -->
+    <string name="expense_history_title">Expense History</string>
+    <string name="expense_sort_most_recent">Most Recent</string>
+    <string name="expense_sort_oldest">Oldest</string>
+    <string name="expense_sort_most_expensive">Most Expensive</string>
+    <string name="expense_sort_cheapest">Cheapest</string>
+    <string name="sorted_by_format">Sorted by: %1$s</string>
+    <string name="all">All</string>
+    <string name="no_expenses_yet">No expenses yet</string>
+    <string name="no_expenses_in_category_format">No expenses in category: %1$s</string>
+    <string name="show_all_expenses">Show all expenses</string>
+
     <!-- Additional strings -->
     <string name="settings_app_language">App Language</string>
     <string name="settings_view_app_guide">View App Guide</string>
@@ -390,13 +402,7 @@
     <string name="add_fuel_refill_title">Add Fuel Refill</string>
     <string name="save_refill">Save Refill</string>
 
-    <!-- Expense History -->
-    <string name="expense_history_title">Expense History</string>
-    <string name="no_expenses_yet">No expenses yet</string>
-    <string name="all">All</string>
-    <string name="no_expenses_in_category_format">No expenses in "%1$s"</string>
-    <string name="show_all_expenses">Show all expenses</string>
-    <string name="sorted_by_format">Sorted by: %1$s</string>
+    <!-- Expense History (entries moved to line ~201) -->
 
     <plurals name="expenses_count">
         <item quantity="one">%1$d expense</item>
@@ -448,6 +454,7 @@
 
     <!-- Statistics Screen -->
     <string name="statistics">Statistics</string>
+    <string name="statistics_no_data_desc">Add cars and refills to see your statistics</string>
     <string name="overall_summary">Overall Summary</string>
     <string name="per_car_breakdown">Per-Car Breakdown</string>
     <string name="monthly_trends">Monthly Trends</string>
@@ -477,4 +484,23 @@
     <string name="cost_per_km_short">Cost/km:</string>
     <string name="services_short">Services:</string>
     <string name="others_short">Others:</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_cars">Cars</string>
+    <string name="nav_statistics">Statistics</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Expense Categories -->
+    <string name="expense_category_tire_change">Tire change</string>
+    <string name="expense_category_oil_change">Oil change</string>
+    <string name="expense_category_small_service">Small service</string>
+    <string name="expense_category_big_service">Big service</string>
+    <string name="expense_category_repairs">Repairs</string>
+    <string name="expense_category_accessories">Accessories</string>
+    <string name="expense_category_insurance">Insurance</string>
+    <string name="expense_category_registration">Registration</string>
+    <string name="expense_category_parking">Parking</string>
+    <string name="expense_category_toll">Toll</string>
+    <string name="expense_category_car_wash">Car wash</string>
+    <string name="expense_category_other">Other</string>
 </resources>

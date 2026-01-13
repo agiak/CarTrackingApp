@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -129,10 +130,10 @@ fun AppNavigation(
                             icon = {
                                 Icon(
                                     imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = item.label
+                                    contentDescription = stringResource(item.labelResId)
                                 )
                             },
-                            label = { Text(item.label) }
+                            label = { Text(stringResource(item.labelResId)) }
                         )
                     }
                 }

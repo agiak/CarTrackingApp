@@ -89,7 +89,7 @@ fun ExpenseHistoryScreen(
                     ) {
                         ExpenseSortOption.values().forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(option.displayName) },
+                                text = { Text(stringResource(option.displayNameResId)) },
                                 onClick = {
                                     viewModel.setSortOption(option)
                                     showSortMenu = false
@@ -201,7 +201,7 @@ fun ExpenseHistoryScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = stringResource(R.string.sorted_by_format, sortOption.displayName),
+                                            text = stringResource(R.string.sorted_by_format, stringResource(sortOption.displayNameResId)),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

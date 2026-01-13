@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
@@ -14,8 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
-    private val expenseRepository: ExpenseRepository
-) : ViewModel() {
+    private val expenseRepository: ExpenseRepository,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val _carId = MutableStateFlow(0L)
 
@@ -25,8 +27,13 @@ class AddExpenseViewModel @Inject constructor(
     private val _categoryExpanded = MutableStateFlow(false)
     val categoryExpanded: StateFlow<Boolean> = _categoryExpanded.asStateFlow()
 
+    // Get translated predefined categories
+    private val translatedCategories = ExpenseCategories.predefinedResIds.map { resId ->
+        application.getString(resId)
+    }
+
     // Get predefined categories plus any used custom categories
-    private val _availableCategories = MutableStateFlow(ExpenseCategories.predefined)
+    private val _availableCategories = MutableStateFlow(translatedCategories)
     val availableCategories: StateFlow<List<String>> = _availableCategories.asStateFlow()
 
     private val _amount = MutableStateFlow("")

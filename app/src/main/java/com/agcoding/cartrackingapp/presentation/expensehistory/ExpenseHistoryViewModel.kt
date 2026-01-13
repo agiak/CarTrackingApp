@@ -23,11 +23,11 @@ sealed class ExpenseHistoryUiState {
     data class Error(val message: String) : ExpenseHistoryUiState()
 }
 
-enum class ExpenseSortOption(val displayName: String) {
-    MOST_RECENT("Most Recent"),
-    OLDEST("Oldest"),
-    MOST_EXPENSIVE("Most Expensive"),
-    CHEAPEST("Cheapest")
+enum class ExpenseSortOption(val displayNameResId: Int) {
+    MOST_RECENT(com.agcoding.cartrackingapp.R.string.expense_sort_most_recent),
+    OLDEST(com.agcoding.cartrackingapp.R.string.expense_sort_oldest),
+    MOST_EXPENSIVE(com.agcoding.cartrackingapp.R.string.expense_sort_most_expensive),
+    CHEAPEST(com.agcoding.cartrackingapp.R.string.expense_sort_cheapest)
 }
 
 @HiltViewModel

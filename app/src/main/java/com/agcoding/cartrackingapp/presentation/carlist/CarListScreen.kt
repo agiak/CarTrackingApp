@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,13 +55,16 @@ fun CarListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.showAddCarDialog() }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.car_list_add_car_cd)
-                )
+            // Only show FAB when there are cars
+            if (uiState is CarListUiState.Success) {
+                FloatingActionButton(
+                    onClick = { viewModel.showAddCarDialog() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.car_list_add_car_cd)
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -132,6 +136,14 @@ private fun EmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Large icon for visual appeal
+        Icon(
+            imageVector = Icons.Default.DirectionsCar,
+            contentDescription = null,
+            modifier = Modifier.size(120.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.car_list_no_cars_title),
             style = MaterialTheme.typography.titleLarge,

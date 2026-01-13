@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,13 +92,52 @@ fun StatisticsScreen(
             }
 
             is StatisticsUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                // Check if there are no cars/data at all
+                if (state.statistics.totalCost == 0.0 &&
+                    state.statistics.totalRefills == 0 &&
+                    state.statistics.totalDistance == 0.0) {
+                    // Empty state
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Large icon for visual appeal
+                            Icon(
+                                imageVector = Icons.Default.QueryStats,
+                                contentDescription = null,
+                                modifier = Modifier.size(120.dp),
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = stringResource(R.string.car_list_no_cars_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.statistics_no_data_desc),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                     // Summary section
                     item {
                         Text(
@@ -192,6 +232,7 @@ fun StatisticsScreen(
                         InsightsSection(state.statistics)
                     }
                 }
+                } // Close else block for empty check
             }
 
             is StatisticsUiState.Error -> {

@@ -199,6 +199,18 @@
     <string name="settings_storage_used_format">%1$s χρησιμοποιούνται</string>
 
     <!-- Additional strings -->
+    <!-- Expense History Screen -->
+    <string name="expense_history_title">Ιστορικό εξόδων</string>
+    <string name="expense_sort_most_recent">Πιο πρόσφατα</string>
+    <string name="expense_sort_oldest">Παλαιότερα</string>
+    <string name="expense_sort_most_expensive">Πιο ακριβά</string>
+    <string name="expense_sort_cheapest">Πιο φθηνά</string>
+    <string name="sorted_by_format">Ταξινόμηση: %1$s</string>
+    <string name="all">Όλα</string>
+    <string name="no_expenses_yet">Δεν υπάρχουν έξοδα ακόμα</string>
+    <string name="no_expenses_in_category_format">Δεν υπάρχουν έξοδα στην κατηγορία: %1$s</string>
+    <string name="show_all_expenses">Εμφάνιση όλων των εξόδων</string>
+
     <string name="settings_app_language">Γλώσσα εφαρμογής</string>
     <string name="settings_view_app_guide">Οδηγός εφαρμογής</string>
     <string name="settings_learn_how_to_use_the_app">Μάθετε πώς να χρησιμοποιείτε την εφαρμογή</string>
@@ -389,13 +401,7 @@
     <string name="add_fuel_refill_title">Προσθήκη ανεφοδιασμού</string>
     <string name="save_refill">Αποθήκευση ανεφοδιασμού</string>
 
-    <!-- Expense History -->
-    <string name="expense_history_title">Ιστορικό εξόδων</string>
-    <string name="no_expenses_yet">Δεν υπάρχουν έξοδα ακόμα</string>
-    <string name="all">Όλα</string>
-    <string name="no_expenses_in_category_format">Δεν υπάρχουν έξοδα στην κατηγορία "%1$s"</string>
-    <string name="show_all_expenses">Εμφάνιση όλων των εξόδων</string>
-    <string name="sorted_by_format">Ταξινόμηση: %1$s</string>
+    <!-- Expense History (entries moved to line ~201) -->
 
     <plurals name="expenses_count">
         <item quantity="one">%1$d έξοδο</item>
@@ -447,6 +453,7 @@
 
     <!-- Statistics Screen -->
     <string name="statistics">Στατιστικά</string>
+    <string name="statistics_no_data_desc">Προσθέστε αυτοκίνητα και ανεφοδιασμούς για να δείτε τα στατιστικά σας</string>
     <string name="overall_summary">Συνολική Περίληψη</string>
     <string name="per_car_breakdown">Ανάλυση ανά Αυτοκίνητο</string>
     <string name="monthly_trends">Μηνιαίες Τάσεις</string>
@@ -478,5 +485,24 @@
     <string name="cost_per_km_short">Κόστος/χλμ:</string>
     <string name="services_short">Σέρβις:</string>
     <string name="others_short">Άλλα:</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_cars">Αυτοκίνητα</string>
+    <string name="nav_statistics">Στατιστικά</string>
+    <string name="nav_settings">Ρυθμίσεις</string>
+
+    <!-- Expense Categories -->
+    <string name="expense_category_tire_change">Αλλαγή ελαστικών</string>
+    <string name="expense_category_oil_change">Αλλαγή λαδιών</string>
+    <string name="expense_category_small_service">Μικρό σέρβις</string>
+    <string name="expense_category_big_service">Μεγάλο σέρβις</string>
+    <string name="expense_category_repairs">Επισκευές</string>
+    <string name="expense_category_accessories">Αξεσουάρ</string>
+    <string name="expense_category_insurance">Ασφάλεια</string>
+    <string name="expense_category_registration">Τέλη κυκλοφορίας</string>
+    <string name="expense_category_parking">Πάρκινγκ</string>
+    <string name="expense_category_toll">Διόδια</string>
+    <string name="expense_category_car_wash">Πλύσιμο</string>
+    <string name="expense_category_other">Άλλο</string>
 </resources>
 

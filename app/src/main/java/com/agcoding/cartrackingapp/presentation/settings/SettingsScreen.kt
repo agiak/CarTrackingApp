@@ -432,7 +432,7 @@ private fun AppearanceCard(
                 },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xFF4CAF50)
+                    checkedTrackColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -518,13 +518,13 @@ private fun LanguageOption(
             .padding(vertical = 8.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Green dot indicator for selected
+        // Dot indicator for selected
         Box(
             modifier = Modifier
                 .size(8.dp)
                 .clip(CircleShape)
                 .background(
-                    if (isSelected) Color(0xFF4CAF50)
+                    if (isSelected) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.outlineVariant
                 )
         )
@@ -560,8 +560,8 @@ private fun PreferencesCard(
             // Notifications Row
             SettingsRow(
                 icon = Icons.Default.Notifications,
-                iconBackgroundColor = Color(0xFF4CAF50).copy(alpha = 0.1f),
-                iconTint = Color(0xFF4CAF50),
+                iconBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                iconTint = MaterialTheme.colorScheme.primary,
                 title = stringResource(R.string.preferences_notifications),
                 subtitle = if (notificationsEnabled) stringResource(R.string.settings_notifications_enabled) else stringResource(R.string.settings_notifications_disabled),
                 trailing = {
@@ -570,7 +570,7 @@ private fun PreferencesCard(
                         onCheckedChange = onNotificationsToggle,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFF4CAF50)
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }
