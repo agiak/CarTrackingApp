@@ -22,16 +22,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,9 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -56,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.presentation.expense.ExpandableFabMenu
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -75,12 +73,11 @@ fun CarDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
-    var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.car_details_title)) },
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -90,50 +87,24 @@ fun CarDetailsScreen(
                     }
                 },
                 actions = {
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = stringResource(R.string.more)
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.edit_car)) },
-                                onClick = {
-                                    showMenu = false
-                                    onEditCarClick()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.delete_car)) },
-                                onClick = {
-                                    showMenu = false
-                                    viewModel.showDeleteDialog()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                        }
+                    IconButton(onClick = onEditCarClick) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_car)
+                        )
+                    }
+                    IconButton(onClick = { viewModel.showDeleteDialog() }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete_car),
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
-            com.agcoding.cartrackingapp.presentation.expense.ExpandableFabMenu(
+            ExpandableFabMenu(
                 onRefillClick = onAddRefillClick,
                 onExpenseClick = onAddExpenseClick
             )
@@ -159,25 +130,22 @@ fun CarDetailsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Car info header
+                    // Car header with icon
                     item {
-                        CarInfoCard(state.statistics)
+                        CarHeaderCard(state.statistics)
                     }
 
-                    // Statistics cards
+                    // Quick stats grid
                     item {
-                        StatisticsGrid(state.statistics)
+                        QuickStatsGrid(state.statistics)
                     }
 
-                    // Extra Info Section
+                    // Total spending card
                     item {
-                        ExtraInfoSection(
-                            car = state.statistics.car,
-                            onEditClick = onEditCarClick
-                        )
+                        TotalSpendingCard(state.statistics)
                     }
 
-                    // Recent refills header
+                    // Refills header with "See All"
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -185,59 +153,66 @@ fun CarDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.refill_history_title),
-                                fontSize = 18.sp,
+                                text = "Refills (${state.statistics.totalRefills})",
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = MaterialTheme.colorScheme.onSurface
                             )
-                            Text(
-                                text = stringResource(R.string.see_all),
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
-                            )
+                            if (state.statistics.totalRefills > 3) {
+                                Text(
+                                    text = stringResource(R.string.see_all),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
+                                )
+                            }
                         }
                     }
 
-                    items(state.statistics.recentRefills) { refill ->
-                        RefillCard(
+                    // Recent refills
+                    items(state.statistics.recentRefills.take(3)) { refill ->
+                        ModernRefillCard(
                             refill = refill,
                             onClick = { onRefillClick(refill.id) }
                         )
                     }
 
-                    // Expenses header
-                    if (state.statistics.recentExpenses.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.recent_expenses),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
+                    // Expenses header with "See All"
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
+                            Text(
+                                text = "Services ($totalExpenses)",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            if (totalExpenses > 3) {
                                 Text(
                                     text = stringResource(R.string.see_all),
                                     fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
                                 )
                             }
                         }
+                    }
 
-                        items(state.statistics.recentExpenses) { expense ->
-                            ExpenseCard(
-                                expense = expense,
-                                onClick = { onExpenseClick(expense.id) }
-                            )
-                        }
+                    // Recent expenses
+                    items(state.statistics.recentExpenses.take(3)) { expense ->
+                        ExpenseCard(
+                            expense = expense,
+                            onClick = { onExpenseClick(expense.id) }
+                        )
                     }
                 }
             }
@@ -279,84 +254,461 @@ fun CarDetailsScreen(
 }
 
 @Composable
-private fun CarInfoCard(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+private fun CarHeaderCard(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Text(
-            text = statistics.car.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Bigger car icon
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .padding(end = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .padding(16.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                // Car info
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = statistics.car.name,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = statistics.car.licensePlate,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Separator line
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Current odometer
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Speed,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.current_odometer),
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "${String.format("%,d", statistics.car.currentOdometer.toInt())} km",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickStatsGrid(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        QuickStatCard(
+            icon = Icons.AutoMirrored.Filled.TrendingUp,
+            label = stringResource(R.string.avg_consumption_short),
+            value = if (statistics.averageConsumption > 0) {
+                String.format("%.1f", statistics.averageConsumption)
+            } else "-",
+            unit = "L/100km",
+            modifier = Modifier.weight(1f)
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = statistics.car.licensePlate,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        QuickStatCard(
+            icon = Icons.Default.Route,
+            label = stringResource(R.string.distance),
+            value = String.format("%,d", statistics.totalDistance.toInt()),
+            unit = "km",
+            modifier = Modifier.weight(1f)
+        )
+
+        QuickStatCard(
+            icon = Icons.Default.AttachMoney,
+            label = "Cost/km",
+            value = if (statistics.costPerKilometer > 0) {
+                String.format("€%.2f", statistics.costPerKilometer)
+            } else "€0.00",
+            unit = "",
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-private fun StatisticsGrid(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+private fun QuickStatCard(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    unit: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .height(160.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        // First row - separate cards
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            MetricCard(
-                icon = Icons.AutoMirrored.Filled.TrendingUp,
-                label = stringResource(R.string.avg_consumption),
-                value = if (statistics.averageConsumption > 0) {
-                    "${String.format("%.1f", statistics.averageConsumption)} L/100km"
-                } else stringResource(R.string.not_available),
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                icon = Icons.Default.AttachMoney,
-                label = stringResource(R.string.total_cost),
-                value = "€${String.format("%.2f", statistics.totalCost)}",
-                modifier = Modifier.weight(1f)
-            )
-        }
+            Box(
+                modifier = Modifier
+                    .size(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
 
-        // Second row - separate cards
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                maxLines = 2,
+                lineHeight = 14.sp
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
+
+            if (unit.isNotEmpty()) {
+                Text(
+                    text = unit,
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TotalSpendingCard(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
+    val totalSpending = statistics.totalCost + statistics.serviceExpensesCost + statistics.otherExpensesCost
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
         ) {
-            MetricCard(
-                icon = Icons.Default.Route,
-                label = stringResource(R.string.total_distance),
-                value = "${String.format("%.0f", statistics.totalDistance)} km",
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                icon = Icons.Default.Speed,
-                label = stringResource(R.string.odometer),
-                value = "${String.format("%.0f", statistics.car.currentOdometer)} km",
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AttachMoney,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.total_spending),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "€${String.format("%.2f", totalSpending)}",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SpendingBreakdown(
+                    label = stringResource(R.string.fuel),
+                    amount = statistics.totalCost
+                )
+                SpendingBreakdown(
+                    label = stringResource(R.string.service),
+                    amount = statistics.serviceExpensesCost
+                )
+                SpendingBreakdown(
+                    label = stringResource(R.string.other),
+                    amount = statistics.otherExpensesCost
+                )
+            }
         }
+    }
+}
 
-        // Third row - Cost per Kilometer (full width)
-        val costPerKm = if (statistics.totalDistance > 0) {
-            statistics.totalCost / statistics.totalDistance
-        } else 0.0
-
-        MetricCard(
-            icon = Icons.Default.AttachMoney,
-            label = stringResource(R.string.cost_per_kilometer),
-            value = if (statistics.totalDistance > 0) {
-                "€${String.format("%.3f", costPerKm)}/km"
-            } else stringResource(R.string.not_available),
-            modifier = Modifier.fillMaxWidth()
+@Composable
+private fun SpendingBreakdown(label: String, amount: Double) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Text(
+            text = "€${String.format("%.2f", amount)}",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun TabsSection(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        TabButton(
+            text = "${stringResource(R.string.refills)} (${statistics.totalRefills})",
+            isSelected = true,
+            modifier = Modifier.weight(1f)
+        )
+        TabButton(
+            text = "${stringResource(R.string.services)} (${statistics.serviceExpenseCount})",
+            isSelected = false,
+            modifier = Modifier.weight(1f)
+        )
+        TabButton(
+            text = "${stringResource(R.string.other)} (${statistics.otherExpenseCount})",
+            isSelected = false,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun TabButton(
+    text: String,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.surface
+            else
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        shape = RoundedCornerShape(8.dp),
+        border = if (isSelected)
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        else null
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                fontSize = 13.sp,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (isSelected)
+                    MaterialTheme.colorScheme.onSurface
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ModernRefillCard(
+    refill: FuelRefill,
+    onClick: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.AttachMoney,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = dateFormat.format(Date(refill.timestamp)),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.AttachMoney,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = " ${String.format("%.1f", refill.litersAdded)} L",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Route,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = " ${String.format("%.0f", refill.tripDistance)} km",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = " ${String.format("%.1f", refill.fuelConsumption)} L/100km",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Text(
+                text = "€${String.format("%.2f", refill.amountPaid)}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

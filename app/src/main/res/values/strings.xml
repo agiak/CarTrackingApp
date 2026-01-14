@@ -503,4 +503,10 @@
     <string name="expense_category_toll">Toll</string>
     <string name="expense_category_car_wash">Car wash</string>
     <string name="expense_category_other">Other</string>
+
+    <!-- Car Details Screen -->
+    <string name="current_odometer">Current Odometer</string>
+    <string name="avg_consumption_short">Avg\nConsumption</string>
+    <string name="refills">Refills</string>
+    <string name="services">Services</string>
 </resources>

@@ -91,8 +91,6 @@ fun ExpandableFabMenu(
             // Main FAB
             FloatingActionButton(
                 onClick = { isExpanded = !isExpanded },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -119,7 +117,6 @@ private fun FabMenuItem(
         // Label
         Surface(
             shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 2.dp,
             shadowElevation = 4.dp
         ) {
@@ -134,8 +131,7 @@ private fun FabMenuItem(
         // Icon button
         SmallFloatingActionButton(
             onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(
                 imageVector = icon,

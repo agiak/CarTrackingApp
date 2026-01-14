@@ -504,5 +504,11 @@
     <string name="expense_category_toll">Διόδια</string>
     <string name="expense_category_car_wash">Πλύσιμο</string>
     <string name="expense_category_other">Άλλο</string>
+
+    <!-- Car Details Screen -->
+    <string name="current_odometer">Τρέχον Οδόμετρο</string>
+    <string name="avg_consumption_short">Μ.Ο.\nΚατανάλωση</string>
+    <string name="refills">Ανεφοδιασμοί</string>
+    <string name="services">Σέρβις</string>
 </resources>
 
