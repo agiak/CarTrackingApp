@@ -509,4 +509,55 @@
     <string name="avg_consumption_short">Avg\nConsumption</string>
     <string name="refills">Refills</string>
     <string name="services">Services</string>
+
+    <!-- Refills Graph Screen -->
+    <string name="refills_graph_title">Total Refills Analysis</string>
+    <string name="refills_graph_subtitle">Track your refilling patterns over time</string>
+    <string name="total_refills_label">Total Refills</string>
+    <string name="average_per_month">Average/Month</string>
+    <string name="highest_month">Highest Month</string>
+    <string name="lowest_month">Lowest Month</string>
+    <string name="avg_liters_per_refill">Avg Liters/Refill</string>
+    <string name="monthly_refills_trend">Monthly Refills Trend</string>
+    <string name="recent_refills">Recent Refills</string>
+    <string name="refills_format">%d refills</string>
+    <string name="items_format">%d items</string>
+    <string name="no_refill_data">No refill data available</string>
+    <string name="add_refills_to_see_trends">Add refills to see trends</string>
+
+    <!-- Cost Graph Screen -->
+    <string name="cost_graph_title">Total Cost Analysis</string>
+    <string name="cost_graph_subtitle">Track your spending over time</string>
+    <string name="average_monthly_cost">Average/Month</string>
+    <string name="highest_month_cost">Highest Month</string>
+    <string name="lowest_month_cost">Lowest Month</string>
+    <string name="total_expenses_count">Total Expenses</string>
+    <string name="monthly_cost_trend">Monthly Cost Trend</string>
+    <string name="cost_breakdown_label">Cost Breakdown</string>
+    <string name="no_cost_data">No cost data available</string>
+    <string name="add_refills_expenses_cost_trends">Add refills or expenses to see cost trends</string>
+    <string name="fuel_category">Fuel</string>
+    <string name="service_category">Service</string>
+    <string name="other_category">Other</string>
+    <string name="average_cost_subtitle">Average cost</string>
+
+    <!-- Common -->
+    <string name="select_time_period">Select Time Period</string>
+    <string name="error_loading_data">Error loading data</string>
+
+    <!-- Consumption Graph Screen -->
+    <string name="consumption_graph_title">Fuel Consumption</string>
+    <string name="consumption_graph_subtitle">Track your consumption over time</string>
+    <string name="average_label">Average</string>
+    <string name="trend_label">Trend</string>
+    <string name="best_label">Best</string>
+    <string name="worst_label">Worst</string>
+    <string name="consumption_history">Consumption History</string>
+    <string name="all_refills_format">All Refills (%d)</string>
+    <string name="trend_improving">Improving</string>
+    <string name="trend_worsening">Worsening</string>
+    <string name="trend_stable">Stable</string>
+    <string name="not_enough_data">Not enough data yet</string>
+    <string name="add_two_refills_for_trends">Add at least 2 refills to see trends</string>
 </resources>
+

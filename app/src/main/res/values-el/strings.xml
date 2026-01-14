@@ -510,5 +510,55 @@
     <string name="avg_consumption_short">Μ.Ο.\nΚατανάλωση</string>
     <string name="refills">Ανεφοδιασμοί</string>
     <string name="services">Σέρβις</string>
+
+    <!-- Refills Graph Screen -->
+    <string name="refills_graph_title">Ανάλυση Συνολικών Ανεφοδιασμών</string>
+    <string name="refills_graph_subtitle">Παρακολουθήστε τα μοτίβα ανεφοδιασμού σας</string>
+    <string name="total_refills_label">Σύνολο Ανεφοδιασμών</string>
+    <string name="average_per_month">Μέσος Όρος/Μήνα</string>
+    <string name="highest_month">Υψηλότερος Μήνας</string>
+    <string name="lowest_month">Χαμηλότερος Μήνας</string>
+    <string name="avg_liters_per_refill">Μ.Ο. Λίτρα/Ανεφοδιασμό</string>
+    <string name="monthly_refills_trend">Μηνιαία Τάση Ανεφοδιασμών</string>
+    <string name="recent_refills">Πρόσφατοι Ανεφοδιασμοί</string>
+    <string name="refills_format">%d ανεφοδιασμοί</string>
+    <string name="items_format">%d στοιχεία</string>
+    <string name="no_refill_data">Δεν υπάρχουν δεδομένα ανεφοδιασμού</string>
+    <string name="add_refills_to_see_trends">Προσθέστε ανεφοδιασμούς για να δείτε τάσεις</string>
+
+    <!-- Cost Graph Screen -->
+    <string name="cost_graph_title">Ανάλυση Συνολικού Κόστους</string>
+    <string name="cost_graph_subtitle">Παρακολουθήστε τις δαπάνες σας</string>
+    <string name="average_monthly_cost">Μέσος Όρος/Μήνα</string>
+    <string name="highest_month_cost">Υψηλότερος Μήνας</string>
+    <string name="lowest_month_cost">Χαμηλότερος Μήνας</string>
+    <string name="total_expenses_count">Σύνολο Εξόδων</string>
+    <string name="monthly_cost_trend">Μηνιαία Τάση Κόστους</string>
+    <string name="cost_breakdown_label">Ανάλυση Κόστους</string>
+    <string name="no_cost_data">Δεν υπάρχουν δεδομένα κόστους</string>
+    <string name="add_refills_expenses_cost_trends">Προσθέστε ανεφοδιασμούς ή έξοδα για να δείτε τάσεις κόστους</string>
+    <string name="fuel_category">Καύσιμο</string>
+    <string name="service_category">Σέρβις</string>
+    <string name="other_category">Άλλο</string>
+    <string name="average_cost_subtitle">Μέσο κόστος</string>
+
+    <!-- Common -->
+    <string name="select_time_period">Επιλογή Χρονικής Περιόδου</string>
+    <string name="error_loading_data">Σφάλμα φόρτωσης δεδομένων</string>
+
+    <!-- Consumption Graph Screen -->
+    <string name="consumption_graph_title">Κατανάλωση Καυσίμου</string>
+    <string name="consumption_graph_subtitle">Παρακολουθήστε την κατανάλωσή σας</string>
+    <string name="average_label">Μέσος Όρος</string>
+    <string name="trend_label">Τάση</string>
+    <string name="best_label">Καλύτερη</string>
+    <string name="worst_label">Χειρότερη</string>
+    <string name="consumption_history">Ιστορικό Κατανάλωσης</string>
+    <string name="all_refills_format">Όλοι οι Ανεφοδιασμοί (%d)</string>
+    <string name="trend_improving">Βελτίωση</string>
+    <string name="trend_worsening">Επιδείνωση</string>
+    <string name="trend_stable">Σταθερή</string>
+    <string name="not_enough_data">Δεν υπάρχουν αρκετά δεδομένα</string>
+    <string name="add_two_refills_for_trends">Προσθέστε τουλάχιστον 2 ανεφοδιασμούς για να δείτε τάσεις</string>
 </resources>
 

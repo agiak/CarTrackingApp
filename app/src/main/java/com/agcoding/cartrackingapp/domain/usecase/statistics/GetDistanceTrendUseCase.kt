@@ -199,7 +199,19 @@ class GetDistanceTrendUseCase @Inject constructor(
         val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
         val calendar = Calendar.getInstance()
 
-        // Group refills by month
+        // Find the earliest and latest refill timestamps
+        val earliestTimestamp = refills.minOf { it.timestamp }
+        val latestTimestamp = refills.maxOf { it.timestamp }
+
+        // Set calendar to the first day of the earliest month
+        calendar.timeInMillis = earliestTimestamp
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // Group refills by month for easy lookup
         val monthlyGroups = refills.groupBy { refill ->
             calendar.timeInMillis = refill.timestamp
             val year = calendar.get(Calendar.YEAR)
@@ -207,15 +219,35 @@ class GetDistanceTrendUseCase @Inject constructor(
             Pair(year, month)
         }
 
-        return monthlyGroups.map { (yearMonth, monthRefills) ->
-            calendar.set(yearMonth.first, yearMonth.second, 1)
-            MonthlyDistance(
-                month = monthFormat.format(calendar.time),
-                year = yearMonth.first,
-                distance = monthRefills.sumOf { it.tripDistance },
-                timestamp = calendar.timeInMillis
+        // Generate all months from earliest to latest
+        val monthlyDistances = mutableListOf<MonthlyDistance>()
+        calendar.timeInMillis = earliestTimestamp
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+
+        val endCalendar = Calendar.getInstance()
+        endCalendar.timeInMillis = latestTimestamp
+
+        while (calendar.timeInMillis <= endCalendar.timeInMillis) {
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val monthKey = Pair(year, month)
+
+            // Get distance for this month, or 0 if no refills
+            val distance = monthlyGroups[monthKey]?.sumOf { it.tripDistance } ?: 0.0
+
+            monthlyDistances.add(
+                MonthlyDistance(
+                    month = monthFormat.format(calendar.time),
+                    year = year,
+                    distance = distance,
+                    timestamp = calendar.timeInMillis
+                )
             )
-        }.sortedBy { it.timestamp }
+
+            // Move to next month
+            calendar.add(Calendar.MONTH, 1)
+        }
+
+        return monthlyDistances
     }
 }
-

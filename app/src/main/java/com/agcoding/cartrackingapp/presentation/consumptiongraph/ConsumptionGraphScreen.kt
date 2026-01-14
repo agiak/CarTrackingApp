@@ -1,10 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.consumptiongraph
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,34 +29,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.agcoding.cartrackingapp.domain.model.ConsumptionDataPoint
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrend
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
+import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
+import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
+import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +64,7 @@ fun ConsumptionGraphScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Fuel Consumption") },
+                title = { Text(stringResource(R.string.consumption_graph_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -151,6 +140,7 @@ fun ConsumptionGraphScreen(
                 onDismissRequest = { viewModel.hidePeriodSelector() }
             ) {
                 PeriodSelectorSheet(
+                    title = stringResource(R.string.select_time_period),
                     selectedPeriod = selectedPeriod,
                     onPeriodSelected = { period ->
                         viewModel.selectPeriod(period)
@@ -174,7 +164,7 @@ private fun ConsumptionGraphContent(
     ) {
         // Header
         Text(
-            text = "Track your consumption over time",
+            text = stringResource(R.string.consumption_graph_subtitle),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -185,13 +175,13 @@ private fun ConsumptionGraphContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                label = "Average",
+                label = stringResource(R.string.average_label),
                 value = "%.1f L/100km".format(trendData.overallAverage),
                 modifier = Modifier.weight(1f)
             )
 
             TrendCard(
-                label = "Trend",
+                label = stringResource(R.string.trend_label),
                 trend = trendData.trend,
                 modifier = Modifier.weight(1f)
             )
@@ -202,13 +192,13 @@ private fun ConsumptionGraphContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                label = "Best",
+                label = stringResource(R.string.best_label),
                 value = "%.1f L/100km".format(trendData.bestConsumption),
                 valueColor = Color(0xFF34C759),
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                label = "Worst",
+                label = stringResource(R.string.worst_label),
                 value = "%.1f L/100km".format(trendData.worstConsumption),
                 valueColor = Color(0xFFFF3B30),
                 modifier = Modifier.weight(1f)
@@ -231,7 +221,7 @@ private fun ConsumptionGraphContent(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Consumption History",
+                    text = stringResource(R.string.consumption_history),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -239,18 +229,23 @@ private fun ConsumptionGraphContent(
                 )
 
                 // The actual line graph
-                ConsumptionLineGraph(
-                    dataPoints = trendData.dataPoints,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
+                InteractiveLineChart(
+                    dataPoints = trendData.dataPoints.map { dataPoint ->
+                        ChartDataPoint(
+                            label = dataPoint.label,
+                            value = dataPoint.averageConsumption,
+                            formattedValue = "${String.format("%.1f", dataPoint.averageConsumption)} L/100km"
+                        )
+                    },
+                    tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
 
         // Refills info
         Text(
-            text = "All Refills (${trendData.totalRefills})",
+            text = stringResource(R.string.all_refills_format, trendData.totalRefills),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onBackground
@@ -258,129 +253,6 @@ private fun ConsumptionGraphContent(
     }
 }
 
-@Composable
-private fun ConsumptionLineGraph(
-    dataPoints: List<ConsumptionDataPoint>,
-    modifier: Modifier = Modifier
-) {
-    if (dataPoints.isEmpty()) return
-
-    var animationProgress by remember { mutableStateOf(0f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = animationProgress,
-        animationSpec = tween(durationMillis = 1000),
-        label = "graph_animation"
-    )
-
-    LaunchedEffect(dataPoints) {
-        animationProgress = 1f
-    }
-
-    val graphColor = MaterialTheme.colorScheme.primary
-    val gridColor = MaterialTheme.colorScheme.outlineVariant
-
-    Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val padding = 40f
-
-        // Calculate min/max for Y-axis with some padding
-        val minConsumption = dataPoints.minOf { it.averageConsumption }
-        val maxConsumption = dataPoints.maxOf { it.averageConsumption }
-        val range = maxConsumption - minConsumption
-        val yPadding = range * 0.2 // Add 20% padding
-        val yMin = (minConsumption - yPadding).coerceAtLeast(0.0)
-        val yMax = maxConsumption + yPadding
-
-        // Draw horizontal grid lines
-        val gridLines = 5
-        for (i in 0..gridLines) {
-            val y = padding + (height - 2 * padding) * i / gridLines
-            drawLine(
-                color = gridColor,
-                start = Offset(padding, y),
-                end = Offset(width - padding, y),
-                strokeWidth = 1f,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
-            )
-        }
-
-        // Convert data points to screen coordinates
-        val points = dataPoints.mapIndexed { index, point ->
-            val x = padding + (width - 2 * padding) * index / (dataPoints.size - 1).coerceAtLeast(1)
-            val normalizedY = ((point.averageConsumption - yMin) / (yMax - yMin)).toFloat()
-            val y = height - padding - (height - 2 * padding) * normalizedY
-            Offset(x, y)
-        }
-
-        // Draw the line with animation
-        if (points.size > 1) {
-            val path = Path()
-            path.moveTo(points[0].x, points[0].y)
-
-            for (i in 1 until points.size) {
-                val progress = (i.toFloat() / points.size) * animatedProgress
-                if (progress >= 1f || i < points.size * animatedProgress) {
-                    path.lineTo(points[i].x, points[i].y)
-                }
-            }
-
-            drawPath(
-                path = path,
-                color = graphColor,
-                style = Stroke(
-                    width = 4f,
-                    cap = StrokeCap.Round
-                )
-            )
-        }
-
-        // Draw data points
-        points.forEachIndexed { index, point ->
-            val progress = (index.toFloat() / points.size) * animatedProgress
-            if (progress >= 1f || index < points.size * animatedProgress) {
-                drawCircle(
-                    color = graphColor,
-                    radius = 6f,
-                    center = point
-                )
-                drawCircle(
-                    color = Color.White,
-                    radius = 3f,
-                    center = point
-                )
-            }
-        }
-    }
-
-    // X-axis labels below the graph
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        if (dataPoints.isNotEmpty()) {
-            Text(
-                text = dataPoints.first().label,
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (dataPoints.size > 2) {
-                Text(
-                    text = dataPoints[dataPoints.size / 2].label,
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Text(
-                text = dataPoints.last().label,
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
 
 @Composable
 private fun StatCard(
@@ -425,21 +297,22 @@ private fun TrendCard(
     trend: ConsumptionTrend,
     modifier: Modifier = Modifier
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val (icon, color, text) = when (trend) {
         ConsumptionTrend.IMPROVING -> Triple(
             Icons.AutoMirrored.Filled.TrendingDown,
             Color(0xFF34C759),
-            "Improving"
+            context.getString(R.string.trend_improving)
         )
         ConsumptionTrend.WORSENING -> Triple(
             Icons.AutoMirrored.Filled.TrendingUp,
             Color(0xFFFF3B30),
-            "Worsening"
+            context.getString(R.string.trend_worsening)
         )
         ConsumptionTrend.STABLE -> Triple(
             Icons.Default.Remove,
             MaterialTheme.colorScheme.onSurface,
-            "Stable"
+            context.getString(R.string.trend_stable)
         )
     }
 
@@ -484,50 +357,6 @@ private fun TrendCard(
     }
 }
 
-@Composable
-private fun PeriodSelectorSheet(
-    selectedPeriod: TrendPeriod,
-    onPeriodSelected: (TrendPeriod) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 32.dp)
-    ) {
-        Text(
-            text = "Select Time Period",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
-        )
-
-        TrendPeriod.values().filter { it != TrendPeriod.CUSTOM }.forEach { period ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onPeriodSelected(period) }
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = period.label,
-                    fontSize = 16.sp,
-                    color = if (selectedPeriod == period)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface
-                )
-                if (selectedPeriod == period) {
-                    RadioButton(
-                        selected = true,
-                        onClick = null
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun NoDataState(modifier: Modifier = Modifier) {
@@ -540,12 +369,12 @@ private fun NoDataState(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Not enough data yet",
+                text = stringResource(R.string.not_enough_data),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Add at least 2 refills to see trends",
+                text = stringResource(R.string.add_two_refills_for_trends),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -574,7 +403,7 @@ private fun ErrorState(
                 color = MaterialTheme.colorScheme.error
             )
             TextButton(onClick = onRetry) {
-                Text("Retry")
+                Text(stringResource(R.string.retry))
             }
         }
     }

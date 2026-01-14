@@ -70,6 +70,12 @@ sealed class Screen(val route: String) {
     object DistanceGraph : Screen("distance_graph?carId={carId}") {
         fun createRoute(carId: Long? = null) = if (carId != null) "distance_graph?carId=$carId" else "distance_graph"
     }
+    object CostGraph : Screen("cost_graph?carId={carId}") {
+        fun createRoute(carId: Long? = null) = if (carId != null) "cost_graph?carId=$carId" else "cost_graph"
+    }
+    object RefillsGraph : Screen("refills_graph?carId={carId}") {
+        fun createRoute(carId: Long? = null) = if (carId != null) "refills_graph?carId=$carId" else "refills_graph"
+    }
     object RefillDetails : Screen("refill_details/{refillId}") {
         fun createRoute(refillId: Long) = "refill_details/$refillId"
     }
@@ -200,6 +206,12 @@ fun AppNavigation(
                     },
                     onDistanceGraphClick = {
                         navController.navigate(Screen.DistanceGraph.createRoute())
+                    },
+                    onCostGraphClick = {
+                        navController.navigate(Screen.CostGraph.createRoute())
+                    },
+                    onRefillsGraphClick = {
+                        navController.navigate(Screen.RefillsGraph.createRoute())
                     },
                     onMonthlyTrendsClick = {
                         navController.navigate(Screen.MonthlyTrends.route)
@@ -347,6 +359,42 @@ fun AppNavigation(
                 )
             ) {
                 DistanceGraphScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel = hiltViewModel()
+                )
+            }
+
+            composable(
+                route = Screen.CostGraph.route,
+                arguments = listOf(
+                    navArgument("carId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                com.agcoding.cartrackingapp.presentation.costgraph.CostGraphScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    viewModel = hiltViewModel()
+                )
+            }
+
+            composable(
+                route = Screen.RefillsGraph.route,
+                arguments = listOf(
+                    navArgument("carId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                com.agcoding.cartrackingapp.presentation.refillsgraph.RefillsGraphScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },

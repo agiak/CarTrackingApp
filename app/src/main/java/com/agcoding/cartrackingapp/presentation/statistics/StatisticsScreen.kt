@@ -56,6 +56,8 @@ fun StatisticsScreen(
     onNavigateBack: (() -> Unit)? = null,
     onConsumptionGraphClick: () -> Unit = {},
     onDistanceGraphClick: () -> Unit = {},
+    onCostGraphClick: () -> Unit = {},
+    onRefillsGraphClick: () -> Unit = {},
     onMonthlyTrendsClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     viewModel: StatisticsViewModel = hiltViewModel()
@@ -151,7 +153,9 @@ fun StatisticsScreen(
                         SummarySection(
                             statistics = state.statistics,
                             onConsumptionGraphClick = onConsumptionGraphClick,
-                            onDistanceGraphClick = onDistanceGraphClick
+                            onDistanceGraphClick = onDistanceGraphClick,
+                            onCostGraphClick = onCostGraphClick,
+                            onRefillsGraphClick = onRefillsGraphClick
                         )
                     }
 
@@ -253,7 +257,9 @@ fun StatisticsScreen(
 private fun SummarySection(
     statistics: GlobalStatistics,
     onConsumptionGraphClick: () -> Unit,
-    onDistanceGraphClick: () -> Unit
+    onDistanceGraphClick: () -> Unit,
+    onCostGraphClick: () -> Unit,
+    onRefillsGraphClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -269,7 +275,8 @@ private fun SummarySection(
                 title = stringResource(R.string.total_cost),
                 value = "€${String.format("%.2f", statistics.totalCost)}",
                 subtitle = stringResource(R.string.fuel_plus_expenses),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                onClick = onCostGraphClick
             )
             SummaryCard(
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
@@ -296,7 +303,19 @@ private fun SummarySection(
                 icon = Icons.Default.LocalGasStation,
                 title = stringResource(R.string.total_refills),
                 value = "${statistics.totalRefills}",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                onClick = onRefillsGraphClick
+            )
+        }
+
+        // Third row - Cost per Kilometer
+        if (statistics.costPerKilometer > 0) {
+            SummaryCard(
+                icon = Icons.Default.AttachMoney,
+                title = stringResource(R.string.cost_per_kilometer),
+                value = "€${String.format("%.2f", statistics.costPerKilometer)}/km",
+                subtitle = stringResource(R.string.average_cost_subtitle),
+                modifier = Modifier.fillMaxWidth()
             )
         }
 

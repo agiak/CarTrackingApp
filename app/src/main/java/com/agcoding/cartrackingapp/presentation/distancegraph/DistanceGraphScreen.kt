@@ -32,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
@@ -60,8 +58,10 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.DistanceTrendData
 import com.agcoding.cartrackingapp.domain.model.MonthlyDistance
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
 import com.agcoding.cartrackingapp.domain.model.TripInfo
+import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
+import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
+import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -156,6 +156,7 @@ fun DistanceGraphScreen(
                 onDismissRequest = { viewModel.hidePeriodSelector() }
             ) {
                 PeriodSelectorSheet(
+                    title = stringResource(R.string.distance_graph_select_period_title),
                     selectedPeriod = selectedPeriod,
                     onPeriodSelected = { period ->
                         viewModel.selectPeriod(period)
@@ -301,7 +302,7 @@ private fun DistanceGraphContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Monthly Distance Bar Chart
+        // Monthly Distance Line Chart
         if (trendData.monthlyDistances.isNotEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -317,40 +318,25 @@ private fun DistanceGraphContent(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.distance_graph_monthly_distance_title),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CalendarToday,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(R.string.distance_graph_by_month),
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    Text(
+                        text = stringResource(R.string.distance_graph_monthly_distance_title),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    MonthlyDistanceBarChart(
-                        monthlyDistances = trendData.monthlyDistances.takeLast(6),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
+
+                    InteractiveLineChart(
+                        dataPoints = trendData.monthlyDistances.map { monthData ->
+                            ChartDataPoint(
+                                label = "${monthData.month} ${monthData.year}",
+                                value = monthData.distance,
+                                formattedValue = "${String.format("%.0f", monthData.distance)} km"
+                            )
+                        },
+                        tooltipIcon = Icons.Default.Navigation,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -389,7 +375,6 @@ private fun DistanceGraphContent(
             // Trip list
             trendData.recentTrips.take(10).forEach { trip ->
                 TripItem(trip = trip, dateFormat = tripDateFormat)
-                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
@@ -446,6 +431,7 @@ private fun StatCard(
     }
 }
 
+
 @Composable
 private fun MonthlyDistanceBarChart(
     monthlyDistances: List<MonthlyDistance>,
@@ -456,22 +442,24 @@ private fun MonthlyDistanceBarChart(
     var animationProgress by remember { mutableStateOf(0f) }
     val animatedProgress by animateFloatAsState(
         targetValue = animationProgress,
-        animationSpec = tween(durationMillis = 800),
-        label = "bar_animation"
+        animationSpec = tween(durationMillis = 1000),
+        label = "line_animation"
     )
 
     LaunchedEffect(monthlyDistances) {
+        animationProgress = 0f
         animationProgress = 1f
     }
 
-    val barColor = MaterialTheme.colorScheme.primary
+    val lineColor = MaterialTheme.colorScheme.primary
+    val pointColor = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onSurfaceVariant
     val gridColor = MaterialTheme.colorScheme.outlineVariant
     val maxDistance = monthlyDistances.maxOfOrNull { it.distance } ?: 1.0
 
     // Calculate nice Y-axis values
     val yAxisSteps = 4
-    val stepValue = maxDistance / yAxisSteps
+    val stepValue = if (maxDistance > 0) maxDistance / yAxisSteps else 1.0
     val yAxisValues = (0..yAxisSteps).map { it * stepValue }
 
     Column(modifier = modifier) {
@@ -507,34 +495,103 @@ private fun MonthlyDistanceBarChart(
                     .weight(1f)
                     .fillMaxSize()
             ) {
-                val barCount = monthlyDistances.size
-                val barWidth = size.width / (barCount * 2f)
-                val spacing = barWidth
-                val maxBarHeight = size.height * 0.95f
+                val chartWidth = size.width
+                val chartHeight = size.height
+                val maxBarHeight = chartHeight * 0.95f
 
                 // Draw horizontal grid lines
                 for (i in 0..yAxisSteps) {
-                    val y = size.height - (i.toFloat() / yAxisSteps) * maxBarHeight
+                    val y = chartHeight - (i.toFloat() / yAxisSteps) * maxBarHeight
                     drawLine(
                         color = gridColor,
                         start = Offset(0f, y),
-                        end = Offset(size.width, y),
+                        end = Offset(chartWidth, y),
                         strokeWidth = 1f,
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))
                     )
                 }
 
-                // Draw bars
-                monthlyDistances.forEachIndexed { index, monthData ->
-                    val barHeight = ((monthData.distance / maxDistance) * maxBarHeight * animatedProgress).toFloat()
-                    val x = spacing / 2 + index * (barWidth + spacing)
+                // Handle different data point counts
+                when {
+                    monthlyDistances.size == 1 -> {
+                        // Single data point - draw just a point in the center
+                        val monthData = monthlyDistances.first()
+                        val normalizedHeight = if (maxDistance > 0) {
+                            (monthData.distance / maxDistance).toFloat()
+                        } else 0f
+                        val y = chartHeight - (normalizedHeight * maxBarHeight * animatedProgress)
+                        val x = chartWidth / 2f
 
-                    drawRoundRect(
-                        color = barColor,
-                        topLeft = Offset(x, size.height - barHeight),
-                        size = Size(barWidth, barHeight),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(8f, 8f)
-                    )
+                        drawCircle(
+                            color = pointColor,
+                            radius = 6.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+                        drawCircle(
+                            color = Color.White,
+                            radius = 3.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+                    }
+                    monthlyDistances.size > 1 -> {
+                        val pointCount = monthlyDistances.size
+                        val xStep = chartWidth / (pointCount - 1).toFloat()
+
+                        // Calculate points for the line
+                        val points = monthlyDistances.mapIndexed { index, monthData ->
+                            val x = index * xStep
+                            val normalizedHeight = if (maxDistance > 0) {
+                                (monthData.distance / maxDistance).toFloat()
+                            } else 0f
+                            val y = chartHeight - (normalizedHeight * maxBarHeight * animatedProgress)
+                            Offset(x, y)
+                        }
+
+                        // Draw area under the line with gradient effect
+                        if (animatedProgress > 0) {
+                            val pathPoints = points.toMutableList()
+                            pathPoints.add(Offset(points.last().x, chartHeight))
+                            pathPoints.add(Offset(points.first().x, chartHeight))
+
+                            val path = androidx.compose.ui.graphics.Path().apply {
+                                moveTo(pathPoints[0].x, pathPoints[0].y)
+                                for (i in 1 until pathPoints.size) {
+                                    lineTo(pathPoints[i].x, pathPoints[i].y)
+                                }
+                                close()
+                            }
+
+                            drawPath(
+                                path = path,
+                                color = lineColor.copy(alpha = 0.1f)
+                            )
+                        }
+
+                        // Draw the line connecting all points
+                        for (i in 0 until points.size - 1) {
+                            drawLine(
+                                color = lineColor,
+                                start = points[i],
+                                end = points[i + 1],
+                                strokeWidth = 3.dp.toPx()
+                            )
+                        }
+
+                        // Draw points (circles) at each data point
+                        points.forEach { point ->
+                            drawCircle(
+                                color = pointColor,
+                                radius = 4.dp.toPx(),
+                                center = point
+                            )
+                            // Draw white inner circle for better visibility
+                            drawCircle(
+                                color = Color.White,
+                                radius = 2.dp.toPx(),
+                                center = point
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -633,43 +690,6 @@ private fun TripItem(
     }
 }
 
-@Composable
-private fun PeriodSelectorSheet(
-    selectedPeriod: TrendPeriod,
-    onPeriodSelected: (TrendPeriod) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 32.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.distance_graph_select_period_title),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-        )
-
-        TrendPeriod.entries.filter { it != TrendPeriod.CUSTOM }.forEach { period ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = period == selectedPeriod,
-                    onClick = { onPeriodSelected(period) }
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = period.label,
-                    fontSize = 16.sp
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun NoDataState(
