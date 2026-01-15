@@ -1,7 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.statistics
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Card
@@ -40,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,8 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.domain.model.Expense
-import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
+import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -133,7 +129,7 @@ fun MonthDetailsScreen(
                         }
 
                         items(state.refills) { refill ->
-                            RefillItem(
+                            RefillItemCard(
                                 refill = refill,
                                 carName = state.carNames[refill.carId] ?: stringResource(R.string.unknown_car),
                                 onClick = { onRefillClick(refill.id) }
@@ -152,7 +148,7 @@ fun MonthDetailsScreen(
                         }
 
                         items(state.expenses) { expense ->
-                            ExpenseItem(
+                            ExpenseItemCard(
                                 expense = expense,
                                 carName = state.carNames[expense.carId] ?: stringResource(R.string.unknown_car),
                                 onClick = { onExpenseClick(expense.id) }
@@ -449,155 +445,3 @@ private fun InsightRow(label: String, value: String) {
     }
 }
 
-@Composable
-private fun RefillItem(
-    refill: FuelRefill,
-    carName: String,
-    onClick: () -> Unit
-) {
-    val itemDatePattern = stringResource(R.string.date_format_full_with_time)
-    val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocalGasStation,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = carName,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = dateFormat.format(java.util.Date(refill.timestamp)),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = stringResource(R.string.liters_format, String.format("%.1f", refill.litersAdded)) +
-                        " • " +
-                        stringResource(R.string.kilometers_format, String.format("%.0f", refill.tripDistance)),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", refill.amountPaid)),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                if (refill.tripDistance > 0) {
-                    val consumption = (refill.litersAdded / refill.tripDistance) * 100
-                    Text(
-                        text = stringResource(
-                            R.string.consumption_l_per_100km_format,
-                            String.format("%.1f", consumption)
-                        ),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExpenseItem(
-    expense: Expense,
-    carName: String,
-    onClick: () -> Unit
-) {
-    val itemDatePattern = stringResource(R.string.date_format_full_with_time)
-    val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Build,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = expense.category,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = carName,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = dateFormat.format(java.util.Date(expense.timestamp)),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Text(
-                text = stringResource(R.string.currency_eur_format, String.format("%.2f", expense.amount)),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}

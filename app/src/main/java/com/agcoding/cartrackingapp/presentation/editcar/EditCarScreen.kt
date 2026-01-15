@@ -215,10 +215,15 @@ fun EditCarScreen(
 
             OutlinedTextField(
                 value = odometer,
-                onValueChange = { odometer = it },
+                onValueChange = { newValue ->
+                    // Only allow digits (no decimal for odometer)
+                    if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
+                        odometer = newValue
+                    }
+                },
                 label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
                 placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )

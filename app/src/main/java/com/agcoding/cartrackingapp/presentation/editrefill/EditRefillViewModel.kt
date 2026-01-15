@@ -87,19 +87,31 @@ class EditRefillViewModel @Inject constructor(
     }
 
     fun updateAmountPaid(value: String) {
-        _uiState.value = _uiState.value.copy(amountPaid = value, errorMessage = null)
+        // Only allow digits and one decimal point
+        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
+            _uiState.value = _uiState.value.copy(amountPaid = value, errorMessage = null)
+        }
     }
 
     fun updateLitersAdded(value: String) {
-        _uiState.value = _uiState.value.copy(litersAdded = value, errorMessage = null)
+        // Only allow digits and one decimal point
+        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
+            _uiState.value = _uiState.value.copy(litersAdded = value, errorMessage = null)
+        }
     }
 
     fun updateTripDistance(value: String) {
-        _uiState.value = _uiState.value.copy(tripDistance = value, errorMessage = null)
+        // Only allow digits and one decimal point
+        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
+            _uiState.value = _uiState.value.copy(tripDistance = value, errorMessage = null)
+        }
     }
 
     fun updateOdometerReading(value: String) {
-        _uiState.value = _uiState.value.copy(odometerReading = value, errorMessage = null)
+        // Only allow digits (no decimal for odometer)
+        if (value.isEmpty() || value.matches(Regex("^\\d+$"))) {
+            _uiState.value = _uiState.value.copy(odometerReading = value, errorMessage = null)
+        }
     }
 
     fun updateNotes(value: String) {

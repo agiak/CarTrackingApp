@@ -39,4 +39,7 @@ interface CarDao {
 
     @Query("DELETE FROM cars WHERE id = :carId")
     suspend fun deleteCarById(carId: Long)
+
+    @Query("SELECT COUNT(*) FROM cars WHERE LOWER(licensePlate) = LOWER(:licensePlate) AND id != COALESCE(:excludeCarId, -1)")
+    suspend fun countCarsWithLicensePlate(licensePlate: String, excludeCarId: Long?): Int
 }

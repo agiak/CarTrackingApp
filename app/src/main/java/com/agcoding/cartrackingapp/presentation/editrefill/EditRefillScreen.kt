@@ -139,7 +139,7 @@ fun EditRefillScreen(
                     onValueChange = viewModel::updateOdometerReading,
                     label = { Text(stringResource(R.string.odometer_reading_km)) },
                     placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

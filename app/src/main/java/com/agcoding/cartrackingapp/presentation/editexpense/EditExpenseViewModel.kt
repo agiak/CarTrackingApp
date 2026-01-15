@@ -65,7 +65,10 @@ class EditExpenseViewModel @Inject constructor(
         )
 
     fun updateAmount(newAmount: String) {
-        _amount.value = newAmount
+        // Only allow digits and one decimal point
+        if (newAmount.isEmpty() || newAmount.matches(Regex("^\\d*\\.?\\d*$"))) {
+            _amount.value = newAmount
+        }
     }
 
     fun updateNotes(newNotes: String) {

@@ -1,25 +1,18 @@
 package com.agcoding.cartrackingapp.presentation.refillhistory
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -44,10 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.domain.model.FuelRefill
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 
 enum class RefillSortOption(@StringRes val labelRes: Int) {
     MOST_RECENT(R.string.most_recent),
@@ -162,8 +152,9 @@ fun RefillHistoryScreen(
 
                     // Refills list
                     items(state.refills) { refill ->
-                        RefillHistoryCard(
+                        RefillItemCard(
                             refill = refill,
+                            carName = null, // Don't show car name in single car view
                             onClick = { onRefillClick(refill.id) }
                         )
                     }
@@ -209,69 +200,3 @@ fun RefillHistoryScreen(
     }
 }
 
-@Composable
-private fun RefillHistoryCard(
-    refill: FuelRefill,
-    onClick: () -> Unit
-) {
-    val datePattern = stringResource(R.string.distance_graph_trip_date_format)
-    val dateFormat = remember(datePattern) { SimpleDateFormat(datePattern, Locale.getDefault()) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Date and amount
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = dateFormat.format(Date(refill.timestamp)),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", refill.amountPaid)),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Refill details row
-            val pricePerLiter = refill.amountPaid / refill.litersAdded
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.refill_item_subtitle_format,
-                        String.format("%.1f", refill.litersAdded),
-                        String.format("%.3f", pricePerLiter),
-                        String.format("%.0f", refill.tripDistance),
-                        String.format("%.1f", refill.fuelConsumption)
-                    ),
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}

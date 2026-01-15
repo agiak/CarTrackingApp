@@ -560,5 +560,15 @@
     <string name="trend_stable">Σταθερή</string>
     <string name="not_enough_data">Δεν υπάρχουν αρκετά δεδομένα</string>
     <string name="add_two_refills_for_trends">Προσθέστε τουλάχιστον 2 ανεφοδιασμούς για να δείτε τάσεις</string>
+
+    <!-- Settings - Notification Permission -->
+    <string name="notification_permission_denied_helper">Η άδεια απορρίφθηκε. Ενεργοποιήστε τις ειδοποιήσεις στις ρυθμίσεις της εφαρμογής.</string>
+    <string name="open_settings">Άνοιγμα Ρυθμίσεων</string>
+
+    <!-- Error Messages -->
+    <string name="error_database">Σφάλμα βάσης δεδομένων. Παρακαλώ δοκιμάστε ξανά.</string>
+    <string name="error_permission">Απαιτείται άδεια: %s</string>
+    <string name="error_not_found">%s δεν βρέθηκε</string>
+    <string name="error_unknown">Προέκυψε μη αναμενόμενο σφάλμα</string>
 </resources>
 

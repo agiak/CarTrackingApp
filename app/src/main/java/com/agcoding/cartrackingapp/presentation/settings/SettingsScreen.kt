@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.settings
 
 import android.Manifest
+import android.app.Activity
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,6 +79,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
+import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,6 +114,9 @@ fun SettingsScreen(
         )
     }
 
+    // Track if permission was denied permanently (user denied twice or selected "Don't ask again")
+    var permissionPermanentlyDenied by remember { mutableStateOf(false) }
+
     // Notification permission launcher
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -119,6 +124,14 @@ fun SettingsScreen(
         notificationPermissionGranted = isGranted
         if (isGranted) {
             viewModel.updateNotificationsEnabled(true)
+            permissionPermanentlyDenied = false
+        } else {
+            // Check if user permanently denied the permission
+            val activity = context as? Activity
+            if (activity != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val shouldShow = activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
+                permissionPermanentlyDenied = !shouldShow
+            }
         }
         scope.launch {
             snackbarHostState.showSnackbar(
@@ -286,6 +299,7 @@ fun SettingsScreen(
 
             PreferencesCard(
                 notificationsEnabled = uiState.appSettings.notificationsEnabled && notificationPermissionGranted,
+                permissionPermanentlyDenied = permissionPermanentlyDenied,
                 onNotificationsToggle = { enabled ->
                     if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationPermissionGranted) {
                         // Request permission first
@@ -293,6 +307,9 @@ fun SettingsScreen(
                     } else {
                         viewModel.updateNotificationsEnabled(enabled)
                     }
+                },
+                onOpenSettings = {
+                    PermissionUtil.openAppSettings(context)
                 }
             )
 
@@ -545,7 +562,9 @@ private fun LanguageOption(
 @Composable
 private fun PreferencesCard(
     notificationsEnabled: Boolean,
-    onNotificationsToggle: (Boolean) -> Unit
+    permissionPermanentlyDenied: Boolean,
+    onNotificationsToggle: (Boolean) -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -575,6 +594,35 @@ private fun PreferencesCard(
                     )
                 }
             )
+
+            // Show helper text and button when permission is permanently denied
+            if (permissionPermanentlyDenied && !notificationsEnabled) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.notification_permission_denied_helper),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.error,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedButton(
+                        onClick = onOpenSettings,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(stringResource(R.string.open_settings))
+                    }
+                }
+            }
         }
     }
 }

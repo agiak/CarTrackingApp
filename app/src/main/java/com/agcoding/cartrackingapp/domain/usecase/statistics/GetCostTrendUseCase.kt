@@ -6,9 +6,10 @@ import com.agcoding.cartrackingapp.domain.model.CostTrendData
 import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.MonthlyCost
 import com.agcoding.cartrackingapp.domain.model.TrendPeriod
-import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.util.safeDivide
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
@@ -75,9 +76,9 @@ class GetCostTrendUseCase @Inject constructor(
 
             // Cost by category
             val costByCategory = listOf(
-                CostCategory("Fuel", totalFuelCost, if (totalCost > 0) totalFuelCost / totalCost * 100 else 0.0, 0xFF4CAF50.toInt()),
-                CostCategory("Service", totalServiceCost, if (totalCost > 0) totalServiceCost / totalCost * 100 else 0.0, 0xFFFF9800.toInt()),
-                CostCategory("Other", totalOtherCost, if (totalCost > 0) totalOtherCost / totalCost * 100 else 0.0, 0xFF2196F3.toInt())
+                CostCategory("Fuel", totalFuelCost, totalFuelCost.safeDivide(totalCost) * 100, 0xFF4CAF50.toInt()),
+                CostCategory("Service", totalServiceCost, totalServiceCost.safeDivide(totalCost) * 100, 0xFFFF9800.toInt()),
+                CostCategory("Other", totalOtherCost, totalOtherCost.safeDivide(totalCost) * 100, 0xFF2196F3.toInt())
             ).filter { it.amount > 0 }
 
             // Recent expenses (combined refills and expenses)

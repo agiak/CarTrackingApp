@@ -9,5 +9,6 @@ interface CarRepository {
     suspend fun insertCar(car: Car): Long
     suspend fun updateCar(car: Car)
     suspend fun deleteCar(carId: Long)
+    suspend fun isLicensePlateExists(licensePlate: String, excludeCarId: Long? = null): Boolean
 }
 

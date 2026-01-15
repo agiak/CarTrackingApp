@@ -6,6 +6,7 @@ import com.agcoding.cartrackingapp.data.mapper.toDomain
 import com.agcoding.cartrackingapp.data.mapper.toEntity
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.util.calculateConsumption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -22,9 +23,7 @@ class CarRepositoryImpl @Inject constructor(
                 val totalCost = refills.sumOf { it.amountPaid }
                 val totalDistance = refills.sumOf { it.tripDistance }
                 val totalLiters = refills.sumOf { it.litersAdded }
-                val averageConsumption = if (totalDistance > 0) {
-                    (totalLiters / totalDistance) * 100.0
-                } else 0.0
+                val averageConsumption = calculateConsumption(totalLiters, totalDistance)
 
                 carWithRefills.car.toDomain(
                     averageConsumption = averageConsumption,
@@ -43,9 +42,7 @@ class CarRepositoryImpl @Inject constructor(
                 val totalCost = refills.sumOf { refill -> refill.amountPaid }
                 val totalDistance = refills.sumOf { refill -> refill.tripDistance }
                 val totalLiters = refills.sumOf { refill -> refill.litersAdded }
-                val averageConsumption = if (totalDistance > 0) {
-                    (totalLiters / totalDistance) * 100.0
-                } else 0.0
+                val averageConsumption = calculateConsumption(totalLiters, totalDistance)
 
                 it.car.toDomain(
                     averageConsumption = averageConsumption,
@@ -67,6 +64,10 @@ class CarRepositoryImpl @Inject constructor(
 
     override suspend fun deleteCar(carId: Long) {
         carDao.deleteCarById(carId)
+    }
+
+    override suspend fun isLicensePlateExists(licensePlate: String, excludeCarId: Long?): Boolean {
+        return carDao.countCarsWithLicensePlate(licensePlate, excludeCarId) > 0
     }
 }
 
