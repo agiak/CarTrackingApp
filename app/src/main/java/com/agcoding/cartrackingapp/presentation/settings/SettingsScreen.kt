@@ -86,7 +86,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    onViewGuide: () -> Unit = {}
+    onViewGuide: () -> Unit = {},
+    onManageExpenseCategories: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -325,6 +326,15 @@ fun SettingsScreen(
                 onExport = { viewModel.exportData() },
                 onImport = { showImportConfirmDialog = true },
                 onClear = { showClearConfirmDialog = true }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // CUSTOMIZATION Section
+            SectionHeader(title = stringResource(R.string.settings_section_customization))
+
+            CustomizationCard(
+                onManageExpenseCategoriesClick = onManageExpenseCategories
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -1040,3 +1050,38 @@ private fun DebugCard(
         }
     }
 }
+
+@Composable
+private fun CustomizationCard(
+    onManageExpenseCategoriesClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Expense Categories Row
+            SettingsRow(
+                icon = Icons.Default.Storage, // Placeholder - you can change this
+                iconBackgroundColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
+                iconTint = MaterialTheme.colorScheme.tertiary,
+                title = stringResource(R.string.customization_expense_categories),
+                subtitle = stringResource(R.string.customization_expense_categories_desc),
+                trailing = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                onClick = onManageExpenseCategoriesClick
+            )
+        }
+    }
+}
+

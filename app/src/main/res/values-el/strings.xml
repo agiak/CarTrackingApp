@@ -570,5 +570,30 @@
     <string name="error_permission">Απαιτείται άδεια: %s</string>
     <string name="error_not_found">%s δεν βρέθηκε</string>
     <string name="error_unknown">Προέκυψε μη αναμενόμενο σφάλμα</string>
+
+    <!-- Expense Categories Management -->
+    <string name="manage_expense_categories">Διαχείριση Κατηγοριών Εξόδων</string>
+    <string name="add_category">Προσθήκη Κατηγορίας</string>
+    <string name="delete_category">Διαγραφή Κατηγορίας</string>
+    <string name="delete_category_confirm">Διαγραφή "%s"; Αυτό δεν θα επηρεάσει τα υπάρχοντα έξοδα.</string>
+    <string name="category_name">Όνομα Κατηγορίας</string>
+    <string name="category_name_placeholder">π.χ., Αντικατάσταση Παρμπρίζ</string>
+    <string name="predefined_categories">Προκαθορισμένες Κατηγορίες</string>
+    <string name="custom_categories">Προσαρμοσμένες Κατηγορίες</string>
+    <string name="no_custom_categories_yet">Δεν υπάρχουν προσαρμοσμένες κατηγορίες ακόμα</string>
+    <string name="tap_plus_to_add_category">Πατήστε + για προσθήκη νέας κατηγορίας</string>
+    <string name="expense_categories_info_title">Σχετικά με τις Κατηγορίες</string>
+    <string name="expense_categories_info_desc">Προσθέστε προσαρμοσμένες κατηγορίες για παρακολούθηση συγκεκριμένων εξόδων. Η διαγραφή κατηγορίας δεν θα επηρεάσει τα υπάρχοντα έξοδα σας.</string>
+    <string name="settings_section_customization">Προσαρμογή</string>
+    <string name="customization_expense_categories">Κατηγορίες Εξόδων</string>
+    <string name="customization_expense_categories_desc">Διαχειριστείτε τις κατηγορίες εξόδων σας</string>
+    <string name="add">Προσθήκη</string>
+
+    <!-- Incomplete Information Banner -->
+    <string name="complete_car_information">Συμπληρώστε τις Πληροφορίες του Αυτοκινήτου σας</string>
+    <string name="complete_car_information_desc">Προσθέστε λεπτομέρειες για το αυτοκίνητό σας για καλύτερη παρακολούθηση.</string>
+    <string name="missing_fields_label">Λείπουν: Μάρκα, Μοντέλο, Έτος, Χρώμα, Κυβισμός, Τύπος Καυσίμου</string>
+    <string name="and_more_fields">και %d ακόμα πεδία</string>
+    <string name="add_information">Προσθήκη Πληροφοριών</string>
 </resources>
 

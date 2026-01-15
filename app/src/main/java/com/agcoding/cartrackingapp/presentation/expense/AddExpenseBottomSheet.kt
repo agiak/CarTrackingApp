@@ -13,16 +13,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -143,13 +144,18 @@ fun AddExpenseBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Category field with autocomplete dropdown
-            Column {
+            // Category field with autocomplete dropdown using ExposedDropdownMenuBox
+            ExposedDropdownMenuBox(
+                expanded = categoryExpanded,
+                onExpandedChange = {
+                    // Only toggle when clicking the icon, not when typing
+                }
+            ) {
                 OutlinedTextField(
                     value = category,
                     onValueChange = {
                         viewModel.updateCategory(it)
-                        if (!categoryExpanded && it.isNotBlank()) {
+                        if (!categoryExpanded && it.isNotEmpty()) {
                             viewModel.toggleCategoryDropdown()
                         }
                     },
@@ -157,26 +163,32 @@ fun AddExpenseBottomSheet(
                     placeholder = { Text(stringResource(R.string.expense_category_hint)) },
                     trailingIcon = {
                         IconButton(onClick = { viewModel.toggleCategoryDropdown() }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = stringResource(R.string.expense_show_categories)
-                            )
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded)
                         }
                     },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true)
                 )
 
-                // Dropdown with suggestions
-                DropdownMenu(
-                    expanded = categoryExpanded && filteredCategories.isNotEmpty(),
-                    onDismissRequest = { viewModel.dismissCategoryDropdown() },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                // Dropdown menu with categories
+                ExposedDropdownMenu(
+                    expanded = categoryExpanded && availableCategories.isNotEmpty(),
+                    onDismissRequest = { viewModel.dismissCategoryDropdown() }
                 ) {
-                    filteredCategories.take(8).forEach { categoryOption ->
+                    // Show filtered categories or all if filter is empty
+                    val categoriesToShow = if (category.isBlank()) {
+                        availableCategories
+                    } else {
+                        filteredCategories
+                    }
+
+                    categoriesToShow.forEach { categoryOption ->
                         DropdownMenuItem(
                             text = { Text(categoryOption) },
-                            onClick = { viewModel.selectCategory(categoryOption) }
+                            onClick = { viewModel.selectCategory(categoryOption) },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                         )
                     }
                 }

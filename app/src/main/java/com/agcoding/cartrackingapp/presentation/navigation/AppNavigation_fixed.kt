@@ -35,6 +35,7 @@ import com.agcoding.cartrackingapp.presentation.editexpense.EditExpenseScreen
 import com.agcoding.cartrackingapp.presentation.editrefill.EditRefillScreen
 import com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsScreen
 import com.agcoding.cartrackingapp.presentation.expensehistory.ExpenseHistoryScreen
+import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseCategoriesScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
 import com.agcoding.cartrackingapp.presentation.refill.AddRefillBottomSheet
@@ -92,6 +93,7 @@ sealed class Screen(val route: String) {
     object MonthDetails : Screen("month_details/{month}/{year}") {
         fun createRoute(month: Int, year: Int) = "month_details/$month/$year"
     }
+    object ManageExpenseCategories : Screen("manage_expense_categories")
 }
 
 @Composable
@@ -226,6 +228,9 @@ fun AppNavigation(
                 SettingsScreen(
                     onViewGuide = {
                         navController.navigate(Screen.GuideOnly.route)
+                    },
+                    onManageExpenseCategories = {
+                        navController.navigate(Screen.ManageExpenseCategories.route)
                     }
                 )
             }
@@ -476,6 +481,14 @@ fun AppNavigation(
                     },
                     onExpenseClick = { expenseId ->
                         navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
+                    }
+                )
+            }
+
+            composable(route = Screen.ManageExpenseCategories.route) {
+                ManageExpenseCategoriesScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

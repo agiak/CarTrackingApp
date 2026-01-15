@@ -5,21 +5,24 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
+import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
 import com.agcoding.cartrackingapp.data.local.database.entity.CarEntity
+import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseCategoryEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.FuelRefillEntity
 
 @Database(
-    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class],
-    version = 8,
+    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class],
+    version = 9,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
     abstract fun carDao(): CarDao
     abstract fun fuelRefillDao(): FuelRefillDao
     abstract fun expenseDao(): ExpenseDao
+    abstract fun expenseCategoryDao(): ExpenseCategoryDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -156,6 +159,23 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
 
         // Recreate index
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_carId ON expenses(carId)")
+    }
+}
+
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Create expense_categories table
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS expense_categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                name TEXT NOT NULL,
+                isCustom INTEGER NOT NULL,
+                createdAt INTEGER NOT NULL
+            )
+        """.trimIndent())
+
+        // Create unique index on name
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_expense_categories_name ON expense_categories(name)")
     }
 }
 

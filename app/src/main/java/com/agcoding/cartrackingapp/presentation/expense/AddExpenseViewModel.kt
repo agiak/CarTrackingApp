@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.presentation.expense
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
+    private val expenseCategoryDao: ExpenseCategoryDao,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -32,9 +34,32 @@ class AddExpenseViewModel @Inject constructor(
         application.getString(resId)
     }
 
-    // Get predefined categories plus any used custom categories
+    // Get predefined categories plus custom categories from database
     private val _availableCategories = MutableStateFlow(translatedCategories)
     val availableCategories: StateFlow<List<String>> = _availableCategories.asStateFlow()
+
+    init {
+        loadAllCategories()
+    }
+
+    private fun loadAllCategories() {
+        viewModelScope.launch {
+            expenseCategoryDao.getAllCategories().collect { categoryEntities ->
+                // If database is empty, use predefined categories
+                if (categoryEntities.isEmpty()) {
+                    _availableCategories.value = translatedCategories.sorted()
+                } else {
+                    // Combine all categories (both predefined and custom) and sort them
+                    val allCategories = categoryEntities
+                        .map { it.name }
+                        .distinct()
+                        .sorted()
+
+                    _availableCategories.value = allCategories
+                }
+            }
+        }
+    }
 
     private val _amount = MutableStateFlow("")
     val amount: StateFlow<String> = _amount.asStateFlow()

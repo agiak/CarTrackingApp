@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.expense.ExpandableFabMenu
@@ -88,21 +87,6 @@ fun CarDetailsScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = onEditCarClick) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.edit_car)
-                        )
-                    }
-                    IconButton(onClick = { viewModel.showDeleteDialog() }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete_car),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
             )
         },
         floatingActionButton = {
@@ -129,12 +113,77 @@ fun CarDetailsScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 16.dp,
+                        bottom = 88.dp // Extra padding for expandable FAB (56dp FAB + 32dp spacing)
+                    ),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Car header with icon
                     item {
                         CarHeaderCard(state.statistics)
+                    }
+
+                    // Edit and Delete buttons
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = onEditCarClick,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.edit_car))
+                            }
+
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = { viewModel.showDeleteDialog() },
+                                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                ),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.delete))
+                            }
+                        }
+                    }
+
+                    // Incomplete information banner (show if any optional field is missing)
+                    item {
+                        val car = state.statistics.car
+                        val hasMissingInfo = car.insuranceExpirationDate == null ||
+                                car.kteoExpirationDate == null ||
+                                car.emissionsCardExpirationDate == null ||
+                                car.roadTaxAmount == null ||
+                                car.roadTaxDueDate == null ||
+                                car.lastServiceDate == null ||
+                                car.lastTireChangeDate == null ||
+                                car.tireBrand.isNullOrBlank() ||
+                                car.tireDimensions.isNullOrBlank() ||
+                                car.tireInstallationDate == null
+
+                        if (hasMissingInfo) {
+                            IncompleteInformationBanner(
+                                car = car,
+                                onAddInformationClick = onEditCarClick
+                            )
+                        }
                     }
 
                     // Quick stats grid
@@ -552,6 +601,109 @@ private fun SpendingBreakdown(label: String, amount: Double) {
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+private fun IncompleteInformationBanner(
+    car: com.agcoding.cartrackingapp.domain.model.Car,
+    onAddInformationClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onAddInformationClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Header with icon
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(8.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.complete_car_information),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Missing fields list
+            val missingFields = buildList {
+                if (car.insuranceExpirationDate == null) add(stringResource(R.string.insurance_expiration))
+                if (car.kteoExpirationDate == null) add(stringResource(R.string.kteo_expiration))
+                if (car.emissionsCardExpirationDate == null) add(stringResource(R.string.emissions_card_expiration))
+                if (car.roadTaxAmount == null) add(stringResource(R.string.road_tax_amount))
+                if (car.roadTaxDueDate == null) add(stringResource(R.string.road_tax_due_date))
+                if (car.lastServiceDate == null) add(stringResource(R.string.last_service))
+                if (car.lastTireChangeDate == null) add(stringResource(R.string.last_tire_change))
+                if (car.tireBrand.isNullOrBlank()) add(stringResource(R.string.tire_brand_model))
+                if (car.tireDimensions.isNullOrBlank()) add(stringResource(R.string.tire_dimensions))
+                if (car.tireInstallationDate == null) add(stringResource(R.string.tire_installation_date))
+            }
+
+            Text(
+                text = stringResource(R.string.missing_fields_label, missingFields.size),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = missingFields.take(5).joinToString(", "),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                lineHeight = 16.sp
+            )
+
+            if (missingFields.size > 5) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.and_more_fields, missingFields.size - 5),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+            }
+        }
     }
 }
 
