@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.domain.usecase.statistics
 
 import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.MonthlyRefills
 import com.agcoding.cartrackingapp.domain.model.RefillItem
 import com.agcoding.cartrackingapp.domain.model.RefillsTrendData
@@ -97,7 +98,7 @@ class GetRefillsTrendUseCase @Inject constructor(
         }
     }
 
-    private fun calculateMonthlyRefills(refills: List<com.agcoding.cartrackingapp.domain.model.FuelRefill>): List<MonthlyRefills> {
+    private fun calculateMonthlyRefills(refills: List<FuelRefill>): List<MonthlyRefills> {
         if (refills.isEmpty()) return emptyList()
 
         val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())

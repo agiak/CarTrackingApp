@@ -2,7 +2,9 @@ package com.agcoding.cartrackingapp.presentation.expense
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
@@ -76,6 +78,9 @@ class AddExpenseViewModel @Inject constructor(
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
+    private val _amountError = MutableStateFlow<String?>(null)
+    val amountError: StateFlow<String?> = _amountError.asStateFlow()
+
     fun setCarId(carId: Long) {
         _carId.value = carId
     }
@@ -99,6 +104,16 @@ class AddExpenseViewModel @Inject constructor(
 
     fun updateAmount(value: String) {
         _amount.value = value
+
+        // Validate amount in real-time
+        val amountValue = value.toDoubleOrNull()
+        _amountError.value = when {
+            value.isBlank() -> null // Don't show error for empty field
+            amountValue == null -> application.getString(R.string.error_cost_invalid)
+            amountValue < 0 -> application.getString(R.string.error_amount_negative)
+            amountValue == 0.0 -> application.getString(R.string.error_cost_positive)
+            else -> null
+        }
     }
 
     fun updateNotes(value: String) {
@@ -156,6 +171,7 @@ class AddExpenseViewModel @Inject constructor(
     fun clearFields() {
         _category.value = ""
         _amount.value = ""
+        _amountError.value = null
         _notes.value = ""
         _selectedDate.value = System.currentTimeMillis()
         _categoryExpanded.value = false

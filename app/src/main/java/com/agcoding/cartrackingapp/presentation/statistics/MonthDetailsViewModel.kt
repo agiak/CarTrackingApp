@@ -105,4 +105,3 @@ sealed class MonthDetailsUiState {
     ) : MonthDetailsUiState()
     data class Error(val message: String) : MonthDetailsUiState()
 }
-

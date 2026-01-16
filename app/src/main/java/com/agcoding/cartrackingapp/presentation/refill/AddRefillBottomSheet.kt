@@ -123,6 +123,10 @@ fun AddRefillBottomSheet(
                 placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
+                isError = uiState.fieldErrors.containsKey("cost"),
+                supportingText = uiState.fieldErrors["cost"]?.let { error ->
+                    { Text(error) }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -136,6 +140,10 @@ fun AddRefillBottomSheet(
                 placeholder = { Text(stringResource(R.string.liters_added_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
+                isError = uiState.fieldErrors.containsKey("liters"),
+                supportingText = uiState.fieldErrors["liters"]?.let { error ->
+                    { Text(error) }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -147,9 +155,12 @@ fun AddRefillBottomSheet(
                 onValueChange = viewModel::updateTripDistance,
                 label = { Text(stringResource(R.string.trip_distance_km)) },
                 placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
-                supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
+                supportingText = uiState.fieldErrors["distance"]?.let { error ->
+                    { Text(error) }
+                } ?: { Text(stringResource(R.string.trip_distance_supporting)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
+                isError = uiState.fieldErrors.containsKey("distance"),
                 modifier = Modifier.fillMaxWidth()
             )
 

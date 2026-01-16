@@ -30,4 +30,3 @@ data class ExpenseEntity(
     val timestamp: Long,
     val notes: String? = null
 )
-

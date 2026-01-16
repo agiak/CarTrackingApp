@@ -21,6 +21,8 @@ import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.util.StorageCheckResult
+import com.agcoding.cartrackingapp.util.StorageUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -131,13 +134,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val storageInfo = withContext(Dispatchers.IO) {
                 val dataDir = context.dataDir
-                val cacheDir = context.cacheDir
                 val externalCacheDir = context.externalCacheDir
-                val filesDir = context.filesDir
                 val externalFilesDir = context.getExternalFilesDir(null)
 
-                // Calculate cache size (internal + external cache)
-                val internalCacheSize = getFolderSize(cacheDir)
+                // Calculate cache size using StorageUtil (internal cache)
+                val internalCacheSize = StorageUtil.getCacheSize(context)
                 val externalCacheSize = externalCacheDir?.let { getFolderSize(it) } ?: 0L
                 val totalCacheSize = internalCacheSize + externalCacheSize
 
@@ -229,6 +230,45 @@ class SettingsViewModel @Inject constructor(
                 exportError = null
             )
 
+            // Pre-flight storage check
+            try {
+                // Get current data counts
+                val carCount = carRepository.getAllCars().first().size
+                val refillCount = refillRepository.getAllRefills().first().size
+                val expenseCount = expenseRepository.getAllExpenses().first().size
+
+                // Estimate export size
+                val estimatedSize =
+                    StorageUtil.estimateExportSize(carCount, refillCount, expenseCount)
+
+                // Check if sufficient storage available
+                when (val storageCheck = StorageUtil.checkStorageSpace(context, estimatedSize)) {
+                    is StorageCheckResult.Insufficient -> {
+                        _uiState.value = _uiState.value.copy(
+                            isExporting = false,
+                            exportError = storageCheck.toUserMessage(context)
+                        )
+                        return@launch
+                    }
+
+                    is StorageCheckResult.Unavailable -> {
+                        _uiState.value = _uiState.value.copy(
+                            isExporting = false,
+                            exportError = "Storage unavailable. Please check your device storage."
+                        )
+                        return@launch
+                    }
+
+                    is StorageCheckResult.Sufficient -> {
+                        // Proceed with export
+                    }
+                }
+            } catch (e: Exception) {
+                // If storage check fails, log but continue (fail gracefully)
+                e.printStackTrace()
+            }
+
+            // Proceed with actual export
             when (val result = dataExportManager.exportData()) {
                 is ExportResult.Success -> {
                     _uiState.value = _uiState.value.copy(
@@ -239,6 +279,7 @@ class SettingsViewModel @Inject constructor(
                     delay(300)
                     calculateStorageSize()
                 }
+
                 is ExportResult.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isExporting = false,
@@ -267,6 +308,7 @@ class SettingsViewModel @Inject constructor(
                     delay(500)
                     calculateStorageSize()
                 }
+
                 is ImportResult.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isImporting = false,
@@ -456,13 +498,15 @@ class SettingsViewModel @Inject constructor(
             val cost = random.nextDouble(costRange.start, costRange.endInclusive)
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
-            generatedExpenses.add(Expense(
-                carId = carId,
-                category = category,
-                amount = Math.round(cost * 100) / 100.0,
-                timestamp = expenseTime,
-                notes = null
-            ))
+            generatedExpenses.add(
+                Expense(
+                    carId = carId,
+                    category = category,
+                    amount = Math.round(cost * 100) / 100.0,
+                    timestamp = expenseTime,
+                    notes = null
+                )
+            )
 
             currentTotal += cost
             usedCategories.add(category)
@@ -479,13 +523,15 @@ class SettingsViewModel @Inject constructor(
             // Random timestamp within the time range
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
-            generatedExpenses.add(Expense(
-                carId = carId,
-                category = category,
-                amount = Math.round(cost * 100) / 100.0,
-                timestamp = expenseTime,
-                notes = null
-            ))
+            generatedExpenses.add(
+                Expense(
+                    carId = carId,
+                    category = category,
+                    amount = Math.round(cost * 100) / 100.0,
+                    timestamp = expenseTime,
+                    notes = null
+                )
+            )
 
             currentTotal += cost
         }

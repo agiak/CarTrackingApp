@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
@@ -1067,9 +1068,9 @@ private fun CustomizationCard(
         Column(modifier = Modifier.fillMaxWidth()) {
             // Expense Categories Row
             SettingsRow(
-                icon = Icons.Default.Storage, // Placeholder - you can change this
+                icon = Icons.Default.Category, // Placeholder - you can change this
                 iconBackgroundColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
-                iconTint = MaterialTheme.colorScheme.tertiary,
+                iconTint = MaterialTheme.colorScheme.primary,
                 title = stringResource(R.string.customization_expense_categories),
                 subtitle = stringResource(R.string.customization_expense_categories_desc),
                 trailing = {

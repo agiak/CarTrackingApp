@@ -64,6 +64,7 @@ fun AddExpenseBottomSheet(
     val categoryExpanded by viewModel.categoryExpanded.collectAsState()
     val availableCategories by viewModel.availableCategories.collectAsState()
     val amount by viewModel.amount.collectAsState()
+    val amountError by viewModel.amountError.collectAsState()
     val notes by viewModel.notes.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
@@ -204,6 +205,10 @@ fun AddExpenseBottomSheet(
                 placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
+                isError = amountError != null,
+                supportingText = amountError?.let { error ->
+                    { Text(error) }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 

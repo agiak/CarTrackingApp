@@ -70,4 +70,3 @@ class CarRepositoryImpl @Inject constructor(
         return carDao.countCarsWithLicensePlate(licensePlate, excludeCarId) > 0
     }
 }
-

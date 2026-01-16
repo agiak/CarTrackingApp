@@ -401,6 +401,7 @@
     <!-- Add Refill Bottom Sheet -->
     <string name="add_fuel_refill_title">Add Fuel Refill</string>
     <string name="save_refill">Save Refill</string>
+    <string name="refill_odometer_hint">Previous: %d km</string>
 
     <!-- Expense History (entries moved to line ~201) -->
 
@@ -594,5 +595,26 @@
     <string name="missing_fields_label">Missing: Make, Model, Year, Color, Engine Size, Fuel Type</string>
     <string name="and_more_fields">and %d more fields</string>
     <string name="add_information">Add Information</string>
+
+    <!-- Refill Validation Errors -->
+    <string name="error_liters_invalid">Liters must be a valid number</string>
+    <string name="error_liters_positive">Liters must be greater than 0</string>
+    <string name="error_liters_too_small">Liters seems too small. Minimum is %s L</string>
+    <string name="error_liters_too_high">Liters seems too high (max %s L). Please verify.</string>
+    <string name="error_cost_invalid">Cost must be a valid number</string>
+    <string name="error_cost_positive">Cost must be greater than 0</string>
+    <string name="error_amount_negative">Amount cannot be negative</string>
+    <string name="error_cost_too_small">Cost seems too small</string>
+    <string name="error_cost_too_high">Cost seems very high. Please verify.</string>
+    <string name="error_odometer_invalid">Odometer must be a valid number</string>
+    <string name="error_odometer_negative">Odometer cannot be negative</string>
+    <string name="error_odometer_unrealistic">Odometer value seems unrealistic</string>
+    <string name="error_odometer_backwards">Odometer cannot go backwards (previous: %d km, current: %d km)</string>
+    <string name="error_distance_invalid">Distance must be a valid number</string>
+    <string name="error_distance_positive">Distance must be greater than 0</string>
+    <string name="error_distance_zero">Distance must be greater than 0. Please enter a higher odometer reading.</string>
+    <string name="error_distance_too_high">Distance of %d km seems very high. Please verify odometer reading.</string>
+    <string name="error_consumption_too_low">Consumption of %.1f L/100km seems unusually low. Please verify.</string>
+    <string name="error_consumption_too_high">Consumption of %.1f L/100km seems unusually high. Please verify.</string>
 </resources>
 

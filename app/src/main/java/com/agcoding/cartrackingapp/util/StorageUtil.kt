@@ -7,7 +7,9 @@ import android.content.Context
  */
 sealed class StorageCheckResult {
     object Sufficient : StorageCheckResult()
-    data class Insufficient(val availableBytes: Long, val requiredBytes: Long) : StorageCheckResult()
+    data class Insufficient(val availableBytes: Long, val requiredBytes: Long) :
+        StorageCheckResult()
+
     object Unavailable : StorageCheckResult()
 
     fun toUserMessage(context: Context): String {
@@ -18,6 +20,7 @@ sealed class StorageCheckResult {
                 val requiredMB = requiredBytes / (1024 * 1024)
                 "Insufficient storage space. Available: ${availableMB}MB, Required: ${requiredMB}MB"
             }
+
             is Unavailable -> "Storage unavailable"
         }
     }
@@ -44,6 +47,7 @@ object StorageUtil {
             usableSpace == 0L -> StorageCheckResult.Unavailable
             usableSpace < (requiredBytes + SAFETY_MARGIN_BYTES) ->
                 StorageCheckResult.Insufficient(usableSpace, requiredBytes)
+
             else -> StorageCheckResult.Sufficient
         }
     }
@@ -100,4 +104,3 @@ object StorageUtil {
         }
     }
 }
-

@@ -398,8 +398,9 @@
     <string name="delete_refill_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον ανεφοδιασμό;</string>
 
     <!-- Add Refill Bottom Sheet -->
-    <string name="add_fuel_refill_title">Προσθήκη ανεφοδιασμού</string>
-    <string name="save_refill">Αποθήκευση ανεφοδιασμού</string>
+    <string name="add_fuel_refill_title">Προσθήκη Ανεφοδιασμού</string>
+    <string name="save_refill">Αποθήκευση</string>
+    <string name="refill_odometer_hint">Προηγούμενο: %d km</string>
 
     <!-- Expense History (entries moved to line ~201) -->
 
@@ -595,5 +596,26 @@
     <string name="missing_fields_label">Λείπουν: Μάρκα, Μοντέλο, Έτος, Χρώμα, Κυβισμός, Τύπος Καυσίμου</string>
     <string name="and_more_fields">και %d ακόμα πεδία</string>
     <string name="add_information">Προσθήκη Πληροφοριών</string>
+
+    <!-- Refill Validation Errors -->
+    <string name="error_liters_invalid">Τα λίτρα πρέπει να είναι έγκυρος αριθμός</string>
+    <string name="error_liters_positive">Τα λίτρα πρέπει να είναι μεγαλύτερα από 0</string>
+    <string name="error_liters_too_small">Τα λίτρα φαίνονται πολύ λίγα. Ελάχιστο είναι %s L</string>
+    <string name="error_liters_too_high">Τα λίτρα φαίνονται πολύ υψηλά (μέγιστο %s L). Παρακαλώ επαληθεύστε.</string>
+    <string name="error_cost_invalid">Το κόστος πρέπει να είναι έγκυρος αριθμός</string>
+    <string name="error_cost_positive">Το κόστος πρέπει να είναι μεγαλύτερο από 0</string>
+    <string name="error_amount_negative">Το ποσό δεν μπορεί να είναι αρνητικό</string>
+    <string name="error_cost_too_small">Το κόστος φαίνεται πολύ μικρό</string>
+    <string name="error_cost_too_high">Το κόστος φαίνεται πολύ υψηλό. Παρακαλώ επαληθεύστε.</string>
+    <string name="error_odometer_invalid">Το οδόμετρο πρέπει να είναι έγκυρος αριθμός</string>
+    <string name="error_odometer_negative">Το οδόμετρο δεν μπορεί να είναι αρνητικό</string>
+    <string name="error_odometer_unrealistic">Η τιμή του οδομέτρου φαίνεται μη ρεαλιστική</string>
+    <string name="error_odometer_backwards">Το οδόμετρο δεν μπορεί να πάει πίσω (προηγούμενο: %d km, τρέχον: %d km)</string>
+    <string name="error_distance_invalid">Η απόσταση πρέπει να είναι έγκυρος αριθμός</string>
+    <string name="error_distance_positive">Η απόσταση πρέπει να είναι μεγαλύτερη από 0</string>
+    <string name="error_distance_zero">Η απόσταση πρέπει να είναι μεγαλύτερη από 0. Παρακαλώ εισάγετε υψηλότερη ένδειξη οδομέτρου.</string>
+    <string name="error_distance_too_high">Απόσταση %d km φαίνεται πολύ υψηλή. Παρακαλώ επαληθεύστε την ένδειξη του οδομέτρου.</string>
+    <string name="error_consumption_too_low">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα χαμηλή. Παρακαλώ επαληθεύστε.</string>
+    <string name="error_consumption_too_high">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα υψηλή. Παρακαλώ επαληθεύστε.</string>
 </resources>
 
