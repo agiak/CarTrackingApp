@@ -10,6 +10,9 @@ import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
 import com.agcoding.cartrackingapp.data.export.ImportResult
+import com.agcoding.cartrackingapp.data.export.SampleFileResult
+import com.agcoding.cartrackingapp.data.export.SpreadsheetImportManager
+import com.agcoding.cartrackingapp.data.export.SpreadsheetImportResult
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppSettings
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
@@ -69,7 +72,14 @@ data class SettingsUiState(
     val exportSuccess: String? = null,
     val importSuccess: String? = null,
     val exportError: String? = null,
-    val importError: String? = null
+    val importError: String? = null,
+    // Spreadsheet import state
+    val isSpreadsheetImporting: Boolean = false,
+    val isGeneratingSampleFile: Boolean = false,
+    val spreadsheetImportSuccess: String? = null,
+    val spreadsheetImportError: String? = null,
+    val sampleFileSuccess: String? = null,
+    val sampleFileError: String? = null
 )
 
 @HiltViewModel
@@ -77,6 +87,7 @@ class SettingsViewModel @Inject constructor(
     private val themePreferences: ThemePreferences,
     private val settingsPreferences: SettingsPreferences,
     private val dataExportManager: DataExportManager,
+    private val spreadsheetImportManager: SpreadsheetImportManager,
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository,
@@ -340,8 +351,94 @@ class SettingsViewModel @Inject constructor(
             exportSuccess = null,
             exportError = null,
             importSuccess = null,
-            importError = null
+            importError = null,
+            spreadsheetImportSuccess = null,
+            spreadsheetImportError = null,
+            sampleFileSuccess = null,
+            sampleFileError = null
         )
+    }
+
+    // ==================== Spreadsheet Import ====================
+
+    fun importFromSpreadsheet(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isSpreadsheetImporting = true,
+                spreadsheetImportSuccess = null,
+                spreadsheetImportError = null
+            )
+
+            when (val result = spreadsheetImportManager.importFromSpreadsheet(uri)) {
+                is SpreadsheetImportResult.Success -> {
+                    val message = buildString {
+                        append("Successfully imported: ")
+                        val parts = mutableListOf<String>()
+                        if (result.carsImported > 0) parts.add("${result.carsImported} cars")
+                        if (result.refillsImported > 0) parts.add("${result.refillsImported} refills")
+                        if (result.expensesImported > 0) parts.add("${result.expensesImported} expenses")
+                        append(parts.joinToString(", "))
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        isSpreadsheetImporting = false,
+                        spreadsheetImportSuccess = message
+                    )
+                    delay(500)
+                    calculateStorageSize()
+                }
+
+                is SpreadsheetImportResult.PartialSuccess -> {
+                    val message = buildString {
+                        append("Partially imported: ")
+                        val parts = mutableListOf<String>()
+                        if (result.carsImported > 0) parts.add("${result.carsImported} cars")
+                        if (result.refillsImported > 0) parts.add("${result.refillsImported} refills")
+                        if (result.expensesImported > 0) parts.add("${result.expensesImported} expenses")
+                        append(parts.joinToString(", "))
+                        append(". Some rows had errors.")
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        isSpreadsheetImporting = false,
+                        spreadsheetImportSuccess = message
+                    )
+                    delay(500)
+                    calculateStorageSize()
+                }
+
+                is SpreadsheetImportResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSpreadsheetImporting = false,
+                        spreadsheetImportError = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun generateSampleSpreadsheet() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isGeneratingSampleFile = true,
+                sampleFileSuccess = null,
+                sampleFileError = null
+            )
+
+            when (val result = spreadsheetImportManager.generateSampleFile()) {
+                is SampleFileResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isGeneratingSampleFile = false,
+                        sampleFileSuccess = result.filePath
+                    )
+                }
+
+                is SampleFileResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isGeneratingSampleFile = false,
+                        sampleFileError = result.message
+                    )
+                }
+            }
+        }
     }
 
     // ==================== Sample Data Generation ====================

@@ -105,6 +105,10 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Apache POI for Excel files
+    implementation(libs.apache.poi)
+    implementation(libs.apache.poi.ooxml)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

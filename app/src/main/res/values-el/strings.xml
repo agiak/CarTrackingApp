@@ -637,5 +637,24 @@
     <string name="error_distance_too_high">Απόσταση %d km φαίνεται πολύ υψηλή. Παρακαλώ επαληθεύστε την ένδειξη του οδομέτρου.</string>
     <string name="error_consumption_too_low">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα χαμηλή. Παρακαλώ επαληθεύστε.</string>
     <string name="error_consumption_too_high">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα υψηλή. Παρακαλώ επαληθεύστε.</string>
+
+    <!-- Spreadsheet Import Feature -->
+    <string name="settings_section_spreadsheet_import">Εισαγωγή Υπολογιστικού Φύλλου</string>
+    <string name="spreadsheet_import_title">Εισαγωγή από Excel/CSV</string>
+    <string name="spreadsheet_import_description">Εισαγωγή αυτοκινήτων, ανεφοδιασμών και εξόδων από αρχείο Excel (.xlsx) ή CSV. Προσθέτει νέα δεδομένα χωρίς να αντικαθιστά τα υπάρχοντα.</string>
+    <string name="spreadsheet_import_how_to_title">Πώς να χρησιμοποιήσετε</string>
+    <string name="spreadsheet_import_how_to_1">1. Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
+    <string name="spreadsheet_import_how_to_2">2. Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
+    <string name="spreadsheet_import_how_to_3">3. Χρησιμοποιήστε το κουμπί Εισαγωγή για να προσθέσετε τα δεδομένα σας</string>
+    <string name="spreadsheet_import_button">Εισαγωγή Excel/CSV</string>
+    <string name="spreadsheet_generate_sample">Λήψη Δείγματος Αρχείου</string>
+    <string name="spreadsheet_importing">Εισαγωγή…</string>
+    <string name="spreadsheet_generating">Δημιουργία…</string>
+    <string name="spreadsheet_import_success">Επιτυχής εισαγωγή</string>
+    <string name="spreadsheet_import_failed">Αποτυχία εισαγωγής: %s</string>
+    <string name="spreadsheet_sample_generated">Το δείγμα αρχείου αποθηκεύτηκε στο %s</string>
+    <string name="spreadsheet_sample_failed">Αποτυχία δημιουργίας δείγματος: %s</string>
+    <string name="spreadsheet_import_note">Σημείωση: Τα αυτοκίνητα αντιστοιχούνται με βάση τον αριθμό κυκλοφορίας. Βεβαιωθείτε ότι προσθέτετε πρώτα τα αυτοκίνητα και μετά τους ανεφοδιασμούς και τα έξοδά τους.</string>
+    <string name="spreadsheet_file_format">Υποστηριζόμενες μορφές: .xlsx, .csv</string>
 </resources>
 

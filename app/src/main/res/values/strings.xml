@@ -636,5 +636,24 @@
     <string name="error_distance_too_high">Distance of %d km seems very high. Please verify odometer reading.</string>
     <string name="error_consumption_too_low">Consumption of %.1f L/100km seems unusually low. Please verify.</string>
     <string name="error_consumption_too_high">Consumption of %.1f L/100km seems unusually high. Please verify.</string>
+
+    <!-- Spreadsheet Import Feature -->
+    <string name="settings_section_spreadsheet_import">Spreadsheet Import</string>
+    <string name="spreadsheet_import_title">Import from Excel/CSV</string>
+    <string name="spreadsheet_import_description">Import cars, refills, and expenses from an Excel (.xlsx) or CSV file. This adds new data without replacing existing records.</string>
+    <string name="spreadsheet_import_how_to_title">How to use</string>
+    <string name="spreadsheet_import_how_to_1">1. Download the sample file to see the required format</string>
+    <string name="spreadsheet_import_how_to_2">2. Fill in your data following the same column structure</string>
+    <string name="spreadsheet_import_how_to_3">3. Use the Import button to add your data</string>
+    <string name="spreadsheet_import_button">Import Excel/CSV</string>
+    <string name="spreadsheet_generate_sample">Download Sample File</string>
+    <string name="spreadsheet_importing">Importing…</string>
+    <string name="spreadsheet_generating">Generating…</string>
+    <string name="spreadsheet_import_success">Import successful</string>
+    <string name="spreadsheet_import_failed">Import failed: %s</string>
+    <string name="spreadsheet_sample_generated">Sample file saved to %s</string>
+    <string name="spreadsheet_sample_failed">Failed to generate sample file: %s</string>
+    <string name="spreadsheet_import_note">Note: Cars are matched by license plate. Make sure to add cars first, then their refills and expenses.</string>
+    <string name="spreadsheet_file_format">Supported formats: .xlsx, .csv</string>
 </resources>
 

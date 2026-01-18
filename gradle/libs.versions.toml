@@ -20,6 +20,7 @@ coroutinesVersion = "1.10.1"
 playServicesLocation = "21.3.0"
 datastoreVersion = "1.1.1"
 serializationVersion = "1.7.3"
+apachePoiVersion = "5.2.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +68,10 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 
 # Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationVersion" }
+
+# Apache POI for Excel files
+apache-poi = { group = "org.apache.poi", name = "poi", version.ref = "apachePoiVersion" }
+apache-poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "apachePoiVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
