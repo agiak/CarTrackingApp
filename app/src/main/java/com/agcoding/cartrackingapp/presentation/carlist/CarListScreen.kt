@@ -43,6 +43,7 @@ fun CarListScreen(
     onCarClick: (Long) -> Unit,
     onStatisticsClick: () -> Unit,
     onAddRefillClick: (Long) -> Unit,
+    onAddServiceClick: (Long) -> Unit,
     viewModel: CarListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -105,7 +106,8 @@ fun CarListScreen(
                             CarCard(
                                 car = car,
                                 onClick = { onCarClick(car.id) },
-                                onAddRefillClick = { onAddRefillClick(car.id) }
+                                onAddRefillClick = { onAddRefillClick(car.id) },
+                                onAddServiceClick = { onAddServiceClick(car.id) }
                             )
                         }
                     }

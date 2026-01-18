@@ -47,18 +47,18 @@ class AddExpenseViewModel @Inject constructor(
     private fun loadAllCategories() {
         viewModelScope.launch {
             expenseCategoryDao.getAllCategories().collect { categoryEntities ->
-                // If database is empty, use predefined categories
-                if (categoryEntities.isEmpty()) {
-                    _availableCategories.value = translatedCategories.sorted()
-                } else {
-                    // Combine all categories (both predefined and custom) and sort them
-                    val allCategories = categoryEntities
-                        .map { it.name }
-                        .distinct()
-                        .sorted()
+                // Always use translated predefined categories (from string resources)
+                // Plus custom categories from database
+                val customCategories = categoryEntities
+                    .filter { it.isCustom }
+                    .map { it.name }
 
-                    _availableCategories.value = allCategories
-                }
+                // Combine translated predefined + custom categories
+                val allCategories = (translatedCategories + customCategories)
+                    .distinct()
+                    .sorted()
+
+                _availableCategories.value = allCategories
             }
         }
     }
@@ -80,6 +80,19 @@ class AddExpenseViewModel @Inject constructor(
 
     private val _amountError = MutableStateFlow<String?>(null)
     val amountError: StateFlow<String?> = _amountError.asStateFlow()
+
+    // Service reminder fields
+    private val _serviceReminderEnabled = MutableStateFlow(false)
+    val serviceReminderEnabled: StateFlow<Boolean> = _serviceReminderEnabled.asStateFlow()
+
+    private val _reminderDate = MutableStateFlow<Long?>(null)
+    val reminderDate: StateFlow<Long?> = _reminderDate.asStateFlow()
+
+    private val _reminderMileage = MutableStateFlow("")
+    val reminderMileage: StateFlow<String> = _reminderMileage.asStateFlow()
+
+    private val _showReminderDatePicker = MutableStateFlow(false)
+    val showReminderDatePicker: StateFlow<Boolean> = _showReminderDatePicker.asStateFlow()
 
     fun setCarId(carId: Long) {
         _carId.value = carId
@@ -132,6 +145,39 @@ class AddExpenseViewModel @Inject constructor(
         _showDatePicker.value = false
     }
 
+    fun toggleServiceReminder(enabled: Boolean) {
+        _serviceReminderEnabled.value = enabled
+        if (!enabled) {
+            // Clear reminder fields when disabled
+            _reminderDate.value = null
+            _reminderMileage.value = ""
+        }
+    }
+
+    fun updateReminderMileage(value: String) {
+        // Only allow digits
+        if (value.isEmpty() || value.all { it.isDigit() }) {
+            _reminderMileage.value = value
+        }
+    }
+
+    fun showReminderDatePicker() {
+        _showReminderDatePicker.value = true
+    }
+
+    fun hideReminderDatePicker() {
+        _showReminderDatePicker.value = false
+    }
+
+    fun updateReminderDate(timestamp: Long?) {
+        _reminderDate.value = timestamp
+        hideReminderDatePicker()
+    }
+
+    fun clearReminderDate() {
+        _reminderDate.value = null
+    }
+
     fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
         val amountValue = amount.value.toDoubleOrNull()
         val categoryValue = category.value.trim()
@@ -155,7 +201,9 @@ class AddExpenseViewModel @Inject constructor(
                     category = categoryValue,
                     amount = amountValue,
                     timestamp = selectedDate.value,
-                    notes = notes.value.ifBlank { null }
+                    notes = notes.value.ifBlank { null },
+                    reminderDate = if (_serviceReminderEnabled.value) _reminderDate.value else null,
+                    reminderMileage = if (_serviceReminderEnabled.value) _reminderMileage.value.toIntOrNull() else null
                 )
 
                 expenseRepository.insertExpense(expense)
@@ -175,6 +223,9 @@ class AddExpenseViewModel @Inject constructor(
         _notes.value = ""
         _selectedDate.value = System.currentTimeMillis()
         _categoryExpanded.value = false
+        _serviceReminderEnabled.value = false
+        _reminderDate.value = null
+        _reminderMileage.value = ""
     }
 
     // Legacy method for backward compatibility during transition

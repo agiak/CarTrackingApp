@@ -33,9 +33,9 @@ import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScree
 import com.agcoding.cartrackingapp.presentation.editcar.EditCarScreen
 import com.agcoding.cartrackingapp.presentation.editexpense.EditExpenseScreen
 import com.agcoding.cartrackingapp.presentation.editrefill.EditRefillScreen
+import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseCategoriesScreen
 import com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsScreen
 import com.agcoding.cartrackingapp.presentation.expensehistory.ExpenseHistoryScreen
-import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseCategoriesScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
 import com.agcoding.cartrackingapp.presentation.refill.AddRefillBottomSheet
@@ -94,6 +94,9 @@ sealed class Screen(val route: String) {
         fun createRoute(month: Int, year: Int) = "month_details/$month/$year"
     }
     object ManageExpenseCategories : Screen("manage_expense_categories")
+    object AddExpense : Screen("add_expense/{carId}") {
+        fun createRoute(carId: Long) = "add_expense/$carId"
+    }
 }
 
 @Composable
@@ -101,7 +104,6 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     var showAddRefillSheet by remember { mutableStateOf<Long?>(null) }
-    var showAddExpenseSheet by remember { mutableStateOf<Long?>(null) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val snackbarHostState = remember { SnackbarHostState() }
@@ -196,6 +198,9 @@ fun AppNavigation(
                     },
                     onAddRefillClick = { carId ->
                         showAddRefillSheet = carId
+                    },
+                    onAddServiceClick = { carId ->
+                        navController.navigate(Screen.AddExpense.createRoute(carId))
                     }
                 )
             }
@@ -251,7 +256,7 @@ fun AppNavigation(
                         showAddRefillSheet = carId
                     },
                     onAddExpenseClick = {
-                        showAddExpenseSheet = carId
+                        navController.navigate(Screen.AddExpense.createRoute(carId))
                     },
                     onRefillClick = { refillId ->
                         navController.navigate(Screen.RefillDetails.createRoute(refillId))
@@ -492,6 +497,21 @@ fun AppNavigation(
                     }
                 )
             }
+
+            composable(
+                route = Screen.AddExpense.route,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
+                com.agcoding.cartrackingapp.presentation.expense.AddExpenseScreen(
+                    carId = carId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         // Add refill bottom sheet
@@ -506,24 +526,6 @@ fun AppNavigation(
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "Refill added successfully",
-                            duration = androidx.compose.material3.SnackbarDuration.Short
-                        )
-                    }
-                }
-            )
-        }
-
-        // Add general expense bottom sheet
-        showAddExpenseSheet?.let { carId ->
-            com.agcoding.cartrackingapp.presentation.expense.AddExpenseBottomSheet(
-                carId = carId,
-                onDismiss = {
-                    showAddExpenseSheet = null
-                },
-                onSuccess = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = "Expense added successfully",
                             duration = androidx.compose.material3.SnackbarDuration.Short
                         )
                     }

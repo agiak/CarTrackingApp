@@ -47,6 +47,9 @@ data class Expense(
     val category: String, // Flexible user-defined category
     val amount: Double,
     val timestamp: Long,
-    val notes: String? = null
+    val notes: String? = null,
+    // Service reminder fields (optional)
+    val reminderDate: Long? = null, // Future date for service reminder
+    val reminderMileage: Int? = null // Mileage value for service reminder
 )
 

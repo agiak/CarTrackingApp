@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +39,7 @@ fun CarCard(
     car: Car,
     onClick: () -> Unit,
     onAddRefillClick: () -> Unit,
+    onAddServiceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -55,7 +57,7 @@ fun CarCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Header: Car name, license plate, and refill button
+            // Header: Car name, license plate, and action buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -76,18 +78,34 @@ fun CarCard(
                     )
                 }
 
-                // Add Refill button
-                OutlinedButton(
-                    onClick = onAddRefillClick,
-                    modifier = Modifier.height(36.dp)
+                // Action buttons row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.car_card_add_refill_cd),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(stringResource(R.string.car_card_refill), fontSize = 13.sp)
+                    // Service icon button
+                    androidx.compose.material3.IconButton(
+                        onClick = onAddServiceClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Build,
+                            contentDescription = stringResource(R.string.car_card_add_service_cd),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    // Refill icon button
+                    androidx.compose.material3.IconButton(
+                        onClick = onAddRefillClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocalGasStation,
+                            contentDescription = stringResource(R.string.car_card_add_refill_cd),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
 

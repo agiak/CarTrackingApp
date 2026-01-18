@@ -10,7 +10,9 @@ fun ExpenseEntity.toDomain(): Expense {
         category = category,
         amount = amount,
         timestamp = timestamp,
-        notes = notes
+        notes = notes,
+        reminderDate = reminderDate,
+        reminderMileage = reminderMileage
     )
 }
 
@@ -21,7 +23,9 @@ fun Expense.toEntity(): ExpenseEntity {
         category = category,
         amount = amount,
         timestamp = timestamp,
-        notes = notes
+        notes = notes,
+        reminderDate = reminderDate,
+        reminderMileage = reminderMileage
     )
 }
 

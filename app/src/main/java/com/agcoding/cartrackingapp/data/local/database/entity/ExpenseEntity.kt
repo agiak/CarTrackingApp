@@ -28,5 +28,8 @@ data class ExpenseEntity(
     val category: String, // User-defined category (e.g., "Tire change", "Oil change", custom)
     val amount: Double,
     val timestamp: Long,
-    val notes: String? = null
+    val notes: String? = null,
+    // Service reminder fields (optional)
+    val reminderDate: Long? = null, // Future date for service reminder
+    val reminderMileage: Int? = null // Mileage value for service reminder
 )

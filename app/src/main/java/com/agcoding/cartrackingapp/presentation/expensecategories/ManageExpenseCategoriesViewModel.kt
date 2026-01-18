@@ -80,10 +80,10 @@ class ManageExpenseCategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 expenseCategoryDao.getAllCategories().collect { categories ->
-                    val predefined = categories
-                        .filter { !it.isCustom }
-                        .map { it.name }
-                        .sorted()
+                    // Always get predefined categories from string resources for current locale
+                    val predefined = predefinedCategoriesResIds.map { resId ->
+                        context.getString(resId)
+                    }.sorted()
 
                     val custom = categories
                         .filter { it.isCustom }

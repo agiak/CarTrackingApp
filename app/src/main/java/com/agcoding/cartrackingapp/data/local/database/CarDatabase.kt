@@ -15,7 +15,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.FuelRefillEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -176,6 +176,14 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
 
         // Create unique index on name
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_expense_categories_name ON expense_categories(name)")
+    }
+}
+
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Add service reminder fields to expenses table
+        db.execSQL("ALTER TABLE expenses ADD COLUMN reminderDate INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE expenses ADD COLUMN reminderMileage INTEGER DEFAULT NULL")
     }
 }
 

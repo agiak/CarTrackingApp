@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.AlertDialog
@@ -54,7 +56,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
-import com.agcoding.cartrackingapp.presentation.expense.ExpandableFabMenu
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -88,12 +89,6 @@ fun CarDetailsScreen(
                     }
                 },
             )
-        },
-        floatingActionButton = {
-            ExpandableFabMenu(
-                onRefillClick = onAddRefillClick,
-                onExpenseClick = onAddExpenseClick
-            )
         }
     ) { paddingValues ->
         when (val state = uiState) {
@@ -117,7 +112,7 @@ fun CarDetailsScreen(
                         start = 16.dp,
                         end = 16.dp,
                         top = 16.dp,
-                        bottom = 88.dp // Extra padding for expandable FAB (56dp FAB + 32dp spacing)
+                        bottom = 16.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -160,6 +155,40 @@ fun CarDetailsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(stringResource(R.string.delete))
+                            }
+                        }
+                    }
+
+                    // Expense and Refill action buttons
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = onAddExpenseClick,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Receipt,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.add_expense))
+                            }
+
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = onAddRefillClick,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocalGasStation,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.add_refill))
                             }
                         }
                     }

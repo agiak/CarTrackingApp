@@ -164,6 +164,38 @@ fun AddRefillBottomSheet(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Calculated odometer display (shown when trip distance is entered)
+            val tripDistanceValue = uiState.tripDistance.toDoubleOrNull()
+            if (tripDistanceValue != null && tripDistanceValue > 0) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                ) {
+                    // Calculated odometer value
+                    val calculatedOdometer = uiState.previousOdometer + tripDistanceValue
+                    Text(
+                        text = stringResource(
+                            R.string.calculated_odometer,
+                            String.format("%,d", calculatedOdometer.toInt())
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Informational text
+                    Text(
+                        text = stringResource(R.string.check_actual_odometer),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Date field

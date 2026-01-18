@@ -16,6 +16,11 @@
     <string name="filter_last_6_months">Τελευταίοι 6 μήνες</string>
     <string name="filter_last_year">Τελευταίο έτος</string>
     <string name="filter_all_time">Όλο το διάστημα</string>
+    <string name="filter_by_car">Ανά αυτοκίνητο</string>
+    <string name="select_cars_to_filter">Επιλέξτε ένα ή περισσότερα αυτοκίνητα για να δείτε τα στατιστικά τους</string>
+    <string name="apply">Εφαρμογή</string>
+    <string name="all_cars">Όλα τα αυτοκίνητα</string>
+    <string name="cars_selected">%1$d αυτοκίνητα επιλεγμένα</string>
 
     <string name="no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα</string>
     <string name="add_refills_or_expenses">Προσθέστε ανεφοδιασμούς ή έξοδα για να δείτε τις μηνιαίες τάσεις</string>
@@ -146,6 +151,8 @@
     <string name="delete_car">Διαγραφή αυτοκινήτου</string>
     <string name="delete_car_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το αυτοκίνητο; Όλες οι εγγραφές ανεφοδιασμών θα διαγραφούν επίσης.</string>
     <string name="delete">Διαγραφή</string>
+    <string name="add_expense">Έξοδο</string>
+    <string name="add_refill">Ανεφοδιασμός</string>
     <string name="not_available">Μ/Δ</string>
     <string name="odometer">Οδόμετρο</string>
     <string name="cost_per_kilometer">Κόστος ανά χιλιόμετρο</string>
@@ -304,6 +311,8 @@
     <!-- Car Card -->
     <string name="car_card_add_refill_cd">Προσθήκη ανεφοδιασμού</string>
     <string name="car_card_refill">Ανεφοδιασμός</string>
+    <string name="car_card_add_service_cd">Προσθήκη service</string>
+    <string name="car_card_service">Service</string>
     <string name="car_card_odometer">Οδόμετρο</string>
     <string name="car_card_total_cost">Συνολικό κόστος</string>
     <string name="car_card_distance">Απόσταση</string>
@@ -331,6 +340,15 @@
     <string name="pick_date">Επιλογή ημερομηνίας</string>
     <string name="date_format_dd_mmm_yyyy">dd MMM yyyy</string>
 
+    <!-- Service Reminder -->
+    <string name="service_reminder">Υπενθύμιση Service</string>
+    <string name="service_reminder_description">Ορίστε υπενθύμιση για το επόμενο service</string>
+    <string name="reminder_date">Ημερομηνία υπενθύμισης</string>
+    <string name="reminder_date_hint">Επιλέξτε μελλοντική ημερομηνία</string>
+    <string name="reminder_mileage">Χιλιόμετρα υπενθύμισης (km)</string>
+    <string name="reminder_mileage_hint">π.χ., 20000</string>
+    <string name="reminder_optional_note">Μπορείτε να ορίσετε ένα ή και τα δύο κριτήρια</string>
+
     <!-- Edit Expense Screen -->
     <string name="edit_expense_title">Επεξεργασία εξόδου</string>
     <string name="amount_placeholder">0.00</string>
@@ -346,6 +364,8 @@
     <string name="trip_distance_km">Απόσταση διαδρομής (km)</string>
     <string name="trip_distance_hint">π.χ., 550</string>
     <string name="trip_distance_supporting">Απόσταση από τον προηγούμενο ανεφοδιασμό</string>
+    <string name="calculated_odometer">Υπολογισμένο οδόμετρο: %1$s km</string>
+    <string name="check_actual_odometer">Ελέγξτε το οδόμετρο του αυτοκινήτου σας και στρογγυλοποιήστε αν χρειάζεται για να ταιριάζει με την πραγματική τιμή</string>
     <string name="odometer_reading_km">Ένδειξη οδομέτρου (km)</string>
     <string name="odometer_reading_hint">π.χ., 15000</string>
     <string name="select_date">Επιλογή ημερομηνίας</string>

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -60,6 +61,9 @@ fun ConsumptionGraphScreen(
     val uiState by viewModel.uiState.collectAsState()
     val selectedPeriod by viewModel.selectedPeriod.collectAsState()
     val showPeriodSelector by viewModel.showPeriodSelector.collectAsState()
+    val allCars by viewModel.allCars.collectAsState()
+    val selectedCarIds by viewModel.selectedCarIds.collectAsState()
+    val showCarFilter by viewModel.showCarFilter.collectAsState()
 
     Scaffold(
         topBar = {
@@ -74,6 +78,27 @@ fun ConsumptionGraphScreen(
                     }
                 },
                 actions = {
+                    // Car filter button
+                    if (allCars.size > 1) {
+                        TextButton(
+                            onClick = { viewModel.showCarFilter() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                if (selectedCarIds.isEmpty() || selectedCarIds.size == allCars.size) {
+                                    stringResource(R.string.all_cars)
+                                } else {
+                                    stringResource(R.string.cars_selected, selectedCarIds.size)
+                                }
+                            )
+                        }
+                    }
+
                     // Period selector button
                     TextButton(
                         onClick = { viewModel.showPeriodSelector() }
@@ -147,6 +172,19 @@ fun ConsumptionGraphScreen(
                     }
                 )
             }
+        }
+
+        // Car Filter Bottom Sheet
+        if (showCarFilter) {
+            com.agcoding.cartrackingapp.presentation.components.CarFilterSheet(
+                cars = allCars,
+                selectedCarIds = selectedCarIds,
+                onCarSelectionChanged = { carId, selected ->
+                    viewModel.toggleCarSelection(carId, selected)
+                },
+                onDismiss = { viewModel.hideCarFilter() },
+                onApply = { viewModel.applyCarFilter() }
+            )
         }
     }
 }
