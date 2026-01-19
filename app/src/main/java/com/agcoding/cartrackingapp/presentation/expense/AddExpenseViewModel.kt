@@ -8,17 +8,20 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
+import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
+    private val carRepository: CarRepository,
     private val expenseCategoryDao: ExpenseCategoryDao,
     application: Application
 ) : AndroidViewModel(application) {
@@ -196,6 +199,19 @@ class AddExpenseViewModel @Inject constructor(
             try {
                 _isSaving.value = true
 
+                // Calculate target mileage if mileage reminder is set
+                val targetMileage = if (_serviceReminderEnabled.value && _reminderMileage.value.isNotBlank()) {
+                    val additionalKm = _reminderMileage.value.toIntOrNull()
+                    if (additionalKm != null && additionalKm > 0) {
+                        // Get current car odometer
+                        val car = carRepository.getCarById(_carId.value).first()
+                        val currentOdometer = car?.currentOdometer?.toInt() ?: 0
+
+                        // Calculate target: current odometer + additional km
+                        currentOdometer + additionalKm
+                    } else null
+                } else null
+
                 val expense = Expense(
                     carId = _carId.value,
                     category = categoryValue,
@@ -203,7 +219,7 @@ class AddExpenseViewModel @Inject constructor(
                     timestamp = selectedDate.value,
                     notes = notes.value.ifBlank { null },
                     reminderDate = if (_serviceReminderEnabled.value) _reminderDate.value else null,
-                    reminderMileage = if (_serviceReminderEnabled.value) _reminderMileage.value.toIntOrNull() else null
+                    reminderMileage = targetMileage
                 )
 
                 expenseRepository.insertExpense(expense)

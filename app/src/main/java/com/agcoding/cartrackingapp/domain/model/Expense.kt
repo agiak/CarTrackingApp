@@ -50,6 +50,7 @@ data class Expense(
     val notes: String? = null,
     // Service reminder fields (optional)
     val reminderDate: Long? = null, // Future date for service reminder
-    val reminderMileage: Int? = null // Mileage value for service reminder
+    val reminderMileage: Int? = null, // Mileage value for service reminder
+    val reminderEnabled: Boolean = true // Whether notifications are enabled for this reminder
 )
 

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
@@ -88,7 +89,8 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onViewGuide: () -> Unit = {},
-    onManageExpenseCategories: () -> Unit = {}
+    onManageExpenseCategories: () -> Unit = {},
+    onViewNotifications: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -354,7 +356,8 @@ fun SettingsScreen(
                 },
                 onOpenSettings = {
                     PermissionUtil.openAppSettings(context)
-                }
+                },
+                onViewNotifications = onViewNotifications
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -638,7 +641,8 @@ private fun PreferencesCard(
     notificationsEnabled: Boolean,
     permissionPermanentlyDenied: Boolean,
     onNotificationsToggle: (Boolean) -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onViewNotifications: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -697,6 +701,42 @@ private fun PreferencesCard(
                     }
                 }
             }
+
+            // Divider
+            androidx.compose.material3.Divider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            // View Reminders Row
+            SettingsRow(
+                icon = Icons.Default.Event,
+                iconBackgroundColor = if (notificationsEnabled) {
+                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f)
+                },
+                iconTint = if (notificationsEnabled) {
+                    MaterialTheme.colorScheme.tertiary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                },
+                title = stringResource(R.string.preferences_view_reminders),
+                subtitle = stringResource(R.string.preferences_view_reminders_desc),
+                trailing = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = if (notificationsEnabled) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                        }
+                    )
+                },
+                onClick = if (notificationsEnabled) onViewNotifications else null,
+                enabled = notificationsEnabled
+            )
         }
     }
 }
@@ -983,13 +1023,14 @@ private fun SettingsRow(
     title: String,
     subtitle: String?,
     onClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
     trailing: @Composable () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .then(
-                if (onClick != null) Modifier.clickable(onClick = onClick)
+                if (onClick != null && enabled) Modifier.clickable(onClick = onClick)
                 else Modifier
             )
             .padding(16.dp),
@@ -1015,13 +1056,21 @@ private fun SettingsRow(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (enabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                }
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (enabled) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                    }
                 )
             }
         }

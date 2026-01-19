@@ -346,8 +346,8 @@
     <string name="service_reminder_description">Set a reminder for the next service</string>
     <string name="reminder_date">Reminder Date</string>
     <string name="reminder_date_hint">Select future date</string>
-    <string name="reminder_mileage">Reminder Mileage (km)</string>
-    <string name="reminder_mileage_hint">e.g., 20000</string>
+    <string name="reminder_mileage">Remind After (km)</string>
+    <string name="reminder_mileage_hint">e.g., 10000 (additional km)</string>
     <string name="reminder_optional_note">You can set one or both reminder criteria</string>
 
     <!-- Edit Expense Screen -->
@@ -655,5 +655,48 @@
     <string name="spreadsheet_sample_failed">Failed to generate sample file: %s</string>
     <string name="spreadsheet_import_note">Note: Cars are matched by license plate. Make sure to add cars first, then their refills and expenses.</string>
     <string name="spreadsheet_file_format">Supported formats: .xlsx, .csv</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Service Reminders</string>
+    <string name="notifications_upcoming_reminders">Upcoming Service Reminders</string>
+    <string name="notifications_count">%d active reminder(s)</string>
+    <string name="notifications_reminder_date">Reminder Date</string>
+    <string name="notifications_reminder_mileage">Reminder Mileage</string>
+    <string name="notifications_mileage_value">%,d km</string>
+    <string name="notifications_remaining_km">%,d km remaining</string>
+    <string name="notifications_target_reached">Target reached</string>
+    <string name="notifications_overdue">Overdue</string>
+    <string name="notifications_today">Today</string>
+    <string name="notifications_tomorrow">Tomorrow</string>
+    <string name="notifications_in_days">In %d days</string>
+    <string name="notifications_in_weeks">In %d week(s)</string>
+    <string name="notifications_in_months">In %d month(s)</string>
+    <string name="notifications_empty_title">No Reminders Set</string>
+    <string name="notifications_empty_message">You don\'t have any service reminders configured. Add reminder dates or mileage targets when creating expenses to track upcoming maintenance.</string>
+    <string name="preferences_view_reminders">View Service Reminders</string>
+    <string name="preferences_view_reminders_desc">See all upcoming maintenance reminders</string>
+    <string name="notifications_active_count">%d active reminder(s)</string>
+    <string name="edit_reminder_title">Edit Reminder</string>
+    <string name="edit_reminder_description">Edit reminder settings for this service. The original expense will not be modified.</string>
+    <string name="edit_reminder_current_odometer">Current odometer: %,d km</string>
+    <string name="edit_reminder_additional_km">Remind after (additional km)</string>
+    <string name="edit_reminder_target_odometer">Target odometer: %,d km</string>
+    <string name="expense_created_on">Expense created on: %s</string>
+    <string name="ok">OK</string>
+    <string name="delete_reminder_title">Delete Reminder?</string>
+    <string name="delete_reminder_message">This will remove the reminder settings from this expense. The expense itself will not be deleted.</string>
+
+    <!-- Filter Labels -->
+    <string name="filter_period_label">Period: %s</string>
+    <string name="filter_car_label_single">Car: %s</string>
+    <string name="filter_car_label_multiple">Cars: %s</string>
+
+    <!-- Period Filters -->
+    <string name="period_all_time">All Time</string>
+    <string name="period_last_30_days">Last 30 Days</string>
+    <string name="period_last_60_days">Last 60 Days</string>
+    <string name="period_last_90_days">Last 90 Days</string>
+    <string name="period_last_year">Last Year</string>
+    <string name="period_custom_range">Custom Range</string>
 </resources>
 

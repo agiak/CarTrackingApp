@@ -581,12 +581,20 @@ class SettingsViewModel @Inject constructor(
         random: Random
     ) {
         val timeRange = endTime - startTime
+        val now = System.currentTimeMillis()
 
         // Target 5-8k per year = 10-16k total for 2 years
         val targetTotalExpenses = random.nextDouble(10000.0, 16000.0)
         var currentTotal = 0.0
         val usedCategories = mutableSetOf<String>()
         val generatedExpenses = mutableListOf<Expense>()
+
+        // Get current car odometer for mileage-based reminders
+        val car = carRepository.getCarById(carId).first()
+        val currentOdometer = car?.currentOdometer?.toInt() ?: 75000
+
+        // Service categories that should have reminders
+        val serviceCategories = listOf("Oil change", "Big service", "Small service", "Tire change", "Brakes")
 
         // First, ensure every category is used at least once
         for ((category, costRange) in expenseCategories) {
@@ -595,13 +603,28 @@ class SettingsViewModel @Inject constructor(
             val cost = random.nextDouble(costRange.start, costRange.endInclusive)
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
+            // Determine if this expense should have reminders
+            val shouldHaveReminder = category in serviceCategories && random.nextBoolean()
+
+            val reminderDate = if (shouldHaveReminder && random.nextBoolean()) {
+                // Add reminder date 1-6 months in the future
+                now + random.nextLong(30L * 24 * 60 * 60 * 1000, 180L * 24 * 60 * 60 * 1000)
+            } else null
+
+            val reminderMileage = if (shouldHaveReminder && random.nextBoolean()) {
+                // Add reminder mileage 3,000-10,000 km in the future
+                currentOdometer + random.nextInt(3000, 10001)
+            } else null
+
             generatedExpenses.add(
                 Expense(
                     carId = carId,
                     category = category,
                     amount = Math.round(cost * 100) / 100.0,
                     timestamp = expenseTime,
-                    notes = null
+                    notes = null,
+                    reminderDate = reminderDate,
+                    reminderMileage = reminderMileage
                 )
             )
 
@@ -620,13 +643,58 @@ class SettingsViewModel @Inject constructor(
             // Random timestamp within the time range
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
+            // Occasionally add reminders to service categories
+            val shouldHaveReminder = category in serviceCategories && random.nextInt(100) < 30 // 30% chance
+
+            val reminderDate = if (shouldHaveReminder && random.nextBoolean()) {
+                // Add reminder date 1-6 months in the future
+                now + random.nextLong(30L * 24 * 60 * 60 * 1000, 180L * 24 * 60 * 60 * 1000)
+            } else null
+
+            val reminderMileage = if (shouldHaveReminder && random.nextBoolean()) {
+                // Add reminder mileage 3,000-10,000 km in the future
+                currentOdometer + random.nextInt(3000, 10001)
+            } else null
+
             generatedExpenses.add(
                 Expense(
                     carId = carId,
                     category = category,
                     amount = Math.round(cost * 100) / 100.0,
                     timestamp = expenseTime,
-                    notes = null
+                    notes = null,
+                    reminderDate = reminderDate,
+                    reminderMileage = reminderMileage
+                )
+            )
+
+            currentTotal += cost
+        }
+
+        // Add a few guaranteed upcoming reminders for better testing
+        val guaranteedReminders = listOf(
+            Triple("Oil change", 7, 5000),  // 7 days, 5000 km
+            Triple("Big service", 45, 8000), // 45 days, 8000 km
+            Triple("Tire change", 90, 12000) // 90 days, 12000 km
+        )
+
+        guaranteedReminders.forEach { (category, daysInFuture, kmInFuture) ->
+            val costRange = expenseCategories.find { it.first == category }?.second
+                ?: (100.0..300.0)
+            val cost = random.nextDouble(costRange.start, costRange.endInclusive)
+
+            // Past expense timestamp (2-6 months ago)
+            val pastExpenseTime = now - random.nextLong(60L * 24 * 60 * 60 * 1000, 180L * 24 * 60 * 60 * 1000)
+
+            generatedExpenses.add(
+                Expense(
+                    carId = carId,
+                    category = category,
+                    amount = Math.round(cost * 100) / 100.0,
+                    timestamp = pastExpenseTime,
+                    notes = "Due for next service",
+                    reminderDate = now + (daysInFuture.toLong() * 24 * 60 * 60 * 1000),
+                    reminderMileage = currentOdometer + kmInFuture
                 )
             )
 

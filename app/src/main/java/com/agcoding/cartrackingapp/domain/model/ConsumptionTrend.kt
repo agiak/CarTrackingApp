@@ -36,13 +36,24 @@ data class DateRange(
     val label: String
 )
 
-enum class TrendPeriod(val label: String, val days: Int) {
-    ALL_TIME("All Time", -1),
-    LAST_30_DAYS("Last 30 Days", 30),
-    LAST_60_DAYS("Last 60 Days", 60),
-    LAST_90_DAYS("Last 90 Days", 90),
-    LAST_YEAR("Last Year", 365),
-    CUSTOM("Custom Range", 0)
+enum class TrendPeriod(val labelResId: Int, val days: Int) {
+    ALL_TIME(com.agcoding.cartrackingapp.R.string.period_all_time, -1),
+    LAST_30_DAYS(com.agcoding.cartrackingapp.R.string.period_last_30_days, 30),
+    LAST_60_DAYS(com.agcoding.cartrackingapp.R.string.period_last_60_days, 60),
+    LAST_90_DAYS(com.agcoding.cartrackingapp.R.string.period_last_90_days, 90),
+    LAST_YEAR(com.agcoding.cartrackingapp.R.string.period_last_year, 365),
+    CUSTOM(com.agcoding.cartrackingapp.R.string.period_custom_range, 0);
+
+    @Deprecated("Use labelResId with Context instead", ReplaceWith("context.getString(labelResId)"))
+    val label: String
+        get() = when (this) {
+            ALL_TIME -> "All Time"
+            LAST_30_DAYS -> "Last 30 Days"
+            LAST_60_DAYS -> "Last 60 Days"
+            LAST_90_DAYS -> "Last 90 Days"
+            LAST_YEAR -> "Last Year"
+            CUSTOM -> "Custom Range"
+        }
 }
 
 /**

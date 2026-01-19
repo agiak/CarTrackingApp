@@ -97,6 +97,10 @@ sealed class Screen(val route: String) {
     object AddExpense : Screen("add_expense/{carId}") {
         fun createRoute(carId: Long) = "add_expense/$carId"
     }
+    object Notifications : Screen("notifications")
+    object EditReminder : Screen("edit_reminder/{expenseId}") {
+        fun createRoute(expenseId: Long) = "edit_reminder/$expenseId"
+    }
 }
 
 @Composable
@@ -236,6 +240,9 @@ fun AppNavigation(
                     },
                     onManageExpenseCategories = {
                         navController.navigate(Screen.ManageExpenseCategories.route)
+                    },
+                    onViewNotifications = {
+                        navController.navigate(Screen.Notifications.route)
                     }
                 )
             }
@@ -507,6 +514,32 @@ fun AppNavigation(
                 val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
                 com.agcoding.cartrackingapp.presentation.expense.AddExpenseScreen(
                     carId = carId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = Screen.Notifications.route) {
+                com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onEditExpense = { expenseId ->
+                        navController.navigate(Screen.EditReminder.createRoute(expenseId))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.EditReminder.route,
+                arguments = listOf(
+                    navArgument("expenseId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
+                com.agcoding.cartrackingapp.presentation.editreminder.EditReminderScreen(
+                    expenseId = expenseId,
                     onNavigateBack = {
                         navController.popBackStack()
                     }

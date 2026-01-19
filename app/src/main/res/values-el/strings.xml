@@ -345,8 +345,8 @@
     <string name="service_reminder_description">Ορίστε υπενθύμιση για το επόμενο service</string>
     <string name="reminder_date">Ημερομηνία υπενθύμισης</string>
     <string name="reminder_date_hint">Επιλέξτε μελλοντική ημερομηνία</string>
-    <string name="reminder_mileage">Χιλιόμετρα υπενθύμισης (km)</string>
-    <string name="reminder_mileage_hint">π.χ., 20000</string>
+    <string name="reminder_mileage">Υπενθύμιση μετά από (χλμ)</string>
+    <string name="reminder_mileage_hint">π.χ., 10000 (πρόσθετα χλμ)</string>
     <string name="reminder_optional_note">Μπορείτε να ορίσετε ένα ή και τα δύο κριτήρια</string>
 
     <!-- Edit Expense Screen -->
@@ -656,5 +656,48 @@
     <string name="spreadsheet_sample_failed">Αποτυχία δημιουργίας δείγματος: %s</string>
     <string name="spreadsheet_import_note">Σημείωση: Τα αυτοκίνητα αντιστοιχούνται με βάση τον αριθμό κυκλοφορίας. Βεβαιωθείτε ότι προσθέτετε πρώτα τα αυτοκίνητα και μετά τους ανεφοδιασμούς και τα έξοδά τους.</string>
     <string name="spreadsheet_file_format">Υποστηριζόμενες μορφές: .xlsx, .csv</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Υπενθυμίσεις Σέρβις</string>
+    <string name="notifications_upcoming_reminders">Επερχόμενες Υπενθυμίσεις Σέρβις</string>
+    <string name="notifications_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
+    <string name="notifications_reminder_date">Ημερομηνία Υπενθύμισης</string>
+    <string name="notifications_reminder_mileage">Χιλιόμετρα Υπενθύμισης</string>
+    <string name="notifications_mileage_value">%,d χλμ</string>
+    <string name="notifications_remaining_km">%,d χλμ υπολείπονται</string>
+    <string name="notifications_target_reached">Ο στόχος επιτεύχθηκε</string>
+    <string name="notifications_overdue">Καθυστερημένη</string>
+    <string name="notifications_today">Σήμερα</string>
+    <string name="notifications_tomorrow">Αύριο</string>
+    <string name="notifications_in_days">Σε %d ημέρες</string>
+    <string name="notifications_in_weeks">Σε %d εβδομάδα(ες)</string>
+    <string name="notifications_in_months">Σε %d μήνα(ες)</string>
+    <string name="notifications_empty_title">Δεν Υπάρχουν Υπενθυμίσεις</string>
+    <string name="notifications_empty_message">Δεν έχετε ρυθμίσει υπενθυμίσεις σέρβις. Προσθέστε ημερομηνίες υπενθύμισης ή στόχους χιλιομέτρων όταν δημιουργείτε έξοδα για να παρακολουθείτε την επερχόμενη συντήρηση.</string>
+    <string name="preferences_view_reminders">Προβολή Υπενθυμίσεων Σέρβις</string>
+    <string name="preferences_view_reminders_desc">Δείτε όλες τις επερχόμενες υπενθυμίσεις συντήρησης</string>
+    <string name="notifications_active_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
+    <string name="edit_reminder_title">Επεξεργασία Υπενθύμισης</string>
+    <string name="edit_reminder_description">Επεξεργαστείτε τις ρυθμίσεις υπενθύμισης για αυτό το σέρβις. Το αρχικό έξοδο δεν θα τροποποιηθεί.</string>
+    <string name="edit_reminder_current_odometer">Τρέχον οδόμετρο: %,d χλμ</string>
+    <string name="edit_reminder_additional_km">Υπενθύμιση μετά από (πρόσθετα χλμ)</string>
+    <string name="edit_reminder_target_odometer">Στόχος οδόμετρου: %,d χλμ</string>
+    <string name="expense_created_on">Έξοδο δημιουργήθηκε στις: %s</string>
+    <string name="ok">OK</string>
+    <string name="delete_reminder_title">Διαγραφή Υπενθύμισης;</string>
+    <string name="delete_reminder_message">Αυτό θα αφαιρέσει τις ρυθμίσεις υπενθύμισης από αυτό το έξοδο. Το ίδιο το έξοδο δεν θα διαγραφεί.</string>
+
+    <!-- Filter Labels -->
+    <string name="filter_period_label">Περίοδος: %s</string>
+    <string name="filter_car_label_single">Αυτοκίνητο: %s</string>
+    <string name="filter_car_label_multiple">Αυτοκίνητα: %s</string>
+
+    <!-- Period Filters -->
+    <string name="period_all_time">Όλη η Περίοδος</string>
+    <string name="period_last_30_days">Τελευταίες 30 Ημέρες</string>
+    <string name="period_last_60_days">Τελευταίες 60 Ημέρες</string>
+    <string name="period_last_90_days">Τελευταίες 90 Ημέρες</string>
+    <string name="period_last_year">Τελευταίος Χρόνος</string>
+    <string name="period_custom_range">Προσαρμοσμένη Περίοδος</string>
 </resources>
 

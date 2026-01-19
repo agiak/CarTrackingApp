@@ -87,20 +87,23 @@ fun RefillsGraphScreen(
                     // Car filter button
                     if (allCars.size > 1) {
                         TextButton(
-                            onClick = { viewModel.showCarFilter() }
+                            onClick = { viewModel.showCarFilter() },
+                            modifier = Modifier.width(160.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.DirectionsCar,
                                 contentDescription = null,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            val selectedCars = allCars.filter { selectedCarIds.contains(it.id) }
                             Text(
-                                if (selectedCarIds.isEmpty() || selectedCarIds.size == allCars.size) {
-                                    stringResource(R.string.all_cars)
-                                } else {
-                                    stringResource(R.string.cars_selected, selectedCarIds.size)
-                                }
+                                text = when {
+                                    selectedCars.isEmpty() -> stringResource(R.string.all_cars)
+                                    selectedCars.size == 1 -> selectedCars[0].name
+                                    else -> selectedCars.joinToString(", ") { it.name }
+                                },
+                                fontSize = 14.sp
                             )
                         }
                     }
@@ -112,10 +115,13 @@ fun RefillsGraphScreen(
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(selectedPeriod.label)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(selectedPeriod.labelResId),
+                            fontSize = 14.sp
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -238,6 +244,7 @@ private fun RefillsGraphContent(
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
 
         Spacer(modifier = Modifier.height(8.dp))
 
