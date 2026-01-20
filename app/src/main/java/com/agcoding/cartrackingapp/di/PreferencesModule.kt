@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.di
 
 import android.content.Context
 import com.agcoding.cartrackingapp.data.preferences.OnboardingPreferences
+import com.agcoding.cartrackingapp.data.preferences.ReminderBannerPreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import dagger.Module
@@ -37,6 +38,14 @@ object PreferencesModule {
         @ApplicationContext context: Context
     ): SettingsPreferences {
         return SettingsPreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReminderBannerPreferences(
+        @ApplicationContext context: Context
+    ): ReminderBannerPreferences {
+        return ReminderBannerPreferences(context)
     }
 }
 

@@ -247,7 +247,7 @@ fun OnboardingGuideScreen(
                 modifier = Modifier.weight(if (currentSlideIndex > 0) 1f else 2f),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 AnimatedContent(

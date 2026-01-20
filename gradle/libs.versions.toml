@@ -21,6 +21,7 @@ playServicesLocation = "21.3.0"
 datastoreVersion = "1.1.1"
 serializationVersion = "1.7.3"
 apachePoiVersion = "5.2.3"
+workVersion = "2.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +73,10 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Apache POI for Excel files
 apache-poi = { group = "org.apache.poi", name = "poi", version.ref = "apachePoiVersion" }
 apache-poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "apachePoiVersion" }
+
+# WorkManager
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workVersion" }
+androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version = "1.2.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

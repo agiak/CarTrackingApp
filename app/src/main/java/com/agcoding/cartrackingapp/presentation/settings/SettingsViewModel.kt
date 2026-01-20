@@ -2,10 +2,13 @@ package com.agcoding.cartrackingapp.presentation.settings
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
@@ -26,6 +29,7 @@ import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.util.StorageCheckResult
 import com.agcoding.cartrackingapp.util.StorageUtil
+import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -701,6 +705,46 @@ class SettingsViewModel @Inject constructor(
             currentTotal += cost
         }
 
+        // Add pre-expiry test cases (within notification thresholds)
+        // These will trigger pre-expiry notifications
+        val preExpiryTestCases = listOf(
+            // Date-based: expires tomorrow (within 1 day)
+            Triple("Small service", 1, null),
+            // Date-based: expires in 2 days
+            Triple("Brakes", 2, null),
+            // Mileage-based: within 500 km
+            Triple("Oil change", null, 300),
+            // Mileage-based: within 2000 km (not yet eligible)
+            Triple("Big service", null, 1800),
+            // Both date and mileage
+            Triple("Tire change", 1, 400)
+        )
+
+        preExpiryTestCases.forEach { (category, daysInFuture, kmInFuture) ->
+            val costRange = expenseCategories.find { it.first == category }?.second
+                ?: (100.0..300.0)
+            val cost = random.nextDouble(costRange.start, costRange.endInclusive)
+
+            // Past expense timestamp (1-3 months ago)
+            val pastExpenseTime = now - random.nextLong(30L * 24 * 60 * 60 * 1000, 90L * 24 * 60 * 60 * 1000)
+
+            generatedExpenses.add(
+                Expense(
+                    carId = carId,
+                    category = category,
+                    amount = Math.round(cost * 100) / 100.0,
+                    timestamp = pastExpenseTime,
+                    notes = "Pre-expiry test case",
+                    reminderDate = daysInFuture?.let { now + (it.toLong() * 24 * 60 * 60 * 1000) },
+                    reminderMileage = kmInFuture?.let { currentOdometer + it },
+                    reminderEnabled = true,
+                    preExpiryNotificationSent = false
+                )
+            )
+
+            currentTotal += cost
+        }
+
         // Sort by timestamp and insert
         generatedExpenses.sortedBy { it.timestamp }.forEach { expense ->
             expenseRepository.insertExpense(expense)
@@ -709,6 +753,28 @@ class SettingsViewModel @Inject constructor(
 
     fun resetDataGenerationSuccess() {
         _uiState.value = _uiState.value.copy(dataGenerationSuccess = false)
+    }
+
+    /**
+     * Manually trigger the reminder check worker for testing/debugging
+     */
+    fun triggerReminderCheck(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                Log.d("SettingsViewModel", "Manually triggering reminder check worker")
+
+                val workRequest = OneTimeWorkRequestBuilder<ReminderCheckWorker>()
+                    .build()
+
+                WorkManager.getInstance(context).enqueue(workRequest)
+
+                onSuccess()
+                Log.d("SettingsViewModel", "Reminder check worker enqueued successfully")
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to trigger reminder check", e)
+                onError(e.message ?: "Failed to trigger reminder check")
+            }
+        }
     }
 
     private data class SampleCarConfig(

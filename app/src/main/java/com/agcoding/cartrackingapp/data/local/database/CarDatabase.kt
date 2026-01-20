@@ -15,7 +15,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.FuelRefillEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class],
-    version = 11,
+    version = 13,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -191,6 +191,20 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Add reminderEnabled field to expenses table (default = true for existing reminders)
         db.execSQL("ALTER TABLE expenses ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 1")
+    }
+}
+
+val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Add preExpiryNotificationSent field to expenses table (default = false)
+        db.execSQL("ALTER TABLE expenses ADD COLUMN preExpiryNotificationSent INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Add reminderDismissed field to expenses table (default = false)
+        db.execSQL("ALTER TABLE expenses ADD COLUMN reminderDismissed INTEGER NOT NULL DEFAULT 0")
     }
 }
 

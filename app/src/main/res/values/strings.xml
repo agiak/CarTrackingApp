@@ -54,7 +54,24 @@
     <string name="vehicles_with_activity">Vehicles with activity</string>
     <string name="biggest_refill">Biggest refill</string>
     <string name="biggest_expense">Biggest expense</string>
+    <string name="period_custom_range">Custom Range</string>
 
+    <!-- Notification Channels -->
+    <string name="notification_channel_reminders">Service Reminders</string>
+    <string name="notification_channel_reminders_desc">Notifications about upcoming service dates and mileage reminders</string>
+
+    <!-- Pre-Expiry Notifications -->
+    <string name="notification_reminder_title">%s Reminder</string>
+    <string name="notification_reminder_date_message">Your %s is due tomorrow (%s)</string>
+    <string name="notification_reminder_mileage_message">Your %s is due soon (within %d km)</string>
+    <string name="notification_reminder_both_message">Your %s is due soon (within %d km)</string>
+
+    <!-- Reminder Banner -->
+    <string name="reminder_banner_title">Service Reminders</string>
+    <string name="reminder_banner_message">You have %d pending reminder(s)</string>
+    <string name="reminder_banner_today_single">You have 1 reminder scheduled for today</string>
+    <string name="reminder_banner_today_multiple">You have %d reminders scheduled for today</string>
+    <string name="view_reminders">View reminders</string>
 
     <!-- Simple labels used in code -->
     <string name="fuel">Fuel</string>
@@ -683,6 +700,12 @@
     <string name="edit_reminder_target_odometer">Target odometer: %,d km</string>
     <string name="expense_created_on">Expense created on: %s</string>
     <string name="ok">OK</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="reminder_banner_date_single">1 service due today</string>
+    <string name="reminder_banner_date_multiple">%d services due today</string>
+    <string name="reminder_banner_mileage_single">1 service due (mileage reached)</string>
+    <string name="reminder_banner_mileage_multiple">%d services due (mileage reached)</string>
+    <string name="reminder_banner_mixed">%d service(s) due today • %d by mileage</string>
     <string name="delete_reminder_title">Delete Reminder?</string>
     <string name="delete_reminder_message">This will remove the reminder settings from this expense. The expense itself will not be deleted.</string>
 
@@ -697,6 +720,6 @@
     <string name="period_last_60_days">Last 60 Days</string>
     <string name="period_last_90_days">Last 90 Days</string>
     <string name="period_last_year">Last Year</string>
-    <string name="period_custom_range">Custom Range</string>
+
 </resources>
 

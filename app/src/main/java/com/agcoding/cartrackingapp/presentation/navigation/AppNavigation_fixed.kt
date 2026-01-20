@@ -1,6 +1,8 @@
 package com.agcoding.cartrackingapp.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -9,6 +11,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -26,6 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.agcoding.cartrackingapp.domain.usecase.expense.GetPendingReminderAlertsCountUseCase
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
@@ -105,13 +110,17 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    navigationViewModel: NavigationViewModel = hiltViewModel()
 ) {
     var showAddRefillSheet by remember { mutableStateOf<Long?>(null) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Get pending alerts count for badge
+    val pendingAlertsCount by navigationViewModel.pendingAlertsCount.collectAsStateWithLifecycle(initialValue = 0)
 
     // Determine if we should show bottom bar
     val showBottomBar = currentDestination?.route in listOf(
@@ -142,10 +151,22 @@ fun AppNavigation(
                                 }
                             },
                             icon = {
-                                Icon(
-                                    imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = stringResource(item.labelResId)
-                                )
+                                // Show badge on Settings if there are pending alerts
+                                if (item is BottomNavItem.Settings && pendingAlertsCount > 0) {
+                                    BadgedBox(
+                                        badge = { Badge() }
+                                    ) {
+                                        Icon(
+                                            imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                                            contentDescription = stringResource(item.labelResId)
+                                        )
+                                    }
+                                } else {
+                                    Icon(
+                                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                                        contentDescription = stringResource(item.labelResId)
+                                    )
+                                }
                             },
                             label = { Text(stringResource(item.labelResId)) }
                         )
@@ -205,6 +226,9 @@ fun AppNavigation(
                     },
                     onAddServiceClick = { carId ->
                         navController.navigate(Screen.AddExpense.createRoute(carId))
+                    },
+                    onNavigateToReminders = {
+                        navController.navigate(Screen.Notifications.route)
                     }
                 )
             }

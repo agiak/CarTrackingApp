@@ -13,7 +13,9 @@ fun ExpenseEntity.toDomain(): Expense {
         notes = notes,
         reminderDate = reminderDate,
         reminderMileage = reminderMileage,
-        reminderEnabled = reminderEnabled
+        reminderEnabled = reminderEnabled,
+        preExpiryNotificationSent = preExpiryNotificationSent,
+        reminderDismissed = reminderDismissed
     )
 }
 
@@ -27,7 +29,9 @@ fun Expense.toEntity(): ExpenseEntity {
         notes = notes,
         reminderDate = reminderDate,
         reminderMileage = reminderMileage,
-        reminderEnabled = reminderEnabled
+        reminderEnabled = reminderEnabled,
+        preExpiryNotificationSent = preExpiryNotificationSent,
+        reminderDismissed = reminderDismissed
     )
 }
 

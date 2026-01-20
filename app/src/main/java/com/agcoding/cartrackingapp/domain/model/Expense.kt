@@ -51,6 +51,8 @@ data class Expense(
     // Service reminder fields (optional)
     val reminderDate: Long? = null, // Future date for service reminder
     val reminderMileage: Int? = null, // Mileage value for service reminder
-    val reminderEnabled: Boolean = true // Whether notifications are enabled for this reminder
+    val reminderEnabled: Boolean = true, // Whether notifications are enabled for this reminder
+    val preExpiryNotificationSent: Boolean = false, // Whether pre-expiry notification was already sent
+    val reminderDismissed: Boolean = false // Whether user dismissed the reminder alert
 )
 

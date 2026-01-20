@@ -113,7 +113,9 @@ class EditReminderViewModel @Inject constructor(
                     // Update only reminder fields
                     val updatedExpense = expense.copy(
                         reminderDate = _reminderDate.value,
-                        reminderMileage = newTargetMileage
+                        reminderMileage = newTargetMileage,
+                        preExpiryNotificationSent = false, // Reset notification flag when reminder is edited
+                        reminderDismissed = false // Reset dismissed flag so alerts can show again
                     )
 
                     expenseRepository.updateExpense(updatedExpense)

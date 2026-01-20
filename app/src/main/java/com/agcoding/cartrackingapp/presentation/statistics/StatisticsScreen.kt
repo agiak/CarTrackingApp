@@ -358,17 +358,6 @@ private fun SummarySection(
                 )
             }
         }
-
-        // Cost per kilometer
-        if (statistics.totalDistance > 0) {
-            SummaryCard(
-                icon = Icons.Default.AttachMoney,
-                title = stringResource(R.string.cost_per_kilometer),
-                value = "€${String.format("%.3f", statistics.costPerKilometer)}/km",
-                subtitle = stringResource(R.string.total_cost_divide_distance),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
     }
 }
 

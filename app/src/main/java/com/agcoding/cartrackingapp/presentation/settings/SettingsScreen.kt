@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
@@ -43,6 +42,7 @@ import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -59,6 +59,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,12 +73,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
@@ -97,7 +101,7 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     // Refresh storage size every time the screen is opened/resumed
     LaunchedEffect(Unit) {
@@ -120,6 +124,33 @@ fun SettingsScreen(
 
     // Track if permission was denied permanently (user denied twice or selected "Don't ask again")
     var permissionPermanentlyDenied by remember { mutableStateOf(false) }
+
+    // Observe lifecycle to refresh permission state when user returns from settings
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Re-check notification permission when screen is resumed
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val isGranted = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+                    notificationPermissionGranted = isGranted
+
+                    // If permission was granted, update the settings and clear permanently denied flag
+                    if (isGranted) {
+                        viewModel.updateNotificationsEnabled(true)
+                        permissionPermanentlyDenied = false
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     // Notification permission launcher
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -424,6 +455,22 @@ fun SettingsScreen(
                     onGenerateSampleData = {
                         viewModel.generateSampleData(
                             onSuccess = { },
+                            onError = { error ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.settings_error_format, error)
+                                    )
+                                }
+                            }
+                        )
+                    },
+                    onTriggerReminderCheck = {
+                        viewModel.triggerReminderCheck(
+                            onSuccess = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Reminder check triggered! Check notifications in a few seconds.")
+                                }
+                            },
                             onError = { error ->
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
@@ -1081,7 +1128,8 @@ private fun SettingsRow(
 @Composable
 private fun DebugCard(
     isGenerating: Boolean,
-    onGenerateSampleData: () -> Unit
+    onGenerateSampleData: () -> Unit,
+    onTriggerReminderCheck: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1097,36 +1145,7 @@ private fun DebugCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.BugReport,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = stringResource(R.string.settings_debug_mode),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_debug_tools_desc),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            // ...existing code...
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -1156,6 +1175,37 @@ private fun DebugCard(
 
             Text(
                 text = stringResource(R.string.settings_sample_data_details),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 14.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Trigger Reminder Check Button
+            OutlinedButton(
+                onClick = onTriggerReminderCheck,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Check Reminders Now",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Manually trigger reminder check worker (for testing)",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 14.sp

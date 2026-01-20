@@ -111,6 +111,9 @@ fun NotificationsScreen(
                         viewModel.toggleReminderEnabled(expenseId, enabled)
                     },
                     onEditReminder = onEditExpense,
+                    onDismissReminder = { expenseId ->
+                        viewModel.dismissReminder(expenseId)
+                    },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
@@ -135,6 +138,7 @@ private fun NotificationsContent(
     reminders: List<ExpenseReminder>,
     onToggleReminder: (Long, Boolean) -> Unit,
     onEditReminder: (Long) -> Unit,
+    onDismissReminder: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -187,7 +191,8 @@ private fun NotificationsContent(
             ReminderCard(
                 reminder = reminder,
                 onToggle = { enabled -> onToggleReminder(reminder.expense.id, enabled) },
-                onEdit = { onEditReminder(reminder.expense.id) }
+                onEdit = { onEditReminder(reminder.expense.id) },
+                onDismiss = { onDismissReminder(reminder.expense.id) }
             )
         }
 
@@ -201,18 +206,38 @@ private fun NotificationsContent(
 private fun ReminderCard(
     reminder: ExpenseReminder,
     onToggle: (Boolean) -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    val isCloseToReached = isReminderCloseToReached(reminder)
+    
+    // Use warning colors if close to being reached (orange/amber tones)
+    val containerColor = if (isCloseToReached) {
+        MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    
+    val borderColor = if (isCloseToReached) {
+        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = containerColor
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        border = BorderStroke(
+            width = if (isCloseToReached) 2.dp else 1.dp,
+            color = borderColor
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isCloseToReached) 2.dp else 0.dp
+        )
     ) {
         Column(
             modifier = Modifier
@@ -228,13 +253,23 @@ private fun ReminderCard(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                        .background(
+                            if (isCloseToReached) {
+                                MaterialTheme.colorScheme.tertiaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            }
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Build,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = if (isCloseToReached) {
+                            MaterialTheme.colorScheme.tertiary
+                        } else {
+                            MaterialTheme.colorScheme.secondary
+                        },
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -272,7 +307,8 @@ private fun ReminderCard(
                     icon = Icons.Default.CalendarToday,
                     label = stringResource(R.string.notifications_reminder_date),
                     value = dateFormat.format(Date(dateMillis)),
-                    additionalInfo = getDaysUntilText(dateMillis)
+                    additionalInfo = getDaysUntilText(dateMillis),
+                    isUrgent = isCloseToReached
                 )
             }
 
@@ -291,17 +327,26 @@ private fun ReminderCard(
                         } else {
                             stringResource(R.string.notifications_target_reached)
                         }
-                    }
+                    },
+                    isUrgent = isCloseToReached
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action buttons row - only Edit button
+            // Action buttons row - Edit and Dismiss buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
+                // Dismiss button (only show if notification was sent)
+                if (reminder.expense.preExpiryNotificationSent && !reminder.expense.reminderDismissed) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.dismiss))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
                 // Edit button
                 TextButton(onClick = onEdit) {
                     Icon(
@@ -322,7 +367,8 @@ private fun ReminderDetailRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String,
-    additionalInfo: String? = null
+    additionalInfo: String? = null,
+    isUrgent: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -331,7 +377,11 @@ private fun ReminderDetailRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
+            tint = if (isUrgent) {
+                MaterialTheme.colorScheme.tertiary
+            } else {
+                MaterialTheme.colorScheme.primary
+            },
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -351,7 +401,12 @@ private fun ReminderDetailRow(
                 Text(
                     text = it,
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.tertiary
+                    fontWeight = if (isUrgent) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (isUrgent) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             }
         }
@@ -378,6 +433,35 @@ private fun getDaysUntilText(dateMillis: Long): String {
             stringResource(R.string.notifications_in_months, months)
         }
     }
+}
+
+/**
+ * Determines if a reminder is close to being reached
+ * - Date-based: within 7 days or overdue
+ * - Mileage-based: within 500 km or reached
+ */
+private fun isReminderCloseToReached(reminder: ExpenseReminder): Boolean {
+    val now = System.currentTimeMillis()
+    
+    // Check date condition
+    reminder.expense.reminderDate?.let { dateMillis ->
+        val diffMillis = dateMillis - now
+        val days = TimeUnit.MILLISECONDS.toDays(diffMillis)
+        // Consider close if within 7 days or already passed
+        if (days <= 7) {
+            return true
+        }
+    }
+    
+    // Check mileage condition
+    reminder.remainingKm?.let { remaining ->
+        // Consider close if within 500 km or already reached
+        if (remaining <= 500) {
+            return true
+        }
+    }
+    
+    return false
 }
 
 @Composable

@@ -68,6 +68,18 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
+    fun dismissReminder(expenseId: Long) {
+        viewModelScope.launch {
+            try {
+                val expense = expenseRepository.getExpenseById(expenseId).first()
+                expense?.let {
+                    expenseRepository.updateExpense(it.copy(reminderDismissed = true))
+                }
+            } catch (e: Exception) {
+                // Handle error if needed
+            }
+        }
+    }
 
     fun retry() {
         loadReminders()

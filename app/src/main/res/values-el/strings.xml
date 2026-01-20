@@ -684,6 +684,12 @@
     <string name="edit_reminder_target_odometer">Στόχος οδόμετρου: %,d χλμ</string>
     <string name="expense_created_on">Έξοδο δημιουργήθηκε στις: %s</string>
     <string name="ok">OK</string>
+    <string name="dismiss">Απόρριψη</string>
+    <string name="reminder_banner_date_single">1 σέρβις λήγει σήμερα</string>
+    <string name="reminder_banner_date_multiple">%d σέρβις λήγουν σήμερα</string>
+    <string name="reminder_banner_mileage_single">1 σέρβις λήγει (χιλιόμετρα επιτεύχθηκαν)</string>
+    <string name="reminder_banner_mileage_multiple">%d σέρβις λήγουν (χιλιόμετρα επιτεύχθηκαν)</string>
+    <string name="reminder_banner_mixed">%d σέρβις σήμερα • %d από χιλιόμετρα</string>
     <string name="delete_reminder_title">Διαγραφή Υπενθύμισης;</string>
     <string name="delete_reminder_message">Αυτό θα αφαιρέσει τις ρυθμίσεις υπενθύμισης από αυτό το έξοδο. Το ίδιο το έξοδο δεν θα διαγραφεί.</string>
 
@@ -699,5 +705,23 @@
     <string name="period_last_90_days">Τελευταίες 90 Ημέρες</string>
     <string name="period_last_year">Τελευταίος Χρόνος</string>
     <string name="period_custom_range">Προσαρμοσμένη Περίοδος</string>
+
+    <!-- Notification Channels -->
+    <string name="notification_channel_reminders">Υπενθυμίσεις Σέρβις</string>
+    <string name="notification_channel_reminders_desc">Ειδοποιήσεις για επερχόμενες ημερομηνίες σέρβις και υπενθυμίσεις χιλιομέτρων</string>
+
+    <!-- Pre-Expiry Notifications -->
+    <string name="notification_reminder_title">Υπενθύμιση %s</string>
+    <string name="notification_reminder_date_message">Το %s σας οφείλεται αύριο (%s)</string>
+    <string name="notification_reminder_mileage_message">Το %s σας οφείλεται σύντομα (εντός %d χλμ)</string>
+    <string name="notification_reminder_both_message">Το %s σας οφείλεται σύντομα (εντός %d χλμ)</string>
+
+    <!-- Reminder Banner -->
+    <string name="reminder_banner_title">Υπενθυμίσεις Σέρβις</string>
+    <string name="reminder_banner_message">Έχετε %d εκκρεμή(είς) υπενθύμιση(εις)</string>
+    <string name="reminder_banner_today_single">Έχετε 1 υπενθύμιση προγραμματισμένη για σήμερα</string>
+    <string name="reminder_banner_today_multiple">Έχετε %d υπενθυμίσεις προγραμματισμένες για σήμερα</string>
+    <string name="view_reminders">Προβολή υπενθυμίσεων</string>
+
 </resources>
 
