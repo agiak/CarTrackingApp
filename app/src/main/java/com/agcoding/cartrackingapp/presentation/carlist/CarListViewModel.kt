@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.carlist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.data.preferences.ReminderBannerPreferences
@@ -15,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,19 +30,31 @@ class CarListViewModel @Inject constructor(
     private val reminderBannerPreferences: ReminderBannerPreferences
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "CarListViewModel"
+    }
+
     private val _uiState = MutableStateFlow<CarListUiState>(CarListUiState.Loading)
     val uiState: StateFlow<CarListUiState> = _uiState.asStateFlow()
 
     private val _showAddCarDialog = MutableStateFlow(false)
     val showAddCarDialog: StateFlow<Boolean> = _showAddCarDialog.asStateFlow()
 
-    // Expose today's reminders info (only show banner if not dismissed today)
-    val todayRemindersInfo: StateFlow<ReminderInfo?> = combine(
-        getTodayRemindersCountUseCase(),
-        reminderBannerPreferences.isBannerDismissedToday
-    ) { reminderInfo, isDismissed ->
-        if (isDismissed || reminderInfo.totalCount == 0) null else reminderInfo
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    // Expose today's reminders info (only show banner if not dismissed today with same count)
+    val todayRemindersInfo: StateFlow<ReminderInfo?> = getTodayRemindersCountUseCase()
+        .flatMapLatest { reminderInfo ->
+            reminderBannerPreferences.isBannerDismissed(reminderInfo.totalCount).map { isDismissed ->
+                Log.d(TAG, "Banner state check: " +
+                        "totalCount=${reminderInfo.totalCount}, " +
+                        "dateCount=${reminderInfo.dateBasedCount}, " +
+                        "mileageCount=${reminderInfo.mileageBasedCount}, " +
+                        "isDismissed=$isDismissed")
+
+                val result = if (isDismissed || reminderInfo.totalCount == 0) null else reminderInfo
+                Log.d(TAG, "Banner will show: ${result != null}")
+                result
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     init {
         loadCars()
@@ -86,7 +101,9 @@ class CarListViewModel @Inject constructor(
 
     fun dismissBannerForToday() {
         viewModelScope.launch {
-            reminderBannerPreferences.dismissBannerForToday()
+            val currentCount = todayRemindersInfo.value?.totalCount ?: 0
+            Log.d(TAG, "Dismissing banner with count: $currentCount")
+            reminderBannerPreferences.dismissBannerForToday(currentCount)
         }
     }
 }
