@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -34,14 +33,11 @@ class CarListViewModel @Inject constructor(
         private const val TAG = "CarListViewModel"
     }
 
-    private val _uiState = MutableStateFlow<CarListUiState>(CarListUiState.Loading)
-    val uiState: StateFlow<CarListUiState> = _uiState.asStateFlow()
-
     private val _showAddCarDialog = MutableStateFlow(false)
     val showAddCarDialog: StateFlow<Boolean> = _showAddCarDialog.asStateFlow()
 
-    // Expose today's reminders info (only show banner if not dismissed today with same count)
-    val todayRemindersInfo: StateFlow<ReminderInfo?> = getTodayRemindersCountUseCase()
+    // Get reminders info with dismissal check
+    private val remindersFlow = getTodayRemindersCountUseCase()
         .flatMapLatest { reminderInfo ->
             reminderBannerPreferences.isBannerDismissed(reminderInfo.totalCount).map { isDismissed ->
                 Log.d(TAG, "Banner state check: " +
@@ -54,27 +50,26 @@ class CarListViewModel @Inject constructor(
                 Log.d(TAG, "Banner will show: ${result != null}")
                 result
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    init {
-        loadCars()
-    }
-
-    private fun loadCars() {
-        viewModelScope.launch {
-            getAllCarsUseCase()
-                .catch { e ->
-                    _uiState.value = CarListUiState.Error(e.message ?: "Unknown error")
-                }
-                .collect { cars ->
-                    _uiState.value = if (cars.isEmpty()) {
-                        CarListUiState.Empty
-                    } else {
-                        CarListUiState.Success(cars)
-                    }
-                }
         }
-    }
+
+    // Combine cars and reminders into a single UI state
+    val uiState: StateFlow<CarListUiState> = getAllCarsUseCase()
+        .flatMapLatest { cars ->
+            remindersFlow.map { reminderInfo ->
+                when {
+                    cars.isEmpty() -> CarListUiState.Empty
+                    else -> CarListUiState.Success(cars, reminderInfo)
+                }
+            }
+        }
+        .catch { e ->
+            emit(CarListUiState.Error(e.message ?: "Unknown error"))
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            CarListUiState.Loading
+        )
 
     fun showAddCarDialog() {
         _showAddCarDialog.value = true
@@ -101,9 +96,9 @@ class CarListViewModel @Inject constructor(
 
     fun dismissBannerForToday() {
         viewModelScope.launch {
-            val currentCount = todayRemindersInfo.value?.totalCount ?: 0
+            val currentCount = (uiState.value as? CarListUiState.Success)?.reminderInfo?.totalCount ?: 0
             Log.d(TAG, "Dismissing banner with count: $currentCount")
-            reminderBannerPreferences.dismissBannerForToday(currentCount)
+            //reminderBannerPreferences.dismissBannerForToday(currentCount)
         }
     }
 }
@@ -111,7 +106,7 @@ class CarListViewModel @Inject constructor(
 sealed class CarListUiState {
     object Loading : CarListUiState()
     object Empty : CarListUiState()
-    data class Success(val cars: List<Car>) : CarListUiState()
+    data class Success(val cars: List<Car>, val reminderInfo: ReminderInfo?) : CarListUiState()
     data class Error(val message: String) : CarListUiState()
 }
 
