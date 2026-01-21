@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.notifications
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
@@ -57,13 +58,16 @@ class NotificationsViewModel @Inject constructor(
     fun toggleReminderEnabled(expenseId: Long, enabled: Boolean) {
         viewModelScope.launch {
             try {
+                Log.d("NotificationsViewModel", "Toggle reminder $expenseId to enabled=$enabled")
                 // Get the expense once, update reminderEnabled, and save
                 val expense = expenseRepository.getExpenseById(expenseId).first()
                 expense?.let {
+                    Log.d("NotificationsViewModel", "Current state: reminderEnabled=${it.reminderEnabled}")
                     expenseRepository.updateExpense(it.copy(reminderEnabled = enabled))
+                    Log.d("NotificationsViewModel", "Updated expense $expenseId to enabled=$enabled")
                 }
             } catch (e: Exception) {
-                // Handle error if needed
+                Log.e("NotificationsViewModel", "Error toggling reminder", e)
             }
         }
     }

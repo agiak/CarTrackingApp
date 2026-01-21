@@ -98,7 +98,7 @@ class CarListViewModel @Inject constructor(
         viewModelScope.launch {
             val currentCount = (uiState.value as? CarListUiState.Success)?.reminderInfo?.totalCount ?: 0
             Log.d(TAG, "Dismissing banner with count: $currentCount")
-            //reminderBannerPreferences.dismissBannerForToday(currentCount)
+            reminderBannerPreferences.dismissBannerForToday(currentCount)
         }
     }
 }

@@ -1,12 +1,10 @@
 package com.agcoding.cartrackingapp.domain.usecase.expense
 
-import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -34,7 +32,8 @@ class GetExpensesWithRemindersUseCase @Inject constructor(
         ) { expenses, cars ->
             val carMap = cars.associateBy { it.id }
 
-            // Filter expenses that have at least one reminder set
+            // Filter expenses that have at least one reminder set (date or mileage)
+            // Do NOT filter by reminderEnabled here - we want to show all reminders in NotificationsScreen
             val expensesWithReminders = expenses.filter { expense ->
                 expense.reminderDate != null || expense.reminderMileage != null
             }
