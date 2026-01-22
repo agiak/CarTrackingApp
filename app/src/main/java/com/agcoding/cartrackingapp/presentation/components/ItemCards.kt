@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,12 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,14 +45,9 @@ fun RefillItemCard(
     val itemDatePattern = stringResource(R.string.date_format_full_with_time)
     val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
 
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -171,14 +162,9 @@ fun ExpenseItemCard(
     val itemDatePattern = stringResource(R.string.date_format_full_with_time)
     val dateFormat = remember(itemDatePattern) { SimpleDateFormat(itemDatePattern, Locale.getDefault()) }
 
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier

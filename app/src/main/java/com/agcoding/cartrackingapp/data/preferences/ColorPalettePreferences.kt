@@ -1,0 +1,54 @@
+package com.agcoding.cartrackingapp.data.preferences
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+private val Context.colorPaletteDataStore: DataStore<Preferences> by preferencesDataStore(name = "color_palette_settings")
+
+enum class ColorPalette {
+    SYSTEM,           // Follow system colors (Dynamic colors on Android 12+)
+    DEFAULT_BLUE,     // Blue palette
+    SUNSET_ORANGE,    // Orange/warm palette
+    FOREST_GREEN,     // Green palette
+    ROYAL_PURPLE,     // Purple palette
+    OCEAN_TEAL,       // Teal/cyan palette
+    CRIMSON_RED,      // Red palette
+    AMBER_GOLD,       // Amber/gold palette
+    DEEP_INDIGO,      // Indigo/blue-purple palette
+    SLATE_GRAY,       // Gray/neutral palette
+    ROSE_PINK         // Pink palette
+}
+
+@Singleton
+class ColorPalettePreferences @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    private object PreferencesKeys {
+        val SELECTED_PALETTE = stringPreferencesKey("selected_color_palette")
+    }
+
+    val selectedPaletteFlow: Flow<ColorPalette> = context.colorPaletteDataStore.data
+        .map { preferences ->
+            val paletteString = preferences[PreferencesKeys.SELECTED_PALETTE] ?: ColorPalette.SYSTEM.name
+            try {
+                ColorPalette.valueOf(paletteString)
+            } catch (e: IllegalArgumentException) {
+                ColorPalette.SYSTEM
+            }
+        }
+
+    suspend fun setColorPalette(palette: ColorPalette) {
+        context.colorPaletteDataStore.edit { preferences ->
+            preferences[PreferencesKeys.SELECTED_PALETTE] = palette.name
+        }
+    }
+}

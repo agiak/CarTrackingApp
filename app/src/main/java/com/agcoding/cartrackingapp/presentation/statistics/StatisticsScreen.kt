@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.statistics
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,8 +23,6 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Route
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +66,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = { Text(stringResource(R.string.statistics)) },
                 navigationIcon = {
                     if (onNavigateBack != null) {
@@ -97,7 +97,8 @@ fun StatisticsScreen(
                 // Check if there are no cars/data at all
                 if (state.statistics.totalCost == 0.0 &&
                     state.statistics.totalRefills == 0 &&
-                    state.statistics.totalDistance == 0.0) {
+                    state.statistics.totalDistance == 0.0
+                ) {
                     // Empty state
                     Box(
                         modifier = Modifier
@@ -140,102 +141,107 @@ fun StatisticsScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                    // Summary section
-                    item {
-                        Text(
-                            text = stringResource(R.string.overall_summary),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    item {
-                        SummarySection(
-                            statistics = state.statistics,
-                            onConsumptionGraphClick = onConsumptionGraphClick,
-                            onDistanceGraphClick = onDistanceGraphClick,
-                            onCostGraphClick = onCostGraphClick,
-                            onRefillsGraphClick = onRefillsGraphClick
-                        )
-                    }
-
-                    // Per-Car Breakdown
-                    if (state.statistics.perCarStatistics.isNotEmpty()) {
+                        // Summary section
                         item {
                             Text(
-                                text = stringResource(R.string.per_car_breakdown),
+                                text = stringResource(R.string.overall_summary),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                         }
 
-                        items(state.statistics.perCarStatistics) { carStats ->
-                            PerCarBreakdownCard(carStats)
-                        }
-                    }
-
-                   // Monthly trends (show only last 5 months)
-                    if (state.statistics.monthlyTrends.isNotEmpty()) {
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            SummarySection(
+                                statistics = state.statistics,
+                                onConsumptionGraphClick = onConsumptionGraphClick,
+                                onDistanceGraphClick = onDistanceGraphClick,
+                                onCostGraphClick = onCostGraphClick,
+                                onRefillsGraphClick = onRefillsGraphClick
+                            )
+                        }
+
+                        // Per-Car Breakdown
+                        if (state.statistics.perCarStatistics.isNotEmpty()) {
+                            item {
                                 Text(
-                                    text = stringResource(R.string.monthly_trends),
+                                    text = stringResource(R.string.per_car_breakdown),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold
                                 )
-                                if (state.statistics.monthlyTrends.size > 5) {
-                                    androidx.compose.material3.TextButton(
-                                        onClick = onMonthlyTrendsClick
+                            }
+
+                            items(state.statistics.perCarStatistics) { carStats ->
+                                PerCarBreakdownCard(carStats)
+                            }
+                        }
+
+                        // Monthly trends (show only last 5 months)
+                        if (state.statistics.monthlyTrends.isNotEmpty()) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.monthly_trends),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    if (state.statistics.monthlyTrends.size > 5) {
+                                        androidx.compose.material3.TextButton(
+                                            onClick = onMonthlyTrendsClick
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.see_all),
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Show only first 5 months
+                            val displayTrends = state.statistics.monthlyTrends.take(5)
+                            items(displayTrends) { trend ->
+                                MonthlyTrendCard(
+                                    trend = trend,
+                                    onClick = { onMonthClick(trend.month, trend.year) }
+                                )
+                            }
+
+                            // Show "See All" button if there are more than 5 months
+                            if (state.statistics.monthlyTrends.size > 5) {
+                                item {
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = onMonthlyTrendsClick,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp)
                                     ) {
                                         Text(
-                                            text = stringResource(R.string.see_all),
-                                            color = MaterialTheme.colorScheme.primary
+                                            stringResource(
+                                                R.string.view_all_months_format,
+                                                state.statistics.monthlyTrends.size
+                                            )
                                         )
                                     }
                                 }
                             }
                         }
 
-                        // Show only first 5 months
-                        val displayTrends = state.statistics.monthlyTrends.take(5)
-                        items(displayTrends) { trend ->
-                            MonthlyTrendCard(
-                                trend = trend,
-                                onClick = { onMonthClick(trend.month, trend.year) }
+                        // Insights section
+                        item {
+                            Text(
+                                text = stringResource(R.string.insights),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
                             )
                         }
 
-                        // Show "See All" button if there are more than 5 months
-                        if (state.statistics.monthlyTrends.size > 5) {
-                            item {
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = onMonthlyTrendsClick,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text(stringResource(R.string.view_all_months_format, state.statistics.monthlyTrends.size))
-                                }
-                            }
+                        item {
+                            InsightsSection(state.statistics)
                         }
                     }
-
-                    // Insights section
-                    item {
-                        Text(
-                            text = stringResource(R.string.insights),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    item {
-                        InsightsSection(state.statistics)
-                    }
-                }
                 } // Close else block for empty check
             }
 
@@ -370,15 +376,9 @@ private fun SummaryCard(
     subtitle: String? = null,
     onClick: (() -> Unit)? = null
 ) {
-    Card(
+    StyledCard(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        onClick = onClick ?: {}
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -422,14 +422,8 @@ private fun SummaryCard(
 
 @Composable
 private fun CostBreakdownCard(statistics: GlobalStatistics) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -438,8 +432,10 @@ private fun CostBreakdownCard(statistics: GlobalStatistics) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val fuelCost = statistics.totalCost - statistics.totalExpensesCost
-            val fuelPercentage = if (statistics.totalCost > 0) (fuelCost / statistics.totalCost) * 100 else 0.0
-            val expensePercentage = if (statistics.totalCost > 0) (statistics.totalExpensesCost / statistics.totalCost) * 100 else 0.0
+            val fuelPercentage =
+                if (statistics.totalCost > 0) (fuelCost / statistics.totalCost) * 100 else 0.0
+            val expensePercentage =
+                if (statistics.totalCost > 0) (statistics.totalExpensesCost / statistics.totalCost) * 100 else 0.0
 
             CostBreakdownItem(
                 label = stringResource(R.string.fuel_cost),
@@ -507,14 +503,8 @@ private fun ExpenseCard(
     count: Int,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
@@ -548,15 +538,9 @@ private fun MonthlyTrendCard(
     trend: MonthlyTrend,
     onClick: () -> Unit = {}
 ) {
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -590,12 +574,18 @@ private fun MonthlyTrendCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(R.string.fuel_label_format, String.format("%.2f", trend.totalCost)),
+                        text = stringResource(
+                            R.string.fuel_label_format,
+                            String.format("%.2f", trend.totalCost)
+                        ),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = stringResource(R.string.expenses_label_format, String.format("%.2f", trend.expenseCost)),
+                        text = stringResource(
+                            R.string.expenses_label_format,
+                            String.format("%.2f", trend.expenseCost)
+                        ),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -609,7 +599,11 @@ private fun MonthlyTrendCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = pluralStringResource(R.plurals.refills_count, trend.refillCount, trend.refillCount),
+                    text = pluralStringResource(
+                        R.plurals.refills_count,
+                        trend.refillCount,
+                        trend.refillCount
+                    ),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -635,7 +629,11 @@ private fun MonthlyTrendCard(
             if (trend.expenseCount > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = pluralStringResource(R.plurals.expense_lowercase_count, trend.expenseCount, trend.expenseCount),
+                    text = pluralStringResource(
+                        R.plurals.expense_lowercase_count,
+                        trend.expenseCount,
+                        trend.expenseCount
+                    ),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -646,14 +644,8 @@ private fun MonthlyTrendCard(
 
 @Composable
 private fun InsightsSection(statistics: GlobalStatistics) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -723,14 +715,8 @@ private fun InsightRow(
 private fun PerCarBreakdownCard(
     carStats: com.agcoding.cartrackingapp.domain.model.CarStatistics
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -758,29 +744,56 @@ private fun PerCarBreakdownCard(
             ) {
                 // Column 1
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = stringResource(R.string.total_cost_label), value = "€${String.format("%.2f", carStats.totalCost)}")
+                    StatItem(
+                        label = stringResource(R.string.total_cost_label),
+                        value = "€${String.format("%.2f", carStats.totalCost)}"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.refills_label), value = "${carStats.totalRefills}")
+                    StatItem(
+                        label = stringResource(R.string.refills_label),
+                        value = "${carStats.totalRefills}"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.consumption_label), value = "${String.format("%.1f", carStats.averageConsumption)} L/100km")
+                    StatItem(
+                        label = stringResource(R.string.consumption_label),
+                        value = "${String.format("%.1f", carStats.averageConsumption)} L/100km"
+                    )
                 }
 
                 // Column 2
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = stringResource(R.string.distance_label), value = "${String.format("%.0f", carStats.totalDistance)} km")
+                    StatItem(
+                        label = stringResource(R.string.distance_label),
+                        value = "${String.format("%.0f", carStats.totalDistance)} km"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.service_label), value = "€${String.format("%.2f", carStats.serviceExpensesCost)}")
+                    StatItem(
+                        label = stringResource(R.string.service_label),
+                        value = "€${String.format("%.2f", carStats.serviceExpensesCost)}"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.other_label), value = "€${String.format("%.2f", carStats.otherExpensesCost)}")
+                    StatItem(
+                        label = stringResource(R.string.other_label),
+                        value = "€${String.format("%.2f", carStats.otherExpensesCost)}"
+                    )
                 }
 
                 // Column 3
                 Column(modifier = Modifier.weight(1f)) {
-                    StatItem(label = stringResource(R.string.cost_per_km_short), value = "€${String.format("%.3f", carStats.costPerKilometer)}")
+                    StatItem(
+                        label = stringResource(R.string.cost_per_km_short),
+                        value = "€${String.format("%.3f", carStats.costPerKilometer)}"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.services_short), value = "${carStats.serviceExpenseCount}")
+                    StatItem(
+                        label = stringResource(R.string.services_short),
+                        value = "${carStats.serviceExpenseCount}"
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(label = stringResource(R.string.others_short), value = "${carStats.otherExpenseCount}")
+                    StatItem(
+                        label = stringResource(R.string.others_short),
+                        value = "${carStats.otherExpenseCount}"
+                    )
                 }
             }
         }

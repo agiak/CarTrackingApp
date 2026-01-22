@@ -202,6 +202,18 @@
     <string name="settings_following_system">Following system</string>
     <string name="settings_dark_theme_active">Dark theme active</string>
 
+    <!-- Color Palette Settings -->
+    <string name="color_palette_title">Color Palette</string>
+    <string name="color_palette_wallpaper_colors">Wallpaper colors</string>
+    <string name="color_palette_other_colors">Other colors</string>
+    <string name="color_palette_choose_description">Choose any color for your icons, clock, and more</string>
+    <string name="color_palette_system">System Colors</string>
+    <string name="color_palette_default_blue">Default Blue</string>
+    <string name="color_palette_sunset_orange">Sunset Orange</string>
+    <string name="color_palette_forest_green">Forest Green</string>
+    <string name="color_palette_royal_purple">Royal Purple</string>
+    <string name="color_palette_ocean_teal">Ocean Teal</string>
+
     <string name="settings_notifications_enabled">Enabled</string>
     <string name="settings_notifications_disabled">Disabled</string>
 

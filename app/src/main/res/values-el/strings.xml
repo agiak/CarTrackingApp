@@ -184,6 +184,18 @@
     <string name="settings_following_system">Ακολουθεί το σύστημα</string>
     <string name="settings_dark_theme_active">Ενεργό σκοτεινό θέμα</string>
 
+    <!-- Color Palette Settings -->
+    <string name="color_palette_title">Παλέτα Χρωμάτων</string>
+    <string name="color_palette_wallpaper_colors">Χρώματα ταπετσαρίας</string>
+    <string name="color_palette_other_colors">Άλλα χρώματα</string>
+    <string name="color_palette_choose_description">Επιλέξτε οποιοδήποτε χρώμα για τα εικονίδια, το ρολόι και άλλα</string>
+    <string name="color_palette_system">Χρώματα Συστήματος</string>
+    <string name="color_palette_default_blue">Προεπιλεγμένο Μπλε</string>
+    <string name="color_palette_sunset_orange">Πορτοκαλί Ηλιοβασιλέματος</string>
+    <string name="color_palette_forest_green">Πράσινο Δάσους</string>
+    <string name="color_palette_royal_purple">Βασιλικό Μωβ</string>
+    <string name="color_palette_ocean_teal">Γαλαζοπράσινο Ωκεανού</string>
+
     <string name="settings_notifications_enabled">Ενεργό</string>
     <string name="settings_notifications_disabled">Ανενεργό</string>
 

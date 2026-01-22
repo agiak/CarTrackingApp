@@ -54,6 +54,7 @@ import com.agcoding.cartrackingapp.domain.model.CostTrendData
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -252,13 +253,10 @@ private fun CostGraphContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Total Cost Card (Main highlight card)
-        Card(
+        StyledCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            border = null
         ) {
             Column(
                 modifier = Modifier
@@ -331,14 +329,8 @@ private fun CostGraphContent(
 
         // Monthly Cost Chart
         if (trendData.monthlyCosts.isNotEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            StyledCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -371,14 +363,8 @@ private fun CostGraphContent(
 
         // Cost by Category
         if (trendData.costByCategory.isNotEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            StyledCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -415,11 +401,9 @@ private fun CostGraphContent(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                StyledCard(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    border = null
                 ) {
                     Text(
                         text = stringResource(R.string.items_format, trendData.recentExpenses.size),
@@ -447,14 +431,8 @@ private fun StatCard(
     valueColor: Color = MaterialTheme.colorScheme.onSurface,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
@@ -522,14 +500,8 @@ private fun CategoryItem(category: com.agcoding.cartrackingapp.domain.model.Cost
 private fun ExpenseItem(expense: CostItem) {
     val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

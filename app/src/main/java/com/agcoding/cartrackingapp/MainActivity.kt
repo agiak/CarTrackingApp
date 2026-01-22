@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
+import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.presentation.navigation.AppNavigation
@@ -31,17 +32,19 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var settingsPreferences: SettingsPreferences
 
+    @Inject
+    lateinit var colorPalettePreferences: ColorPalettePreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         // Enable edge-to-edge display with proper system bar handling
         enableEdgeToEdge()
 
-
         setContent {
             val systemInDarkTheme = isSystemInDarkTheme()
             val themeOverride by themePreferences.isDarkModeOverrideFlow.collectAsState(initial = null)
+            val selectedPalette by colorPalettePreferences.selectedPaletteFlow.collectAsState(initial = com.agcoding.cartrackingapp.data.preferences.ColorPalette.SYSTEM)
 
             // Determine if dark theme should be used:
             // - If user has set a preference (themeOverride != null), use that
@@ -63,7 +66,10 @@ class MainActivity : AppCompatActivity() {
                 insetsController.isAppearanceLightNavigationBars = !useDarkTheme
             }
 
-            CarTrackingAppTheme(darkTheme = useDarkTheme) {
+            CarTrackingAppTheme(
+                darkTheme = useDarkTheme,
+                colorPalette = selectedPalette
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

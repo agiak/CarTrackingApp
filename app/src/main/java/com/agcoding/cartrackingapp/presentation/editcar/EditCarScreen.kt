@@ -23,11 +23,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsUiState
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsViewModel
+import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -174,7 +175,8 @@ fun EditCarScreen(
                             contentDescription = stringResource(R.string.save_label)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -195,7 +197,7 @@ fun EditCarScreen(
                 modifier = Modifier.padding(top = 16.dp)
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text(stringResource(R.string.edit_car_field_car_name)) },
@@ -204,7 +206,7 @@ fun EditCarScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = licensePlate,
                 onValueChange = { licensePlate = it.uppercase() },
                 label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
@@ -213,7 +215,7 @@ fun EditCarScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = odometer,
                 onValueChange = { newValue ->
                     // Only allow digits (no decimal for odometer)
@@ -274,7 +276,7 @@ fun EditCarScreen(
                 onClick = { showEmissionsDatePicker = true }
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = roadTaxAmount,
                 onValueChange = { roadTaxAmount = it },
                 label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
@@ -329,7 +331,7 @@ fun EditCarScreen(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = tireBrand,
                 onValueChange = { tireBrand = it },
                 label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
@@ -338,7 +340,7 @@ fun EditCarScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = tireDimensions,
                 onValueChange = { tireDimensions = it },
                 label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },
@@ -524,13 +526,12 @@ private fun DatePickerField(
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        OutlinedTextField(
+        StyledOutlinedTextField(
             value = value?.let { dateFormatter.format(Date(it)) } ?: "",
             onValueChange = {},
             label = { Text(stringResource(labelRes)) },
             placeholder = { Text(stringResource(placeholderRes)) },
             readOnly = true,
-            enabled = false,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.CalendarToday,

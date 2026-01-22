@@ -28,11 +28,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -69,7 +70,8 @@ fun EditRefillScreen(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -94,7 +96,7 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Amount paid
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = uiState.amountPaid,
                     onValueChange = viewModel::updateAmountPaid,
                     label = { Text(stringResource(R.string.amount_paid_eur)) },
@@ -107,7 +109,7 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Liters added
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = uiState.litersAdded,
                     onValueChange = viewModel::updateLitersAdded,
                     label = { Text(stringResource(R.string.liters_added)) },
@@ -120,7 +122,7 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Trip distance
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = uiState.tripDistance,
                     onValueChange = viewModel::updateTripDistance,
                     label = { Text(stringResource(R.string.trip_distance_km)) },
@@ -134,7 +136,7 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Odometer reading
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = uiState.odometerReading,
                     onValueChange = viewModel::updateOdometerReading,
                     label = { Text(stringResource(R.string.odometer_reading_km)) },
@@ -150,7 +152,7 @@ fun EditRefillScreen(
                 val dateFormat = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault())
                 val dateText = dateFormat.format(Date(uiState.selectedDateMillis))
 
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = dateText,
                     onValueChange = { },
                     label = { Text(stringResource(R.string.date)) },
@@ -169,7 +171,7 @@ fun EditRefillScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Notes (optional)
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = uiState.notes,
                     onValueChange = viewModel::updateNotes,
                     label = { Text(stringResource(R.string.expense_notes_optional)) },

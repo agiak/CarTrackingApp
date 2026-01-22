@@ -2,7 +2,6 @@ package com.agcoding.cartrackingapp.presentation.distancegraph
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +24,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -63,6 +60,7 @@ import com.agcoding.cartrackingapp.domain.model.TripInfo
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -265,13 +263,10 @@ private fun DistanceGraphContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Total Distance Card (Main highlight card)
-        Card(
+        StyledCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            border = null
         ) {
             Column(
                 modifier = Modifier
@@ -349,14 +344,8 @@ private fun DistanceGraphContent(
 
         // Monthly Distance Line Chart
         if (trendData.monthlyDistances.isNotEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            StyledCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -400,11 +389,9 @@ private fun DistanceGraphContent(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                StyledCard(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    border = null
                 ) {
                     Text(
                         text = stringResource(R.string.distance_graph_total_trips_format, trendData.totalTrips),
@@ -434,14 +421,8 @@ private fun StatCard(
     indicatorColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
@@ -670,14 +651,8 @@ private fun TripItem(
 ) {
     val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

@@ -17,8 +17,6 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -27,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -42,6 +39,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -116,7 +115,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Amount paid
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = uiState.amountPaid,
                 onValueChange = viewModel::updateAmountPaid,
                 label = { Text(stringResource(R.string.amount_paid_eur)) },
@@ -133,7 +132,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Liters added
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = uiState.litersAdded,
                 onValueChange = viewModel::updateLitersAdded,
                 label = { Text(stringResource(R.string.liters_added)) },
@@ -150,7 +149,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Trip distance
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = uiState.tripDistance,
                 onValueChange = viewModel::updateTripDistance,
                 label = { Text(stringResource(R.string.trip_distance_km)) },
@@ -202,7 +201,7 @@ fun AddRefillBottomSheet(
             val dateFormat = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault())
             val dateText = dateFormat.format(Date(uiState.selectedDateMillis))
 
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = dateText,
                 onValueChange = { },
                 label = { Text(stringResource(R.string.date)) },
@@ -221,7 +220,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Notes (optional)
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = uiState.notes,
                 onValueChange = viewModel::updateNotes,
                 label = { Text(stringResource(R.string.expense_notes_optional)) },
@@ -235,11 +234,10 @@ fun AddRefillBottomSheet(
 
             // Location indicator
             if (uiState.location != null) {
-                Card(
+                StyledCard(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    border = null
                 ) {
                     Row(
                         modifier = Modifier
@@ -274,11 +272,10 @@ fun AddRefillBottomSheet(
                     (liters / distance) * 100.0
                 } else null
 
-                Card(
+                StyledCard(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    border = null
                 ) {
                     Column(
                         modifier = Modifier

@@ -23,13 +23,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,7 +75,8 @@ fun EditExpenseScreen(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -109,7 +111,7 @@ fun EditExpenseScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Amount field
-                    OutlinedTextField(
+                    StyledOutlinedTextField(
                         value = amount,
                         onValueChange = viewModel::updateAmount,
                         label = { Text(stringResource(R.string.expense_amount_eur)) },
@@ -127,7 +129,7 @@ fun EditExpenseScreen(
                     )
 
                     // Date field
-                    OutlinedTextField(
+                    StyledOutlinedTextField(
                         value = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault()).format(Date(selectedDate)),
                         onValueChange = {},
                         label = { Text(stringResource(R.string.date)) },
@@ -144,7 +146,7 @@ fun EditExpenseScreen(
                     )
 
                     // Notes field
-                    OutlinedTextField(
+                    StyledOutlinedTextField(
                         value = notes,
                         onValueChange = viewModel::updateNotes,
                         label = { Text(stringResource(R.string.expense_notes_optional)) },

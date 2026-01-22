@@ -18,8 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -31,7 +29,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,6 +36,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +51,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -108,7 +108,8 @@ fun AddExpenseScreen(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -128,7 +129,7 @@ fun AddExpenseScreen(
                 expanded = categoryExpanded,
                 onExpandedChange = { }
             ) {
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = category,
                     onValueChange = {
                         viewModel.updateCategory(it)
@@ -174,7 +175,7 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Amount field
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = amount,
                 onValueChange = viewModel::updateAmount,
                 label = { Text(stringResource(R.string.expense_amount_eur)) },
@@ -191,7 +192,7 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Date field
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = SimpleDateFormat(
                     stringResource(R.string.date_format_dd_mmm_yyyy),
                     Locale.getDefault()
@@ -213,7 +214,7 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Notes field
-            OutlinedTextField(
+            StyledOutlinedTextField(
                 value = notes,
                 onValueChange = viewModel::updateNotes,
                 label = { Text(stringResource(R.string.expense_notes_optional)) },
@@ -226,11 +227,10 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Service Reminder Section
-            Card(
+            StyledCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                border = null
             ) {
                 Column(
                     modifier = Modifier
@@ -273,7 +273,7 @@ fun AddExpenseScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Reminder date field
-                        OutlinedTextField(
+                        StyledOutlinedTextField(
                             value = reminderDate?.let {
                                 SimpleDateFormat(
                                     stringResource(R.string.date_format_dd_mmm_yyyy),
@@ -308,7 +308,7 @@ fun AddExpenseScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Reminder mileage field
-                        OutlinedTextField(
+                        StyledOutlinedTextField(
                             value = reminderMileage,
                             onValueChange = viewModel::updateReminderMileage,
                             label = { Text(stringResource(R.string.reminder_mileage)) },
@@ -412,4 +412,3 @@ fun AddExpenseScreen(
         }
     }
 }
-

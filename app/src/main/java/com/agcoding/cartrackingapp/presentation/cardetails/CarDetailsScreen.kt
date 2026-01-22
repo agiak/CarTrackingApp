@@ -41,6 +41,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,9 +57,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.collections.take
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +80,7 @@ fun CarDetailsScreen(
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { },
@@ -88,6 +92,9 @@ fun CarDetailsScreen(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { paddingValues ->
@@ -337,12 +344,10 @@ fun CarDetailsScreen(
 
 @Composable
 private fun CarHeaderCard(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        shape = RoundedCornerShape(16.dp)
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = null
     ) {
         Column(
             modifier = Modifier
@@ -360,11 +365,9 @@ private fun CarHeaderCard(statistics: com.agcoding.cartrackingapp.domain.model.C
                         .padding(end = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
+                    StyledCard(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        border = null
                     ) {
                         Icon(
                             imageVector = Icons.Default.DirectionsCar,
@@ -481,14 +484,9 @@ private fun QuickStatCard(
     unit: String,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    StyledCard(
         modifier = modifier
-            .height(160.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .height(160.dp)
     ) {
         Column(
             modifier = Modifier
@@ -497,17 +495,15 @@ private fun QuickStatCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp),
+                    contentAlignment = Alignment.Center
                 ) {
+                    StyledCard(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                        border = null
+                    ) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
@@ -556,13 +552,8 @@ private fun QuickStatCard(
 private fun TotalSpendingCard(statistics: com.agcoding.cartrackingapp.domain.model.CarStatistics) {
     val totalSpending = statistics.totalCost + statistics.serviceExpensesCost + statistics.otherExpensesCost
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    StyledCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -638,15 +629,12 @@ private fun IncompleteInformationBanner(
     car: com.agcoding.cartrackingapp.domain.model.Car,
     onAddInformationClick: () -> Unit
 ) {
-    Card(
+    StyledCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onAddInformationClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
-        shape = RoundedCornerShape(16.dp)
+        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier
@@ -662,11 +650,9 @@ private fun IncompleteInformationBanner(
                         .size(40.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        )
+                    StyledCard(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        border = null
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -766,15 +752,12 @@ private fun TabButton(
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    StyledCard(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                MaterialTheme.colorScheme.surface
-            else
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        shape = RoundedCornerShape(8.dp),
+        containerColor = if (isSelected)
+            MaterialTheme.colorScheme.surface
+        else
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
         border = if (isSelected)
             BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         else null
@@ -806,13 +789,8 @@ private fun MetricCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    StyledCard(
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier

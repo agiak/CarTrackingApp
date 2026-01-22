@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -213,30 +214,25 @@ private fun ReminderCard(
     val isCloseToReached = isReminderCloseToReached(reminder)
     
     // Use warning colors if close to being reached (orange/amber tones)
+    // For reached reminders, use surface with colored border instead of colored background
     val containerColor = if (isCloseToReached) {
-        MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f)
+        MaterialTheme.colorScheme.surface
     } else {
         MaterialTheme.colorScheme.surface
     }
     
     val borderColor = if (isCloseToReached) {
-        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+        MaterialTheme.colorScheme.tertiary
     } else {
         MaterialTheme.colorScheme.outlineVariant
     }
 
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor
-        ),
-        border = BorderStroke(
+        containerColor = containerColor,
+        border = androidx.compose.foundation.BorderStroke(
             width = if (isCloseToReached) 2.dp else 1.dp,
             color = borderColor
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isCloseToReached) 2.dp else 0.dp
         )
     ) {
         Column(
@@ -257,7 +253,7 @@ private fun ReminderCard(
                             if (isCloseToReached) {
                                 MaterialTheme.colorScheme.tertiaryContainer
                             } else {
-                                MaterialTheme.colorScheme.secondaryContainer
+                                MaterialTheme.colorScheme.primaryContainer
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -268,7 +264,7 @@ private fun ReminderCard(
                         tint = if (isCloseToReached) {
                             MaterialTheme.colorScheme.tertiary
                         } else {
-                            MaterialTheme.colorScheme.secondary
+                            MaterialTheme.colorScheme.primary
                         },
                         modifier = Modifier.size(18.dp)
                     )

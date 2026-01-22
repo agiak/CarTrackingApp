@@ -19,6 +19,8 @@ import com.agcoding.cartrackingapp.data.export.SpreadsheetImportResult
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppSettings
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
+import com.agcoding.cartrackingapp.data.preferences.ColorPalette
+import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.domain.model.Car
@@ -90,6 +92,7 @@ data class SettingsUiState(
 class SettingsViewModel @Inject constructor(
     private val themePreferences: ThemePreferences,
     private val settingsPreferences: SettingsPreferences,
+    val colorPalettePreferences: ColorPalettePreferences,
     private val dataExportManager: DataExportManager,
     private val spreadsheetImportManager: SpreadsheetImportManager,
     private val carRepository: CarRepository,
@@ -214,6 +217,12 @@ class SettingsViewModel @Inject constructor(
     fun toggleDarkMode(enabled: Boolean) {
         val theme = if (enabled) AppTheme.DARK else AppTheme.LIGHT
         updateTheme(theme)
+    }
+
+    fun updateColorPalette(palette: ColorPalette) {
+        viewModelScope.launch {
+            colorPalettePreferences.setColorPalette(palette)
+        }
     }
 
     fun updateLanguage(language: AppLanguage) {

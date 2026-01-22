@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +43,6 @@ import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +58,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -85,6 +86,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
+import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
@@ -97,6 +99,7 @@ fun SettingsScreen(
     onViewNotifications: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val selectedPalette by viewModel.colorPalettePreferences.selectedPaletteFlow.collectAsState(initial = ColorPalette.SYSTEM)
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -336,7 +339,8 @@ fun SettingsScreen(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -357,6 +361,13 @@ fun SettingsScreen(
             AppearanceCard(
                 currentTheme = uiState.appSettings.theme,
                 onThemeChange = viewModel::updateTheme
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ColorPaletteCard(
+                selectedPalette = selectedPalette,
+                onPaletteSelected = viewModel::updateColorPalette
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -750,7 +761,7 @@ private fun PreferencesCard(
             }
 
             // Divider
-            androidx.compose.material3.Divider(
+            androidx.compose.material3.HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
@@ -1145,9 +1156,24 @@ private fun DebugCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // ...existing code...
+            Text(
+                text = stringResource(R.string.settings_section_developer_options),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Sample Data Generation
+            Text(
+                text = stringResource(R.string.settings_sample_data_details),
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = onGenerateSampleData,
@@ -1429,6 +1455,318 @@ private fun SpreadsheetImportCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 lineHeight = 14.sp
             )
+        }
+    }
+}
+
+@Composable
+private fun ColorPaletteCard(
+    selectedPalette: ColorPalette,
+    onPaletteSelected: (ColorPalette) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Title
+            Text(
+                text = stringResource(R.string.color_palette_title),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Description
+            Text(
+                text = stringResource(R.string.color_palette_choose_description),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 18.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // System Colors Button
+            PaletteOptionButton(
+                title = stringResource(R.string.color_palette_wallpaper_colors),
+                palette = ColorPalette.SYSTEM,
+                isSelected = selectedPalette == ColorPalette.SYSTEM,
+                onClick = { onPaletteSelected(ColorPalette.SYSTEM) },
+                showSystemIcon = true
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Other Colors Label
+            Text(
+                text = stringResource(R.string.color_palette_other_colors),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            // Color Palette Grid
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.DEFAULT_BLUE,
+                    primaryColor = Color(0xFF1976D2),
+                    secondaryColor = Color(0xFF0288D1),
+                    isSelected = selectedPalette == ColorPalette.DEFAULT_BLUE,
+                    onClick = { onPaletteSelected(ColorPalette.DEFAULT_BLUE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.SUNSET_ORANGE,
+                    primaryColor = Color(0xFFFF6F00),
+                    secondaryColor = Color(0xFFFF8F00),
+                    isSelected = selectedPalette == ColorPalette.SUNSET_ORANGE,
+                    onClick = { onPaletteSelected(ColorPalette.SUNSET_ORANGE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.FOREST_GREEN,
+                    primaryColor = Color(0xFF2E7D32),
+                    secondaryColor = Color(0xFF388E3C),
+                    isSelected = selectedPalette == ColorPalette.FOREST_GREEN,
+                    onClick = { onPaletteSelected(ColorPalette.FOREST_GREEN) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.ROYAL_PURPLE,
+                    primaryColor = Color(0xFF6A1B9A),
+                    secondaryColor = Color(0xFF8E24AA),
+                    isSelected = selectedPalette == ColorPalette.ROYAL_PURPLE,
+                    onClick = { onPaletteSelected(ColorPalette.ROYAL_PURPLE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.OCEAN_TEAL,
+                    primaryColor = Color(0xFF00796B),
+                    secondaryColor = Color(0xFF00897B),
+                    isSelected = selectedPalette == ColorPalette.OCEAN_TEAL,
+                    onClick = { onPaletteSelected(ColorPalette.OCEAN_TEAL) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.CRIMSON_RED,
+                    primaryColor = Color(0xFFC62828),
+                    secondaryColor = Color(0xFFD32F2F),
+                    isSelected = selectedPalette == ColorPalette.CRIMSON_RED,
+                    onClick = { onPaletteSelected(ColorPalette.CRIMSON_RED) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.AMBER_GOLD,
+                    primaryColor = Color(0xFFFF8F00),
+                    secondaryColor = Color(0xFFFFA000),
+                    isSelected = selectedPalette == ColorPalette.AMBER_GOLD,
+                    onClick = { onPaletteSelected(ColorPalette.AMBER_GOLD) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.DEEP_INDIGO,
+                    primaryColor = Color(0xFF283593),
+                    secondaryColor = Color(0xFF3949AB),
+                    isSelected = selectedPalette == ColorPalette.DEEP_INDIGO,
+                    onClick = { onPaletteSelected(ColorPalette.DEEP_INDIGO) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.SLATE_GRAY,
+                    primaryColor = Color(0xFF455A64),
+                    secondaryColor = Color(0xFF546E7A),
+                    isSelected = selectedPalette == ColorPalette.SLATE_GRAY,
+                    onClick = { onPaletteSelected(ColorPalette.SLATE_GRAY) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.ROSE_PINK,
+                    primaryColor = Color(0xFFAD1457),
+                    secondaryColor = Color(0xFFC2185B),
+                    isSelected = selectedPalette == ColorPalette.ROSE_PINK,
+                    onClick = { onPaletteSelected(ColorPalette.ROSE_PINK) },
+                    modifier = Modifier.weight(1f)
+                )
+                // Empty space to balance the row
+                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaletteOptionButton(
+    title: String,
+    palette: ColorPalette,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    showSystemIcon: Boolean = false
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
+        ),
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showSystemIcon) {
+                Icon(
+                    imageVector = Icons.Default.DarkMode,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorPaletteItem(
+    palette: ColorPalette,
+    primaryColor: Color,
+    secondaryColor: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .border(
+                    width = if (isSelected) 3.dp else 1.dp,
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.outlineVariant
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            // Split circle showing both colors
+            Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .background(primaryColor)
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .background(secondaryColor)
+                )
+            }
+
+            // Checkmark overlay when selected
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         }
     }
 }
