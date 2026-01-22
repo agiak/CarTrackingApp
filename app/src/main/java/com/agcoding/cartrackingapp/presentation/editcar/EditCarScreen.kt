@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.editcar
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,21 +13,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,10 +40,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsUiState
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsViewModel
+import com.agcoding.cartrackingapp.presentation.components.StyledDatePickerField
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,17 +114,7 @@ fun EditCarScreen(
     var tireDimensions by remember { mutableStateOf(car.tireDimensions ?: "") }
     var tireInstallationDate by remember { mutableStateOf(car.tireInstallationDate) }
 
-    // Date picker states
-    var showInsuranceDatePicker by remember { mutableStateOf(false) }
-    var showKteoDatePicker by remember { mutableStateOf(false) }
-    var showEmissionsDatePicker by remember { mutableStateOf(false) }
-    var showRoadTaxDueDatePicker by remember { mutableStateOf(false) }
-    var showServiceDatePicker by remember { mutableStateOf(false) }
-    var showTireChangeDatePicker by remember { mutableStateOf(false) }
-    var showTireInstallationDatePicker by remember { mutableStateOf(false) }
-
     val scrollState = rememberScrollState()
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
     Scaffold(
         topBar = {
@@ -239,13 +221,11 @@ fun EditCarScreen(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = insuranceExpirationDate,
-                labelRes = R.string.edit_car_field_insurance_expiration_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showInsuranceDatePicker = true }
+                onDateSelected = { insuranceExpirationDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_insurance_expiration_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
             // Legal & Compliance Section
@@ -257,23 +237,18 @@ fun EditCarScreen(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-
-            DatePickerField(
+            StyledDatePickerField(
                 value = kteoExpirationDate,
-                labelRes = R.string.edit_car_field_kteo_expiration_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showKteoDatePicker = true }
+                onDateSelected = { kteoExpirationDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_kteo_expiration_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = emissionsCardExpirationDate,
-                labelRes = R.string.edit_car_field_emissions_card_expiration,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showEmissionsDatePicker = true }
+                onDateSelected = { emissionsCardExpirationDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_emissions_card_expiration)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
             StyledOutlinedTextField(
@@ -286,13 +261,11 @@ fun EditCarScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = roadTaxDueDate,
-                labelRes = R.string.edit_car_field_road_tax_due_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showRoadTaxDueDatePicker = true }
+                onDateSelected = { roadTaxDueDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_road_tax_due_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
             // Maintenance Section
@@ -304,22 +277,18 @@ fun EditCarScreen(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = lastServiceDate,
-                labelRes = R.string.edit_car_field_last_service_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showServiceDatePicker = true }
+                onDateSelected = { lastServiceDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_last_service_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = lastTireChangeDate,
-                labelRes = R.string.edit_car_field_last_tire_change_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showTireChangeDatePicker = true }
+                onDateSelected = { lastTireChangeDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_last_tire_change_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
             // Tires Section
@@ -349,203 +318,15 @@ fun EditCarScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            DatePickerField(
+            StyledDatePickerField(
                 value = tireInstallationDate,
-                labelRes = R.string.edit_car_field_tire_installation_date,
-                placeholderRes = R.string.edit_car_placeholder_select_date,
-                trailingIconContentDescriptionRes = R.string.edit_car_cd_select_date,
-                dateFormatter = dateFormatter,
-                onClick = { showTireInstallationDatePicker = true }
+                onDateSelected = { tireInstallationDate = it },
+                label = { Text(stringResource(R.string.edit_car_field_tire_installation_date)) },
+                placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
             // Add bottom spacing
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-
-    // Insurance Date Picker
-    if (showInsuranceDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = insuranceExpirationDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showInsuranceDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    insuranceExpirationDate = datePickerState.selectedDateMillis
-                    showInsuranceDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showInsuranceDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-
-    // KTEO Date Picker
-    if (showKteoDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = kteoExpirationDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showKteoDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    kteoExpirationDate = datePickerState.selectedDateMillis
-                    showKteoDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showKteoDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    // Emissions Date Picker
-    if (showEmissionsDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = emissionsCardExpirationDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showEmissionsDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    emissionsCardExpirationDate = datePickerState.selectedDateMillis
-                    showEmissionsDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEmissionsDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    // Road Tax Due Date Picker
-    if (showRoadTaxDueDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = roadTaxDueDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showRoadTaxDueDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    roadTaxDueDate = datePickerState.selectedDateMillis
-                    showRoadTaxDueDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showRoadTaxDueDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    // Service Date Picker
-    if (showServiceDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = lastServiceDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showServiceDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    lastServiceDate = datePickerState.selectedDateMillis
-                    showServiceDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showServiceDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    // Tire Change Date Picker
-    if (showTireChangeDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = lastTireChangeDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showTireChangeDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    lastTireChangeDate = datePickerState.selectedDateMillis
-                    showTireChangeDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showTireChangeDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    // Tire Installation Date Picker
-    if (showTireInstallationDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = tireInstallationDate ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showTireInstallationDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    tireInstallationDate = datePickerState.selectedDateMillis
-                    showTireInstallationDatePicker = false
-                }) { Text(stringResource(R.string.ok_label)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showTireInstallationDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-}
-
-@Composable
-private fun DatePickerField(
-    value: Long?,
-    labelRes: Int,
-    placeholderRes: Int,
-    trailingIconContentDescriptionRes: Int,
-    dateFormatter: SimpleDateFormat,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-    ) {
-        StyledOutlinedTextField(
-            value = value?.let { dateFormatter.format(Date(it)) } ?: "",
-            onValueChange = {},
-            label = { Text(stringResource(labelRes)) },
-            placeholder = { Text(stringResource(placeholderRes)) },
-            readOnly = true,
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.CalendarToday,
-                    contentDescription = stringResource(trailingIconContentDescriptionRes)
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        )
     }
 }
