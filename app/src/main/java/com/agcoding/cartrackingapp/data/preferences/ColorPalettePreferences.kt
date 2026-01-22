@@ -37,7 +37,7 @@ enum class ColorPalette {
     DARK_OLIVE,       // Dark olive/green palette
     VOLCANIC_ASH,     // Volcanic ash gray palette
 
-    // New high-contrast palettes
+    // First wave high-contrast palettes
     SUNSET_FIRE,      // Bold orange and deep purple
     TROPICAL_PARADISE, // Turquoise and hot pink
     ROYAL_GOLD,       // Rich gold and navy blue
@@ -47,7 +47,19 @@ enum class ColorPalette {
     ARCTIC_FROST,     // Ice blue and deep teal
     CHERRY_BLOSSOM,   // Cherry red and soft pink
     EMERALD_SEA,      // Deep emerald and ocean blue
-    GOLDEN_HOUR       // Warm gold and deep violet
+    GOLDEN_HOUR,      // Warm gold and deep violet
+
+    // Second wave high-contrast palettes
+    NEON_LIME,        // Electric lime and deep purple
+    HOT_LAVA,         // Red-orange and charcoal black
+    CYBER_PINK,       // Hot pink and electric teal
+    OCEAN_SUNSET,     // Deep blue and coral
+    FOREST_AMBER,     // Deep forest green and amber
+    SAPPHIRE_ROSE,    // Deep sapphire and rose pink
+    ELECTRIC_VIOLET,  // Electric violet and neon yellow
+    CANDY_CRUSH,      // Bubblegum pink and bright cyan
+    MIDNIGHT_SUN,     // Navy blue and golden yellow
+    STRAWBERRY_MINT   // Strawberry red and fresh mint
 }
 
 @Singleton

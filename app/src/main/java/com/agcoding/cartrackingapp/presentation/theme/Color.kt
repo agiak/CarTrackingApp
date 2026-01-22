@@ -418,3 +418,137 @@ object GoldenHourPalette {
     val tertiaryDark = Color(0xFFFFCC80)       // Pale Orange
 }
 
+// ============================================================================
+// SECOND WAVE HIGH CONTRAST PALETTES
+// ============================================================================
+
+// NEON LIME PALETTE - Electric lime and deep purple
+object NeonLimePalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFAEEA00)       // Neon Lime
+    val secondaryLight = Color(0xFF4A148C)     // Deep Purple
+    val tertiaryLight = Color(0xFFC6FF00)      // Bright Lime
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFF4FF81)        // Light Lime
+    val secondaryDark = Color(0xFF7B1FA2)      // Medium Purple
+    val tertiaryDark = Color(0xFFE1F5FE)       // Pale Lime
+}
+
+// HOT LAVA PALETTE - Red-orange and charcoal black
+object HotLavaPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFDD2C00)       // Hot Lava Red
+    val secondaryLight = Color(0xFF212121)     // Charcoal
+    val tertiaryLight = Color(0xFFFF3D00)      // Bright Red
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFF6E40)        // Light Orange Red
+    val secondaryDark = Color(0xFF757575)      // Light Gray
+    val tertiaryDark = Color(0xFFFF9E80)       // Coral
+}
+
+// CYBER PINK PALETTE - Hot pink and electric teal
+object CyberPinkPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFF50057)       // Cyber Pink
+    val secondaryLight = Color(0xFF00BFA5)     // Electric Teal
+    val tertiaryLight = Color(0xFFFF4081)      // Bright Pink
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFF80AB)        // Light Pink
+    val secondaryDark = Color(0xFF64FFDA)      // Bright Teal
+    val tertiaryDark = Color(0xFFFF4081)       // Vivid Pink
+}
+
+// OCEAN SUNSET PALETTE - Deep blue and coral
+object OceanSunsetPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF01579B)       // Deep Ocean Blue
+    val secondaryLight = Color(0xFFFF6E40)     // Coral
+    val tertiaryLight = Color(0xFF0277BD)      // Bright Blue
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF4FC3F7)        // Sky Blue
+    val secondaryDark = Color(0xFFFFAB91)      // Light Coral
+    val tertiaryDark = Color(0xFF81D4FA)       // Pale Blue
+}
+
+// FOREST AMBER PALETTE - Deep forest green and amber
+object ForestAmberPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF1B5E20)       // Forest Green
+    val secondaryLight = Color(0xFFFF6F00)     // Amber
+    val tertiaryLight = Color(0xFF2E7D32)      // Bright Green
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF66BB6A)        // Light Green
+    val secondaryDark = Color(0xFFFFB74D)      // Light Amber
+    val tertiaryDark = Color(0xFF81C784)       // Mint Green
+}
+
+// SAPPHIRE ROSE PALETTE - Deep sapphire and rose pink
+object SapphireRosePalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF1A237E)       // Deep Sapphire
+    val secondaryLight = Color(0xFFE91E63)     // Rose Pink
+    val tertiaryLight = Color(0xFF283593)      // Bright Sapphire
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF5C6BC0)        // Light Sapphire
+    val secondaryDark = Color(0xFFF48FB1)      // Light Rose
+    val tertiaryDark = Color(0xFF7986CB)       // Pale Sapphire
+}
+
+// ELECTRIC VIOLET PALETTE - Electric violet and neon yellow
+object ElectricVioletPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF6200EA)       // Electric Violet
+    val secondaryLight = Color(0xFFFFEA00)     // Neon Yellow
+    val tertiaryLight = Color(0xFF7C4DFF)      // Bright Violet
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFB388FF)        // Light Violet
+    val secondaryDark = Color(0xFFFFFF00)      // Bright Yellow
+    val tertiaryDark = Color(0xFFD1C4E9)       // Pale Violet
+}
+
+// CANDY CRUSH PALETTE - Bubblegum pink and bright cyan
+object CandyCrushPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFE91E63)       // Bubblegum Pink
+    val secondaryLight = Color(0xFF00BCD4)     // Bright Cyan
+    val tertiaryLight = Color(0xFFEC407A)      // Hot Pink
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFF48FB1)        // Light Pink
+    val secondaryDark = Color(0xFF4DD0E1)      // Light Cyan
+    val tertiaryDark = Color(0xFFF8BBD0)       // Pale Pink
+}
+
+// MIDNIGHT SUN PALETTE - Navy blue and golden yellow
+object MidnightSunPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF0D47A1)       // Navy Blue
+    val secondaryLight = Color(0xFFFFD600)     // Golden Yellow
+    val tertiaryLight = Color(0xFF1565C0)      // Bright Blue
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF42A5F5)        // Light Blue
+    val secondaryDark = Color(0xFFFFEA00)      // Bright Yellow
+    val tertiaryDark = Color(0xFF64B5F6)       // Sky Blue
+}
+
+// STRAWBERRY MINT PALETTE - Strawberry red and fresh mint
+object StrawberryMintPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFD32F2F)       // Strawberry Red
+    val secondaryLight = Color(0xFF00BFA5)     // Fresh Mint
+    val tertiaryLight = Color(0xFFE57373)      // Light Red
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFEF5350)        // Light Red
+    val secondaryDark = Color(0xFF64FFDA)      // Bright Mint
+    val tertiaryDark = Color(0xFFFF8A80)       // Coral Red
+}
+

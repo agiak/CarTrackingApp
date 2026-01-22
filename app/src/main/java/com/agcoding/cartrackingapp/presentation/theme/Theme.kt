@@ -1736,6 +1736,580 @@ private val GoldenHourDarkColorScheme = darkColorScheme(
     outlineVariant = GoldenHourPalette.primaryDark.copy(alpha = 0.10f)
 )
 
+// ============================================================================
+// SECOND WAVE HIGH CONTRAST COLOR SCHEMES
+// ============================================================================
+
+// Neon Lime Palette
+private val NeonLimeLightColorScheme = lightColorScheme(
+    primary = NeonLimePalette.primaryLight,
+    onPrimary = Color(0xFF1A1C1E),
+    primaryContainer = NeonLimePalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = NeonLimePalette.primaryLight,
+
+    secondary = NeonLimePalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = NeonLimePalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = NeonLimePalette.secondaryLight,
+
+    tertiary = NeonLimePalette.tertiaryLight,
+    onTertiary = Color(0xFF1A1C1E),
+    tertiaryContainer = NeonLimePalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = NeonLimePalette.tertiaryLight,
+
+    background = Color(0xFFFFFFF5),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFFF8),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFF5FFE0),
+    onSurfaceVariant = Color(0xFF3E4238),
+
+    outline = NeonLimePalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = NeonLimePalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val NeonLimeDarkColorScheme = darkColorScheme(
+    primary = NeonLimePalette.primaryDark,
+    onPrimary = Color(0xFF2E3800),
+    primaryContainer = NeonLimePalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = NeonLimePalette.primaryDark,
+
+    secondary = NeonLimePalette.secondaryDark,
+    onSecondary = Color(0xFF1C0038),
+    secondaryContainer = NeonLimePalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = NeonLimePalette.secondaryDark,
+
+    tertiary = NeonLimePalette.tertiaryDark,
+    onTertiary = Color(0xFF3E4800),
+    tertiaryContainer = NeonLimePalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = NeonLimePalette.tertiaryDark,
+
+    background = Color(0xFF1A1A14),
+    onBackground = Color(0xFFE8E8E2),
+
+    surface = Color(0xFF22221A),
+    onSurface = Color(0xFFE8E8E2),
+    surfaceVariant = Color(0xFF302E22),
+    onSurfaceVariant = Color(0xFFD0CCC0),
+
+    outline = NeonLimePalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = NeonLimePalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Hot Lava Palette
+private val HotLavaLightColorScheme = lightColorScheme(
+    primary = HotLavaPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = HotLavaPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = HotLavaPalette.primaryLight,
+
+    secondary = HotLavaPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = HotLavaPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = HotLavaPalette.secondaryLight,
+
+    tertiary = HotLavaPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = HotLavaPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = HotLavaPalette.tertiaryLight,
+
+    background = Color(0xFFFFF8F5),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFBF8),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFE8E0),
+    onSurfaceVariant = Color(0xFF4A3E38),
+
+    outline = HotLavaPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = HotLavaPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val HotLavaDarkColorScheme = darkColorScheme(
+    primary = HotLavaPalette.primaryDark,
+    onPrimary = Color(0xFF3E0800),
+    primaryContainer = HotLavaPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = HotLavaPalette.primaryDark,
+
+    secondary = HotLavaPalette.secondaryDark,
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = HotLavaPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = HotLavaPalette.secondaryDark,
+
+    tertiary = HotLavaPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E1000),
+    tertiaryContainer = HotLavaPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = HotLavaPalette.tertiaryDark,
+
+    background = Color(0xFF1A1414),
+    onBackground = Color(0xFFE8E4E2),
+
+    surface = Color(0xFF221A1A),
+    onSurface = Color(0xFFE8E4E2),
+    surfaceVariant = Color(0xFF302424),
+    onSurfaceVariant = Color(0xFFD0C4C0),
+
+    outline = HotLavaPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = HotLavaPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Cyber Pink Palette
+private val CyberPinkLightColorScheme = lightColorScheme(
+    primary = CyberPinkPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = CyberPinkPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = CyberPinkPalette.primaryLight,
+
+    secondary = CyberPinkPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = CyberPinkPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = CyberPinkPalette.secondaryLight,
+
+    tertiary = CyberPinkPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = CyberPinkPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = CyberPinkPalette.tertiaryLight,
+
+    background = Color(0xFFFFF5F8),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFAFC),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFE8F0),
+    onSurfaceVariant = Color(0xFF4A3E42),
+
+    outline = CyberPinkPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = CyberPinkPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val CyberPinkDarkColorScheme = darkColorScheme(
+    primary = CyberPinkPalette.primaryDark,
+    onPrimary = Color(0xFF3E001C),
+    primaryContainer = CyberPinkPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = CyberPinkPalette.primaryDark,
+
+    secondary = CyberPinkPalette.secondaryDark,
+    onSecondary = Color(0xFF003830),
+    secondaryContainer = CyberPinkPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = CyberPinkPalette.secondaryDark,
+
+    tertiary = CyberPinkPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E0020),
+    tertiaryContainer = CyberPinkPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = CyberPinkPalette.tertiaryDark,
+
+    background = Color(0xFF1A1416),
+    onBackground = Color(0xFFE8E4E6),
+
+    surface = Color(0xFF221A1E),
+    onSurface = Color(0xFFE8E4E6),
+    surfaceVariant = Color(0xFF302428),
+    onSurfaceVariant = Color(0xFFD0C4C8),
+
+    outline = CyberPinkPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = CyberPinkPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Ocean Sunset Palette
+private val OceanSunsetLightColorScheme = lightColorScheme(
+    primary = OceanSunsetPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = OceanSunsetPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = OceanSunsetPalette.primaryLight,
+
+    secondary = OceanSunsetPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = OceanSunsetPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = OceanSunsetPalette.secondaryLight,
+
+    tertiary = OceanSunsetPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = OceanSunsetPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = OceanSunsetPalette.tertiaryLight,
+
+    background = Color(0xFFF5F8FF),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFAFCFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE8F0FF),
+    onSurfaceVariant = Color(0xFF3E4248),
+
+    outline = OceanSunsetPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = OceanSunsetPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val OceanSunsetDarkColorScheme = darkColorScheme(
+    primary = OceanSunsetPalette.primaryDark,
+    onPrimary = Color(0xFF001838),
+    primaryContainer = OceanSunsetPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = OceanSunsetPalette.primaryDark,
+
+    secondary = OceanSunsetPalette.secondaryDark,
+    onSecondary = Color(0xFF3E1800),
+    secondaryContainer = OceanSunsetPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = OceanSunsetPalette.secondaryDark,
+
+    tertiary = OceanSunsetPalette.tertiaryDark,
+    onTertiary = Color(0xFF002838),
+    tertiaryContainer = OceanSunsetPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = OceanSunsetPalette.tertiaryDark,
+
+    background = Color(0xFF0F1418),
+    onBackground = Color(0xFFE2E6E8),
+
+    surface = Color(0xFF151A20),
+    onSurface = Color(0xFFE2E6E8),
+    surfaceVariant = Color(0xFF202428),
+    onSurfaceVariant = Color(0xFFC0C8D0),
+
+    outline = OceanSunsetPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = OceanSunsetPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Forest Amber Palette
+private val ForestAmberLightColorScheme = lightColorScheme(
+    primary = ForestAmberPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = ForestAmberPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = ForestAmberPalette.primaryLight,
+
+    secondary = ForestAmberPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = ForestAmberPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = ForestAmberPalette.secondaryLight,
+
+    tertiary = ForestAmberPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = ForestAmberPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = ForestAmberPalette.tertiaryLight,
+
+    background = Color(0xFFF5FFF8),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFAFFFB),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE8F5E0),
+    onSurfaceVariant = Color(0xFF3E4638),
+
+    outline = ForestAmberPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = ForestAmberPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val ForestAmberDarkColorScheme = darkColorScheme(
+    primary = ForestAmberPalette.primaryDark,
+    onPrimary = Color(0xFF002008),
+    primaryContainer = ForestAmberPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = ForestAmberPalette.primaryDark,
+
+    secondary = ForestAmberPalette.secondaryDark,
+    onSecondary = Color(0xFF3E2000),
+    secondaryContainer = ForestAmberPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = ForestAmberPalette.secondaryDark,
+
+    tertiary = ForestAmberPalette.tertiaryDark,
+    onTertiary = Color(0xFF002810),
+    tertiaryContainer = ForestAmberPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = ForestAmberPalette.tertiaryDark,
+
+    background = Color(0xFF0F1A14),
+    onBackground = Color(0xFFE2E8E4),
+
+    surface = Color(0xFF152218),
+    onSurface = Color(0xFFE2E8E4),
+    surfaceVariant = Color(0xFF202C24),
+    onSurfaceVariant = Color(0xFFC0CCC4),
+
+    outline = ForestAmberPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = ForestAmberPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Sapphire Rose Palette
+private val SapphireRoseLightColorScheme = lightColorScheme(
+    primary = SapphireRosePalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = SapphireRosePalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = SapphireRosePalette.primaryLight,
+
+    secondary = SapphireRosePalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = SapphireRosePalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = SapphireRosePalette.secondaryLight,
+
+    tertiary = SapphireRosePalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = SapphireRosePalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = SapphireRosePalette.tertiaryLight,
+
+    background = Color(0xFFF5F5FF),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFAFAFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE8E8FF),
+    onSurfaceVariant = Color(0xFF3E3E4A),
+
+    outline = SapphireRosePalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = SapphireRosePalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val SapphireRoseDarkColorScheme = darkColorScheme(
+    primary = SapphireRosePalette.primaryDark,
+    onPrimary = Color(0xFF000838),
+    primaryContainer = SapphireRosePalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = SapphireRosePalette.primaryDark,
+
+    secondary = SapphireRosePalette.secondaryDark,
+    onSecondary = Color(0xFF3E001C),
+    secondaryContainer = SapphireRosePalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = SapphireRosePalette.secondaryDark,
+
+    tertiary = SapphireRosePalette.tertiaryDark,
+    onTertiary = Color(0xFF001038),
+    tertiaryContainer = SapphireRosePalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = SapphireRosePalette.tertiaryDark,
+
+    background = Color(0xFF0F1018),
+    onBackground = Color(0xFFE2E4E8),
+
+    surface = Color(0xFF151620),
+    onSurface = Color(0xFFE2E4E8),
+    surfaceVariant = Color(0xFF202028),
+    onSurfaceVariant = Color(0xFFC0C4D0),
+
+    outline = SapphireRosePalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = SapphireRosePalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Electric Violet Palette
+private val ElectricVioletLightColorScheme = lightColorScheme(
+    primary = ElectricVioletPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = ElectricVioletPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = ElectricVioletPalette.primaryLight,
+
+    secondary = ElectricVioletPalette.secondaryLight,
+    onSecondary = Color(0xFF1A1C1E),
+    secondaryContainer = ElectricVioletPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = ElectricVioletPalette.secondaryLight,
+
+    tertiary = ElectricVioletPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = ElectricVioletPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = ElectricVioletPalette.tertiaryLight,
+
+    background = Color(0xFFFAF5FF),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFDFAFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFF0E8FF),
+    onSurfaceVariant = Color(0xFF4A3E50),
+
+    outline = ElectricVioletPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = ElectricVioletPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val ElectricVioletDarkColorScheme = darkColorScheme(
+    primary = ElectricVioletPalette.primaryDark,
+    onPrimary = Color(0xFF1C0050),
+    primaryContainer = ElectricVioletPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = ElectricVioletPalette.primaryDark,
+
+    secondary = ElectricVioletPalette.secondaryDark,
+    onSecondary = Color(0xFF3E3800),
+    secondaryContainer = ElectricVioletPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = ElectricVioletPalette.secondaryDark,
+
+    tertiary = ElectricVioletPalette.tertiaryDark,
+    onTertiary = Color(0xFF280050),
+    tertiaryContainer = ElectricVioletPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = ElectricVioletPalette.tertiaryDark,
+
+    background = Color(0xFF14101A),
+    onBackground = Color(0xFFE6E2E8),
+
+    surface = Color(0xFF1C1622),
+    onSurface = Color(0xFFE6E2E8),
+    surfaceVariant = Color(0xFF282030),
+    onSurfaceVariant = Color(0xFFC8C0D0),
+
+    outline = ElectricVioletPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = ElectricVioletPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Candy Crush Palette
+private val CandyCrushLightColorScheme = lightColorScheme(
+    primary = CandyCrushPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = CandyCrushPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = CandyCrushPalette.primaryLight,
+
+    secondary = CandyCrushPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = CandyCrushPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = CandyCrushPalette.secondaryLight,
+
+    tertiary = CandyCrushPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = CandyCrushPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = CandyCrushPalette.tertiaryLight,
+
+    background = Color(0xFFFFF5F8),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFAFC),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFE8F5),
+    onSurfaceVariant = Color(0xFF4A3E44),
+
+    outline = CandyCrushPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = CandyCrushPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val CandyCrushDarkColorScheme = darkColorScheme(
+    primary = CandyCrushPalette.primaryDark,
+    onPrimary = Color(0xFF3E001C),
+    primaryContainer = CandyCrushPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = CandyCrushPalette.primaryDark,
+
+    secondary = CandyCrushPalette.secondaryDark,
+    onSecondary = Color(0xFF003840),
+    secondaryContainer = CandyCrushPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = CandyCrushPalette.secondaryDark,
+
+    tertiary = CandyCrushPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E0020),
+    tertiaryContainer = CandyCrushPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = CandyCrushPalette.tertiaryDark,
+
+    background = Color(0xFF1A1416),
+    onBackground = Color(0xFFE8E4E6),
+
+    surface = Color(0xFF221A1E),
+    onSurface = Color(0xFFE8E4E6),
+    surfaceVariant = Color(0xFF302428),
+    onSurfaceVariant = Color(0xFFD0C4C8),
+
+    outline = CandyCrushPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = CandyCrushPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Midnight Sun Palette
+private val MidnightSunLightColorScheme = lightColorScheme(
+    primary = MidnightSunPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = MidnightSunPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = MidnightSunPalette.primaryLight,
+
+    secondary = MidnightSunPalette.secondaryLight,
+    onSecondary = Color(0xFF1A1C1E),
+    secondaryContainer = MidnightSunPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = MidnightSunPalette.secondaryLight,
+
+    tertiary = MidnightSunPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = MidnightSunPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = MidnightSunPalette.tertiaryLight,
+
+    background = Color(0xFFF5F8FF),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFAFCFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE8F0FF),
+    onSurfaceVariant = Color(0xFF3E4248),
+
+    outline = MidnightSunPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = MidnightSunPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val MidnightSunDarkColorScheme = darkColorScheme(
+    primary = MidnightSunPalette.primaryDark,
+    onPrimary = Color(0xFF001838),
+    primaryContainer = MidnightSunPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = MidnightSunPalette.primaryDark,
+
+    secondary = MidnightSunPalette.secondaryDark,
+    onSecondary = Color(0xFF3E3800),
+    secondaryContainer = MidnightSunPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = MidnightSunPalette.secondaryDark,
+
+    tertiary = MidnightSunPalette.tertiaryDark,
+    onTertiary = Color(0xFF002838),
+    tertiaryContainer = MidnightSunPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = MidnightSunPalette.tertiaryDark,
+
+    background = Color(0xFF0F1418),
+    onBackground = Color(0xFFE2E6E8),
+
+    surface = Color(0xFF151A20),
+    onSurface = Color(0xFFE2E6E8),
+    surfaceVariant = Color(0xFF202428),
+    onSurfaceVariant = Color(0xFFC0C8D0),
+
+    outline = MidnightSunPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = MidnightSunPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Strawberry Mint Palette
+private val StrawberryMintLightColorScheme = lightColorScheme(
+    primary = StrawberryMintPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = StrawberryMintPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = StrawberryMintPalette.primaryLight,
+
+    secondary = StrawberryMintPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = StrawberryMintPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = StrawberryMintPalette.secondaryLight,
+
+    tertiary = StrawberryMintPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = StrawberryMintPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = StrawberryMintPalette.tertiaryLight,
+
+    background = Color(0xFFFFF8F8),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFBFB),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFE8E8),
+    onSurfaceVariant = Color(0xFF4A3E3E),
+
+    outline = StrawberryMintPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = StrawberryMintPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val StrawberryMintDarkColorScheme = darkColorScheme(
+    primary = StrawberryMintPalette.primaryDark,
+    onPrimary = Color(0xFF3E0010),
+    primaryContainer = StrawberryMintPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = StrawberryMintPalette.primaryDark,
+
+    secondary = StrawberryMintPalette.secondaryDark,
+    onSecondary = Color(0xFF003830),
+    secondaryContainer = StrawberryMintPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = StrawberryMintPalette.secondaryDark,
+
+    tertiary = StrawberryMintPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E0018),
+    tertiaryContainer = StrawberryMintPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = StrawberryMintPalette.tertiaryDark,
+
+    background = Color(0xFF1A1414),
+    onBackground = Color(0xFFE8E4E4),
+
+    surface = Color(0xFF221A1A),
+    onSurface = Color(0xFFE8E4E4),
+    surfaceVariant = Color(0xFF302424),
+    onSurfaceVariant = Color(0xFFD0C4C4),
+
+    outline = StrawberryMintPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = StrawberryMintPalette.primaryDark.copy(alpha = 0.10f)
+)
+
 // Legacy color schemes (for backward compatibility)
 private val DarkColorScheme = DefaultBlueDarkColorScheme
 private val LightColorScheme = DefaultBlueLightColorScheme
@@ -1847,6 +2421,36 @@ fun CarTrackingAppTheme(
         }
         ColorPalette.GOLDEN_HOUR -> {
             if (darkTheme) GoldenHourDarkColorScheme else GoldenHourLightColorScheme
+        }
+        ColorPalette.NEON_LIME -> {
+            if (darkTheme) NeonLimeDarkColorScheme else NeonLimeLightColorScheme
+        }
+        ColorPalette.HOT_LAVA -> {
+            if (darkTheme) HotLavaDarkColorScheme else HotLavaLightColorScheme
+        }
+        ColorPalette.CYBER_PINK -> {
+            if (darkTheme) CyberPinkDarkColorScheme else CyberPinkLightColorScheme
+        }
+        ColorPalette.OCEAN_SUNSET -> {
+            if (darkTheme) OceanSunsetDarkColorScheme else OceanSunsetLightColorScheme
+        }
+        ColorPalette.FOREST_AMBER -> {
+            if (darkTheme) ForestAmberDarkColorScheme else ForestAmberLightColorScheme
+        }
+        ColorPalette.SAPPHIRE_ROSE -> {
+            if (darkTheme) SapphireRoseDarkColorScheme else SapphireRoseLightColorScheme
+        }
+        ColorPalette.ELECTRIC_VIOLET -> {
+            if (darkTheme) ElectricVioletDarkColorScheme else ElectricVioletLightColorScheme
+        }
+        ColorPalette.CANDY_CRUSH -> {
+            if (darkTheme) CandyCrushDarkColorScheme else CandyCrushLightColorScheme
+        }
+        ColorPalette.MIDNIGHT_SUN -> {
+            if (darkTheme) MidnightSunDarkColorScheme else MidnightSunLightColorScheme
+        }
+        ColorPalette.STRAWBERRY_MINT -> {
+            if (darkTheme) StrawberryMintDarkColorScheme else StrawberryMintLightColorScheme
         }
     }
 
