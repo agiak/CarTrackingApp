@@ -1162,6 +1162,580 @@ private val VolcanicAshDarkColorScheme = darkColorScheme(
     outlineVariant = VolcanicAshPalette.primaryDark.copy(alpha = 0.10f)
 )
 
+// ============================================================================
+// NEW HIGH CONTRAST COLOR SCHEMES
+// ============================================================================
+
+// Sunset Fire Palette
+private val SunsetFireLightColorScheme = lightColorScheme(
+    primary = SunsetFirePalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = SunsetFirePalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = SunsetFirePalette.primaryLight,
+
+    secondary = SunsetFirePalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = SunsetFirePalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = SunsetFirePalette.secondaryLight,
+
+    tertiary = SunsetFirePalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = SunsetFirePalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = SunsetFirePalette.tertiaryLight,
+
+    background = Color(0xFFFFF8F0),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFBF5),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFF0E0),
+    onSurfaceVariant = Color(0xFF4A424E),
+
+    outline = SunsetFirePalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = SunsetFirePalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val SunsetFireDarkColorScheme = darkColorScheme(
+    primary = SunsetFirePalette.primaryDark,
+    onPrimary = Color(0xFF4A2000),
+    primaryContainer = SunsetFirePalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = SunsetFirePalette.primaryDark,
+
+    secondary = SunsetFirePalette.secondaryDark,
+    onSecondary = Color(0xFF1C0038),
+    secondaryContainer = SunsetFirePalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = SunsetFirePalette.secondaryDark,
+
+    tertiary = SunsetFirePalette.tertiaryDark,
+    onTertiary = Color(0xFF4A2800),
+    tertiaryContainer = SunsetFirePalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = SunsetFirePalette.tertiaryDark,
+
+    background = Color(0xFF1A1214),
+    onBackground = Color(0xFFE8E2E5),
+
+    surface = Color(0xFF221A1C),
+    onSurface = Color(0xFFE8E2E5),
+    surfaceVariant = Color(0xFF352628),
+    onSurfaceVariant = Color(0xFFD0C5C8),
+
+    outline = SunsetFirePalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = SunsetFirePalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Tropical Paradise Palette
+private val TropicalParadiseLightColorScheme = lightColorScheme(
+    primary = TropicalParadisePalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = TropicalParadisePalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = TropicalParadisePalette.primaryLight,
+
+    secondary = TropicalParadisePalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = TropicalParadisePalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = TropicalParadisePalette.secondaryLight,
+
+    tertiary = TropicalParadisePalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = TropicalParadisePalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = TropicalParadisePalette.tertiaryLight,
+
+    background = Color(0xFFF0FFFE),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFF5FFFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE0FFF8),
+    onSurfaceVariant = Color(0xFF3E4A48),
+
+    outline = TropicalParadisePalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = TropicalParadisePalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val TropicalParadiseDarkColorScheme = darkColorScheme(
+    primary = TropicalParadisePalette.primaryDark,
+    onPrimary = Color(0xFF003830),
+    primaryContainer = TropicalParadisePalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = TropicalParadisePalette.primaryDark,
+
+    secondary = TropicalParadisePalette.secondaryDark,
+    onSecondary = Color(0xFF4A0020),
+    secondaryContainer = TropicalParadisePalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = TropicalParadisePalette.secondaryDark,
+
+    tertiary = TropicalParadisePalette.tertiaryDark,
+    onTertiary = Color(0xFF004550),
+    tertiaryContainer = TropicalParadisePalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = TropicalParadisePalette.tertiaryDark,
+
+    background = Color(0xFF0F1A18),
+    onBackground = Color(0xFFE2E8E6),
+
+    surface = Color(0xFF152220),
+    onSurface = Color(0xFFE2E8E6),
+    surfaceVariant = Color(0xFF203230),
+    onSurfaceVariant = Color(0xFFC0CCC8),
+
+    outline = TropicalParadisePalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = TropicalParadisePalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Royal Gold Palette
+private val RoyalGoldLightColorScheme = lightColorScheme(
+    primary = RoyalGoldPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = RoyalGoldPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = RoyalGoldPalette.primaryLight,
+
+    secondary = RoyalGoldPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = RoyalGoldPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = RoyalGoldPalette.secondaryLight,
+
+    tertiary = RoyalGoldPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = RoyalGoldPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = RoyalGoldPalette.tertiaryLight,
+
+    background = Color(0xFFFFFAF0),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFDF8),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFF5E0),
+    onSurfaceVariant = Color(0xFF4A4230),
+
+    outline = RoyalGoldPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = RoyalGoldPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val RoyalGoldDarkColorScheme = darkColorScheme(
+    primary = RoyalGoldPalette.primaryDark,
+    onPrimary = Color(0xFF3E2800),
+    primaryContainer = RoyalGoldPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = RoyalGoldPalette.primaryDark,
+
+    secondary = RoyalGoldPalette.secondaryDark,
+    onSecondary = Color(0xFF001838),
+    secondaryContainer = RoyalGoldPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = RoyalGoldPalette.secondaryDark,
+
+    tertiary = RoyalGoldPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E2800),
+    tertiaryContainer = RoyalGoldPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = RoyalGoldPalette.tertiaryDark,
+
+    background = Color(0xFF1A1814),
+    onBackground = Color(0xFFE8E6E2),
+
+    surface = Color(0xFF22201A),
+    onSurface = Color(0xFFE8E6E2),
+    surfaceVariant = Color(0xFF302C22),
+    onSurfaceVariant = Color(0xFFD0CCC0),
+
+    outline = RoyalGoldPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = RoyalGoldPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Berry Blast Palette
+private val BerryBlastLightColorScheme = lightColorScheme(
+    primary = BerryBlastPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = BerryBlastPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = BerryBlastPalette.primaryLight,
+
+    secondary = BerryBlastPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = BerryBlastPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = BerryBlastPalette.secondaryLight,
+
+    tertiary = BerryBlastPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = BerryBlastPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = BerryBlastPalette.tertiaryLight,
+
+    background = Color(0xFFFCF7FB),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFDFAFC),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFF8FBF0),
+    onSurfaceVariant = Color(0xFF4A424E),
+
+    outline = BerryBlastPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = BerryBlastPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val BerryBlastDarkColorScheme = darkColorScheme(
+    primary = BerryBlastPalette.primaryDark,
+    onPrimary = Color(0xFF3A0054),
+    primaryContainer = BerryBlastPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = BerryBlastPalette.primaryDark,
+
+    secondary = BerryBlastPalette.secondaryDark,
+    onSecondary = Color(0xFF2E3800),
+    secondaryContainer = BerryBlastPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = BerryBlastPalette.secondaryDark,
+
+    tertiary = BerryBlastPalette.tertiaryDark,
+    onTertiary = Color(0xFF4A0068),
+    tertiaryContainer = BerryBlastPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = BerryBlastPalette.tertiaryDark,
+
+    background = Color(0xFF161214),
+    onBackground = Color(0xFFE5E1E3),
+
+    surface = Color(0xFF1F1A1D),
+    onSurface = Color(0xFFE5E1E3),
+    surfaceVariant = Color(0xFF302A28),
+    onSurfaceVariant = Color(0xFFCEC0C9),
+
+    outline = BerryBlastPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = BerryBlastPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Neon Night Palette
+private val NeonNightLightColorScheme = lightColorScheme(
+    primary = NeonNightPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = NeonNightPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = NeonNightPalette.primaryLight,
+
+    secondary = NeonNightPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = NeonNightPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = NeonNightPalette.secondaryLight,
+
+    tertiary = NeonNightPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = NeonNightPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = NeonNightPalette.tertiaryLight,
+
+    background = Color(0xFFF5FAFF),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFAFDFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE8F5FF),
+    onSurfaceVariant = Color(0xFF3E4450),
+
+    outline = NeonNightPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = NeonNightPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val NeonNightDarkColorScheme = darkColorScheme(
+    primary = NeonNightPalette.primaryDark,
+    onPrimary = Color(0xFF003045),
+    primaryContainer = NeonNightPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = NeonNightPalette.primaryDark,
+
+    secondary = NeonNightPalette.secondaryDark,
+    onSecondary = Color(0xFF42004A),
+    secondaryContainer = NeonNightPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = NeonNightPalette.secondaryDark,
+
+    tertiary = NeonNightPalette.tertiaryDark,
+    onTertiary = Color(0xFF003842),
+    tertiaryContainer = NeonNightPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = NeonNightPalette.tertiaryDark,
+
+    background = Color(0xFF0F1518),
+    onBackground = Color(0xFFE2E6E8),
+
+    surface = Color(0xFF151D22),
+    onSurface = Color(0xFFE2E6E8),
+    surfaceVariant = Color(0xFF202830),
+    onSurfaceVariant = Color(0xFFC0C8D0),
+
+    outline = NeonNightPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = NeonNightPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Autumn Harvest Palette
+private val AutumnHarvestLightColorScheme = lightColorScheme(
+    primary = AutumnHarvestPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = AutumnHarvestPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = AutumnHarvestPalette.primaryLight,
+
+    secondary = AutumnHarvestPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = AutumnHarvestPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = AutumnHarvestPalette.secondaryLight,
+
+    tertiary = AutumnHarvestPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = AutumnHarvestPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = AutumnHarvestPalette.tertiaryLight,
+
+    background = Color(0xFFFFF8F0),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFBF5),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFF0E0),
+    onSurfaceVariant = Color(0xFF4A3E38),
+
+    outline = AutumnHarvestPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = AutumnHarvestPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val AutumnHarvestDarkColorScheme = darkColorScheme(
+    primary = AutumnHarvestPalette.primaryDark,
+    onPrimary = Color(0xFF3E1800),
+    primaryContainer = AutumnHarvestPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = AutumnHarvestPalette.primaryDark,
+
+    secondary = AutumnHarvestPalette.secondaryDark,
+    onSecondary = Color(0xFF1C1410),
+    secondaryContainer = AutumnHarvestPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = AutumnHarvestPalette.secondaryDark,
+
+    tertiary = AutumnHarvestPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E2000),
+    tertiaryContainer = AutumnHarvestPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = AutumnHarvestPalette.tertiaryDark,
+
+    background = Color(0xFF1A1614),
+    onBackground = Color(0xFFE8E4E2),
+
+    surface = Color(0xFF221E1A),
+    onSurface = Color(0xFFE8E4E2),
+    surfaceVariant = Color(0xFF302824),
+    onSurfaceVariant = Color(0xFFD0C8C0),
+
+    outline = AutumnHarvestPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = AutumnHarvestPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Arctic Frost Palette
+private val ArcticFrostLightColorScheme = lightColorScheme(
+    primary = ArcticFrostPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = ArcticFrostPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = ArcticFrostPalette.primaryLight,
+
+    secondary = ArcticFrostPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = ArcticFrostPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = ArcticFrostPalette.secondaryLight,
+
+    tertiary = ArcticFrostPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = ArcticFrostPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = ArcticFrostPalette.tertiaryLight,
+
+    background = Color(0xFFF0FBFD),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFF5FEFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE0F5FA),
+    onSurfaceVariant = Color(0xFF3E4648),
+
+    outline = ArcticFrostPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = ArcticFrostPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val ArcticFrostDarkColorScheme = darkColorScheme(
+    primary = ArcticFrostPalette.primaryDark,
+    onPrimary = Color(0xFF002025),
+    primaryContainer = ArcticFrostPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = ArcticFrostPalette.primaryDark,
+
+    secondary = ArcticFrostPalette.secondaryDark,
+    onSecondary = Color(0xFF002838),
+    secondaryContainer = ArcticFrostPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = ArcticFrostPalette.secondaryDark,
+
+    tertiary = ArcticFrostPalette.tertiaryDark,
+    onTertiary = Color(0xFF002830),
+    tertiaryContainer = ArcticFrostPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = ArcticFrostPalette.tertiaryDark,
+
+    background = Color(0xFF0F1718),
+    onBackground = Color(0xFFE2E7E8),
+
+    surface = Color(0xFF151F22),
+    onSurface = Color(0xFFE2E7E8),
+    surfaceVariant = Color(0xFF202A2E),
+    onSurfaceVariant = Color(0xFFC0CCD0),
+
+    outline = ArcticFrostPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = ArcticFrostPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Cherry Blossom Palette
+private val CherryBlossomLightColorScheme = lightColorScheme(
+    primary = CherryBlossomPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = CherryBlossomPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = CherryBlossomPalette.primaryLight,
+
+    secondary = CherryBlossomPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = CherryBlossomPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = CherryBlossomPalette.secondaryLight,
+
+    tertiary = CherryBlossomPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = CherryBlossomPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = CherryBlossomPalette.tertiaryLight,
+
+    background = Color(0xFFFFF8F9),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFBFC),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFE8EB),
+    onSurfaceVariant = Color(0xFF4A3E40),
+
+    outline = CherryBlossomPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = CherryBlossomPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val CherryBlossomDarkColorScheme = darkColorScheme(
+    primary = CherryBlossomPalette.primaryDark,
+    onPrimary = Color(0xFF3E0010),
+    primaryContainer = CherryBlossomPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = CherryBlossomPalette.primaryDark,
+
+    secondary = CherryBlossomPalette.secondaryDark,
+    onSecondary = Color(0xFF42001C),
+    secondaryContainer = CherryBlossomPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = CherryBlossomPalette.secondaryDark,
+
+    tertiary = CherryBlossomPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E0010),
+    tertiaryContainer = CherryBlossomPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = CherryBlossomPalette.tertiaryDark,
+
+    background = Color(0xFF1A1214),
+    onBackground = Color(0xFFE8E2E4),
+
+    surface = Color(0xFF221A1C),
+    onSurface = Color(0xFFE8E2E4),
+    surfaceVariant = Color(0xFF302426),
+    onSurfaceVariant = Color(0xFFD0C0C4),
+
+    outline = CherryBlossomPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = CherryBlossomPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Emerald Sea Palette
+private val EmeraldSeaLightColorScheme = lightColorScheme(
+    primary = EmeraldSeaPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = EmeraldSeaPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = EmeraldSeaPalette.primaryLight,
+
+    secondary = EmeraldSeaPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = EmeraldSeaPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = EmeraldSeaPalette.secondaryLight,
+
+    tertiary = EmeraldSeaPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = EmeraldSeaPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = EmeraldSeaPalette.tertiaryLight,
+
+    background = Color(0xFFF0FAF9),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFF5FDFB),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFE0F5F0),
+    onSurfaceVariant = Color(0xFF3E4846),
+
+    outline = EmeraldSeaPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = EmeraldSeaPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val EmeraldSeaDarkColorScheme = darkColorScheme(
+    primary = EmeraldSeaPalette.primaryDark,
+    onPrimary = Color(0xFF002220),
+    primaryContainer = EmeraldSeaPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = EmeraldSeaPalette.primaryDark,
+
+    secondary = EmeraldSeaPalette.secondaryDark,
+    onSecondary = Color(0xFF002030),
+    secondaryContainer = EmeraldSeaPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = EmeraldSeaPalette.secondaryDark,
+
+    tertiary = EmeraldSeaPalette.tertiaryDark,
+    onTertiary = Color(0xFF002528),
+    tertiaryContainer = EmeraldSeaPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = EmeraldSeaPalette.tertiaryDark,
+
+    background = Color(0xFF0F1A18),
+    onBackground = Color(0xFFE2E8E6),
+
+    surface = Color(0xFF152220),
+    onSurface = Color(0xFFE2E8E6),
+    surfaceVariant = Color(0xFF202E2C),
+    onSurfaceVariant = Color(0xFFC0CCC8),
+
+    outline = EmeraldSeaPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = EmeraldSeaPalette.primaryDark.copy(alpha = 0.10f)
+)
+
+// Golden Hour Palette
+private val GoldenHourLightColorScheme = lightColorScheme(
+    primary = GoldenHourPalette.primaryLight,
+    onPrimary = Color.White,
+    primaryContainer = GoldenHourPalette.primaryLight.copy(alpha = 0.12f),
+    onPrimaryContainer = GoldenHourPalette.primaryLight,
+
+    secondary = GoldenHourPalette.secondaryLight,
+    onSecondary = Color.White,
+    secondaryContainer = GoldenHourPalette.secondaryLight.copy(alpha = 0.12f),
+    onSecondaryContainer = GoldenHourPalette.secondaryLight,
+
+    tertiary = GoldenHourPalette.tertiaryLight,
+    onTertiary = Color.White,
+    tertiaryContainer = GoldenHourPalette.tertiaryLight.copy(alpha = 0.12f),
+    onTertiaryContainer = GoldenHourPalette.tertiaryLight,
+
+    background = Color(0xFFFFF9F0),
+    onBackground = Color(0xFF1A1C1E),
+
+    surface = Color(0xFFFFFCF5),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFFFF3E0),
+    onSurfaceVariant = Color(0xFF4A4238),
+
+    outline = GoldenHourPalette.primaryLight.copy(alpha = 0.12f),
+    outlineVariant = GoldenHourPalette.primaryLight.copy(alpha = 0.08f)
+)
+
+private val GoldenHourDarkColorScheme = darkColorScheme(
+    primary = GoldenHourPalette.primaryDark,
+    onPrimary = Color(0xFF3E2400),
+    primaryContainer = GoldenHourPalette.primaryDark.copy(alpha = 0.15f),
+    onPrimaryContainer = GoldenHourPalette.primaryDark,
+
+    secondary = GoldenHourPalette.secondaryDark,
+    onSecondary = Color(0xFF3A0054),
+    secondaryContainer = GoldenHourPalette.secondaryDark.copy(alpha = 0.15f),
+    onSecondaryContainer = GoldenHourPalette.secondaryDark,
+
+    tertiary = GoldenHourPalette.tertiaryDark,
+    onTertiary = Color(0xFF3E2800),
+    tertiaryContainer = GoldenHourPalette.tertiaryDark.copy(alpha = 0.15f),
+    onTertiaryContainer = GoldenHourPalette.tertiaryDark,
+
+    background = Color(0xFF1A1714),
+    onBackground = Color(0xFFE8E6E2),
+
+    surface = Color(0xFF221F1A),
+    onSurface = Color(0xFFE8E6E2),
+    surfaceVariant = Color(0xFF302A24),
+    onSurfaceVariant = Color(0xFFD0C9C0),
+
+    outline = GoldenHourPalette.primaryDark.copy(alpha = 0.15f),
+    outlineVariant = GoldenHourPalette.primaryDark.copy(alpha = 0.10f)
+)
+
 // Legacy color schemes (for backward compatibility)
 private val DarkColorScheme = DefaultBlueDarkColorScheme
 private val LightColorScheme = DefaultBlueLightColorScheme
@@ -1243,6 +1817,36 @@ fun CarTrackingAppTheme(
         }
         ColorPalette.VOLCANIC_ASH -> {
             if (darkTheme) VolcanicAshDarkColorScheme else VolcanicAshLightColorScheme
+        }
+        ColorPalette.SUNSET_FIRE -> {
+            if (darkTheme) SunsetFireDarkColorScheme else SunsetFireLightColorScheme
+        }
+        ColorPalette.TROPICAL_PARADISE -> {
+            if (darkTheme) TropicalParadiseDarkColorScheme else TropicalParadiseLightColorScheme
+        }
+        ColorPalette.ROYAL_GOLD -> {
+            if (darkTheme) RoyalGoldDarkColorScheme else RoyalGoldLightColorScheme
+        }
+        ColorPalette.BERRY_BLAST -> {
+            if (darkTheme) BerryBlastDarkColorScheme else BerryBlastLightColorScheme
+        }
+        ColorPalette.NEON_NIGHT -> {
+            if (darkTheme) NeonNightDarkColorScheme else NeonNightLightColorScheme
+        }
+        ColorPalette.AUTUMN_HARVEST -> {
+            if (darkTheme) AutumnHarvestDarkColorScheme else AutumnHarvestLightColorScheme
+        }
+        ColorPalette.ARCTIC_FROST -> {
+            if (darkTheme) ArcticFrostDarkColorScheme else ArcticFrostLightColorScheme
+        }
+        ColorPalette.CHERRY_BLOSSOM -> {
+            if (darkTheme) CherryBlossomDarkColorScheme else CherryBlossomLightColorScheme
+        }
+        ColorPalette.EMERALD_SEA -> {
+            if (darkTheme) EmeraldSeaDarkColorScheme else EmeraldSeaLightColorScheme
+        }
+        ColorPalette.GOLDEN_HOUR -> {
+            if (darkTheme) GoldenHourDarkColorScheme else GoldenHourLightColorScheme
         }
     }
 

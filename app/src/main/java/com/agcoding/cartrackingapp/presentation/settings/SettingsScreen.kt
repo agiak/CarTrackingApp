@@ -1748,8 +1748,116 @@ private fun ColorPaletteCard(
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                // Empty space to balance the row
-                Spacer(modifier = Modifier.weight(1f))
+                ColorPaletteItem(
+                    palette = ColorPalette.SUNSET_FIRE,
+                    primaryColor = Color(0xFFFF6D00),
+                    secondaryColor = Color(0xFF4A148C),
+                    isSelected = selectedPalette == ColorPalette.SUNSET_FIRE,
+                    onClick = { onPaletteSelected(ColorPalette.SUNSET_FIRE) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.TROPICAL_PARADISE,
+                    primaryColor = Color(0xFF00BFA5),
+                    secondaryColor = Color(0xFFE91E63),
+                    isSelected = selectedPalette == ColorPalette.TROPICAL_PARADISE,
+                    onClick = { onPaletteSelected(ColorPalette.TROPICAL_PARADISE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.ROYAL_GOLD,
+                    primaryColor = Color(0xFFF57F17),
+                    secondaryColor = Color(0xFF0D47A1),
+                    isSelected = selectedPalette == ColorPalette.ROYAL_GOLD,
+                    onClick = { onPaletteSelected(ColorPalette.ROYAL_GOLD) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.BERRY_BLAST,
+                    primaryColor = Color(0xFF6A1B9A),
+                    secondaryColor = Color(0xFF9E9D24),
+                    isSelected = selectedPalette == ColorPalette.BERRY_BLAST,
+                    onClick = { onPaletteSelected(ColorPalette.BERRY_BLAST) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.NEON_NIGHT,
+                    primaryColor = Color(0xFF0091EA),
+                    secondaryColor = Color(0xFFD500F9),
+                    isSelected = selectedPalette == ColorPalette.NEON_NIGHT,
+                    onClick = { onPaletteSelected(ColorPalette.NEON_NIGHT) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.AUTUMN_HARVEST,
+                    primaryColor = Color(0xFFE65100),
+                    secondaryColor = Color(0xFF4E342E),
+                    isSelected = selectedPalette == ColorPalette.AUTUMN_HARVEST,
+                    onClick = { onPaletteSelected(ColorPalette.AUTUMN_HARVEST) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.ARCTIC_FROST,
+                    primaryColor = Color(0xFF006064),
+                    secondaryColor = Color(0xFF0277BD),
+                    isSelected = selectedPalette == ColorPalette.ARCTIC_FROST,
+                    onClick = { onPaletteSelected(ColorPalette.ARCTIC_FROST) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.CHERRY_BLOSSOM,
+                    primaryColor = Color(0xFFD32F2F),
+                    secondaryColor = Color(0xFFC2185B),
+                    isSelected = selectedPalette == ColorPalette.CHERRY_BLOSSOM,
+                    onClick = { onPaletteSelected(ColorPalette.CHERRY_BLOSSOM) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.EMERALD_SEA,
+                    primaryColor = Color(0xFF00695C),
+                    secondaryColor = Color(0xFF01579B),
+                    isSelected = selectedPalette == ColorPalette.EMERALD_SEA,
+                    onClick = { onPaletteSelected(ColorPalette.EMERALD_SEA) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.GOLDEN_HOUR,
+                    primaryColor = Color(0xFFF57C00),
+                    secondaryColor = Color(0xFF6A1B9A),
+                    isSelected = selectedPalette == ColorPalette.GOLDEN_HOUR,
+                    onClick = { onPaletteSelected(ColorPalette.GOLDEN_HOUR) },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }

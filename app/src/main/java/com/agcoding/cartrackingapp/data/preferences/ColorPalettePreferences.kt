@@ -35,7 +35,19 @@ enum class ColorPalette {
     ICE_WHITE,        // Ice white/blue gray palette
     NEON_MAGENTA,     // Neon magenta/pink palette
     DARK_OLIVE,       // Dark olive/green palette
-    VOLCANIC_ASH      // Volcanic ash gray palette
+    VOLCANIC_ASH,     // Volcanic ash gray palette
+
+    // New high-contrast palettes
+    SUNSET_FIRE,      // Bold orange and deep purple
+    TROPICAL_PARADISE, // Turquoise and hot pink
+    ROYAL_GOLD,       // Rich gold and navy blue
+    BERRY_BLAST,      // Berry purple and lime green
+    NEON_NIGHT,       // Electric blue and neon pink
+    AUTUMN_HARVEST,   // Burnt orange and deep brown
+    ARCTIC_FROST,     // Ice blue and deep teal
+    CHERRY_BLOSSOM,   // Cherry red and soft pink
+    EMERALD_SEA,      // Deep emerald and ocean blue
+    GOLDEN_HOUR       // Warm gold and deep violet
 }
 
 @Singleton

@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.presentation.statistics
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -151,7 +152,7 @@ fun MonthlyTrendsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Sort by dropdown
-                            androidx.compose.foundation.layout.Box {
+                            Box {
                                 OutlinedButton(
                                     onClick = { showSortMenu = true },
                                     shape = RoundedCornerShape(8.dp)
@@ -288,8 +289,8 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
 
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier
@@ -319,7 +320,7 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
                     text = "€${String.format("%.2f", totalCombinedCost)}",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 

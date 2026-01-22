@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.expensedetails
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,17 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -173,7 +169,7 @@ private fun ExpenseDetailsContent(
         // Main amount card
         StyledCard(
             modifier = Modifier.fillMaxWidth(),
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.secondary,
             border = null
         ) {
             Column(
@@ -185,20 +181,20 @@ private fun ExpenseDetailsContent(
                 Text(
                     text = expense.category,
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.9f)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "€${String.format("%.2f", expense.amount)}",
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = dateFormat.format(Date(expense.timestamp)),
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.8f)
                 )
             }
         }

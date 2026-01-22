@@ -284,3 +284,137 @@ object VolcanicAshPalette {
     val tertiaryDark = Color(0xFFB0BEC5)       // Ash Gray
 }
 
+// ============================================================================
+// NEW HIGH CONTRAST PALETTES
+// ============================================================================
+
+// SUNSET FIRE PALETTE - Bold orange and deep purple contrast
+object SunsetFirePalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFFF6D00)       // Vivid Orange
+    val secondaryLight = Color(0xFF4A148C)     // Deep Purple
+    val tertiaryLight = Color(0xFFFF9100)      // Bright Orange
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFFAB40)        // Light Orange
+    val secondaryDark = Color(0xFF7B1FA2)      // Medium Purple
+    val tertiaryDark = Color(0xFFFFD740)       // Golden Yellow
+}
+
+// TROPICAL PARADISE PALETTE - Turquoise and hot pink
+object TropicalParadisePalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF00BFA5)       // Turquoise
+    val secondaryLight = Color(0xFFE91E63)     // Hot Pink
+    val tertiaryLight = Color(0xFF00E5FF)      // Cyan
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF64FFDA)        // Bright Turquoise
+    val secondaryDark = Color(0xFFF48FB1)      // Light Pink
+    val tertiaryDark = Color(0xFF84FFFF)       // Ice Blue
+}
+
+// ROYAL GOLD PALETTE - Rich gold and navy blue
+object RoyalGoldPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFF57F17)       // Deep Gold
+    val secondaryLight = Color(0xFF0D47A1)     // Navy Blue
+    val tertiaryLight = Color(0xFFFFB300)      // Bright Gold
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFFD54F)        // Light Gold
+    val secondaryDark = Color(0xFF42A5F5)      // Sky Blue
+    val tertiaryDark = Color(0xFFFFE082)       // Pale Gold
+}
+
+// BERRY BLAST PALETTE - Rich berry purple and lime green
+object BerryBlastPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF6A1B9A)       // Berry Purple
+    val secondaryLight = Color(0xFF9E9D24)     // Lime Green
+    val tertiaryLight = Color(0xFF8E24AA)      // Bright Purple
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFBA68C8)        // Light Purple
+    val secondaryDark = Color(0xFFCDDC39)      // Bright Lime
+    val tertiaryDark = Color(0xFFE1BEE7)       // Pale Lavender
+}
+
+// NEON NIGHT PALETTE - Electric blue and neon pink
+object NeonNightPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF0091EA)       // Electric Blue
+    val secondaryLight = Color(0xFFD500F9)     // Neon Pink
+    val tertiaryLight = Color(0xFF00B8D4)      // Cyan Blue
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF40C4FF)        // Bright Blue
+    val secondaryDark = Color(0xFFEA80FC)      // Light Neon Pink
+    val tertiaryDark = Color(0xFF18FFFF)       // Bright Cyan
+}
+
+// AUTUMN HARVEST PALETTE - Burnt orange and deep brown
+object AutumnHarvestPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFE65100)       // Burnt Orange
+    val secondaryLight = Color(0xFF4E342E)     // Deep Brown
+    val tertiaryLight = Color(0xFFFF6F00)      // Bright Orange
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFF9E80)        // Light Orange
+    val secondaryDark = Color(0xFF8D6E63)      // Light Brown
+    val tertiaryDark = Color(0xFFFFAB91)       // Peach
+}
+
+// ARCTIC FROST PALETTE - Ice blue and deep teal
+object ArcticFrostPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF006064)       // Deep Teal
+    val secondaryLight = Color(0xFF0277BD)     // Dark Blue
+    val tertiaryLight = Color(0xFF00838F)      // Teal Blue
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF4DD0E1)        // Ice Blue
+    val secondaryDark = Color(0xFF4FC3F7)      // Sky Blue
+    val tertiaryDark = Color(0xFF80DEEA)       // Pale Blue
+}
+
+// CHERRY BLOSSOM PALETTE - Soft pink and vibrant red
+object CherryBlossomPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFD32F2F)       // Cherry Red
+    val secondaryLight = Color(0xFFC2185B)     // Deep Pink
+    val tertiaryLight = Color(0xFFE53935)      // Bright Red
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFEF5350)        // Light Red
+    val secondaryDark = Color(0xFFF48FB1)      // Soft Pink
+    val tertiaryDark = Color(0xFFFF8A80)       // Coral Pink
+}
+
+// EMERALD SEA PALETTE - Deep emerald and ocean blue
+object EmeraldSeaPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFF00695C)       // Deep Emerald
+    val secondaryLight = Color(0xFF01579B)     // Ocean Blue
+    val tertiaryLight = Color(0xFF00796B)      // Teal
+
+    // Dark theme colors
+    val primaryDark = Color(0xFF4DB6AC)        // Light Teal
+    val secondaryDark = Color(0xFF29B6F6)      // Light Blue
+    val tertiaryDark = Color(0xFF80CBC4)       // Mint
+}
+
+// GOLDEN HOUR PALETTE - Warm gold and deep violet
+object GoldenHourPalette {
+    // Light theme colors
+    val primaryLight = Color(0xFFF57C00)       // Deep Orange Gold
+    val secondaryLight = Color(0xFF6A1B9A)     // Deep Violet
+    val tertiaryLight = Color(0xFFFF9800)      // Bright Orange
+
+    // Dark theme colors
+    val primaryDark = Color(0xFFFFB74D)        // Light Gold
+    val secondaryDark = Color(0xFFBA68C8)      // Light Violet
+    val tertiaryDark = Color(0xFFFFCC80)       // Pale Orange
+}
+

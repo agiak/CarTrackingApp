@@ -15,15 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,11 +44,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import kotlin.collections.isNotEmpty
-import kotlin.collections.maxByOrNull
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -199,8 +194,8 @@ fun MonthDetailsScreen(
 private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier
@@ -230,7 +225,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                     text = stringResource(R.string.currency_eur_format, String.format("%.2f", state.totalCost)),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 

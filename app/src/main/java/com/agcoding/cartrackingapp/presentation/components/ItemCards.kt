@@ -177,13 +177,13 @@ fun ExpenseItemCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Build,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -221,7 +221,7 @@ fun ExpenseItemCard(
                 text = stringResource(R.string.currency_eur_format, String.format("%.2f", expense.amount)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

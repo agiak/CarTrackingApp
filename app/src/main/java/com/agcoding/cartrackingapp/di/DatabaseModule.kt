@@ -3,6 +3,9 @@ package com.agcoding.cartrackingapp.di
 import android.content.Context
 import androidx.room.Room
 import com.agcoding.cartrackingapp.data.local.database.CarDatabase
+import com.agcoding.cartrackingapp.data.local.database.MIGRATION_10_11
+import com.agcoding.cartrackingapp.data.local.database.MIGRATION_11_12
+import com.agcoding.cartrackingapp.data.local.database.MIGRATION_12_13
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_1_2
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_2_3
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_3_4
@@ -12,12 +15,9 @@ import com.agcoding.cartrackingapp.data.local.database.MIGRATION_6_7
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_7_8
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_8_9
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_9_10
-import com.agcoding.cartrackingapp.data.local.database.MIGRATION_10_11
-import com.agcoding.cartrackingapp.data.local.database.MIGRATION_11_12
-import com.agcoding.cartrackingapp.data.local.database.MIGRATION_12_13
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
-import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
+import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
 import dagger.Module
 import dagger.Provides

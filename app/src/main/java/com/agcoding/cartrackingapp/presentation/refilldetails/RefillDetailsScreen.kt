@@ -203,7 +203,7 @@ private fun RefillDetailsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.secondary,
             border = null
         ) {
             Column(
@@ -215,7 +215,7 @@ private fun RefillDetailsContent(
                 Text(
                     text = stringResource(R.string.total_amount_paid),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.9f),
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -223,13 +223,13 @@ private fun RefillDetailsContent(
                     text = "€%.2f".format(refill.amountPaid),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = formatDate(refill.timestamp),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.85f)
                 )
             }
         }

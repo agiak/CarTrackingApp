@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -61,7 +60,6 @@ import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.collections.take
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -633,8 +631,8 @@ private fun IncompleteInformationBanner(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onAddInformationClick),
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier
@@ -651,7 +649,7 @@ private fun IncompleteInformationBanner(
                     contentAlignment = Alignment.Center
                 ) {
                     StyledCard(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                         border = null
                     ) {
                         Icon(
@@ -660,7 +658,7 @@ private fun IncompleteInformationBanner(
                             modifier = Modifier
                                 .size(40.dp)
                                 .padding(8.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }
@@ -672,7 +670,7 @@ private fun IncompleteInformationBanner(
                         text = stringResource(R.string.complete_car_information),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }
@@ -697,7 +695,7 @@ private fun IncompleteInformationBanner(
                 text = stringResource(R.string.missing_fields_label, missingFields.size),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -705,7 +703,7 @@ private fun IncompleteInformationBanner(
             Text(
                 text = missingFields.take(5).joinToString(", "),
                 fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                 lineHeight = 16.sp
             )
 
@@ -715,7 +713,7 @@ private fun IncompleteInformationBanner(
                     text = stringResource(R.string.and_more_fields, missingFields.size - 5),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                 )
             }
         }
