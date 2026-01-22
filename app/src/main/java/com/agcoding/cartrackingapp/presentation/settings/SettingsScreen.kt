@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -331,6 +332,8 @@ fun SettingsScreen(
 
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
@@ -1633,9 +1636,119 @@ private fun ColorPaletteCard(
                     onClick = { onPaletteSelected(ColorPalette.ROSE_PINK) },
                     modifier = Modifier.weight(1f)
                 )
-                // Empty space to balance the row
-                Spacer(modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.MINT_BREEZE,
+                    primaryColor = Color(0xFF00897B),
+                    secondaryColor = Color(0xFF26A69A),
+                    isSelected = selectedPalette == ColorPalette.MINT_BREEZE,
+                    onClick = { onPaletteSelected(ColorPalette.MINT_BREEZE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.LAVENDER_DREAM,
+                    primaryColor = Color(0xFF7B1FA2),
+                    secondaryColor = Color(0xFF9C27B0),
+                    isSelected = selectedPalette == ColorPalette.LAVENDER_DREAM,
+                    onClick = { onPaletteSelected(ColorPalette.LAVENDER_DREAM) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.CORAL_SUNSET,
+                    primaryColor = Color(0xFFE64A19),
+                    secondaryColor = Color(0xFFFF5722),
+                    isSelected = selectedPalette == ColorPalette.CORAL_SUNSET,
+                    onClick = { onPaletteSelected(ColorPalette.CORAL_SUNSET) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.EMERALD_FOREST,
+                    primaryColor = Color(0xFF1B5E20),
+                    secondaryColor = Color(0xFF2E7D32),
+                    isSelected = selectedPalette == ColorPalette.EMERALD_FOREST,
+                    onClick = { onPaletteSelected(ColorPalette.EMERALD_FOREST) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.ELECTRIC_CYAN,
+                    primaryColor = Color(0xFF0097A7),
+                    secondaryColor = Color(0xFF00ACC1),
+                    isSelected = selectedPalette == ColorPalette.ELECTRIC_CYAN,
+                    onClick = { onPaletteSelected(ColorPalette.ELECTRIC_CYAN) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.MIDNIGHT_BLACK,
+                    primaryColor = Color(0xFF212121),
+                    secondaryColor = Color(0xFF424242),
+                    isSelected = selectedPalette == ColorPalette.MIDNIGHT_BLACK,
+                    onClick = { onPaletteSelected(ColorPalette.MIDNIGHT_BLACK) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.ICE_WHITE,
+                    primaryColor = Color(0xFF37474F),
+                    secondaryColor = Color(0xFFB0BEC5),
+                    isSelected = selectedPalette == ColorPalette.ICE_WHITE,
+                    onClick = { onPaletteSelected(ColorPalette.ICE_WHITE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.NEON_MAGENTA,
+                    primaryColor = Color(0xFFC2185B),
+                    secondaryColor = Color(0xFFEC407A),
+                    isSelected = selectedPalette == ColorPalette.NEON_MAGENTA,
+                    onClick = { onPaletteSelected(ColorPalette.NEON_MAGENTA) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ColorPaletteItem(
+                    palette = ColorPalette.DARK_OLIVE,
+                    primaryColor = Color(0xFF33691E),
+                    secondaryColor = Color(0xFF558B2F),
+                    isSelected = selectedPalette == ColorPalette.DARK_OLIVE,
+                    onClick = { onPaletteSelected(ColorPalette.DARK_OLIVE) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                ColorPaletteItem(
+                    palette = ColorPalette.VOLCANIC_ASH,
+                    primaryColor = Color(0xFF263238),
+                    secondaryColor = Color(0xFF455A64),
+                    isSelected = selectedPalette == ColorPalette.VOLCANIC_ASH,
+                    onClick = { onPaletteSelected(ColorPalette.VOLCANIC_ASH) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                // Empty space to balance the row
                 Spacer(modifier = Modifier.weight(1f))
             }
         }

@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Set status bar color to transparent for edge-to-edge
                 window.statusBarColor = Color.Transparent.toArgb()
-                window.navigationBarColor = Color.Transparent.toArgb()
+                // Don't set navigation bar to transparent - let the Scaffold handle it
 
                 // Set status bar content color (icons & text)
                 // Light theme = dark icons, Dark theme = light icons
@@ -70,6 +70,13 @@ class MainActivity : AppCompatActivity() {
                 darkTheme = useDarkTheme,
                 colorPalette = selectedPalette
             ) {
+                // Set navigation bar color to match theme background
+                val backgroundColor = MaterialTheme.colorScheme.background
+                SideEffect {
+                    val window = this@MainActivity.window
+                    window.navigationBarColor = backgroundColor.toArgb()
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

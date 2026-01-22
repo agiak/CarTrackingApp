@@ -25,7 +25,17 @@ enum class ColorPalette {
     AMBER_GOLD,       // Amber/gold palette
     DEEP_INDIGO,      // Indigo/blue-purple palette
     SLATE_GRAY,       // Gray/neutral palette
-    ROSE_PINK         // Pink palette
+    ROSE_PINK,        // Pink palette
+    MINT_BREEZE,      // Mint/turquoise palette
+    LAVENDER_DREAM,   // Lavender/violet palette
+    CORAL_SUNSET,     // Coral/peach palette
+    EMERALD_FOREST,   // Emerald green palette
+    ELECTRIC_CYAN,    // Electric cyan palette
+    MIDNIGHT_BLACK,   // Dark gray/black palette
+    ICE_WHITE,        // Ice white/blue gray palette
+    NEON_MAGENTA,     // Neon magenta/pink palette
+    DARK_OLIVE,       // Dark olive/green palette
+    VOLCANIC_ASH      // Volcanic ash gray palette
 }
 
 @Singleton
