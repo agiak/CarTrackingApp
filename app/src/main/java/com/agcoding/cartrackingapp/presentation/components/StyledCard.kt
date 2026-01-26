@@ -15,41 +15,33 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A styled card component with consistent design across the app.
- * Uses rounded corners, surface color, and outline variant border.
- * Automatically applies a subtle tint to the background based on the border color.
+ * Uses rounded corners and a subtly tinted surface color.
+ * The tint is derived from the theme's outline variant color.
  */
 @Composable
 fun StyledCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     containerColor: Color? = null,
-    border: BorderStroke? = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+    border: BorderStroke? = null,
     tintAlpha: Float = 0.08f, // Subtle tint strength (8% by default for more visibility)
     content: @Composable ColumnScope.() -> Unit
 ) {
-    // Calculate the background color with subtle tint from border
+    // Calculate the background color with subtle tint
     val finalContainerColor = when {
         containerColor != null -> containerColor
-        border != null -> {
-            // Extract the base color from the border brush (without alpha)
-            val borderBrush = border.brush
-            val borderColor = if (borderBrush is SolidColor) {
-                // Get the color without alpha component
-                borderBrush.value.copy(alpha = 1f)
-            } else {
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f)
-            }
-
-            // Create a tinted surface by blending the border color with the surface
+        else -> {
+            // Create a tinted surface by blending the outline variant color with the surface
             val surfaceColor = MaterialTheme.colorScheme.surface
-            // Blend: surface color with a subtle overlay of border color
+            val tintColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f)
+
+            // Blend: surface color with a subtle overlay of tint color
             lerp(
                 surfaceColor,
-                borderColor,
+                tintColor,
                 tintAlpha
             )
         }
-        else -> MaterialTheme.colorScheme.surface
     }
 
     val colors = CardDefaults.cardColors(containerColor = finalContainerColor)

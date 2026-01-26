@@ -537,8 +537,22 @@
 
     <!-- Bottom Navigation -->
     <string name="nav_cars">Cars</string>
+    <string name="nav_transactions">Transactions</string>
     <string name="nav_statistics">Statistics</string>
     <string name="nav_settings">Settings</string>
+
+    <!-- Transactions Screen -->
+    <string name="transaction_type">Transaction Type</string>
+    <string name="filter_transactions">Filter Transactions</string>
+    <string name="no_transactions_found">No transactions found</string>
+    <string name="sort_by">Sort By</string>
+    <string name="sort_date_newest">Date: Newest First</string>
+    <string name="sort_date_oldest">Date: Oldest First</string>
+    <string name="sort_cost_highest">Cost: Highest First</string>
+    <string name="sort_cost_lowest">Cost: Lowest First</string>
+    <string name="filter">Filter</string>
+    <string name="refill">Refill</string>
+    <string name="expense">Expense</string>
 
     <!-- Expense Categories -->
     <string name="expense_category_tire_change">Tire change</string>
@@ -553,6 +567,9 @@
     <string name="expense_category_toll">Toll</string>
     <string name="expense_category_car_wash">Car wash</string>
     <string name="expense_category_other">Other</string>
+    <string name="custom_category">Custom</string>
+    <string name="custom_category_hint">Enter custom category</string>
+    <string name="custom_category_placeholder">e.g., Paint job, Detailing</string>
 
     <!-- Car Details Screen -->
     <string name="current_odometer">Current Odometer</string>

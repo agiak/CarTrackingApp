@@ -54,6 +54,8 @@ import com.agcoding.cartrackingapp.presentation.settings.SettingsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
+import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
+import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
@@ -129,6 +131,7 @@ fun AppNavigation(
     // Determine if we should show bottom bar
     val showBottomBar = currentDestination?.route in listOf(
         BottomNavItem.Cars.route,
+        BottomNavItem.Transactions.route,
         BottomNavItem.Statistics.route,
         BottomNavItem.Settings.route
     )
@@ -243,6 +246,21 @@ fun AppNavigation(
                     },
                     onNavigateToReminders = {
                         navController.navigate(Screen.Notifications.route)
+                    }
+                )
+            }
+
+            composable(BottomNavItem.Transactions.route) {
+                TransactionsScreen(
+                    onTransactionClick = { transaction ->
+                        when (transaction.type) {
+                            TransactionType.REFILL -> {
+                                navController.navigate(Screen.RefillDetails.createRoute(transaction.id))
+                            }
+                            TransactionType.EXPENSE -> {
+                                navController.navigate(Screen.ExpenseDetails.createRoute(transaction.id))
+                            }
+                        }
                     }
                 )
             }

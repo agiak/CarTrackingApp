@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,17 +16,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +67,8 @@ fun AddExpenseScreen(
     viewModel: AddExpenseViewModel = hiltViewModel()
 ) {
     val category by viewModel.category.collectAsState()
-    val categoryExpanded by viewModel.categoryExpanded.collectAsState()
+    val showCustomCategoryField by viewModel.showCustomCategoryField.collectAsState()
+    val customCategoryText by viewModel.customCategoryText.collectAsState()
     val availableCategories by viewModel.availableCategories.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val amountError by viewModel.amountError.collectAsState()
@@ -124,52 +125,66 @@ fun AddExpenseScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Category field with autocomplete dropdown
-            ExposedDropdownMenuBox(
-                expanded = categoryExpanded,
-                onExpandedChange = { }
+            // Category selection label
+            Text(
+                text = stringResource(R.string.expense_category),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Horizontal scrollable chip list for categories
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StyledOutlinedTextField(
-                    value = category,
-                    onValueChange = {
-                        viewModel.updateCategory(it)
-                        if (!categoryExpanded && it.isNotEmpty()) {
-                            viewModel.toggleCategoryDropdown()
-                        }
-                    },
-                    label = { Text(stringResource(R.string.expense_category)) },
-                    placeholder = { Text(stringResource(R.string.expense_category_hint)) },
-                    trailingIcon = {
-                        IconButton(onClick = { viewModel.toggleCategoryDropdown() }) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded)
-                        }
-                    },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true)
-                )
-
-                ExposedDropdownMenu(
-                    expanded = categoryExpanded && availableCategories.isNotEmpty(),
-                    onDismissRequest = { viewModel.dismissCategoryDropdown() }
-                ) {
-                    val categoriesToShow = if (category.isBlank()) {
-                        availableCategories
-                    } else {
-                        availableCategories.filter {
-                            it.contains(category, ignoreCase = true)
-                        }
-                    }
-
-                    categoriesToShow.forEach { categoryOption ->
-                        DropdownMenuItem(
-                            text = { Text(categoryOption) },
-                            onClick = { viewModel.selectCategory(categoryOption) },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                // Display predefined and custom categories
+                availableCategories.forEach { categoryOption ->
+                    FilterChip(
+                        selected = category == categoryOption && !showCustomCategoryField,
+                        onClick = { viewModel.selectCategory(categoryOption) },
+                        label = { Text(categoryOption) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    }
+                    )
                 }
+
+                // "Custom" chip to show text field
+                FilterChip(
+                    selected = showCustomCategoryField,
+                    onClick = { viewModel.toggleCustomCategoryField() },
+                    label = { Text(stringResource(R.string.custom_category)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                )
+            }
+
+            // Custom category text field (shown when "Custom" is selected)
+            if (showCustomCategoryField) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                StyledOutlinedTextField(
+                    value = customCategoryText,
+                    onValueChange = viewModel::updateCustomCategoryText,
+                    label = { Text(stringResource(R.string.custom_category_hint)) },
+                    placeholder = { Text(stringResource(R.string.custom_category_placeholder)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

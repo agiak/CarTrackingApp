@@ -4,9 +4,11 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material.icons.outlined.QueryStats
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.agcoding.cartrackingapp.R
@@ -22,6 +24,13 @@ sealed class BottomNavItem(
         selectedIcon = Icons.Filled.DirectionsCar,
         unselectedIcon = Icons.Outlined.DirectionsCar,
         labelResId = R.string.nav_cars
+    )
+
+    object Transactions : BottomNavItem(
+        route = "transactions",
+        selectedIcon = Icons.Filled.Receipt,
+        unselectedIcon = Icons.Outlined.Receipt,
+        labelResId = R.string.nav_transactions
     )
 
     object Statistics : BottomNavItem(
@@ -41,6 +50,7 @@ sealed class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem.Cars,
+    BottomNavItem.Transactions,
     BottomNavItem.Statistics,
     BottomNavItem.Settings
 )

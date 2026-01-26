@@ -31,6 +31,12 @@ class AddExpenseViewModel @Inject constructor(
     private val _category = MutableStateFlow("")
     val category: StateFlow<String> = _category.asStateFlow()
 
+    private val _showCustomCategoryField = MutableStateFlow(false)
+    val showCustomCategoryField: StateFlow<Boolean> = _showCustomCategoryField.asStateFlow()
+
+    private val _customCategoryText = MutableStateFlow("")
+    val customCategoryText: StateFlow<String> = _customCategoryText.asStateFlow()
+
     private val _categoryExpanded = MutableStateFlow(false)
     val categoryExpanded: StateFlow<Boolean> = _categoryExpanded.asStateFlow()
 
@@ -107,7 +113,25 @@ class AddExpenseViewModel @Inject constructor(
 
     fun selectCategory(value: String) {
         _category.value = value
-        _categoryExpanded.value = false
+        _showCustomCategoryField.value = false
+        _customCategoryText.value = ""
+    }
+
+    fun toggleCustomCategoryField() {
+        _showCustomCategoryField.value = !_showCustomCategoryField.value
+        if (_showCustomCategoryField.value) {
+            // Clear the selected category when showing custom field
+            _category.value = ""
+        } else {
+            // Clear custom text when hiding field
+            _customCategoryText.value = ""
+        }
+    }
+
+    fun updateCustomCategoryText(value: String) {
+        _customCategoryText.value = value
+        // Update the category value with the custom text
+        _category.value = value
     }
 
     fun toggleCategoryDropdown() {
@@ -234,6 +258,8 @@ class AddExpenseViewModel @Inject constructor(
 
     fun clearFields() {
         _category.value = ""
+        _showCustomCategoryField.value = false
+        _customCategoryText.value = ""
         _amount.value = ""
         _amountError.value = null
         _notes.value = ""

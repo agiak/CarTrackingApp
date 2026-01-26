@@ -105,3 +105,8 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+
+# Deployment Target Selector
+.idea/deploymentTargetSelector.xml
+.idea/deploymentTargetDropDown.xml
+
