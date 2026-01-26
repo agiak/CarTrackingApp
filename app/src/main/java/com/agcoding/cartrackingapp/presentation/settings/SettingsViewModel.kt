@@ -67,7 +67,7 @@ data class StorageInfo(
 
 data class SettingsUiState(
     val appSettings: AppSettings = AppSettings(),
-    val appVersion: String = "1.0.0",
+    val appVersion: String = BuildConfig.VERSION_NAME,
     val storageInfo: StorageInfo = StorageInfo(),
     val isDebugMode: Boolean = BuildConfig.DEBUG,
     val isGeneratingData: Boolean = false,

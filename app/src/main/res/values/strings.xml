@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CarTrackingApp</string>
+    <string name="app_name">Cariboo</string>
 
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Monthly Trends</string>
