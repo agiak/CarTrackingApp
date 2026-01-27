@@ -139,7 +139,6 @@ fun AppNavigation(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (showBottomBar) {
                 Column(
@@ -195,7 +194,7 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = Screen.Onboarding.route,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(0.dp, vertical = 0.dp)
         ) {
             // Onboarding screen
             composable(Screen.Onboarding.route) {
