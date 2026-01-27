@@ -2,8 +2,6 @@ package com.agcoding.cartrackingapp.presentation.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -142,7 +140,7 @@ fun AppNavigation(
         bottomBar = {
             if (showBottomBar) {
                 Column(
-                    modifier = androidx.compose.ui.Modifier.background(MaterialTheme.colorScheme.background)
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background)
                 ) {
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.background,
@@ -194,7 +192,7 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = Screen.Onboarding.route,
-            modifier = Modifier.padding(0.dp, vertical = 0.dp)
+            modifier = Modifier.padding(paddingValues)
         ) {
             // Onboarding screen
             composable(Screen.Onboarding.route) {
