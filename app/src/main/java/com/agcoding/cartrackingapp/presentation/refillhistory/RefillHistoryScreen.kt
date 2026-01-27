@@ -5,14 +5,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 
 enum class RefillSortOption(@StringRes val labelRes: Int) {
     MOST_RECENT(R.string.most_recent),
@@ -122,43 +136,186 @@ fun RefillHistoryScreen(
             }
 
             is RefillHistoryUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Header
-                    item {
+                val configuration = LocalConfiguration.current
+                val screenWidthDp = configuration.screenWidthDp
+                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                val useSplitView = screenWidthDp >= 600 || isLandscape
+
+                if (useSplitView) {
+                    // Split view for tablets and landscape
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Left side: Summary stats (35%)
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .weight(0.35f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text(
-                                text = state.carName,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = stringResource(
-                                    R.string.refills_sorted_by_format,
-                                    state.refills.size,
-                                    stringResource(selectedSort.labelRes)
-                                ),
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            // Header card
+                            StyledCard {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = state.carName,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = stringResource(R.string.refill_history_title),
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            // Summary stats
+                            if (state.refills.isNotEmpty()) {
+                                val totalCost = state.refills.sumOf { it.amountPaid }
+                                val totalLiters = state.refills.sumOf { it.litersAdded }
+                                val totalDistance = state.refills.sumOf { it.tripDistance }
+                                val avgConsumption = if (totalDistance > 0) (totalLiters / totalDistance) * 100 else 0.0
+
+                                StyledCard(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                    border = null
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.total_spending),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+
+                                        SummaryItem(
+                                            icon = Icons.Default.LocalGasStation,
+                                            label = stringResource(R.string.total_refills),
+                                            value = "${state.refills.size}"
+                                        )
+
+                                        SummaryItem(
+                                            icon = Icons.Default.AttachMoney,
+                                            label = stringResource(R.string.total_cost),
+                                            value = "€%.2f".format(totalCost)
+                                        )
+
+                                        SummaryItem(
+                                            icon = Icons.Default.LocalGasStation,
+                                            label = stringResource(R.string.total_liters_label),
+                                            value = "%.1f L".format(totalLiters)
+                                        )
+
+                                        SummaryItem(
+                                            icon = Icons.Default.Route,
+                                            label = stringResource(R.string.total_distance),
+                                            value = "%.0f km".format(totalDistance)
+                                        )
+
+                                        SummaryItem(
+                                            icon = Icons.AutoMirrored.Filled.TrendingUp,
+                                            label = stringResource(R.string.avg_consumption),
+                                            value = if (avgConsumption > 0) "%.1f L/100km".format(avgConsumption) else "-"
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Sort info
+                            StyledCard {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.sort),
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = stringResource(selectedSort.labelRes),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
+                        // Right side: Refills list (65%)
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(0.65f)
+                                .fillMaxHeight(),
+                            contentPadding = PaddingValues(bottom = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(state.refills) { refill ->
+                                RefillItemCard(
+                                    refill = refill,
+                                    carName = null,
+                                    onClick = { onRefillClick(refill.id) }
+                                )
+                            }
                         }
                     }
+                } else {
+                    // Original single column layout for portrait phones
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Header
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = state.carName,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    text = stringResource(
+                                        R.string.refills_sorted_by_format,
+                                        state.refills.size,
+                                        stringResource(selectedSort.labelRes)
+                                    ),
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
 
-                    // Refills list
-                    items(state.refills) { refill ->
-                        RefillItemCard(
-                            refill = refill,
-                            carName = null, // Don't show car name in single car view
-                            onClick = { onRefillClick(refill.id) }
-                        )
+                        // Refills list
+                        items(state.refills) { refill ->
+                            RefillItemCard(
+                                refill = refill,
+                                carName = null, // Don't show car name in single car view
+                                onClick = { onRefillClick(refill.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -202,3 +359,39 @@ fun RefillHistoryScreen(
     }
 }
 
+@Composable
+private fun SummaryItem(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = value,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}

@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,50 +82,76 @@ fun NotificationsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        when (val state = uiState) {
-            is NotificationsUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp
+        val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+        val useCenteredLayout = screenWidthDp >= 600 || isLandscape
+
+        // Use centered content with max width on tablets and landscape
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = if (useCenteredLayout) Alignment.TopCenter else Alignment.TopStart
+        ) {
+            when (val state = uiState) {
+                is NotificationsUiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .then(
+                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                                else Modifier.fillMaxWidth()
+                            )
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
 
-            is NotificationsUiState.Empty -> {
-                EmptyState(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
-            }
+                is NotificationsUiState.Empty -> {
+                    EmptyState(
+                        modifier = Modifier
+                            .then(
+                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                                else Modifier.fillMaxWidth()
+                            )
+                            .fillMaxSize()
+                    )
+                }
 
-            is NotificationsUiState.Success -> {
-                NotificationsContent(
-                    reminders = state.reminders,
-                    onToggleReminder = { expenseId, enabled ->
-                        viewModel.toggleReminderEnabled(expenseId, enabled)
-                    },
-                    onEditReminder = onEditExpense,
-                    onDismissReminder = { expenseId ->
-                        viewModel.dismissReminder(expenseId)
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
-            }
+                is NotificationsUiState.Success -> {
+                    NotificationsContent(
+                        reminders = state.reminders,
+                        onToggleReminder = { expenseId, enabled ->
+                            viewModel.toggleReminderEnabled(expenseId, enabled)
+                        },
+                        onEditReminder = onEditExpense,
+                        onDismissReminder = { expenseId ->
+                            viewModel.dismissReminder(expenseId)
+                        },
+                        useCenteredLayout = useCenteredLayout,
+                        modifier = Modifier
+                            .then(
+                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                                else Modifier.fillMaxWidth()
+                            )
+                            .fillMaxSize()
+                    )
+                }
 
-            is NotificationsUiState.Error -> {
-                ErrorState(
-                    message = state.message,
-                    onRetry = { viewModel.retry() },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
+                is NotificationsUiState.Error -> {
+                    ErrorState(
+                        message = state.message,
+                        onRetry = { viewModel.retry() },
+                        modifier = Modifier
+                            .then(
+                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                                else Modifier.fillMaxWidth()
+                            )
+                            .fillMaxSize()
+                    )
+                }
             }
         }
     }
@@ -136,10 +163,13 @@ private fun NotificationsContent(
     onToggleReminder: (Long, Boolean) -> Unit,
     onEditReminder: (Long) -> Unit,
     onDismissReminder: (Long) -> Unit,
+    useCenteredLayout: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier.padding(
+            horizontal = if (useCenteredLayout) 24.dp else 16.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {

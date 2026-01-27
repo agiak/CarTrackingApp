@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -94,14 +95,27 @@ fun EditExpenseScreen(
             }
 
             is EditExpenseUiState.Success -> {
-                Column(
+                val configuration = LocalConfiguration.current
+                val screenWidthDp = configuration.screenWidthDp
+                val isTablet = screenWidthDp >= 600
+
+                // Use centered content with max width on tablets
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(paddingValues),
+                    contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .then(
+                                if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                                else Modifier.fillMaxWidth()
+                            )
+                            .padding(horizontal = if (isTablet) 24.dp else 16.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                     // Expense category display
                     Text(
                         text = state.category,
@@ -185,6 +199,7 @@ fun EditExpenseScreen(
                             Text(stringResource(R.string.save_changes))
                         }
                     }
+                }
                 }
 
                 // Date picker dialog

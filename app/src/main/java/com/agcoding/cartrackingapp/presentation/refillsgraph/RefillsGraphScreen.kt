@@ -4,14 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -203,12 +207,109 @@ private fun RefillsGraphContent(
     trendData: RefillsTrendData,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val useSplitView = screenWidthDp >= 600 || isLandscape
+
+    if (useSplitView) {
+        // Split view for tablets and landscape
+        Row(
+            modifier = modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Left side: Header and Stats (35%)
+            Column(
+                modifier = Modifier
+                    .weight(0.35f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Header
+                Text(
+                    text = stringResource(R.string.refills_graph_subtitle),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Statistics Cards - vertical layout for left panel
+                StatCard(
+                    label = stringResource(R.string.total_refills_label),
+                    value = trendData.totalRefills.toString(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                StatCard(
+                    label = stringResource(R.string.average_per_month),
+                    value = String.format("%.1f", trendData.averageRefillsPerMonth),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                StatCard(
+                    label = stringResource(R.string.avg_liters_per_refill),
+                    value = "${String.format("%.1f", trendData.averageLitersPerRefill)} L",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                StatCard(
+                    label = stringResource(R.string.highest_month),
+                    value = trendData.highestMonthRefills.toString(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Right side: Graph (65%)
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.65f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Main Graph Card
+                item {
+                    StyledCard(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.monthly_refills_trend),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+
+                            // The actual line graph
+                            InteractiveLineChart(
+                                dataPoints = trendData.monthlyRefills.map { monthData ->
+                                    ChartDataPoint(
+                                        label = "${monthData.month} ${monthData.year}",
+                                        value = monthData.refillCount.toDouble(),
+                                        formattedValue = stringResource(R.string.refills_format, monthData.refillCount)
+                                    )
+                                },
+                                tooltipIcon = Icons.Default.LocalGasStation,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        // Original single-column layout for portrait phones
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         // Header with icon
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -389,6 +490,7 @@ private fun RefillsGraphContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,6 +77,10 @@ fun OnboardingGuideScreen(
     val pagerState = rememberPagerState(pageCount = { slides.size })
     val scope = rememberCoroutineScope()
 
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isTablet = screenWidthDp >= 600
+
     // Sync pager with viewModel
     LaunchedEffect(currentSlideIndex) {
         pagerState.animateScrollToPage(
@@ -91,13 +96,21 @@ fun OnboardingGuideScreen(
         viewModel.goToSlide(pagerState.currentPage)
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = if (isTablet) Alignment.Center else Alignment.TopStart
     ) {
+        Column(
+            modifier = Modifier
+                .then(
+                    if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                    else Modifier.fillMaxWidth()
+                )
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         // Skip button at top right
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -271,6 +284,7 @@ fun OnboardingGuideScreen(
                     }
                 }
             }
+        }
         }
     }
 }

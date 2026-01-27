@@ -22,8 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
@@ -39,6 +41,10 @@ fun CarCard(
     onAddServiceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isCompactLayout = configuration.screenWidthDp >= 600 ||
+                          configuration.screenWidthDp > configuration.screenHeightDp
+
     StyledCard(
         modifier = modifier
             .fillMaxWidth()
@@ -47,7 +53,7 @@ fun CarCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(if (isCompactLayout) 12.dp else 16.dp)
         ) {
             // Header: Car name, license plate, and action buttons
             Row(
@@ -58,21 +64,25 @@ fun CarCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = car.name,
-                        fontSize = 18.sp,
+                        fontSize = if (isCompactLayout) 16.sp else 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = car.licensePlate,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = if (isCompactLayout) 13.sp else 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
                 // Action buttons row
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 2.dp else 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Service icon button
@@ -83,7 +93,7 @@ fun CarCard(
                             imageVector = Icons.Default.Build,
                             contentDescription = stringResource(R.string.car_card_add_service_cd),
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(if (isCompactLayout) 22.dp else 24.dp)
                         )
                     }
 
@@ -95,18 +105,18 @@ fun CarCard(
                             imageVector = Icons.Default.LocalGasStation,
                             contentDescription = stringResource(R.string.car_card_add_refill_cd),
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(if (isCompactLayout) 22.dp else 24.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(if (isCompactLayout) 12.dp else 16.dp))
 
             // 2x2 Grid of metrics inside the same card
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 8.dp else 12.dp)
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
@@ -115,7 +125,8 @@ fun CarCard(
                         value = stringResource(
                             R.string.car_card_km_format,
                             String.format(Locale.getDefault(), "%.0f", car.currentOdometer)
-                        )
+                        ),
+                        isCompact = isCompactLayout
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
@@ -125,16 +136,17 @@ fun CarCard(
                         value = stringResource(
                             R.string.car_card_currency_eur_format,
                             String.format(Locale.getDefault(), "%.2f", car.totalCost)
-                        )
+                        ),
+                        isCompact = isCompactLayout
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(if (isCompactLayout) 8.dp else 12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 8.dp else 12.dp)
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
@@ -143,7 +155,8 @@ fun CarCard(
                         value = stringResource(
                             R.string.car_card_km_format,
                             String.format(Locale.getDefault(), "%.0f", car.totalDistance)
-                        )
+                        ),
+                        isCompact = isCompactLayout
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
@@ -157,7 +170,8 @@ fun CarCard(
                             )
                         } else {
                             stringResource(R.string.not_available)
-                        }
+                        },
+                        isCompact = isCompactLayout
                     )
                 }
             }
@@ -170,7 +184,8 @@ fun MetricItem(
     icon: ImageVector,
     label: String,
     value: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isCompact: Boolean = false
 ) {
     Row(
         modifier = modifier,
@@ -180,21 +195,25 @@ fun MetricItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(if (isCompact) 14.dp else 16.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(if (isCompact) 6.dp else 8.dp))
         Column {
             Text(
                 text = label,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = if (isCompact) 11.sp else 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = value,
-                fontSize = 14.sp,
+                fontSize = if (isCompact) 13.sp else 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

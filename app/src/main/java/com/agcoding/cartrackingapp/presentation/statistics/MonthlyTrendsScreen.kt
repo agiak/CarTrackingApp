@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -42,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -105,141 +110,319 @@ fun MonthlyTrendsScreen(
             }
 
             is StatisticsUiState.Success -> {
+                val configuration = LocalConfiguration.current
+                val screenWidthDp = configuration.screenWidthDp
+                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                val useSplitView = screenWidthDp >= 600 || isLandscape
+
                 val allTrends = state.statistics.monthlyTrends
                 val filteredTrends = filterTrends(allTrends, selectedFilter)
                 val sortedTrends = sortTrends(filteredTrends, selectedSortBy, sortOrder)
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    // Time filter chips
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(MonthlyTrendsFilter.entries) { filter ->
-                            FilterChip(
-                                selected = selectedFilter == filter,
-                                onClick = { selectedFilter = filter },
-                                label = { Text(stringResource(filter.labelRes)) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                                )
-                            )
-                        }
-                    }
-
-                    // Sort controls
+                if (useSplitView) {
+                    // Split view for tablets and landscape
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.sort_by_label),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        // Left side: Filters, Sort Controls, and Summary (35%)
+                        Column(
+                            modifier = Modifier
+                                .weight(0.35f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Sort by dropdown
-                            Box {
-                                OutlinedButton(
-                                    onClick = { showSortMenu = true },
-                                    shape = RoundedCornerShape(8.dp)
+                            // Time filter card
+                            StyledCard {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 ) {
-                                    Text(stringResource(selectedSortBy.labelRes))
-                                }
+                                    Text(
+                                        text = stringResource(R.string.filter_time_period),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
 
-                                DropdownMenu(
-                                    expanded = showSortMenu,
-                                    onDismissRequest = { showSortMenu = false }
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        MonthlyTrendsFilter.entries.forEach { filter ->
+                                            FilterChip(
+                                                selected = selectedFilter == filter,
+                                                onClick = { selectedFilter = filter },
+                                                label = { Text(stringResource(filter.labelRes)) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                ),
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Sort controls card
+                            StyledCard {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 ) {
-                                    MonthlyTrendsSortBy.entries.forEach { sortBy ->
-                                        DropdownMenuItem(
-                                            text = {
+                                    Text(
+                                        text = stringResource(R.string.sort_by_label),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        MonthlyTrendsSortBy.entries.forEach { sortBy ->
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable { selectedSortBy = sortBy }
+                                                    .padding(vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
                                                 Text(
                                                     text = stringResource(sortBy.labelRes),
                                                     fontWeight = if (selectedSortBy == sortBy)
                                                         FontWeight.SemiBold else FontWeight.Normal,
                                                     color = if (selectedSortBy == sortBy)
                                                         MaterialTheme.colorScheme.primary
-                                                    else MaterialTheme.colorScheme.onSurface
+                                                    else MaterialTheme.colorScheme.onSurface,
+                                                    modifier = Modifier.weight(1f)
                                                 )
-                                            },
-                                            onClick = {
-                                                selectedSortBy = sortBy
-                                                showSortMenu = false
+                                                if (selectedSortBy == sortBy) {
+                                                    Icon(
+                                                        imageVector = if (sortOrder == SortOrder.DESCENDING)
+                                                            Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                }
                                             }
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    // Sort order toggle button
+                                    OutlinedButton(
+                                        onClick = {
+                                            sortOrder = if (sortOrder == SortOrder.ASCENDING)
+                                                SortOrder.DESCENDING else SortOrder.ASCENDING
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = if (sortOrder == SortOrder.DESCENDING)
+                                                Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            if (sortOrder == SortOrder.DESCENDING)
+                                                stringResource(R.string.sort_order_descending)
+                                            else stringResource(R.string.sort_order_ascending)
                                         )
                                     }
                                 }
                             }
 
-                            // Sort order toggle
-                            IconButton(
-                                onClick = {
-                                    sortOrder = if (sortOrder == SortOrder.ASCENDING)
-                                        SortOrder.DESCENDING else SortOrder.ASCENDING
-                                }
+                            // Summary card
+                            if (sortedTrends.isNotEmpty()) {
+                                FilteredSummaryCard(sortedTrends, selectedFilter)
+                            }
+                        }
+
+                        // Right side: Monthly trends list (65%)
+                        if (sortedTrends.isEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(0.65f)
+                                    .fillMaxHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Icon(
-                                    imageVector = if (sortOrder == SortOrder.DESCENDING)
-                                        Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
-                                    contentDescription = if (sortOrder == SortOrder.DESCENDING)
-                                        stringResource(R.string.sort_order_descending) else stringResource(R.string.sort_order_ascending),
-                                    tint = MaterialTheme.colorScheme.primary
+                                Text(
+                                    text = stringResource(R.string.no_data_available),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                Text(
+                                    text = stringResource(R.string.add_refills_or_expenses),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(0.65f)
+                                    .fillMaxHeight(),
+                                contentPadding = PaddingValues(bottom = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Monthly trend items
+                                items(sortedTrends) { trend ->
+                                    MonthlyTrendItem(
+                                        trend = trend,
+                                        onClick = { onMonthClick(trend.month, trend.year) }
+                                    )
+                                }
                             }
                         }
                     }
-
-                    // Scrollable content with summary and items
-                    if (sortedTrends.isEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                } else {
+                    // Original single column layout for portrait phones
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        // Time filter chips
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.no_data_available),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = stringResource(R.string.add_refills_or_expenses),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            // Summary card as first item (scrolls with list)
-                            item {
-                                FilteredSummaryCard(sortedTrends, selectedFilter)
-                            }
-
-                            // Monthly trend items
-                            items(sortedTrends) { trend ->
-                                MonthlyTrendItem(
-                                    trend = trend,
-                                    onClick = { onMonthClick(trend.month, trend.year) }
+                            items(MonthlyTrendsFilter.entries) { filter ->
+                                FilterChip(
+                                    selected = selectedFilter == filter,
+                                    onClick = { selectedFilter = filter },
+                                    label = { Text(stringResource(filter.labelRes)) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 )
+                            }
+                        }
+
+                        // Sort controls
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.sort_by_label),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Sort by dropdown
+                                Box {
+                                    OutlinedButton(
+                                        onClick = { showSortMenu = true },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(selectedSortBy.labelRes))
+                                    }
+
+                                    DropdownMenu(
+                                        expanded = showSortMenu,
+                                        onDismissRequest = { showSortMenu = false }
+                                    ) {
+                                        MonthlyTrendsSortBy.entries.forEach { sortBy ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = stringResource(sortBy.labelRes),
+                                                        fontWeight = if (selectedSortBy == sortBy)
+                                                            FontWeight.SemiBold else FontWeight.Normal,
+                                                        color = if (selectedSortBy == sortBy)
+                                                            MaterialTheme.colorScheme.primary
+                                                        else MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                },
+                                                onClick = {
+                                                    selectedSortBy = sortBy
+                                                    showSortMenu = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Sort order toggle
+                                IconButton(
+                                    onClick = {
+                                        sortOrder = if (sortOrder == SortOrder.ASCENDING)
+                                            SortOrder.DESCENDING else SortOrder.ASCENDING
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (sortOrder == SortOrder.DESCENDING)
+                                            Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
+                                        contentDescription = if (sortOrder == SortOrder.DESCENDING)
+                                            stringResource(R.string.sort_order_descending) else stringResource(R.string.sort_order_ascending),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
+                        // Scrollable content with summary and items
+                        if (sortedTrends.isEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.no_data_available),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = stringResource(R.string.add_refills_or_expenses),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Summary card as first item (scrolls with list)
+                                item {
+                                    FilteredSummaryCard(sortedTrends, selectedFilter)
+                                }
+
+                                // Monthly trend items
+                                items(sortedTrends) { trend ->
+                                    MonthlyTrendItem(
+                                        trend = trend,
+                                        onClick = { onMonthClick(trend.month, trend.year) }
+                                    )
+                                }
                             }
                         }
                     }

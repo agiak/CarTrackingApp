@@ -3,14 +3,17 @@ package com.agcoding.cartrackingapp.presentation.consumptiongraph
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -197,12 +201,119 @@ private fun ConsumptionGraphContent(
     trendData: com.agcoding.cartrackingapp.domain.model.ConsumptionTrendData,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val useSplitView = screenWidthDp >= 600 || isLandscape
+
+    if (useSplitView) {
+        // Split view for tablets and landscape
+        Row(
+            modifier = modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Left side: Header and Stats (35%)
+            Column(
+                modifier = Modifier
+                    .weight(0.35f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Header
+                Text(
+                    text = stringResource(R.string.consumption_graph_subtitle),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Statistics Cards - vertical layout for left panel
+                StatCard(
+                    label = stringResource(R.string.average_label),
+                    value = "%.1f L/100km".format(trendData.overallAverage),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                TrendCard(
+                    label = stringResource(R.string.trend_label),
+                    trend = trendData.trend,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                StatCard(
+                    label = stringResource(R.string.best_label),
+                    value = "%.1f L/100km".format(trendData.bestConsumption),
+                    valueColor = Color(0xFF34C759),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                StatCard(
+                    label = stringResource(R.string.worst_label),
+                    value = "%.1f L/100km".format(trendData.worstConsumption),
+                    valueColor = Color(0xFFFF3B30),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Refills info
+                Text(
+                    text = stringResource(R.string.all_refills_format, trendData.totalRefills),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            // Right side: Graph (65%)
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.65f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Main Graph Card
+                item {
+                    StyledCard(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.consumption_history),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+
+                            // The actual line graph
+                            InteractiveLineChart(
+                                dataPoints = trendData.dataPoints.map { dataPoint ->
+                                    ChartDataPoint(
+                                        label = dataPoint.label,
+                                        value = dataPoint.averageConsumption,
+                                        formattedValue = "${String.format("%.1f", dataPoint.averageConsumption)} L/100km"
+                                    )
+                                },
+                                tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        // Original single-column layout for portrait phones
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         // Header
         Text(
             text = stringResource(R.string.consumption_graph_subtitle),
@@ -286,6 +397,7 @@ private fun ConsumptionGraphContent(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onBackground
         )
+        }
     }
 }
 

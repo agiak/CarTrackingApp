@@ -4,14 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -206,12 +211,236 @@ private fun CostGraphContent(
 ) {
     val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
 
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val useSplitView = screenWidthDp >= 600 || isLandscape
+
+    if (useSplitView) {
+        // Split view for tablets and landscape
+        Row(
+            modifier = modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Left side: Header and Stats (35%)
+            Column(
+                modifier = Modifier
+                    .weight(0.35f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Header with icon
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AttachMoney,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                // Title and subtitle
+                Text(
+                    text = stringResource(R.string.cost_graph_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = stringResource(R.string.cost_graph_subtitle),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Total Cost Card
+                StyledCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    border = null
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AttachMoney,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.total_cost_label),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "€${String.format("%.2f", trendData.totalCost)}",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+
+                // Statistics Cards
+                StatCard(
+                    label = stringResource(R.string.average_monthly_cost),
+                    value = "€${String.format("%.2f", trendData.averageMonthlyCost)}",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                StatCard(
+                    label = stringResource(R.string.highest_month_cost),
+                    value = "€${String.format("%.2f", trendData.highestMonthCost)}",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                StatCard(
+                    label = stringResource(R.string.lowest_month_cost),
+                    value = "€${String.format("%.2f", trendData.lowestMonthCost)}",
+                    valueColor = Color(0xFF34C759),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                StatCard(
+                    label = stringResource(R.string.total_expenses_count),
+                    value = trendData.recentExpenses.size.toString(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Right side: Graph, Category Breakdown, and Recent Expenses (65%)
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.65f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Monthly Cost Chart
+                if (trendData.monthlyCosts.isNotEmpty()) {
+                    item {
+                        StyledCard(modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.monthly_cost_trend),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                InteractiveLineChart(
+                                    dataPoints = trendData.monthlyCosts.map { monthData ->
+                                        ChartDataPoint(
+                                            label = "${monthData.month} ${monthData.year}",
+                                            value = monthData.totalCost,
+                                            formattedValue = "€${String.format("%.2f", monthData.totalCost)}"
+                                        )
+                                    },
+                                    tooltipIcon = Icons.Default.AttachMoney,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Cost by Category
+                if (trendData.costByCategory.isNotEmpty()) {
+                    item {
+                        StyledCard(modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.cost_breakdown_label),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                trendData.costByCategory.forEach { category ->
+                                    CategoryItem(category = category)
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Recent Expenses Section
+                if (trendData.recentExpenses.isNotEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.recent_expenses),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            StyledCard(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                border = null
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.items_format, trendData.recentExpenses.size),
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    items(trendData.recentExpenses) { expense ->
+                        ExpenseItem(expense = expense)
+                    }
+                }
+            }
+        }
+    } else {
+        // Original single-column layout for portrait phones
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         // Header with icon
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -417,6 +646,7 @@ private fun CostGraphContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

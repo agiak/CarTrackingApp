@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.presentation.expense
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -115,14 +117,28 @@ fun AddExpenseScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Column(
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp
+        val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+        val useCenteredLayout = screenWidthDp >= 600 || isLandscape
+
+        // Use centered content with max width on tablets and landscape for better form usability
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp)
+                .padding(paddingValues),
+            contentAlignment = if (useCenteredLayout) Alignment.TopCenter else Alignment.TopStart
         ) {
+            Column(
+                modifier = Modifier
+                    .then(
+                        if (useCenteredLayout) Modifier.fillMaxWidth(0.7f) // 70% width on tablets/landscape
+                        else Modifier.fillMaxWidth()
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = if (useCenteredLayout) 24.dp else 16.dp)
+                    .padding(bottom = 16.dp)
+            ) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Category selection label
@@ -365,6 +381,7 @@ fun AddExpenseScreen(
                 }
                 Text(stringResource(R.string.save_expense))
             }
+        }
         }
 
         // Expense date picker dialog

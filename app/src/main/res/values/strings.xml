@@ -15,6 +15,7 @@
     <string name="filter_last_6_months">Last 6 months</string>
     <string name="filter_last_year">Last year</string>
     <string name="filter_all_time">All time</string>
+    <string name="filter_time_period">Time Period</string>
     <string name="filter_by_car">Filter by Car</string>
     <string name="select_cars_to_filter">Select one or more cars to view their statistics</string>
     <string name="apply">Apply</string>

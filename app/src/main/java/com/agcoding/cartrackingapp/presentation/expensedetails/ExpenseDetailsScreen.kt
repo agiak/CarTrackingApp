@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -152,12 +153,26 @@ private fun ExpenseDetailsContent(
         SimpleDateFormat(datePattern, Locale.getDefault())
     }
 
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isTablet = screenWidthDp >= 600
+
+    // Centered max-width layout like SettingsScreen
+    Box(
+        modifier = modifier,
+        contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
     ) {
+        Column(
+            modifier = Modifier
+                .then(
+                    if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                    else Modifier.fillMaxWidth()
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .padding(bottom = 80.dp), // Extra padding for floating button
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         // Header with car name
         Text(
             text = carName,
@@ -223,6 +238,7 @@ private fun ExpenseDetailsContent(
                     )
                 }
             }
+        }
         }
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -177,218 +179,449 @@ private fun RefillDetailsContent(
     val refill = details.refill
     val car = details.car
 
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-    ) {
-        // Header Section
-        Text(
-            text = stringResource(R.string.refill_details_title),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val useSplitView = screenWidthDp >= 600 || isLandscape
 
-        Text(
-            text = if (car != null) "${car.name} • ${car.licensePlate}" else stringResource(R.string.unknown_car),
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Total Amount Card - Primary color themed
-        StyledCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            containerColor = MaterialTheme.colorScheme.secondary,
-            border = null
+    if (useSplitView) {
+        // Split view for tablets and landscape
+        Row(
+            modifier = modifier
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Left side: Header, total amount, metrics (45%)
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp, horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .weight(0.45f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.total_amount_paid),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.9f),
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "€%.2f".format(refill.amountPaid),
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = formatDate(refill.timestamp),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.85f)
-                )
-            }
-        }
+                // Header Section
+                Column {
+                    Text(
+                        text = stringResource(R.string.refill_details_title),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = if (car != null) "${car.name} • ${car.licensePlate}" else stringResource(R.string.unknown_car),
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
 
-        // Metrics Grid - Row 1
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MetricCard(
-                icon = Icons.Default.LocalGasStation,
-                label = stringResource(R.string.metric_fuel_volume),
-                value = "%.1f L".format(refill.litersAdded),
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                icon = Icons.Default.AttachMoney,
-                label = stringResource(R.string.metric_price_per_liter),
-                value = "€%.2f".format(refill.pricePerLiter),
-                modifier = Modifier.weight(1f)
-            )
-        }
+                // Total Amount Card
+                StyledCard(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    border = null
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp, horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.total_amount_paid),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.9f),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "€%.2f".format(refill.amountPaid),
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = formatDate(refill.timestamp),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.85f)
+                        )
+                    }
+                }
 
-        // Metrics Grid - Row 2
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MetricCard(
-                icon = Icons.Default.Route,
-                label = stringResource(R.string.metric_trip_distance),
-                value = "%.0f km".format(refill.tripDistance),
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                icon = Icons.AutoMirrored.Filled.TrendingUp,
-                label = stringResource(R.string.metric_consumption),
-                value = "%.1f L/100km".format(refill.fuelConsumption),
-                modifier = Modifier.weight(1f)
-            )
-        }
+                // Metrics Grid - Row 1
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MetricCard(
+                        icon = Icons.Default.LocalGasStation,
+                        label = stringResource(R.string.metric_fuel_volume),
+                        value = "%.1f L".format(refill.litersAdded),
+                        modifier = Modifier.weight(1f)
+                    )
+                    MetricCard(
+                        icon = Icons.Default.AttachMoney,
+                        label = stringResource(R.string.metric_price_per_liter),
+                        value = "€%.2f".format(refill.pricePerLiter),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
-        // Additional Information Section
-        StyledCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.additional_information),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                InfoItem(
-                    icon = Icons.Default.CalendarToday,
-                    label = stringResource(R.string.date_time),
-                    value = formatDateTime(refill.timestamp),
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                refill.location?.let { location ->
-                    InfoItem(
-                        icon = Icons.Default.LocationOn,
-                        label = stringResource(R.string.location_label),
-                        value = addressString ?: stringResource(
-                            R.string.location_lat_lng_format,
-                            location.latitude,
-                            location.longitude
-                        ),
-                        modifier = Modifier.clickable {
-                            openGoogleMaps(context, location.latitude, location.longitude)
-                        }
+                // Metrics Grid - Row 2
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MetricCard(
+                        icon = Icons.Default.Route,
+                        label = stringResource(R.string.metric_trip_distance),
+                        value = "%.0f km".format(refill.tripDistance),
+                        modifier = Modifier.weight(1f)
+                    )
+                    MetricCard(
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
+                        label = stringResource(R.string.metric_consumption),
+                        value = "%.1f L/100km".format(refill.fuelConsumption),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
-        }
 
-        // Notes if available
-        if (!refill.notes.isNullOrBlank()) {
-            Text(
-                text = stringResource(R.string.notes),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = refill.notes,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
-
-        // Cost Analysis Section
-        StyledCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
+            // Right side: Additional info, notes, cost analysis (55%)
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    .weight(0.55f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.cost_analysis),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
+                // Additional Information Section
+                StyledCard {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.additional_information),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
 
-                // Calculate metrics
-                val costPerKm = if (refill.tripDistance > 0) {
-                    refill.amountPaid / refill.tripDistance
-                } else 0.0
+                        InfoItem(
+                            icon = Icons.Default.CalendarToday,
+                            label = stringResource(R.string.date_time),
+                            value = formatDateTime(refill.timestamp),
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
 
-                val fuelEfficiency = if (refill.litersAdded > 0) {
-                    refill.tripDistance / refill.litersAdded
-                } else 0.0
+                        refill.location?.let { location ->
+                            InfoItem(
+                                icon = Icons.Default.LocationOn,
+                                label = stringResource(R.string.location_label),
+                                value = addressString ?: stringResource(
+                                    R.string.location_lat_lng_format,
+                                    location.latitude,
+                                    location.longitude
+                                ),
+                                modifier = Modifier.clickable {
+                                    openGoogleMaps(context, location.latitude, location.longitude)
+                                }
+                            )
+                        }
+                    }
+                }
 
-                // Cost per kilometer
-                AnalysisRow(
-                    label = stringResource(R.string.cost_per_kilometer_label),
-                    value = "€%.3f/km".format(costPerKm)
-                )
+                // Notes if available
+                if (!refill.notes.isNullOrBlank()) {
+                    StyledCard {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.notes),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            Text(
+                                text = refill.notes,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                // Cost Analysis Section
+                StyledCard {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cost_analysis),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
 
-                // Fuel efficiency
-                AnalysisRow(
-                    label = stringResource(R.string.fuel_efficiency_label),
-                    value = "%.1f km/L".format(fuelEfficiency)
-                )
+                        // Calculate metrics
+                        val costPerKm = if (refill.tripDistance > 0) {
+                            refill.amountPaid / refill.tripDistance
+                        } else 0.0
 
-                Spacer(modifier = Modifier.height(12.dp))
+                        val fuelEfficiency = if (refill.litersAdded > 0) {
+                            refill.tripDistance / refill.litersAdded
+                        } else 0.0
 
-                // Total liters
-                AnalysisRow(
-                    label = stringResource(R.string.total_liters_label),
-                    value = "%.2f L".format(refill.litersAdded)
-                )
+                        // Cost per kilometer
+                        AnalysisRow(
+                            label = stringResource(R.string.cost_per_kilometer_label),
+                            value = "€%.3f/km".format(costPerKm)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Fuel efficiency
+                        AnalysisRow(
+                            label = stringResource(R.string.fuel_efficiency_label),
+                            value = "%.1f km/L".format(fuelEfficiency)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Total liters
+                        AnalysisRow(
+                            label = stringResource(R.string.total_liters_label),
+                            value = "%.2f L".format(refill.litersAdded)
+                        )
+                    }
+                }
             }
         }
+    } else {
+        // Original single column layout for portrait phones
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+        ) {
+            // Header Section
+            Text(
+                text = stringResource(R.string.refill_details_title),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = if (car != null) "${car.name} • ${car.licensePlate}" else stringResource(R.string.unknown_car),
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Total Amount Card - Primary color themed
+            StyledCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                containerColor = MaterialTheme.colorScheme.secondary,
+                border = null
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 20.dp, horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.total_amount_paid),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.9f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "€%.2f".format(refill.amountPaid),
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = formatDate(refill.timestamp),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.85f)
+                    )
+                }
+            }
+
+            // Metrics Grid - Row 1
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MetricCard(
+                    icon = Icons.Default.LocalGasStation,
+                    label = stringResource(R.string.metric_fuel_volume),
+                    value = "%.1f L".format(refill.litersAdded),
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    icon = Icons.Default.AttachMoney,
+                    label = stringResource(R.string.metric_price_per_liter),
+                    value = "€%.2f".format(refill.pricePerLiter),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Metrics Grid - Row 2
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MetricCard(
+                    icon = Icons.Default.Route,
+                    label = stringResource(R.string.metric_trip_distance),
+                    value = "%.0f km".format(refill.tripDistance),
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    icon = Icons.AutoMirrored.Filled.TrendingUp,
+                    label = stringResource(R.string.metric_consumption),
+                    value = "%.1f L/100km".format(refill.fuelConsumption),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Additional Information Section
+            StyledCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.additional_information),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    InfoItem(
+                        icon = Icons.Default.CalendarToday,
+                        label = stringResource(R.string.date_time),
+                        value = formatDateTime(refill.timestamp),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    refill.location?.let { location ->
+                        InfoItem(
+                            icon = Icons.Default.LocationOn,
+                            label = stringResource(R.string.location_label),
+                            value = addressString ?: stringResource(
+                                R.string.location_lat_lng_format,
+                                location.latitude,
+                                location.longitude
+                            ),
+                            modifier = Modifier.clickable {
+                                openGoogleMaps(context, location.latitude, location.longitude)
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Notes if available
+            if (!refill.notes.isNullOrBlank()) {
+                Text(
+                    text = stringResource(R.string.notes),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = refill.notes,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
+
+            // Cost Analysis Section
+            StyledCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.cost_analysis),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    // Calculate metrics
+                    val costPerKm = if (refill.tripDistance > 0) {
+                        refill.amountPaid / refill.tripDistance
+                    } else 0.0
+
+                    val fuelEfficiency = if (refill.litersAdded > 0) {
+                        refill.tripDistance / refill.litersAdded
+                    } else 0.0
+
+                    // Cost per kilometer
+                    AnalysisRow(
+                        label = stringResource(R.string.cost_per_kilometer_label),
+                        value = "€%.3f/km".format(costPerKm)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Fuel efficiency
+                    AnalysisRow(
+                        label = stringResource(R.string.fuel_efficiency_label),
+                        value = "%.1f km/L".format(fuelEfficiency)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Total liters
+                    AnalysisRow(
+                        label = stringResource(R.string.total_liters_label),
+                        value = "%.2f L".format(refill.litersAdded)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

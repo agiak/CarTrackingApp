@@ -16,6 +16,7 @@
     <string name="filter_last_6_months">Τελευταίοι 6 μήνες</string>
     <string name="filter_last_year">Τελευταίο έτος</string>
     <string name="filter_all_time">Όλο το διάστημα</string>
+    <string name="filter_time_period">Χρονική Περίοδος</string>
     <string name="filter_by_car">Ανά αυτοκίνητο</string>
     <string name="select_cars_to_filter">Επιλέξτε ένα ή περισσότερα αυτοκίνητα για να δείτε τα στατιστικά τους</string>
     <string name="apply">Εφαρμογή</string>

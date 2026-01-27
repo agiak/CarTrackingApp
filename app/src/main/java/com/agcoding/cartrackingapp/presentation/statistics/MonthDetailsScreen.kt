@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocalGasStation
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -101,13 +105,109 @@ fun MonthDetailsScreen(
             }
 
             is MonthDetailsUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                val configuration = LocalConfiguration.current
+                val screenWidthDp = configuration.screenWidthDp
+                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                val useSplitView = screenWidthDp >= 600 || isLandscape
+
+                if (useSplitView) {
+                    // Split view for tablets and landscape
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Left side: Summary and Insights (40%)
+                        Column(
+                            modifier = Modifier
+                                .weight(0.4f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Summary Card
+                            MonthSummaryCard(state)
+
+                            // Insights Card
+                            MonthInsightsCard(state)
+                        }
+
+                        // Right side: Refills and Expenses Lists (60%)
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(0.6f)
+                                .fillMaxHeight(),
+                            contentPadding = PaddingValues(bottom = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Refills Section
+                            if (state.refills.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.refills_label) + " (${state.refills.size})",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                items(state.refills) { refill ->
+                                    RefillItemCard(
+                                        refill = refill,
+                                        carName = state.carNames[refill.carId] ?: stringResource(R.string.unknown_car),
+                                        onClick = { onRefillClick(refill.id) }
+                                    )
+                                }
+                            }
+
+                            // Expenses Section
+                            if (state.expenses.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.expenses_label) + " (${state.expenses.size})",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                items(state.expenses) { expense ->
+                                    ExpenseItemCard(
+                                        expense = expense,
+                                        carName = state.carNames[expense.carId] ?: stringResource(R.string.unknown_car),
+                                        onClick = { onExpenseClick(expense.id) }
+                                    )
+                                }
+                            }
+
+                            // Empty state
+                            if (state.refills.isEmpty() && state.expenses.isEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(32.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.no_transactions_this_month),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Original single column layout for portrait phones
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                     // Summary Card
                     item {
                         MonthSummaryCard(state)
@@ -173,6 +273,7 @@ fun MonthDetailsScreen(
                             }
                         }
                     }
+                }
                 }
             }
 

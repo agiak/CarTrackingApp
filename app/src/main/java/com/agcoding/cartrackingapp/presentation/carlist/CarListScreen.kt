@@ -22,6 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -125,45 +130,105 @@ fun CarListScreen(
                 }
 
                 is CarListUiState.Success -> {
-                    val listState = rememberLazyListState()
+                    val configuration = LocalConfiguration.current
+                    val screenWidthDp = configuration.screenWidthDp
+                    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
 
-                    // Scroll to top when screen opens to show banner
-                    LaunchedEffect(Unit) {
-                        listState.scrollToItem(0)
+                    // Determine grid columns based on screen size
+                    val useGrid = screenWidthDp >= 600 || isLandscape
+                    val gridColumns = when {
+                        screenWidthDp >= 900 -> 3 // Large tablets
+                        screenWidthDp >= 600 -> 2 // Small tablets or landscape phones
+                        isLandscape -> 2 // Landscape mode on phones
+                        else -> 1 // Portrait mode
                     }
 
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 16.dp,
-                            bottom = 88.dp // Extra padding for FAB (56dp FAB + 32dp spacing)
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        // Reminder Banner
-                        state.reminderInfo?.let { reminderInfo ->
-                            item {
-                                ReminderBanner(
-                                    reminderInfo = reminderInfo,
-                                    onClick = onNavigateToReminders,
-                                    onDismiss = { viewModel.dismissBannerForToday() }
+                    if (useGrid && gridColumns > 1) {
+                        // Grid layout for tablets and landscape
+                        val gridState = rememberLazyGridState()
+
+                        LaunchedEffect(Unit) {
+                            gridState.scrollToItem(0)
+                        }
+
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(gridColumns),
+                            state = gridState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 16.dp,
+                                bottom = 88.dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Reminder Banner - spans full width
+                            state.reminderInfo?.let { reminderInfo ->
+                                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(gridColumns) }) {
+                                    ReminderBanner(
+                                        reminderInfo = reminderInfo,
+                                        onClick = onNavigateToReminders,
+                                        onDismiss = { viewModel.dismissBannerForToday() }
+                                    )
+                                }
+                            }
+
+                            // Car cards in grid
+                            items(
+                                items = state.cars,
+                                key = { it.id }
+                            ) { car ->
+                                CarCard(
+                                    car = car,
+                                    onClick = { onCarClick(car.id) },
+                                    onAddRefillClick = { onAddRefillClick(car.id) },
+                                    onAddServiceClick = { onAddServiceClick(car.id) }
                                 )
                             }
                         }
+                    } else {
+                        // List layout for portrait phones (original layout)
+                        val listState = rememberLazyListState()
 
-                        items(
-                            items = state.cars,
-                            key = { it.id }
-                        ) { car ->
-                            CarCard(
-                                car = car,
-                                onClick = { onCarClick(car.id) },
-                                onAddRefillClick = { onAddRefillClick(car.id) },
-                                onAddServiceClick = { onAddServiceClick(car.id) }
-                            )
+                        LaunchedEffect(Unit) {
+                            listState.scrollToItem(0)
+                        }
+
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 16.dp,
+                                bottom = 88.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Reminder Banner
+                            state.reminderInfo?.let { reminderInfo ->
+                                item {
+                                    ReminderBanner(
+                                        reminderInfo = reminderInfo,
+                                        onClick = onNavigateToReminders,
+                                        onDismiss = { viewModel.dismissBannerForToday() }
+                                    )
+                                }
+                            }
+
+                            items(
+                                items = state.cars,
+                                key = { it.id }
+                            ) { car ->
+                                CarCard(
+                                    car = car,
+                                    onClick = { onCarClick(car.id) },
+                                    onAddRefillClick = { onAddRefillClick(car.id) },
+                                    onAddServiceClick = { onAddServiceClick(car.id) }
+                                )
+                            }
                         }
                     }
                 }

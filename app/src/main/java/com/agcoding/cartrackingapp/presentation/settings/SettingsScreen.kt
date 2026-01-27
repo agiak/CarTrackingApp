@@ -74,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -348,14 +349,27 @@ fun SettingsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Column(
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp
+        val isTablet = screenWidthDp >= 600
+
+        // Use centered content with max width on tablets for better readability
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(paddingValues),
+            contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
         ) {
+            Column(
+                modifier = Modifier
+                    .then(
+                        if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                        else Modifier.fillMaxWidth()
+                    )
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = if (isTablet) 24.dp else 16.dp), // More padding on tablets
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // APPEARANCE Section
@@ -498,6 +512,7 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }

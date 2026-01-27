@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -48,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -109,197 +113,397 @@ fun CarDetailsScreen(
             }
 
             is CarDetailsUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 16.dp,
-                        bottom = 16.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Car header with icon
-                    item {
-                        CarHeaderCard(state.statistics)
-                    }
+                val configuration = LocalConfiguration.current
+                val screenWidthDp = configuration.screenWidthDp
+                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                val useSplitView = screenWidthDp >= 600 || isLandscape
 
-                    // Edit and Delete buttons
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                if (useSplitView) {
+                    // Split view for tablets and landscape
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Left side: Car info and stats (scrollable)
+                        Column(
+                            modifier = Modifier
+                                .weight(0.45f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            androidx.compose.material3.OutlinedButton(
-                                onClick = onEditCarClick,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.edit_car))
+                            CarHeaderCard(state.statistics)
+
+                            // Action buttons
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = onEditCarClick,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.edit_car))
+                                    }
+
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = { viewModel.showDeleteDialog() },
+                                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                            contentColor = MaterialTheme.colorScheme.error
+                                        ),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.delete))
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = onAddExpenseClick,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Receipt,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.add_expense))
+                                    }
+
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = onAddRefillClick,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.LocalGasStation,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.add_refill))
+                                    }
+                                }
                             }
 
-                            androidx.compose.material3.OutlinedButton(
-                                onClick = { viewModel.showDeleteDialog() },
-                                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.error
-                                ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                            // Incomplete information banner
+                            val car = state.statistics.car
+                            val hasMissingInfo = car.insuranceExpirationDate == null ||
+                                    car.kteoExpirationDate == null ||
+                                    car.emissionsCardExpirationDate == null ||
+                                    car.roadTaxAmount == null ||
+                                    car.roadTaxDueDate == null ||
+                                    car.lastServiceDate == null ||
+                                    car.lastTireChangeDate == null ||
+                                    car.tireBrand.isNullOrBlank() ||
+                                    car.tireDimensions.isNullOrBlank() ||
+                                    car.tireInstallationDate == null
+
+                            if (hasMissingInfo) {
+                                IncompleteInformationBanner(
+                                    car = car,
+                                    onAddInformationClick = onEditCarClick
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.delete))
+                            }
+
+                            QuickStatsGrid(state.statistics)
+                            TotalSpendingCard(state.statistics)
+                        }
+
+                        // Right side: Lists (scrollable)
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(0.55f)
+                                .fillMaxHeight(),
+                            contentPadding = PaddingValues(bottom = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Refills section
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Refills (${state.statistics.totalRefills})",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    if (state.statistics.totalRefills > 3) {
+                                        Text(
+                                            text = stringResource(R.string.see_all),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
+                                        )
+                                    }
+                                }
+                            }
+
+                            items(state.statistics.recentRefills.take(3)) { refill ->
+                                RefillItemCard(
+                                    refill = refill,
+                                    carName = null,
+                                    onClick = { onRefillClick(refill.id) }
+                                )
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            // Services section
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
+                                    Text(
+                                        text = "Services ($totalExpenses)",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    if (totalExpenses > 3) {
+                                        Text(
+                                            text = stringResource(R.string.see_all),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
+                                        )
+                                    }
+                                }
+                            }
+
+                            items(state.statistics.recentExpenses.take(3)) { expense ->
+                                ExpenseItemCard(
+                                    expense = expense,
+                                    carName = null,
+                                    onClick = { onExpenseClick(expense.id) }
+                                )
                             }
                         }
                     }
+                } else {
+                    // Original single column layout for portrait phones
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 16.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Car header with icon
+                        item {
+                            CarHeaderCard(state.statistics)
+                        }
 
-                    // Expense and Refill action buttons
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            androidx.compose.material3.OutlinedButton(
-                                onClick = onAddExpenseClick,
-                                modifier = Modifier.weight(1f)
+                        // Edit and Delete buttons
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Receipt,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.add_expense))
-                            }
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = onEditCarClick,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.edit_car))
+                                }
 
-                            androidx.compose.material3.OutlinedButton(
-                                onClick = onAddRefillClick,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocalGasStation,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.add_refill))
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = { viewModel.showDeleteDialog() },
+                                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.delete))
+                                }
                             }
                         }
-                    }
 
-                    // Incomplete information banner (show if any optional field is missing)
-                    item {
-                        val car = state.statistics.car
-                        val hasMissingInfo = car.insuranceExpirationDate == null ||
-                                car.kteoExpirationDate == null ||
-                                car.emissionsCardExpirationDate == null ||
-                                car.roadTaxAmount == null ||
-                                car.roadTaxDueDate == null ||
-                                car.lastServiceDate == null ||
-                                car.lastTireChangeDate == null ||
-                                car.tireBrand.isNullOrBlank() ||
-                                car.tireDimensions.isNullOrBlank() ||
-                                car.tireInstallationDate == null
+                        // Expense and Refill action buttons
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = onAddExpenseClick,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Receipt,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.add_expense))
+                                }
 
-                        if (hasMissingInfo) {
-                            IncompleteInformationBanner(
-                                car = car,
-                                onAddInformationClick = onEditCarClick
-                            )
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = onAddRefillClick,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocalGasStation,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.add_refill))
+                                }
+                            }
                         }
-                    }
 
-                    // Quick stats grid
-                    item {
-                        QuickStatsGrid(state.statistics)
-                    }
+                        // Incomplete information banner (show if any optional field is missing)
+                        item {
+                            val car = state.statistics.car
+                            val hasMissingInfo = car.insuranceExpirationDate == null ||
+                                    car.kteoExpirationDate == null ||
+                                    car.emissionsCardExpirationDate == null ||
+                                    car.roadTaxAmount == null ||
+                                    car.roadTaxDueDate == null ||
+                                    car.lastServiceDate == null ||
+                                    car.lastTireChangeDate == null ||
+                                    car.tireBrand.isNullOrBlank() ||
+                                    car.tireDimensions.isNullOrBlank() ||
+                                    car.tireInstallationDate == null
 
-                    // Total spending card
-                    item {
-                        TotalSpendingCard(state.statistics)
-                    }
+                            if (hasMissingInfo) {
+                                IncompleteInformationBanner(
+                                    car = car,
+                                    onAddInformationClick = onEditCarClick
+                                )
+                            }
+                        }
 
-                    // Refills header with "See All"
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Refills (${state.statistics.totalRefills})",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            if (state.statistics.totalRefills > 3) {
+                        // Quick stats grid
+                        item {
+                            QuickStatsGrid(state.statistics)
+                        }
+
+                        // Total spending card
+                        item {
+                            TotalSpendingCard(state.statistics)
+                        }
+
+                        // Refills header with "See All"
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = stringResource(R.string.see_all),
-                                    fontSize = 14.sp,
+                                    text = "Refills (${state.statistics.totalRefills})",
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                                if (state.statistics.totalRefills > 3) {
+                                    Text(
+                                        text = stringResource(R.string.see_all),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    // Recent refills
-                    items(state.statistics.recentRefills.take(3)) { refill ->
-                        RefillItemCard(
-                            refill = refill,
-                            carName = null, // Don't show car name in car details screen
-                            onClick = { onRefillClick(refill.id) }
-                        )
-                    }
-
-                    // Expenses header with "See All"
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
-                            Text(
-                                text = "Services ($totalExpenses)",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
+                        // Recent refills
+                        items(state.statistics.recentRefills.take(3)) { refill ->
+                            RefillItemCard(
+                                refill = refill,
+                                carName = null, // Don't show car name in car details screen
+                                onClick = { onRefillClick(refill.id) }
                             )
-                            if (totalExpenses > 3) {
+                        }
+
+                        // Expenses header with "See All"
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
                                 Text(
-                                    text = stringResource(R.string.see_all),
-                                    fontSize = 14.sp,
+                                    text = "Services ($totalExpenses)",
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                                if (totalExpenses > 3) {
+                                    Text(
+                                        text = stringResource(R.string.see_all),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    // Recent expenses
-                    items(state.statistics.recentExpenses.take(3)) { expense ->
-                        ExpenseItemCard(
-                            expense = expense,
-                            carName = null, // Don't show car name in car details screen
-                            onClick = { onExpenseClick(expense.id) }
-                        )
+                        // Recent expenses
+                        items(state.statistics.recentExpenses.take(3)) { expense ->
+                            ExpenseItemCard(
+                                expense = expense,
+                                carName = null, // Don't show car name in car details screen
+                                onClick = { onExpenseClick(expense.id) }
+                            )
+                        }
                     }
                 }
             }

@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,7 +75,9 @@ fun ManageExpenseCategoriesScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddDialog = true }
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -83,12 +86,27 @@ fun ManageExpenseCategoriesScreen(
             }
         }
     ) { paddingValues ->
-        when (val state = uiState) {
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp
+        val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+        val useCenteredLayout = screenWidthDp >= 600 || isLandscape
+
+        // Use centered content with max width on tablets and landscape
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = if (useCenteredLayout) Alignment.TopCenter else Alignment.TopStart
+        ) {
+            when (val state = uiState) {
             is ManageExpenseCategoriesUiState.Loading -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .then(
+                            if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                            else Modifier.fillMaxWidth()
+                        )
+                        .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -98,11 +116,14 @@ fun ManageExpenseCategoriesScreen(
             is ManageExpenseCategoriesUiState.Success -> {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .then(
+                            if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                            else Modifier.fillMaxWidth()
+                        )
+                        .fillMaxSize(),
                     contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
+                        start = if (useCenteredLayout) 24.dp else 16.dp,
+                        end = if (useCenteredLayout) 24.dp else 16.dp,
                         top = 16.dp,
                         bottom = 88.dp // Space for FAB
                     ),
@@ -210,8 +231,11 @@ fun ManageExpenseCategoriesScreen(
             is ManageExpenseCategoriesUiState.Error -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .then(
+                            if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                            else Modifier.fillMaxWidth()
+                        )
+                        .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -222,7 +246,7 @@ fun ManageExpenseCategoriesScreen(
             }
         }
     }
-
+}
     // Add category dialog
     if (showAddDialog) {
         AddCategoryDialog(

@@ -39,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -75,6 +76,10 @@ fun EditRefillScreen(
             )
         }
     ) { paddingValues ->
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp
+        val isTablet = screenWidthDp >= 600
+
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
@@ -85,66 +90,137 @@ fun EditRefillScreen(
                 CircularProgressIndicator()
             }
         } else {
-            Column(
+            // Use centered content with max width on tablets for better form usability
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 32.dp)
+                    .padding(paddingValues),
+                contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
             ) {
+                Column(
+                    modifier = Modifier
+                        .then(
+                            if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                            else Modifier.fillMaxWidth()
+                        )
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 32.dp)
+                ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Amount paid
-                StyledOutlinedTextField(
-                    value = uiState.amountPaid,
-                    onValueChange = viewModel::updateAmountPaid,
-                    label = { Text(stringResource(R.string.amount_paid_eur)) },
-                    placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Two-column layout for Amount and Liters on tablets
+                if (isTablet) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Amount paid
+                        StyledOutlinedTextField(
+                            value = uiState.amountPaid,
+                            onValueChange = viewModel::updateAmountPaid,
+                            label = { Text(stringResource(R.string.amount_paid_eur)) },
+                            placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        // Liters added
+                        StyledOutlinedTextField(
+                            value = uiState.litersAdded,
+                            onValueChange = viewModel::updateLitersAdded,
+                            label = { Text(stringResource(R.string.liters_added)) },
+                            placeholder = { Text(stringResource(R.string.liters_added_hint)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
-                // Liters added
-                StyledOutlinedTextField(
-                    value = uiState.litersAdded,
-                    onValueChange = viewModel::updateLitersAdded,
-                    label = { Text(stringResource(R.string.liters_added)) },
-                    placeholder = { Text(stringResource(R.string.liters_added_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    // Two-column for Trip Distance and Odometer
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Trip distance
+                        StyledOutlinedTextField(
+                            value = uiState.tripDistance,
+                            onValueChange = viewModel::updateTripDistance,
+                            label = { Text(stringResource(R.string.trip_distance_km)) },
+                            placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
+                            supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                // Trip distance
-                StyledOutlinedTextField(
-                    value = uiState.tripDistance,
-                    onValueChange = viewModel::updateTripDistance,
-                    label = { Text(stringResource(R.string.trip_distance_km)) },
-                    placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
-                    supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                        // Odometer reading
+                        StyledOutlinedTextField(
+                            value = uiState.odometerReading,
+                            onValueChange = viewModel::updateOdometerReading,
+                            label = { Text(stringResource(R.string.odometer_reading_km)) },
+                            placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                } else {
+                    // Single column for phones
+                    // Amount paid
+                    StyledOutlinedTextField(
+                        value = uiState.amountPaid,
+                        onValueChange = viewModel::updateAmountPaid,
+                        label = { Text(stringResource(R.string.amount_paid_eur)) },
+                        placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Odometer reading
-                StyledOutlinedTextField(
-                    value = uiState.odometerReading,
-                    onValueChange = viewModel::updateOdometerReading,
-                    label = { Text(stringResource(R.string.odometer_reading_km)) },
-                    placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    // Liters added
+                    StyledOutlinedTextField(
+                        value = uiState.litersAdded,
+                        onValueChange = viewModel::updateLitersAdded,
+                        label = { Text(stringResource(R.string.liters_added)) },
+                        placeholder = { Text(stringResource(R.string.liters_added_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Trip distance
+                    StyledOutlinedTextField(
+                        value = uiState.tripDistance,
+                        onValueChange = viewModel::updateTripDistance,
+                        label = { Text(stringResource(R.string.trip_distance_km)) },
+                        placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
+                        supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Odometer reading
+                    StyledOutlinedTextField(
+                        value = uiState.odometerReading,
+                        onValueChange = viewModel::updateOdometerReading,
+                        label = { Text(stringResource(R.string.odometer_reading_km)) },
+                        placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -306,6 +382,7 @@ fun EditRefillScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+            }
             }
         }
 
