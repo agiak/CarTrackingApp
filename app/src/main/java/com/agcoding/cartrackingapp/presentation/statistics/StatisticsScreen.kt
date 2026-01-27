@@ -4,35 +4,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -42,8 +33,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +43,8 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
+import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,301 +92,41 @@ fun StatisticsScreen(
             }
 
             is StatisticsUiState.Success -> {
-                val configuration = LocalConfiguration.current
-                val screenWidthDp = configuration.screenWidthDp
-                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-                val useSplitView = screenWidthDp >= 600 || isLandscape
-
-                // Check if there are no cars/data at all
-                if (state.statistics.totalCost == 0.0 &&
-                    state.statistics.totalRefills == 0 &&
-                    state.statistics.totalDistance == 0.0
-                ) {
-                    // Empty state
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            // Large icon for visual appeal
-                            Icon(
-                                imageVector = Icons.Default.QueryStats,
-                                contentDescription = null,
-                                modifier = Modifier.size(120.dp),
-                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                            )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Text(
-                                text = stringResource(R.string.car_list_no_cars_title),
-                                style = MaterialTheme.typography.titleLarge,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.statistics_no_data_desc),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                } else if (useSplitView) {
-                    // Split view for tablets and landscape
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Left side: Overall Summary (35%)
-                        Column(
-                            modifier = Modifier
-                                .weight(0.35f)
-                                .fillMaxHeight()
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.overall_summary),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            SummarySection(
-                                statistics = state.statistics,
-                                onConsumptionGraphClick = onConsumptionGraphClick,
-                                onDistanceGraphClick = onDistanceGraphClick,
-                                onCostGraphClick = onCostGraphClick,
-                                onRefillsGraphClick = onRefillsGraphClick
-                            )
-                        }
-
-                        // Right side: Details, Trends, and Insights (65%)
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(0.65f)
-                                .fillMaxHeight(),
-                            contentPadding = PaddingValues(bottom = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-
-                        // Per-Car Breakdown
-                        if (state.statistics.perCarStatistics.isNotEmpty()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.per_car_breakdown),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            items(state.statistics.perCarStatistics) { carStats ->
+                StatisticsContent(
+                    statistics = state.statistics,
+                    onMonthlyTrendsClick = onMonthlyTrendsClick,
+                    summarySection = {
+                        SummarySection(
+                            statistics = state.statistics,
+                            onConsumptionGraphClick = onConsumptionGraphClick,
+                            onDistanceGraphClick = onDistanceGraphClick,
+                            onCostGraphClick = onCostGraphClick,
+                            onRefillsGraphClick = onRefillsGraphClick
+                        )
+                    },
+                    perCarBreakdownCards = {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            state.statistics.perCarStatistics.forEach { carStats ->
                                 PerCarBreakdownCard(carStats)
                             }
                         }
-
-                        // Monthly trends (show only last 5 months)
-                        if (state.statistics.monthlyTrends.isNotEmpty()) {
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.monthly_trends),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    if (state.statistics.monthlyTrends.size > 5) {
-                                        androidx.compose.material3.TextButton(
-                                            onClick = onMonthlyTrendsClick
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.see_all),
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Show only first 5 months
+                    },
+                    monthlyTrendCards = {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             val displayTrends = state.statistics.monthlyTrends.take(5)
-                            items(displayTrends) { trend ->
+                            displayTrends.forEach { trend ->
                                 MonthlyTrendCard(
                                     trend = trend,
                                     onClick = { onMonthClick(trend.month, trend.year) }
                                 )
                             }
-
-                            // Show "See All" button if there are more than 5 months
-                            if (state.statistics.monthlyTrends.size > 5) {
-                                item {
-                                    OutlinedButton(
-                                        onClick = onMonthlyTrendsClick,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                            containerColor = MaterialTheme.colorScheme.surface,
-                                            contentColor = MaterialTheme.colorScheme.primary
-                                        ),
-                                        border = androidx.compose.foundation.BorderStroke(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                        )
-                                    ) {
-                                        Text(
-                                            stringResource(
-                                                R.string.view_all_months_format,
-                                                state.statistics.monthlyTrends.size
-                                            )
-                                        )
-                                    }
-                                }
-                            }
                         }
-
-                        // Insights section
-                        item {
-                            Text(
-                                text = stringResource(R.string.insights),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        item {
-                            InsightsSection(state.statistics)
-                        }
-                        }
-                    }
-                } else {
-                    // Original single-column layout for portrait phones
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Summary section
-                        item {
-                            Text(
-                                text = stringResource(R.string.overall_summary),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        item {
-                            SummarySection(
-                                statistics = state.statistics,
-                                onConsumptionGraphClick = onConsumptionGraphClick,
-                                onDistanceGraphClick = onDistanceGraphClick,
-                                onCostGraphClick = onCostGraphClick,
-                                onRefillsGraphClick = onRefillsGraphClick
-                            )
-                        }
-
-                        // Per-Car Breakdown
-                        if (state.statistics.perCarStatistics.isNotEmpty()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.per_car_breakdown),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            items(state.statistics.perCarStatistics) { carStats ->
-                                PerCarBreakdownCard(carStats)
-                            }
-                        }
-
-                        // Monthly trends (show only last 5 months)
-                        if (state.statistics.monthlyTrends.isNotEmpty()) {
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.monthly_trends),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    if (state.statistics.monthlyTrends.size > 5) {
-                                        androidx.compose.material3.TextButton(
-                                            onClick = onMonthlyTrendsClick
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.see_all),
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Show only first 5 months
-                            val displayTrends = state.statistics.monthlyTrends.take(5)
-                            items(displayTrends) { trend ->
-                                MonthlyTrendCard(
-                                    trend = trend,
-                                    onClick = { onMonthClick(trend.month, trend.year) }
-                                )
-                            }
-
-                            // Show "See All" button if there are more than 5 months
-                            if (state.statistics.monthlyTrends.size > 5) {
-                                item {
-                                    OutlinedButton(
-                                        onClick = onMonthlyTrendsClick,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                            containerColor = MaterialTheme.colorScheme.surface,
-                                            contentColor = MaterialTheme.colorScheme.primary
-                                        ),
-                                        border = androidx.compose.foundation.BorderStroke(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                        )
-                                    ) {
-                                        Text(
-                                            stringResource(
-                                                R.string.view_all_months_format,
-                                                state.statistics.monthlyTrends.size
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        // Insights section
-                        item {
-                            Text(
-                                text = stringResource(R.string.insights),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        item {
-                            InsightsSection(state.statistics)
-                        }
-                    }
-                } // Close else block for empty check
+                    },
+                    insightsSection = {
+                        InsightsSection(state.statistics)
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
 
             is StatisticsUiState.Error -> {
@@ -520,58 +251,6 @@ private fun SummarySection(
     }
 }
 
-@Composable
-private fun SummaryCard(
-    icon: ImageVector,
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    subtitle: String? = null,
-    onClick: (() -> Unit)? = null
-) {
-    StyledCard(
-        modifier = modifier,
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = title,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun CostBreakdownCard(statistics: GlobalStatistics) {

@@ -1,21 +1,11 @@
 package com.agcoding.cartrackingapp.presentation.editexpense
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -39,22 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.editexpense.components.EditExpenseContent
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditExpenseScreen(
     onNavigateBack: () -> Unit,
-    viewModel: com.agcoding.cartrackingapp.presentation.editexpense.EditExpenseViewModel = hiltViewModel()
+    viewModel: EditExpenseViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val amount by viewModel.amount.collectAsState()
@@ -106,75 +91,16 @@ fun EditExpenseScreen(
                         .padding(paddingValues),
                     contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .then(
-                                if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
-                                else Modifier.fillMaxWidth()
-                            )
-                            .padding(horizontal = if (isTablet) 24.dp else 16.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                    // Expense category display
-                    Text(
-                        text = state.category,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Amount field
-                    StyledOutlinedTextField(
-                        value = amount,
-                        onValueChange = viewModel::updateAmount,
-                        label = { Text(stringResource(R.string.expense_amount_eur)) },
-                        placeholder = { Text(stringResource(R.string.amount_placeholder)) },
-                        leadingIcon = {
-                            Text(
-                                text = "€",
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(start = 12.dp)
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Date field
-                    StyledOutlinedTextField(
-                        value = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault()).format(Date(selectedDate)),
-                        onValueChange = {},
-                        label = { Text(stringResource(R.string.date)) },
-                        trailingIcon = {
-                            IconButton(onClick = { viewModel.showDatePicker() }) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = stringResource(R.string.pick_date)
-                                )
-                            }
-                        },
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Notes field
-                    StyledOutlinedTextField(
-                        value = notes,
-                        onValueChange = viewModel::updateNotes,
-                        label = { Text(stringResource(R.string.expense_notes_optional)) },
-                        placeholder = { Text(stringResource(R.string.expense_details_hint)) },
-                        minLines = 3,
-                        maxLines = 5,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Save button
-                    Button(
-                        onClick = {
+                    EditExpenseContent(
+                        category = state.category,
+                        amount = amount,
+                        onAmountChange = viewModel::updateAmount,
+                        selectedDate = selectedDate,
+                        onShowDatePicker = { viewModel.showDatePicker() },
+                        notes = notes,
+                        onNotesChange = viewModel::updateNotes,
+                        isSaving = isSaving,
+                        onSaveClick = {
                             viewModel.updateExpense(
                                 onSuccess = {
                                     onNavigateBack()
@@ -186,20 +112,13 @@ fun EditExpenseScreen(
                                 }
                             )
                         },
-                        enabled = !isSaving && amount.isNotBlank(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (isSaving) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                        modifier = Modifier
+                            .then(
+                                if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                                else Modifier.fillMaxWidth()
                             )
-                        } else {
-                            Text(stringResource(R.string.save_changes))
-                        }
-                    }
-                }
+                            .padding(horizontal = if (isTablet) 24.dp else 16.dp)
+                    )
                 }
 
                 // Date picker dialog

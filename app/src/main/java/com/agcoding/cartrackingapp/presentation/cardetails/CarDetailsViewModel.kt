@@ -3,7 +3,6 @@ package com.agcoding.cartrackingapp.presentation.cardetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.agcoding.cartrackingapp.domain.model.CarStatistics
 import com.agcoding.cartrackingapp.domain.usecase.car.DeleteCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
@@ -123,8 +122,4 @@ class CarDetailsViewModel @Inject constructor(
     }
 }
 
-sealed class CarDetailsUiState {
-    object Loading : CarDetailsUiState()
-    data class Success(val statistics: CarStatistics) : CarDetailsUiState()
-    data class Error(val message: String) : CarDetailsUiState()
-}
+

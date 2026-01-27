@@ -22,10 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Category
@@ -88,6 +86,8 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
+import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
+import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
@@ -101,7 +101,6 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedPalette by viewModel.colorPalettePreferences.selectedPaletteFlow.collectAsState(initial = ColorPalette.SYSTEM)
-    val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -358,174 +357,160 @@ fun SettingsScreen(
                 .padding(paddingValues),
             contentAlignment = if (isTablet) Alignment.TopCenter else Alignment.TopStart
         ) {
-            Column(
-                modifier = Modifier
-                    .then(
-                        if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
-                        else Modifier.fillMaxWidth()
-                    )
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = if (isTablet) 24.dp else 16.dp), // More padding on tablets
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            SettingsContent(
+                isTablet = isTablet,
+                modifier = Modifier.then(
+                    if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                    else Modifier.fillMaxWidth()
+                )
             ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // APPEARANCE Section
-            SectionHeader(title = stringResource(R.string.settings_section_appearance))
-
-            AppearanceCard(
-                currentTheme = uiState.appSettings.theme,
-                onThemeChange = viewModel::updateTheme
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ColorPaletteCard(
-                selectedPalette = selectedPalette,
-                onPaletteSelected = viewModel::updateColorPalette
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // LANGUAGE Section
-            SectionHeader(title = stringResource(R.string.settings_section_language))
-
-            LanguageCard(
-                selectedLanguage = uiState.appSettings.language,
-                onLanguageSelected = viewModel::updateLanguage
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // PREFERENCES Section
-            SectionHeader(title = stringResource(R.string.settings_section_preferences))
-
-            PreferencesCard(
-                notificationsEnabled = uiState.appSettings.notificationsEnabled && notificationPermissionGranted,
-                permissionPermanentlyDenied = permissionPermanentlyDenied,
-                onNotificationsToggle = { enabled ->
-                    if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationPermissionGranted) {
-                        // Request permission first
-                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else {
-                        viewModel.updateNotificationsEnabled(enabled)
-                    }
-                },
-                onOpenSettings = {
-                    PermissionUtil.openAppSettings(context)
-                },
-                onViewNotifications = onViewNotifications
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // DATA & STORAGE Section
-            SectionHeader(title = stringResource(R.string.settings_section_data_storage))
-
-            StorageCard(
-                storageInfo = uiState.storageInfo,
-                isExporting = uiState.isExporting,
-                isImporting = uiState.isImporting,
-                onExport = { viewModel.exportData() },
-                onImport = { showImportConfirmDialog = true },
-                onClear = { showClearConfirmDialog = true }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // SPREADSHEET IMPORT Section
-            SectionHeader(title = stringResource(R.string.settings_section_spreadsheet_import))
-
-            SpreadsheetImportCard(
-                isImporting = uiState.isSpreadsheetImporting,
-                isGeneratingSample = uiState.isGeneratingSampleFile,
-                onImport = {
-                    spreadsheetPickerLauncher.launch(
-                        arrayOf(
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "application/vnd.ms-excel",
-                            "text/csv",
-                            "text/comma-separated-values"
-                        )
-                    )
-                },
-                onGenerateSample = { viewModel.generateSampleSpreadsheet() }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // CUSTOMIZATION Section
-            SectionHeader(title = stringResource(R.string.settings_section_customization))
-
-            CustomizationCard(
-                onManageExpenseCategoriesClick = onManageExpenseCategories
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // HELP & ABOUT Section
-            SectionHeader(title = stringResource(R.string.settings_section_help_about))
-
-            HelpAboutCard(
-                appVersion = uiState.appVersion,
-                onViewGuide = onViewGuide
-            )
-
-            // Debug Section (only visible in debug builds)
-            if (uiState.isDebugMode) {
                 Spacer(modifier = Modifier.height(8.dp))
-                SectionHeader(title = stringResource(R.string.settings_section_developer_options))
 
-                DebugCard(
-                    isGenerating = uiState.isGeneratingData,
-                    onGenerateSampleData = {
-                        viewModel.generateSampleData(
-                            onSuccess = { },
-                            onError = { error ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        context.getString(R.string.settings_error_format, error)
-                                    )
-                                }
-                            }
+                // APPEARANCE Section
+                SectionHeader(title = stringResource(R.string.settings_section_appearance))
+
+                AppearanceCard(
+                    currentTheme = uiState.appSettings.theme,
+                    onThemeChange = viewModel::updateTheme
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                ColorPaletteCard(
+                    selectedPalette = selectedPalette,
+                    onPaletteSelected = viewModel::updateColorPalette
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // LANGUAGE Section
+                SectionHeader(title = stringResource(R.string.settings_section_language))
+
+                LanguageCard(
+                    selectedLanguage = uiState.appSettings.language,
+                    onLanguageSelected = viewModel::updateLanguage
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // PREFERENCES Section
+                SectionHeader(title = stringResource(R.string.settings_section_preferences))
+
+                PreferencesCard(
+                    notificationsEnabled = uiState.appSettings.notificationsEnabled && notificationPermissionGranted,
+                    permissionPermanentlyDenied = permissionPermanentlyDenied,
+                    onNotificationsToggle = { enabled ->
+                        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationPermissionGranted) {
+                            // Request permission first
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            viewModel.updateNotificationsEnabled(enabled)
+                        }
+                    },
+                    onOpenSettings = {
+                        PermissionUtil.openAppSettings(context)
+                    },
+                    onViewNotifications = onViewNotifications
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // DATA & STORAGE Section
+                SectionHeader(title = stringResource(R.string.settings_section_data_storage))
+
+                StorageCard(
+                    storageInfo = uiState.storageInfo,
+                    isExporting = uiState.isExporting,
+                    isImporting = uiState.isImporting,
+                    onExport = { viewModel.exportData() },
+                    onImport = { showImportConfirmDialog = true },
+                    onClear = { showClearConfirmDialog = true }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // SPREADSHEET IMPORT Section
+                SectionHeader(title = stringResource(R.string.settings_section_spreadsheet_import))
+
+                SpreadsheetImportCard(
+                    isImporting = uiState.isSpreadsheetImporting,
+                    isGeneratingSample = uiState.isGeneratingSampleFile,
+                    onImport = {
+                        spreadsheetPickerLauncher.launch(
+                            arrayOf(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                "application/vnd.ms-excel",
+                                "text/csv",
+                                "text/comma-separated-values"
+                            )
                         )
                     },
-                    onTriggerReminderCheck = {
-                        viewModel.triggerReminderCheck(
-                            onSuccess = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Reminder check triggered! Check notifications in a few seconds.")
-                                }
-                            },
-                            onError = { error ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        context.getString(R.string.settings_error_format, error)
-                                    )
-                                }
-                            }
-                        )
-                    }
+                    onGenerateSample = { viewModel.generateSampleSpreadsheet() }
                 )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // CUSTOMIZATION Section
+                SectionHeader(title = stringResource(R.string.settings_section_customization))
+
+                CustomizationCard(
+                    onManageExpenseCategoriesClick = onManageExpenseCategories
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // HELP & ABOUT Section
+                SectionHeader(title = stringResource(R.string.settings_section_help_about))
+
+                HelpAboutCard(
+                    appVersion = uiState.appVersion,
+                    onViewGuide = onViewGuide
+                )
+
+                // Debug Section (only visible in debug builds)
+                if (uiState.isDebugMode) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SectionHeader(title = stringResource(R.string.settings_section_developer_options))
+
+                    DebugCard(
+                        isGenerating = uiState.isGeneratingData,
+                        onGenerateSampleData = {
+                            viewModel.generateSampleData(
+                                onSuccess = { },
+                                onError = { error ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(R.string.settings_error_format, error)
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        onTriggerReminderCheck = {
+                            viewModel.triggerReminderCheck(
+                                onSuccess = {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Reminder check triggered! Check notifications in a few seconds.")
+                                    }
+                                },
+                                onError = { error ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            context.getString(R.string.settings_error_format, error)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        letterSpacing = 0.5.sp,
-        modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 4.dp)
-    )
-}
 
 @Composable
 private fun AppearanceCard(

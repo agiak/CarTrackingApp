@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.data.preferences.ReminderBannerPreferences
-import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.usecase.car.AddCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.GetAllCarsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.expense.GetTodayRemindersCountUseCase
-import com.agcoding.cartrackingapp.domain.usecase.expense.ReminderInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -102,11 +100,3 @@ class CarListViewModel @Inject constructor(
         }
     }
 }
-
-sealed class CarListUiState {
-    object Loading : CarListUiState()
-    object Empty : CarListUiState()
-    data class Success(val cars: List<Car>, val reminderInfo: ReminderInfo?) : CarListUiState()
-    data class Error(val message: String) : CarListUiState()
-}
-

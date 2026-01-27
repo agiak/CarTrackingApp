@@ -3,15 +3,12 @@ package com.agcoding.cartrackingapp.presentation.editcar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -35,16 +32,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsUiState
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsViewModel
-import com.agcoding.cartrackingapp.presentation.components.StyledDatePickerField
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.editcar.components.BasicInfoSection
+import com.agcoding.cartrackingapp.presentation.editcar.components.InsuranceSection
+import com.agcoding.cartrackingapp.presentation.editcar.components.LegalComplianceSection
+import com.agcoding.cartrackingapp.presentation.editcar.components.MaintenanceSection
+import com.agcoding.cartrackingapp.presentation.editcar.components.TiresSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,288 +183,56 @@ fun EditCarScreen(
                     .padding(horizontal = if (isTablet) 24.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // ...existing code... (Basic Info Section header)
-                Text(
-                    text = stringResource(R.string.edit_car_section_basic_information),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                StyledOutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.edit_car_field_car_name)) },
-                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_car_name)) },
-                    singleLine = true,
+                BasicInfoSection(
+                    name = name,
+                    onNameChange = { name = it },
+                    licensePlate = licensePlate,
+                    onLicensePlateChange = { licensePlate = it },
+                    odometer = odometer,
+                    onOdometerChange = { odometer = it },
+                    isTablet = isTablet,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Two-column layout for license plate and odometer on tablets
-                if (isTablet) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StyledOutlinedTextField(
-                            value = licensePlate,
-                            onValueChange = { licensePlate = it.uppercase() },
-                            label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_license_plate)) },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        StyledOutlinedTextField(
-                            value = odometer,
-                            onValueChange = { newValue ->
-                                if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
-                                    odometer = newValue
-                                }
-                            },
-                            label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                } else {
-                    StyledOutlinedTextField(
-                        value = licensePlate,
-                        onValueChange = { licensePlate = it.uppercase() },
-                        label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_license_plate)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    StyledOutlinedTextField(
-                        value = odometer,
-                        onValueChange = { newValue ->
-                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
-                                odometer = newValue
-                            }
-                        },
-                        label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Insurance Section
-                Text(
-                    text = stringResource(R.string.edit_car_section_insurance_information),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
+                InsuranceSection(
+                    insuranceExpirationDate = insuranceExpirationDate,
+                    onInsuranceExpirationDateChange = { insuranceExpirationDate = it },
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                StyledDatePickerField(
-                    value = insuranceExpirationDate,
-                    onDateSelected = { insuranceExpirationDate = it },
-                    label = { Text(stringResource(R.string.edit_car_field_insurance_expiration_date)) },
-                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
+                LegalComplianceSection(
+                    kteoExpirationDate = kteoExpirationDate,
+                    onKteoExpirationDateChange = { kteoExpirationDate = it },
+                    emissionsCardExpirationDate = emissionsCardExpirationDate,
+                    onEmissionsCardExpirationDateChange = { emissionsCardExpirationDate = it },
+                    roadTaxAmount = roadTaxAmount,
+                    onRoadTaxAmountChange = { roadTaxAmount = it },
+                    roadTaxDueDate = roadTaxDueDate,
+                    onRoadTaxDueDateChange = { roadTaxDueDate = it },
+                    isTablet = isTablet,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Legal & Compliance Section
-                Text(
-                    text = stringResource(R.string.edit_car_section_legal_compliance),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
+                MaintenanceSection(
+                    lastServiceDate = lastServiceDate,
+                    onLastServiceDateChange = { lastServiceDate = it },
+                    lastTireChangeDate = lastTireChangeDate,
+                    onLastTireChangeDateChange = { lastTireChangeDate = it },
+                    isTablet = isTablet,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Two-column for KTEO and Emissions on tablets
-                if (isTablet) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StyledDatePickerField(
-                            value = kteoExpirationDate,
-                            onDateSelected = { kteoExpirationDate = it },
-                            label = { Text(stringResource(R.string.edit_car_field_kteo_expiration_date)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        StyledDatePickerField(
-                            value = emissionsCardExpirationDate,
-                            onDateSelected = { emissionsCardExpirationDate = it },
-                            label = { Text(stringResource(R.string.edit_car_field_emissions_card_expiration)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    // Two-column for Road Tax fields
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StyledOutlinedTextField(
-                            value = roadTaxAmount,
-                            onValueChange = { roadTaxAmount = it },
-                            label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_road_tax_amount)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        StyledDatePickerField(
-                            value = roadTaxDueDate,
-                            onDateSelected = { roadTaxDueDate = it },
-                            label = { Text(stringResource(R.string.edit_car_field_road_tax_due_date)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                } else {
-                    StyledDatePickerField(
-                        value = kteoExpirationDate,
-                        onDateSelected = { kteoExpirationDate = it },
-                        label = { Text(stringResource(R.string.edit_car_field_kteo_expiration_date)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                    )
-
-                    StyledDatePickerField(
-                        value = emissionsCardExpirationDate,
-                        onDateSelected = { emissionsCardExpirationDate = it },
-                        label = { Text(stringResource(R.string.edit_car_field_emissions_card_expiration)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                    )
-
-                    StyledOutlinedTextField(
-                        value = roadTaxAmount,
-                        onValueChange = { roadTaxAmount = it },
-                        label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_road_tax_amount)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    StyledDatePickerField(
-                        value = roadTaxDueDate,
-                        onDateSelected = { roadTaxDueDate = it },
-                        label = { Text(stringResource(R.string.edit_car_field_road_tax_due_date)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                    )
-                }
-
-                // Maintenance Section
-                Text(
-                    text = stringResource(R.string.edit_car_section_maintenance_history),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
+                TiresSection(
+                    tireBrand = tireBrand,
+                    onTireBrandChange = { tireBrand = it },
+                    tireDimensions = tireDimensions,
+                    onTireDimensionsChange = { tireDimensions = it },
+                    tireInstallationDate = tireInstallationDate,
+                    onTireInstallationDateChange = { tireInstallationDate = it },
+                    isTablet = isTablet,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Two-column for maintenance dates on tablets
-                if (isTablet) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StyledDatePickerField(
-                            value = lastServiceDate,
-                            onDateSelected = { lastServiceDate = it },
-                            label = { Text(stringResource(R.string.edit_car_field_last_service_date)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        StyledDatePickerField(
-                            value = lastTireChangeDate,
-                            onDateSelected = { lastTireChangeDate = it },
-                            label = { Text(stringResource(R.string.edit_car_field_last_tire_change_date)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                } else {
-                    StyledDatePickerField(
-                        value = lastServiceDate,
-                        onDateSelected = { lastServiceDate = it },
-                        label = { Text(stringResource(R.string.edit_car_field_last_service_date)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                    )
-
-                    StyledDatePickerField(
-                        value = lastTireChangeDate,
-                        onDateSelected = { lastTireChangeDate = it },
-                        label = { Text(stringResource(R.string.edit_car_field_last_tire_change_date)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                    )
-                }
-
-                // Tires Section
-                Text(
-                    text = stringResource(R.string.edit_car_section_tires_information),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                // Two-column for tire fields on tablets
-                if (isTablet) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StyledOutlinedTextField(
-                            value = tireBrand,
-                            onValueChange = { tireBrand = it },
-                            label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_brand_model)) },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        StyledOutlinedTextField(
-                            value = tireDimensions,
-                            onValueChange = { tireDimensions = it },
-                            label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },
-                            placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_dimensions)) },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                } else {
-                    StyledOutlinedTextField(
-                        value = tireBrand,
-                        onValueChange = { tireBrand = it },
-                        label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_brand_model)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    StyledOutlinedTextField(
-                        value = tireDimensions,
-                        onValueChange = { tireDimensions = it },
-                        label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },
-                        placeholder = { Text(stringResource(R.string.edit_car_placeholder_tire_dimensions)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                StyledDatePickerField(
-                    value = tireInstallationDate,
-                    onDateSelected = { tireInstallationDate = it },
-                    label = { Text(stringResource(R.string.edit_car_field_tire_installation_date)) },
-                    placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
-                )
 
                 // Add bottom spacing
                 Spacer(modifier = Modifier.height(16.dp))
