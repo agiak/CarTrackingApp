@@ -81,17 +81,19 @@ fun TransactionsScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.nav_transactions)) },
                 actions = {
-                    IconButton(onClick = { showSortSheet = true }) {
-                        Icon(
-                            imageVector = Icons.Filled.Sort,
-                            contentDescription = stringResource(R.string.sort)
-                        )
-                    }
-                    IconButton(onClick = { showFilterSheet = true }) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = stringResource(R.string.filter)
-                        )
+                    if (transactions.isNotEmpty()) {
+                        IconButton(onClick = { showSortSheet = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.Sort,
+                                contentDescription = stringResource(R.string.sort)
+                            )
+                        }
+                        IconButton(onClick = { showFilterSheet = true }) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = stringResource(R.string.filter)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
