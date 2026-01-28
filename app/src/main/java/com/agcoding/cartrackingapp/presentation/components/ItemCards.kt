@@ -23,11 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.domain.model.Location
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -226,3 +229,104 @@ fun ExpenseItemCard(
         }
     }
 }
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Refill Card - With Car Name", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewRefillItemCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        RefillItemCard(
+            refill = FuelRefill(
+                id = 1,
+                carId = 1,
+                timestamp = System.currentTimeMillis(),
+                amountPaid = 65.50,
+                litersAdded = 42.5,
+                pricePerLiter = 1.54,
+                tripDistance = 580.0,
+                odometerReading = 12580.0,
+                fuelConsumption = 7.33,
+                location = Location(37.9838, 23.7275),
+                notes = "Regular refill"
+            ),
+            carName = "Toyota Corolla",
+            onClick = {},
+        )
+    }
+}
+
+@Preview(name = "Refill Card - No Car Name", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewRefillItemCardNoCar() {
+    CarTrackingAppTheme(darkTheme = false) {
+        RefillItemCard(
+            refill = FuelRefill(
+                id = 2,
+                carId = 1,
+                timestamp = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L,
+                amountPaid = 72.30,
+                litersAdded = 45.0,
+                pricePerLiter = 1.61,
+                tripDistance = 620.0,
+                odometerReading = 12000.0,
+                fuelConsumption = 7.26,
+                location = null,
+                notes = null
+            ),
+            carName = null,
+            onClick = {}
+        )
+    }
+}
+
+@Preview(name = "Expense Card - Service", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewExpenseItemCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ExpenseItemCard(
+            expense = Expense(
+                id = 1,
+                carId = 1,
+                category = "Oil Change",
+                amount = 85.00,
+                timestamp = System.currentTimeMillis(),
+                notes = "Regular maintenance",
+                reminderEnabled = true,
+                reminderDate = System.currentTimeMillis() + 90 * 24 * 60 * 60 * 1000L,
+                reminderMileage = 15000,
+                preExpiryNotificationSent = false,
+                reminderDismissed = false
+            ),
+            carName = "Honda Civic",
+            onClick = {}
+        )
+    }
+}
+
+@Preview(name = "Expense Card - Dark Mode", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewExpenseItemCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        ExpenseItemCard(
+            expense = Expense(
+                id = 2,
+                carId = 1,
+                category = "Tire Change",
+                amount = 450.00,
+                timestamp = System.currentTimeMillis() - 14 * 24 * 60 * 60 * 1000L,
+                notes = "All four tires replaced",
+                reminderEnabled = false,
+                reminderDate = null,
+                reminderMileage = null,
+                preExpiryNotificationSent = false,
+                reminderDismissed = false
+            ),
+            carName = null,
+            onClick = {}
+        )
+    }
+}
+

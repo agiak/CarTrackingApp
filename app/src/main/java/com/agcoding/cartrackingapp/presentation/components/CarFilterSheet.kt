@@ -22,9 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,3 +122,58 @@ fun CarFilterSheet(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Car Filter Sheet - Multiple Cars", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCarFilterSheet() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CarFilterSheet(
+            cars = listOf(
+                Car(1, "Toyota Corolla", "ABC-1234", 0.0, 12500.0),
+                Car(2, "Honda Civic", "XYZ-5678", 0.0, 8000.0),
+                Car(3, "BMW 320i", "BMW-999", 0.0, 15000.0)
+            ),
+            selectedCarIds = setOf(1, 3),
+            onCarSelectionChanged = { _, _ -> },
+            onDismiss = {},
+            onApply = {}
+        )
+    }
+}
+
+@Preview(name = "Car Filter Sheet - All Selected", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCarFilterSheetAllSelected() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CarFilterSheet(
+            cars = listOf(
+                Car(1, "Toyota Corolla", "ABC-1234", 0.0, 12500.0),
+                Car(2, "Honda Civic", "XYZ-5678", 0.0, 8000.0)
+            ),
+            selectedCarIds = setOf(1, 2),
+            onCarSelectionChanged = { _, _ -> },
+            onDismiss = {},
+            onApply = {}
+        )
+    }
+}
+
+@Preview(name = "Car Filter Sheet - Dark Mode", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCarFilterSheetDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        CarFilterSheet(
+            cars = listOf(
+                Car(1, "Volkswagen Golf", "VW-111", 0.0, 9500.0),
+                Car(2, "Mazda 3", "MAZ-222", 0.0, 11000.0)
+            ),
+            selectedCarIds = setOf(2),
+            onCarSelectionChanged = { _, _ -> },
+            onDismiss = {},
+            onApply = {}
+        )
+    }
+}

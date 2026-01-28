@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,8 +38,10 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import kotlin.math.roundToInt
 
 /**
@@ -308,3 +313,75 @@ fun InteractiveLineChart(
         }
     }
 }
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Line Chart - Multiple Points", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewInteractiveLineChart() {
+    CarTrackingAppTheme(darkTheme = false) {
+        InteractiveLineChart(
+            dataPoints = listOf(
+                ChartDataPoint("Jan", 450.0, "450 km"),
+                ChartDataPoint("Feb", 520.0, "520 km"),
+                ChartDataPoint("Mar", 480.0, "480 km"),
+                ChartDataPoint("Apr", 600.0, "600 km"),
+                ChartDataPoint("May", 550.0, "550 km")
+            ),
+            tooltipIcon = androidx.compose.material.icons.Icons.Default.Route,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Line Chart - Single Point", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewInteractiveLineChartSinglePoint() {
+    CarTrackingAppTheme(darkTheme = false) {
+        InteractiveLineChart(
+            dataPoints = listOf(
+                ChartDataPoint("Jan", 500.0, "500 km")
+            ),
+            tooltipIcon = androidx.compose.material.icons.Icons.Default.Route,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Line Chart - No Y-Axis Labels", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewInteractiveLineChartNoYAxis() {
+    CarTrackingAppTheme(darkTheme = false) {
+        InteractiveLineChart(
+            dataPoints = listOf(
+                ChartDataPoint("W1", 7.5, "7.5 L/100km"),
+                ChartDataPoint("W2", 7.2, "7.2 L/100km"),
+                ChartDataPoint("W3", 7.8, "7.8 L/100km"),
+                ChartDataPoint("W4", 7.4, "7.4 L/100km")
+            ),
+            tooltipIcon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.TrendingUp,
+            showYAxisLabels = false,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Line Chart - Dark Mode", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewInteractiveLineChartDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        InteractiveLineChart(
+            dataPoints = listOf(
+                ChartDataPoint("Jan", 120.0, "€120"),
+                ChartDataPoint("Feb", 150.0, "€150"),
+                ChartDataPoint("Mar", 135.0, "€135"),
+                ChartDataPoint("Apr", 180.0, "€180")
+            ),
+            tooltipIcon = androidx.compose.material.icons.Icons.Default.AttachMoney,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
