@@ -26,11 +26,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.util.Locale
 
 @Composable
@@ -218,3 +220,92 @@ fun MetricItem(
         }
     }
 }
+
+@Preview(name = "CarCard Light", showBackground = true)
+@Composable
+private fun PreviewCarCard() {
+    CarTrackingAppTheme {
+        CarCard(
+            car = Car(
+                id = 1L,
+                name = "Toyota Corolla",
+                licensePlate = "ABC-1234",
+                currentOdometer = 45678.0,
+                initialOdometer = 20000.0,
+                totalCost = 5432.50,
+                totalDistance = 25678.0,
+                averageConsumption = 6.5
+            ),
+            onClick = {},
+            onAddRefillClick = {},
+            onAddServiceClick = {}
+        )
+    }
+}
+
+@Preview(name = "CarCard Dark", showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCarCardDark() {
+    CarTrackingAppTheme {
+        CarCard(
+            car = Car(
+                id = 1L,
+                name = "Toyota Corolla",
+                licensePlate = "ABC-1234",
+                currentOdometer = 45678.0,
+                initialOdometer = 20000.0,
+                totalCost = 5432.50,
+                totalDistance = 25678.0,
+                averageConsumption = 6.5
+            ),
+            onClick = {},
+            onAddRefillClick = {},
+            onAddServiceClick = {}
+        )
+    }
+}
+
+@Preview(name = "CarCard Long Name", showBackground = true)
+@Composable
+private fun PreviewCarCardLongName() {
+    CarTrackingAppTheme {
+        CarCard(
+            car = Car(
+                id = 1L,
+                name = "Mercedes-Benz S-Class AMG",
+                licensePlate = "XYZ-9876",
+                currentOdometer = 125000.0,
+                initialOdometer = 100000.0,
+                totalCost = 12345.99,
+                totalDistance = 25000.0,
+                averageConsumption = 8.2
+            ),
+            onClick = {},
+            onAddRefillClick = {},
+            onAddServiceClick = {}
+        )
+    }
+}
+
+@Preview(name = "CarCard No Consumption", showBackground = true)
+@Composable
+private fun PreviewCarCardNoConsumption() {
+    CarTrackingAppTheme {
+        CarCard(
+            car = Car(
+                id = 1L,
+                name = "Tesla Model 3",
+                licensePlate = "EV-2024",
+                currentOdometer = 5000.0,
+                initialOdometer = 0.0,
+                totalCost = 250.00,
+                totalDistance = 5000.0,
+                averageConsumption = 0.0
+            ),
+            onClick = {},
+            onAddRefillClick = {},
+            onAddServiceClick = {}
+        )
+    }
+}
+

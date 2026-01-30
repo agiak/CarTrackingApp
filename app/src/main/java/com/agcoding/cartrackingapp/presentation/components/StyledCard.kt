@@ -26,7 +26,7 @@ fun StyledCard(
     onClick: (() -> Unit)? = null,
     containerColor: Color? = null,
     border: BorderStroke? = null,
-    tintAlpha: Float = 0.08f, // Subtle tint strength (8% by default for more visibility)
+    tintAlpha: Float = 0.3f, // Tint strength (15% for more vibrant, alive appearance)
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Calculate the background color with subtle tint
