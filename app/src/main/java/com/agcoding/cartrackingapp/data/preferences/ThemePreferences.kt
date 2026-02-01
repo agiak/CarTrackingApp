@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class ThemePreferences @Inject constructor(
     private object PreferencesKeys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val IS_DARK_MODE_OVERRIDE = booleanPreferencesKey("is_dark_mode_override")
+        val BACKGROUND_TINT_INTENSITY = floatPreferencesKey("background_tint_intensity")
     }
 
     val themeModeFlow: Flow<ThemeMode> = context.dataStore.data
@@ -46,6 +48,11 @@ class ThemePreferences @Inject constructor(
             }
         }
 
+    val backgroundTintIntensityFlow: Flow<Float> = context.dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.BACKGROUND_TINT_INTENSITY] ?: 0.25f // Default 25%
+        }
+
     suspend fun setThemeMode(mode: ThemeMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME_MODE] = mode.name
@@ -59,6 +66,12 @@ class ThemePreferences @Inject constructor(
             } else {
                 preferences[PreferencesKeys.IS_DARK_MODE_OVERRIDE] = isDark
             }
+        }
+    }
+
+    suspend fun setBackgroundTintIntensity(intensity: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BACKGROUND_TINT_INTENSITY] = intensity.coerceIn(0.10f, 0.40f)
         }
     }
 }

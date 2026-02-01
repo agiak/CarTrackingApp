@@ -37,9 +37,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -103,6 +105,7 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
 
     // Sample data configuration
     private val sampleCars = listOf(
@@ -224,6 +227,7 @@ class SettingsViewModel @Inject constructor(
             colorPalettePreferences.setColorPalette(palette)
         }
     }
+
 
     fun updateLanguage(language: AppLanguage) {
         viewModelScope.launch {

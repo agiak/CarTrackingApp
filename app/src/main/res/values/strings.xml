@@ -52,10 +52,13 @@
     <string name="average_price_per_liter">Average price per liter</string>
     <string name="cost_per_km">Cost per kilometer</string>
     <string name="fuel_percentage_of_spending">Fuel as % of spending</string>
+    <string name="fuel_percentage_tooltip">This metric shows what percentage of your total spending (fuel + expenses) went towards fuel purchases during the selected period.</string>
     <string name="vehicles_with_activity">Vehicles with activity</string>
     <string name="biggest_refill">Biggest refill</string>
     <string name="biggest_expense">Biggest expense</string>
     <string name="period_custom_range">Custom Range</string>
+    <string name="information">Information</string>
+    <string name="info">Info</string>
 
     <!-- Notification Channels -->
     <string name="notification_channel_reminders">Service Reminders</string>

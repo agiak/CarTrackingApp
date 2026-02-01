@@ -1,6 +1,9 @@
 package com.agcoding.cartrackingapp.presentation.statistics
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,11 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,9 +43,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -435,6 +448,8 @@ private fun StatItem(
 
 @Composable
 private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
+    var showFuelPercentageTooltip by remember { mutableStateOf(false) }
+
     StyledCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -474,13 +489,27 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                 )
             }
 
-            // Fuel percentage
+            // Fuel percentage with tooltip
             if (state.totalCost > 0) {
                 val fuelPercentage = (state.refillsCost / state.totalCost) * 100
-                InsightRow(
-                    label = stringResource(R.string.fuel_percentage_of_spending),
-                    value = stringResource(R.string.km_per_l_format, String.format("%.1f", fuelPercentage))
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    InsightRow(
+                        label = stringResource(R.string.fuel_percentage_of_spending),
+                        value = stringResource(R.string.km_per_l_format, String.format("%.1f", fuelPercentage)),
+                        showInfoIcon = true,
+                        onInfoClick = { showFuelPercentageTooltip = !showFuelPercentageTooltip } // Toggle behavior
+                    )
+
+                    // Inline tooltip - appears directly below the row
+                    if (showFuelPercentageTooltip) {
+                        InfoTooltip(
+                            message = stringResource(R.string.fuel_percentage_tooltip),
+                            onDismiss = { showFuelPercentageTooltip = false }
+                        )
+                    }
+                }
             }
 
             // Cars used
@@ -517,18 +546,44 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
 }
 
 @Composable
-private fun InsightRow(label: String, value: String) {
+private fun InsightRow(
+    label: String,
+    value: String,
+    showInfoIcon: Boolean = false,
+    onInfoClick: (() -> Unit)? = null
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = label,
-            fontSize = 13.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = label,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (showInfoIcon && onInfoClick != null) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = stringResource(R.string.info),
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onInfoClick
+                        ),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                )
+            }
+        }
         Text(
             text = value,
             fontSize = 13.sp,
@@ -538,3 +593,93 @@ private fun InsightRow(label: String, value: String) {
     }
 }
 
+@Composable
+private fun InfoTooltip(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 2.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        // Arrow pointing UP to the info icon
+        Box(
+            modifier = Modifier
+                .padding(start = 100.dp) // Align with the info icon position
+                .size(12.dp, 6.dp)
+        ) {
+            Canvas(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val path = Path().apply {
+                    // Triangle pointing UP
+                    moveTo(0f, size.height)
+                    lineTo(size.width / 2, 0f)
+                    lineTo(size.width, size.height)
+                    close()
+                }
+                drawPath(
+                    path = path,
+                    color = Color.White
+                )
+            }
+        }
+
+        // Tooltip card - compact design
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(3.dp, RoundedCornerShape(6.dp)),
+            shape = RoundedCornerShape(6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                // Info icon - smaller
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(14.dp)
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Message text - more compact
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 15.sp,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Close button - smaller
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onDismiss
+                        )
+                )
+            }
+        }
+    }
+}

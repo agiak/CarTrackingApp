@@ -53,9 +53,12 @@
     <string name="average_price_per_liter">Μέση τιμή ανά λίτρο</string>
     <string name="cost_per_km">Κόστος ανά χιλιόμετρο</string>
     <string name="fuel_percentage_of_spending">Καύσιμο ως % της δαπάνης</string>
+    <string name="fuel_percentage_tooltip">Αυτή η μέτρηση δείχνει τι ποσοστό της συνολικής σας δαπάνης (καύσιμα + έξοδα) πήγε σε αγορές καυσίμου κατά την επιλεγμένη περίοδο.</string>
     <string name="vehicles_with_activity">Οχήματα με δραστηριότητα</string>
     <string name="biggest_refill">Μεγαλύτερος ανεφοδιασμός</string>
     <string name="biggest_expense">Μεγαλύτερο έξοδο</string>
+    <string name="information">Πληροφορίες</string>
+    <string name="info">Πληροφορίες</string>
 
 
     <!-- Simple labels used in code -->

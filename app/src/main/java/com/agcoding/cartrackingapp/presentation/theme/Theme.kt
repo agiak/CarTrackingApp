@@ -2,24 +2,57 @@ package com.agcoding.cartrackingapp.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 
-// Helper function to create tinted backgrounds (light theme)
-private fun Color.lightenWithAlpha(alpha: Float = 0.08f): Color {
-    return this.copy(alpha = alpha)
+
+// ============================================
+// BACKGROUND TINT CONFIGURATION
+// ============================================
+// ⭐ ADJUST THIS ONE VALUE to control background color intensity across the entire app
+// Higher = more colorful (closer to primary color)
+// Lower = more neutral (closer to white/black)
+// Recommended range: 0.15f to 0.35f
+
+private val LIGHT_BACKGROUND_TINT = 0.2f  // 🎨 ADJUST THIS VALUE (currently 25% primary color)
+
+// ⚙️ Auto-calculated values (DO NOT CHANGE - these are derived from LIGHT_BACKGROUND_TINT)
+private val LIGHT_SURFACE_TINT = LIGHT_BACKGROUND_TINT * 0.4f     // Cards (40% of background tint = lighter)
+private val LIGHT_SURFACE_VARIANT_TINT = LIGHT_BACKGROUND_TINT * 1.2f  // Elevated (120% of background = darker)
+
+private val DARK_BACKGROUND_TINT = LIGHT_BACKGROUND_TINT * 1.0f   // Dark theme (same intensity)
+private val DARK_SURFACE_TINT = DARK_BACKGROUND_TINT * 0.6f       // Dark cards (60% = lighter)
+private val DARK_SURFACE_VARIANT_TINT = DARK_BACKGROUND_TINT * 1.3f   // Dark elevated (130% = darker)
+
+// Helper functions to create tinted backgrounds
+private fun Color.tintWithWhite(tintAmount: Float): Color {
+    val white = Color.White
+    return Color(
+        red = this.red * tintAmount + white.red * (1f - tintAmount),
+        green = this.green * tintAmount + white.green * (1f - tintAmount),
+        blue = this.blue * tintAmount + white.blue * (1f - tintAmount),
+        alpha = 1f
+    )
 }
 
-// Helper function to create tinted backgrounds (dark theme)
-private fun Color.darkenWithAlpha(alpha: Float = 0.12f): Color {
-    return this.copy(alpha = alpha)
+private fun Color.tintWithBlack(tintAmount: Float): Color {
+    val black = Color(0xFF0A0A0A) // Near black for dark theme
+    return Color(
+        red = this.red * tintAmount + black.red * (1f - tintAmount),
+        green = this.green * tintAmount + black.green * (1f - tintAmount),
+        blue = this.blue * tintAmount + black.blue * (1f - tintAmount),
+        alpha = 1f
+    )
 }
 
 // Default Blue Palette
@@ -39,12 +72,12 @@ private val DefaultBlueLightColorScheme = lightColorScheme(
     tertiaryContainer = DefaultBluePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = DefaultBluePalette.tertiaryLight,
 
-    background = Color(0xFFF8FAFB), // Very light blue-gray tint
+    background = DefaultBluePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFCFD), // Subtle blue tint
+    surface = DefaultBluePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE1E8ED), // Light blue-tinted surface
+    surfaceVariant = DefaultBluePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF42474E),
 
     outline = DefaultBluePalette.primaryLight.copy(alpha = 0.12f),
@@ -67,12 +100,12 @@ private val DefaultBlueDarkColorScheme = darkColorScheme(
     tertiaryContainer = DefaultBluePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = DefaultBluePalette.tertiaryDark,
 
-    background = Color(0xFF111416), // Dark with subtle blue tint
+    background = DefaultBluePalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E2E6),
 
-    surface = Color(0xFF1A1D1F), // Slightly elevated with blue tint
+    surface = DefaultBluePalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE2E2E6),
-    surfaceVariant = Color(0xFF2A3135), // Blue-tinted dark surface
+    surfaceVariant = DefaultBluePalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC2C7CE),
 
     outline = DefaultBluePalette.primaryDark.copy(alpha = 0.15f),
@@ -96,12 +129,12 @@ private val SunsetOrangeLightColorScheme = lightColorScheme(
     tertiaryContainer = SunsetOrangePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = SunsetOrangePalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F5), // Very light warm tint
+    background = SunsetOrangePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBF8), // Subtle orange-warm tint
+    surface = SunsetOrangePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF0E6), // Light orange-tinted surface
+    surfaceVariant = SunsetOrangePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4842),
 
     outline = SunsetOrangePalette.primaryLight.copy(alpha = 0.12f),
@@ -124,12 +157,12 @@ private val SunsetOrangeDarkColorScheme = darkColorScheme(
     tertiaryContainer = SunsetOrangePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = SunsetOrangePalette.tertiaryDark,
 
-    background = Color(0xFF1A1512), // Dark with warm tint
+    background = SunsetOrangePalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE6E1DD),
 
-    surface = Color(0xFF211D18), // Slightly elevated with warm tint
+    surface = SunsetOrangePalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE6E1DD),
-    surfaceVariant = Color(0xFF332A22), // Orange-tinted dark surface
+    surfaceVariant = SunsetOrangePalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C4BA),
 
     outline = SunsetOrangePalette.primaryDark.copy(alpha = 0.15f),
@@ -153,12 +186,12 @@ private val ForestGreenLightColorScheme = lightColorScheme(
     tertiaryContainer = ForestGreenPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = ForestGreenPalette.tertiaryLight,
 
-    background = Color(0xFFF6FBF7), // Very light green tint
+    background = ForestGreenPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF9FCF9), // Subtle green tint
+    surface = ForestGreenPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F5EC), // Light green-tinted surface
+    surfaceVariant = ForestGreenPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A42),
 
     outline = ForestGreenPalette.primaryLight.copy(alpha = 0.12f),
@@ -181,12 +214,12 @@ private val ForestGreenDarkColorScheme = darkColorScheme(
     tertiaryContainer = ForestGreenPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = ForestGreenPalette.tertiaryDark,
 
-    background = Color(0xFF121614), // Dark with subtle green tint
+    background = ForestGreenPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE1E3E0),
 
-    surface = Color(0xFF1A1F1C), // Slightly elevated with green tint
+    surface = ForestGreenPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE1E3E0),
-    surfaceVariant = Color(0xFF2A322C), // Green-tinted dark surface
+    surfaceVariant = ForestGreenPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C9C2),
 
     outline = ForestGreenPalette.primaryDark.copy(alpha = 0.15f),
@@ -210,12 +243,12 @@ private val RoyalPurpleLightColorScheme = lightColorScheme(
     tertiaryContainer = RoyalPurplePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = RoyalPurplePalette.tertiaryLight,
 
-    background = Color(0xFFFCF7FB), // Very light purple tint
+    background = RoyalPurplePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFDFAFC), // Subtle purple tint
+    surface = RoyalPurplePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFF3E8F1), // Light purple-tinted surface
+    surfaceVariant = RoyalPurplePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A424E),
 
     outline = RoyalPurplePalette.primaryLight.copy(alpha = 0.12f),
@@ -238,12 +271,12 @@ private val RoyalPurpleDarkColorScheme = darkColorScheme(
     tertiaryContainer = RoyalPurplePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = RoyalPurplePalette.tertiaryDark,
 
-    background = Color(0xFF161214), // Dark with subtle purple tint
+    background = RoyalPurplePalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E1E3),
 
-    surface = Color(0xFF1F1A1D), // Slightly elevated with purple tint
+    surface = RoyalPurplePalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E1E3),
-    surfaceVariant = Color(0xFF332A30), // Purple-tinted dark surface
+    surfaceVariant = RoyalPurplePalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCEC0C9),
 
     outline = RoyalPurplePalette.primaryDark.copy(alpha = 0.15f),
@@ -267,12 +300,12 @@ private val OceanTealLightColorScheme = lightColorScheme(
     tertiaryContainer = OceanTealPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = OceanTealPalette.tertiaryLight,
 
-    background = Color(0xFFF5FAFB), // Very light teal tint
+    background = OceanTealPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF8FCFC), // Subtle teal tint
+    surface = OceanTealPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE1F3F5), // Light teal-tinted surface
+    surfaceVariant = OceanTealPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A4C),
 
     outline = OceanTealPalette.primaryLight.copy(alpha = 0.12f),
@@ -295,12 +328,12 @@ private val OceanTealDarkColorScheme = darkColorScheme(
     tertiaryContainer = OceanTealPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = OceanTealPalette.tertiaryDark,
 
-    background = Color(0xFF111616), // Dark with subtle teal tint
+    background = OceanTealPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE0E3E3),
 
-    surface = Color(0xFF1A1F1F), // Slightly elevated with teal tint
+    surface = OceanTealPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE0E3E3),
-    surfaceVariant = Color(0xFF293232), // Teal-tinted dark surface
+    surfaceVariant = OceanTealPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFBFC9C9),
 
     outline = OceanTealPalette.primaryDark.copy(alpha = 0.15f),
@@ -324,12 +357,12 @@ private val CrimsonRedLightColorScheme = lightColorScheme(
     tertiaryContainer = CrimsonRedPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = CrimsonRedPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F8), // Very light red tint
+    background = CrimsonRedPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFAFA), // Subtle red tint
+    surface = CrimsonRedPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFEBEE), // Light red-tinted surface
+    surfaceVariant = CrimsonRedPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4242),
 
     outline = CrimsonRedPalette.primaryLight.copy(alpha = 0.12f),
@@ -352,12 +385,12 @@ private val CrimsonRedDarkColorScheme = darkColorScheme(
     tertiaryContainer = CrimsonRedPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = CrimsonRedPalette.tertiaryDark,
 
-    background = Color(0xFF1A1212), // Dark with red tint
+    background = CrimsonRedPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE6DDDD),
 
-    surface = Color(0xFF211818), // Slightly elevated with red tint
+    surface = CrimsonRedPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE6DDDD),
-    surfaceVariant = Color(0xFF332222), // Red-tinted dark surface
+    surfaceVariant = CrimsonRedPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0BABA),
 
     outline = CrimsonRedPalette.primaryDark.copy(alpha = 0.15f),
@@ -381,12 +414,12 @@ private val AmberGoldLightColorScheme = lightColorScheme(
     tertiaryContainer = AmberGoldPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = AmberGoldPalette.tertiaryLight,
 
-    background = Color(0xFFFFFCF5), // Very light amber tint
+    background = AmberGoldPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFDF8), // Subtle amber tint
+    surface = AmberGoldPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF8E1), // Light amber-tinted surface
+    surfaceVariant = AmberGoldPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4A42),
 
     outline = AmberGoldPalette.primaryLight.copy(alpha = 0.12f),
@@ -409,12 +442,12 @@ private val AmberGoldDarkColorScheme = darkColorScheme(
     tertiaryContainer = AmberGoldPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = AmberGoldPalette.tertiaryDark,
 
-    background = Color(0xFF1A1712), // Dark with amber tint
+    background = AmberGoldPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE6E1DD),
 
-    surface = Color(0xFF211E18), // Slightly elevated with amber tint
+    surface = AmberGoldPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE6E1DD),
-    surfaceVariant = Color(0xFF332D22), // Amber-tinted dark surface
+    surfaceVariant = AmberGoldPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C8BA),
 
     outline = AmberGoldPalette.primaryDark.copy(alpha = 0.15f),
@@ -438,12 +471,12 @@ private val DeepIndigoLightColorScheme = lightColorScheme(
     tertiaryContainer = DeepIndigoPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = DeepIndigoPalette.tertiaryLight,
 
-    background = Color(0xFFF8F9FB), // Very light indigo tint
+    background = DeepIndigoPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFBFC), // Subtle indigo tint
+    surface = DeepIndigoPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8EAF6), // Light indigo-tinted surface
+    surfaceVariant = DeepIndigoPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF42444E),
 
     outline = DeepIndigoPalette.primaryLight.copy(alpha = 0.12f),
@@ -466,12 +499,12 @@ private val DeepIndigoDarkColorScheme = darkColorScheme(
     tertiaryContainer = DeepIndigoPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = DeepIndigoPalette.tertiaryDark,
 
-    background = Color(0xFF121416), // Dark with indigo tint
+    background = DeepIndigoPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE1E2E6),
 
-    surface = Color(0xFF1A1C1F), // Slightly elevated with indigo tint
+    surface = DeepIndigoPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE1E2E6),
-    surfaceVariant = Color(0xFF2A2D35), // Indigo-tinted dark surface
+    surfaceVariant = DeepIndigoPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C4CE),
 
     outline = DeepIndigoPalette.primaryDark.copy(alpha = 0.15f),
@@ -495,12 +528,12 @@ private val SlateGrayLightColorScheme = lightColorScheme(
     tertiaryContainer = SlateGrayPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = SlateGrayPalette.tertiaryLight,
 
-    background = Color(0xFFF8F9FA), // Very light gray tint
+    background = SlateGrayPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFBFC), // Subtle gray tint
+    surface = SlateGrayPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFECEFF1), // Light gray-tinted surface
+    surfaceVariant = SlateGrayPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF42464E),
 
     outline = SlateGrayPalette.primaryLight.copy(alpha = 0.12f),
@@ -523,12 +556,12 @@ private val SlateGrayDarkColorScheme = darkColorScheme(
     tertiaryContainer = SlateGrayPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = SlateGrayPalette.tertiaryDark,
 
-    background = Color(0xFF141618), // Dark with neutral gray
+    background = SlateGrayPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E3E5),
 
-    surface = Color(0xFF1C1E20), // Slightly elevated gray
+    surface = SlateGrayPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE2E3E5),
-    surfaceVariant = Color(0xFF2C3034), // Gray-tinted dark surface
+    surfaceVariant = SlateGrayPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC2C6CC),
 
     outline = SlateGrayPalette.primaryDark.copy(alpha = 0.15f),
@@ -552,12 +585,12 @@ private val RosePinkLightColorScheme = lightColorScheme(
     tertiaryContainer = RosePinkPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = RosePinkPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F9), // Very light pink tint
+    background = RosePinkPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFAFB), // Subtle pink tint
+    surface = RosePinkPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFCE4EC), // Light pink-tinted surface
+    surfaceVariant = RosePinkPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4244),
 
     outline = RosePinkPalette.primaryLight.copy(alpha = 0.12f),
@@ -580,12 +613,12 @@ private val RosePinkDarkColorScheme = darkColorScheme(
     tertiaryContainer = RosePinkPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = RosePinkPalette.tertiaryDark,
 
-    background = Color(0xFF1A1214), // Dark with pink tint
+    background = RosePinkPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E1E2),
 
-    surface = Color(0xFF211A1C), // Slightly elevated with pink tint
+    surface = RosePinkPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E1E2),
-    surfaceVariant = Color(0xFF332A2D), // Pink-tinted dark surface
+    surfaceVariant = RosePinkPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCEC0C4),
 
     outline = RosePinkPalette.primaryDark.copy(alpha = 0.15f),
@@ -609,12 +642,16 @@ private val MintBreezeLightColorScheme = lightColorScheme(
     tertiaryContainer = MintBreezePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = MintBreezePalette.tertiaryLight,
 
-    background = Color(0xFFF0FAF8), // Very light mint tint
+    background = MintBreezePalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF5FCFB), // Subtle mint tint
+    surface = MintBreezePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE0F2F1), // Light mint-tinted surface
+
+    surfaceVariant = MintBreezePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4947),
 
     outline = MintBreezePalette.primaryLight.copy(alpha = 0.12f),
@@ -637,12 +674,16 @@ private val MintBreezeDarkColorScheme = darkColorScheme(
     tertiaryContainer = MintBreezePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = MintBreezePalette.tertiaryDark,
 
-    background = Color(0xFF101816), // Dark with mint tint
+    background = MintBreezePalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE1E7E5),
 
-    surface = Color(0xFF1A201F), // Slightly elevated with mint tint
+    surface = MintBreezePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE1E7E5),
-    surfaceVariant = Color(0xFF28332F), // Mint-tinted dark surface
+
+    surfaceVariant = MintBreezePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFBEC8C5),
 
     outline = MintBreezePalette.primaryDark.copy(alpha = 0.15f),
@@ -666,12 +707,16 @@ private val LavenderDreamLightColorScheme = lightColorScheme(
     tertiaryContainer = LavenderDreamPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = LavenderDreamPalette.tertiaryLight,
 
-    background = Color(0xFFFAF7FC), // Very light lavender tint
+    background = LavenderDreamPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFCFAFD), // Subtle lavender tint
+    surface = LavenderDreamPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFF3E5F5), // Light lavender-tinted surface
+
+    surfaceVariant = LavenderDreamPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A4149),
 
     outline = LavenderDreamPalette.primaryLight.copy(alpha = 0.12f),
@@ -694,12 +739,16 @@ private val LavenderDreamDarkColorScheme = darkColorScheme(
     tertiaryContainer = LavenderDreamPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = LavenderDreamPalette.tertiaryDark,
 
-    background = Color(0xFF171218), // Dark with lavender tint
+    background = LavenderDreamPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E1E7),
 
-    surface = Color(0xFF1F1A21), // Slightly elevated with lavender tint
+    surface = LavenderDreamPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E1E7),
-    surfaceVariant = Color(0xFF312A33), // Lavender-tinted dark surface
+
+    surfaceVariant = LavenderDreamPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC8C0CE),
 
     outline = LavenderDreamPalette.primaryDark.copy(alpha = 0.15f),
@@ -723,12 +772,16 @@ private val CoralSunsetLightColorScheme = lightColorScheme(
     tertiaryContainer = CoralSunsetPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = CoralSunsetPalette.tertiaryLight,
 
-    background = Color(0xFFFFF9F7), // Very light coral tint
+    background = CoralSunsetPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBFA), // Subtle coral tint
+    surface = CoralSunsetPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFEBE5), // Light coral-tinted surface
+
+    surfaceVariant = CoralSunsetPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4442),
 
     outline = CoralSunsetPalette.primaryLight.copy(alpha = 0.12f),
@@ -751,12 +804,16 @@ private val CoralSunsetDarkColorScheme = darkColorScheme(
     tertiaryContainer = CoralSunsetPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = CoralSunsetPalette.tertiaryDark,
 
-    background = Color(0xFF1A1412), // Dark with coral tint
+    background = CoralSunsetPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E2E1),
 
-    surface = Color(0xFF211C1A), // Slightly elevated with coral tint
+    surface = CoralSunsetPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E2E1),
-    surfaceVariant = Color(0xFF332C28), // Coral-tinted dark surface
+
+    surfaceVariant = CoralSunsetPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCEC4C0),
 
     outline = CoralSunsetPalette.primaryDark.copy(alpha = 0.15f),
@@ -780,12 +837,16 @@ private val EmeraldForestLightColorScheme = lightColorScheme(
     tertiaryContainer = EmeraldForestPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = EmeraldForestPalette.tertiaryLight,
 
-    background = Color(0xFFF2FAF4), // Very light emerald tint
+    background = EmeraldForestPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF7FCF8), // Subtle emerald tint
+    surface = EmeraldForestPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F5E9), // Light emerald-tinted surface
+
+    surfaceVariant = EmeraldForestPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A40),
 
     outline = EmeraldForestPalette.primaryLight.copy(alpha = 0.12f),
@@ -808,12 +869,16 @@ private val EmeraldForestDarkColorScheme = darkColorScheme(
     tertiaryContainer = EmeraldForestPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = EmeraldForestPalette.tertiaryDark,
 
-    background = Color(0xFF101813), // Dark with emerald tint
+    background = EmeraldForestPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE1E7E3),
 
-    surface = Color(0xFF1A201C), // Slightly elevated with emerald tint
+    surface = EmeraldForestPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE1E7E3),
-    surfaceVariant = Color(0xFF283330), // Emerald-tinted dark surface
+
+    surfaceVariant = EmeraldForestPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFBEC8C2),
 
     outline = EmeraldForestPalette.primaryDark.copy(alpha = 0.15f),
@@ -837,12 +902,16 @@ private val ElectricCyanLightColorScheme = lightColorScheme(
     tertiaryContainer = ElectricCyanPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = ElectricCyanPalette.tertiaryLight,
 
-    background = Color(0xFFF0FAFC), // Very light cyan tint
+    background = ElectricCyanPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF5FCFE), // Subtle cyan tint
+    surface = ElectricCyanPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE0F7FA), // Light cyan-tinted surface
+
+    surfaceVariant = ElectricCyanPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A4D),
 
     outline = ElectricCyanPalette.primaryLight.copy(alpha = 0.12f),
@@ -865,12 +934,16 @@ private val ElectricCyanDarkColorScheme = darkColorScheme(
     tertiaryContainer = ElectricCyanPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = ElectricCyanPalette.tertiaryDark,
 
-    background = Color(0xFF101618), // Dark with cyan tint
+    background = ElectricCyanPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE1E6E7),
 
-    surface = Color(0xFF1A1F20), // Slightly elevated with cyan tint
+    surface = ElectricCyanPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE1E6E7),
-    surfaceVariant = Color(0xFF283133), // Cyan-tinted dark surface
+
+    surfaceVariant = ElectricCyanPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFBEC6C8),
 
     outline = ElectricCyanPalette.primaryDark.copy(alpha = 0.15f),
@@ -894,12 +967,16 @@ private val MidnightBlackLightColorScheme = lightColorScheme(
     tertiaryContainer = MidnightBlackPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = MidnightBlackPalette.tertiaryLight,
 
-    background = Color(0xFFFAFAFA), // Almost white
+    background = MidnightBlackPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFDFDFD), // Pure white
+    surface = MidnightBlackPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFF5F5F5), // Light gray surface
+
+    surfaceVariant = MidnightBlackPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF424242),
 
     outline = MidnightBlackPalette.primaryLight.copy(alpha = 0.12f),
@@ -922,12 +999,16 @@ private val MidnightBlackDarkColorScheme = darkColorScheme(
     tertiaryContainer = MidnightBlackPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = MidnightBlackPalette.tertiaryDark,
 
-    background = Color(0xFF0A0A0A), // Almost pure black
+    background = MidnightBlackPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E5E5),
 
-    surface = Color(0xFF121212), // True black surface
+    surface = MidnightBlackPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E5E5),
-    surfaceVariant = Color(0xFF1F1F1F), // Dark gray surface
+
+    surfaceVariant = MidnightBlackPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC8C8C8),
 
     outline = MidnightBlackPalette.primaryDark.copy(alpha = 0.15f),
@@ -951,12 +1032,16 @@ private val IceWhiteLightColorScheme = lightColorScheme(
     tertiaryContainer = IceWhitePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = IceWhitePalette.tertiaryLight,
 
-    background = Color(0xFFFBFCFD), // Ice white
+    background = IceWhitePalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFEFEFF), // Pure ice white
+    surface = IceWhitePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFECEFF1), // Light ice gray
+
+    surfaceVariant = IceWhitePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4447),
 
     outline = IceWhitePalette.primaryLight.copy(alpha = 0.12f),
@@ -979,12 +1064,16 @@ private val IceWhiteDarkColorScheme = darkColorScheme(
     tertiaryContainer = IceWhitePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = IceWhitePalette.tertiaryDark,
 
-    background = Color(0xFF141618), // Dark ice gray
+    background = IceWhitePalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE8EAEB),
 
-    surface = Color(0xFF1C1E20), // Dark ice surface
+    surface = IceWhitePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE8EAEB),
-    surfaceVariant = Color(0xFF2C3034), // Ice-tinted dark surface
+
+    surfaceVariant = IceWhitePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCFD3D6),
 
     outline = IceWhitePalette.primaryDark.copy(alpha = 0.15f),
@@ -1008,12 +1097,16 @@ private val NeonMagentaLightColorScheme = lightColorScheme(
     tertiaryContainer = NeonMagentaPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = NeonMagentaPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8FA), // Very light magenta tint
+    background = NeonMagentaPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBFC), // Subtle magenta tint
+    surface = NeonMagentaPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFCE4EC), // Light magenta surface
+
+    surfaceVariant = NeonMagentaPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4E4244),
 
     outline = NeonMagentaPalette.primaryLight.copy(alpha = 0.12f),
@@ -1036,12 +1129,16 @@ private val NeonMagentaDarkColorScheme = darkColorScheme(
     tertiaryContainer = NeonMagentaPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = NeonMagentaPalette.tertiaryDark,
 
-    background = Color(0xFF1A1214), // Dark with magenta tint
+    background = NeonMagentaPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E1E3),
 
-    surface = Color(0xFF211A1D), // Slightly elevated with magenta
+    surface = NeonMagentaPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E1E3),
-    surfaceVariant = Color(0xFF332A2E), // Magenta-tinted dark surface
+
+    surfaceVariant = NeonMagentaPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCEC0C6),
 
     outline = NeonMagentaPalette.primaryDark.copy(alpha = 0.15f),
@@ -1065,12 +1162,16 @@ private val DarkOliveLightColorScheme = lightColorScheme(
     tertiaryContainer = DarkOlivePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = DarkOlivePalette.tertiaryLight,
 
-    background = Color(0xFFF7F9F3), // Very light olive tint
+    background = DarkOlivePalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFCF7), // Subtle olive tint
+    surface = DarkOlivePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F5E9), // Light olive surface
+
+    surfaceVariant = DarkOlivePalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A3C),
 
     outline = DarkOlivePalette.primaryLight.copy(alpha = 0.12f),
@@ -1093,12 +1194,16 @@ private val DarkOliveDarkColorScheme = darkColorScheme(
     tertiaryContainer = DarkOlivePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = DarkOlivePalette.tertiaryDark,
 
-    background = Color(0xFF121813), // Dark olive
+    background = DarkOlivePalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE3E7E1),
 
-    surface = Color(0xFF1A201C), // Dark olive surface
+    surface = DarkOlivePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE3E7E1),
-    surfaceVariant = Color(0xFF283330), // Olive-tinted dark surface
+
+    surfaceVariant = DarkOlivePalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C8C2),
 
     outline = DarkOlivePalette.primaryDark.copy(alpha = 0.15f),
@@ -1122,12 +1227,16 @@ private val VolcanicAshLightColorScheme = lightColorScheme(
     tertiaryContainer = VolcanicAshPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = VolcanicAshPalette.tertiaryLight,
 
-    background = Color(0xFFF9FAFB), // Ash white
+    background = VolcanicAshPalette.primaryLight
+        .tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFBFCFD), // Light ash
+    surface = VolcanicAshPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFECEFF1), // Volcanic ash gray
+
+    surfaceVariant = VolcanicAshPalette.primaryLight
+        .tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4447),
 
     outline = VolcanicAshPalette.primaryLight.copy(alpha = 0.12f),
@@ -1150,12 +1259,16 @@ private val VolcanicAshDarkColorScheme = darkColorScheme(
     tertiaryContainer = VolcanicAshPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = VolcanicAshPalette.tertiaryDark,
 
-    background = Color(0xFF0F1315), // Volcanic dark
+    background = VolcanicAshPalette.primaryDark
+        .tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E7E9),
 
-    surface = Color(0xFF181B1D), // Dark ash surface
+    surface = VolcanicAshPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E7E9),
-    surfaceVariant = Color(0xFF272C2E), // Ash-tinted dark surface
+
+    surfaceVariant = VolcanicAshPalette.primaryDark
+        .tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC5C9CB),
 
     outline = VolcanicAshPalette.primaryDark.copy(alpha = 0.15f),
@@ -1183,12 +1296,12 @@ private val SunsetFireLightColorScheme = lightColorScheme(
     tertiaryContainer = SunsetFirePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = SunsetFirePalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F0),
+    background = SunsetFirePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBF5),
+    surface = SunsetFirePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF0E0),
+    surfaceVariant = SunsetFirePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A424E),
 
     outline = SunsetFirePalette.primaryLight.copy(alpha = 0.12f),
@@ -1211,12 +1324,12 @@ private val SunsetFireDarkColorScheme = darkColorScheme(
     tertiaryContainer = SunsetFirePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = SunsetFirePalette.tertiaryDark,
 
-    background = Color(0xFF1A1214),
+    background = SunsetFirePalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E2E5),
 
-    surface = Color(0xFF221A1C),
+    surface = SunsetFirePalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE8E2E5),
-    surfaceVariant = Color(0xFF352628),
+    surfaceVariant = SunsetFirePalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C5C8),
 
     outline = SunsetFirePalette.primaryDark.copy(alpha = 0.15f),
@@ -1240,12 +1353,12 @@ private val TropicalParadiseLightColorScheme = lightColorScheme(
     tertiaryContainer = TropicalParadisePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = TropicalParadisePalette.tertiaryLight,
 
-    background = Color(0xFFF0FFFE),
+    background = TropicalParadisePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF5FFFF),
+    surface = TropicalParadisePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE0FFF8),
+    surfaceVariant = TropicalParadisePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4A48),
 
     outline = TropicalParadisePalette.primaryLight.copy(alpha = 0.12f),
@@ -1268,12 +1381,12 @@ private val TropicalParadiseDarkColorScheme = darkColorScheme(
     tertiaryContainer = TropicalParadisePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = TropicalParadisePalette.tertiaryDark,
 
-    background = Color(0xFF0F1A18),
+    background = TropicalParadisePalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E8E6),
 
-    surface = Color(0xFF152220),
+    surface = TropicalParadisePalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE2E8E6),
-    surfaceVariant = Color(0xFF203230),
+    surfaceVariant = TropicalParadisePalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0CCC8),
 
     outline = TropicalParadisePalette.primaryDark.copy(alpha = 0.15f),
@@ -1297,12 +1410,12 @@ private val RoyalGoldLightColorScheme = lightColorScheme(
     tertiaryContainer = RoyalGoldPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = RoyalGoldPalette.tertiaryLight,
 
-    background = Color(0xFFFFFAF0),
+    background = RoyalGoldPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFDF8),
+    surface = RoyalGoldPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF5E0),
+    surfaceVariant = RoyalGoldPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A4230),
 
     outline = RoyalGoldPalette.primaryLight.copy(alpha = 0.12f),
@@ -1325,12 +1438,12 @@ private val RoyalGoldDarkColorScheme = darkColorScheme(
     tertiaryContainer = RoyalGoldPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = RoyalGoldPalette.tertiaryDark,
 
-    background = Color(0xFF1A1814),
+    background = RoyalGoldPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E6E2),
 
-    surface = Color(0xFF22201A),
+    surface = RoyalGoldPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE8E6E2),
-    surfaceVariant = Color(0xFF302C22),
+    surfaceVariant = RoyalGoldPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0CCC0),
 
     outline = RoyalGoldPalette.primaryDark.copy(alpha = 0.15f),
@@ -1382,12 +1495,12 @@ private val BerryBlastDarkColorScheme = darkColorScheme(
     tertiaryContainer = BerryBlastPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = BerryBlastPalette.tertiaryDark,
 
-    background = Color(0xFF161214),
+    background = BerryBlastPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE5E1E3),
 
-    surface = Color(0xFF1F1A1D),
+    surface = BerryBlastPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE5E1E3),
-    surfaceVariant = Color(0xFF302A28),
+    surfaceVariant = BerryBlastPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFCEC0C9),
 
     outline = BerryBlastPalette.primaryDark.copy(alpha = 0.15f),
@@ -1411,12 +1524,12 @@ private val NeonNightLightColorScheme = lightColorScheme(
     tertiaryContainer = NeonNightPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = NeonNightPalette.tertiaryLight,
 
-    background = Color(0xFFF5FAFF),
+    background = NeonNightPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFDFF),
+    surface = NeonNightPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F5FF),
+    surfaceVariant = NeonNightPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4450),
 
     outline = NeonNightPalette.primaryLight.copy(alpha = 0.12f),
@@ -1439,12 +1552,12 @@ private val NeonNightDarkColorScheme = darkColorScheme(
     tertiaryContainer = NeonNightPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = NeonNightPalette.tertiaryDark,
 
-    background = Color(0xFF0F1518),
+    background = NeonNightPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E6E8),
 
-    surface = Color(0xFF151D22),
+    surface = NeonNightPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE2E6E8),
-    surfaceVariant = Color(0xFF202830),
+    surfaceVariant = NeonNightPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C8D0),
 
     outline = NeonNightPalette.primaryDark.copy(alpha = 0.15f),
@@ -1468,12 +1581,12 @@ private val AutumnHarvestLightColorScheme = lightColorScheme(
     tertiaryContainer = AutumnHarvestPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = AutumnHarvestPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F0),
+    background = AutumnHarvestPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBF5),
+    surface = AutumnHarvestPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF0E0),
+    surfaceVariant = AutumnHarvestPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E38),
 
     outline = AutumnHarvestPalette.primaryLight.copy(alpha = 0.12f),
@@ -1496,12 +1609,12 @@ private val AutumnHarvestDarkColorScheme = darkColorScheme(
     tertiaryContainer = AutumnHarvestPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = AutumnHarvestPalette.tertiaryDark,
 
-    background = Color(0xFF1A1614),
+    background = AutumnHarvestPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E4E2),
 
-    surface = Color(0xFF221E1A),
+    surface = AutumnHarvestPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE8E4E2),
-    surfaceVariant = Color(0xFF302824),
+    surfaceVariant = AutumnHarvestPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C8C0),
 
     outline = AutumnHarvestPalette.primaryDark.copy(alpha = 0.15f),
@@ -1525,12 +1638,12 @@ private val ArcticFrostLightColorScheme = lightColorScheme(
     tertiaryContainer = ArcticFrostPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = ArcticFrostPalette.tertiaryLight,
 
-    background = Color(0xFFF0FBFD),
+    background = ArcticFrostPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF5FEFF),
+    surface = ArcticFrostPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE0F5FA),
+    surfaceVariant = ArcticFrostPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4648),
 
     outline = ArcticFrostPalette.primaryLight.copy(alpha = 0.12f),
@@ -1553,12 +1666,12 @@ private val ArcticFrostDarkColorScheme = darkColorScheme(
     tertiaryContainer = ArcticFrostPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = ArcticFrostPalette.tertiaryDark,
 
-    background = Color(0xFF0F1718),
+    background = ArcticFrostPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E7E8),
 
-    surface = Color(0xFF151F22),
+    surface = ArcticFrostPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE2E7E8),
-    surfaceVariant = Color(0xFF202A2E),
+    surfaceVariant = ArcticFrostPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0CCD0),
 
     outline = ArcticFrostPalette.primaryDark.copy(alpha = 0.15f),
@@ -1582,12 +1695,12 @@ private val CherryBlossomLightColorScheme = lightColorScheme(
     tertiaryContainer = CherryBlossomPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = CherryBlossomPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F9),
+    background = CherryBlossomPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBFC),
+    surface = CherryBlossomPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFE8EB),
+    surfaceVariant = CherryBlossomPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E40),
 
     outline = CherryBlossomPalette.primaryLight.copy(alpha = 0.12f),
@@ -1610,12 +1723,12 @@ private val CherryBlossomDarkColorScheme = darkColorScheme(
     tertiaryContainer = CherryBlossomPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = CherryBlossomPalette.tertiaryDark,
 
-    background = Color(0xFF1A1214),
+    background = CherryBlossomPalette.primaryDark.tintWithBlack(DARK_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E2E4),
 
-    surface = Color(0xFF221A1C),
+    surface = CherryBlossomPalette.primaryDark.tintWithBlack(DARK_SURFACE_TINT),
     onSurface = Color(0xFFE8E2E4),
-    surfaceVariant = Color(0xFF302426),
+    surfaceVariant = CherryBlossomPalette.primaryDark.tintWithBlack(DARK_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C0C4),
 
     outline = CherryBlossomPalette.primaryDark.copy(alpha = 0.15f),
@@ -1639,12 +1752,12 @@ private val EmeraldSeaLightColorScheme = lightColorScheme(
     tertiaryContainer = EmeraldSeaPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = EmeraldSeaPalette.tertiaryLight,
 
-    background = Color(0xFFF0FAF9),
+    background = EmeraldSeaPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFF5FDFB),
+    surface = EmeraldSeaPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE0F5F0),
+    surfaceVariant = EmeraldSeaPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4846),
 
     outline = EmeraldSeaPalette.primaryLight.copy(alpha = 0.12f),
@@ -1667,12 +1780,12 @@ private val EmeraldSeaDarkColorScheme = darkColorScheme(
     tertiaryContainer = EmeraldSeaPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = EmeraldSeaPalette.tertiaryDark,
 
-    background = Color(0xFF0F1A18),
+    background = EmeraldSeaPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E8E6),
 
-    surface = Color(0xFF152220),
+    surface = EmeraldSeaPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE2E8E6),
-    surfaceVariant = Color(0xFF202E2C),
+    surfaceVariant = EmeraldSeaPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0CCC8),
 
     outline = EmeraldSeaPalette.primaryDark.copy(alpha = 0.15f),
@@ -1696,12 +1809,12 @@ private val GoldenHourLightColorScheme = lightColorScheme(
     tertiaryContainer = GoldenHourPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = GoldenHourPalette.tertiaryLight,
 
-    background = Color(0xFFFFF9F0),
+    background = GoldenHourPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFCF5),
+    surface = GoldenHourPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFF3E0),
+    surfaceVariant = GoldenHourPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A4238),
 
     outline = GoldenHourPalette.primaryLight.copy(alpha = 0.12f),
@@ -1724,12 +1837,12 @@ private val GoldenHourDarkColorScheme = darkColorScheme(
     tertiaryContainer = GoldenHourPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = GoldenHourPalette.tertiaryDark,
 
-    background = Color(0xFF1A1714),
+    background = GoldenHourPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E6E2),
 
-    surface = Color(0xFF221F1A),
+    surface = GoldenHourPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E6E2),
-    surfaceVariant = Color(0xFF302A24),
+    surfaceVariant = GoldenHourPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C9C0),
 
     outline = GoldenHourPalette.primaryDark.copy(alpha = 0.15f),
@@ -1757,12 +1870,12 @@ private val NeonLimeLightColorScheme = lightColorScheme(
     tertiaryContainer = NeonLimePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = NeonLimePalette.tertiaryLight,
 
-    background = Color(0xFFFFFFF5),
+    background = NeonLimePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFFF8),
+    surface = NeonLimePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFF5FFE0),
+    surfaceVariant = NeonLimePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4238),
 
     outline = NeonLimePalette.primaryLight.copy(alpha = 0.12f),
@@ -1785,12 +1898,12 @@ private val NeonLimeDarkColorScheme = darkColorScheme(
     tertiaryContainer = NeonLimePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = NeonLimePalette.tertiaryDark,
 
-    background = Color(0xFF1A1A14),
+    background = NeonLimePalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E8E2),
 
-    surface = Color(0xFF22221A),
+    surface = NeonLimePalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E8E2),
-    surfaceVariant = Color(0xFF302E22),
+    surfaceVariant = NeonLimePalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0CCC0),
 
     outline = NeonLimePalette.primaryDark.copy(alpha = 0.15f),
@@ -1814,12 +1927,12 @@ private val HotLavaLightColorScheme = lightColorScheme(
     tertiaryContainer = HotLavaPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = HotLavaPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F5),
+    background = HotLavaPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBF8),
+    surface = HotLavaPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFE8E0),
+    surfaceVariant = HotLavaPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E38),
 
     outline = HotLavaPalette.primaryLight.copy(alpha = 0.12f),
@@ -1842,18 +1955,17 @@ private val HotLavaDarkColorScheme = darkColorScheme(
     tertiaryContainer = HotLavaPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = HotLavaPalette.tertiaryDark,
 
-    background = Color(0xFF1A1414),
+    background = HotLavaPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E4E2),
 
-    surface = Color(0xFF221A1A),
+    surface = HotLavaPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E4E2),
-    surfaceVariant = Color(0xFF302424),
+    surfaceVariant = HotLavaPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C4C0),
 
     outline = HotLavaPalette.primaryDark.copy(alpha = 0.15f),
     outlineVariant = HotLavaPalette.primaryDark.copy(alpha = 0.10f)
 )
-
 // Cyber Pink Palette
 private val CyberPinkLightColorScheme = lightColorScheme(
     primary = CyberPinkPalette.primaryLight,
@@ -1871,12 +1983,12 @@ private val CyberPinkLightColorScheme = lightColorScheme(
     tertiaryContainer = CyberPinkPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = CyberPinkPalette.tertiaryLight,
 
-    background = Color(0xFFFFF5F8),
+    background = CyberPinkPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFAFC),
+    surface = CyberPinkPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFE8F0),
+    surfaceVariant = CyberPinkPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E42),
 
     outline = CyberPinkPalette.primaryLight.copy(alpha = 0.12f),
@@ -1899,12 +2011,12 @@ private val CyberPinkDarkColorScheme = darkColorScheme(
     tertiaryContainer = CyberPinkPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = CyberPinkPalette.tertiaryDark,
 
-    background = Color(0xFF1A1416),
+    background = CyberPinkPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E4E6),
 
-    surface = Color(0xFF221A1E),
+    surface = CyberPinkPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E4E6),
-    surfaceVariant = Color(0xFF302428),
+    surfaceVariant = CyberPinkPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C4C8),
 
     outline = CyberPinkPalette.primaryDark.copy(alpha = 0.15f),
@@ -1928,12 +2040,12 @@ private val OceanSunsetLightColorScheme = lightColorScheme(
     tertiaryContainer = OceanSunsetPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = OceanSunsetPalette.tertiaryLight,
 
-    background = Color(0xFFF5F8FF),
+    background = OceanSunsetPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFCFF),
+    surface = OceanSunsetPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F0FF),
+    surfaceVariant = OceanSunsetPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4248),
 
     outline = OceanSunsetPalette.primaryLight.copy(alpha = 0.12f),
@@ -1956,12 +2068,12 @@ private val OceanSunsetDarkColorScheme = darkColorScheme(
     tertiaryContainer = OceanSunsetPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = OceanSunsetPalette.tertiaryDark,
 
-    background = Color(0xFF0F1418),
+    background = OceanSunsetPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E6E8),
 
-    surface = Color(0xFF151A20),
+    surface = OceanSunsetPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE2E6E8),
-    surfaceVariant = Color(0xFF202428),
+    surfaceVariant = OceanSunsetPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C8D0),
 
     outline = OceanSunsetPalette.primaryDark.copy(alpha = 0.15f),
@@ -1985,12 +2097,12 @@ private val ForestAmberLightColorScheme = lightColorScheme(
     tertiaryContainer = ForestAmberPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = ForestAmberPalette.tertiaryLight,
 
-    background = Color(0xFFF5FFF8),
+    background = ForestAmberPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFFFB),
+    surface = ForestAmberPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F5E0),
+    surfaceVariant = ForestAmberPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4638),
 
     outline = ForestAmberPalette.primaryLight.copy(alpha = 0.12f),
@@ -2013,12 +2125,12 @@ private val ForestAmberDarkColorScheme = darkColorScheme(
     tertiaryContainer = ForestAmberPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = ForestAmberPalette.tertiaryDark,
 
-    background = Color(0xFF0F1A14),
+    background = ForestAmberPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E8E4),
 
-    surface = Color(0xFF152218),
+    surface = ForestAmberPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE2E8E4),
-    surfaceVariant = Color(0xFF202C24),
+    surfaceVariant = ForestAmberPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0CCC4),
 
     outline = ForestAmberPalette.primaryDark.copy(alpha = 0.15f),
@@ -2042,12 +2154,12 @@ private val SapphireRoseLightColorScheme = lightColorScheme(
     tertiaryContainer = SapphireRosePalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = SapphireRosePalette.tertiaryLight,
 
-    background = Color(0xFFF5F5FF),
+    background = SapphireRosePalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFAFF),
+    surface = SapphireRosePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8E8FF),
+    surfaceVariant = SapphireRosePalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E3E4A),
 
     outline = SapphireRosePalette.primaryLight.copy(alpha = 0.12f),
@@ -2070,12 +2182,12 @@ private val SapphireRoseDarkColorScheme = darkColorScheme(
     tertiaryContainer = SapphireRosePalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = SapphireRosePalette.tertiaryDark,
 
-    background = Color(0xFF0F1018),
+    background = SapphireRosePalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E4E8),
 
-    surface = Color(0xFF151620),
+    surface = SapphireRosePalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE2E4E8),
-    surfaceVariant = Color(0xFF202028),
+    surfaceVariant = SapphireRosePalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C4D0),
 
     outline = SapphireRosePalette.primaryDark.copy(alpha = 0.15f),
@@ -2099,12 +2211,12 @@ private val ElectricVioletLightColorScheme = lightColorScheme(
     tertiaryContainer = ElectricVioletPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = ElectricVioletPalette.tertiaryLight,
 
-    background = Color(0xFFFAF5FF),
+    background = ElectricVioletPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFDFAFF),
+    surface = ElectricVioletPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFF0E8FF),
+    surfaceVariant = ElectricVioletPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E50),
 
     outline = ElectricVioletPalette.primaryLight.copy(alpha = 0.12f),
@@ -2127,12 +2239,12 @@ private val ElectricVioletDarkColorScheme = darkColorScheme(
     tertiaryContainer = ElectricVioletPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = ElectricVioletPalette.tertiaryDark,
 
-    background = Color(0xFF14101A),
+    background = ElectricVioletPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE6E2E8),
 
-    surface = Color(0xFF1C1622),
+    surface = ElectricVioletPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE6E2E8),
-    surfaceVariant = Color(0xFF282030),
+    surfaceVariant = ElectricVioletPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC8C0D0),
 
     outline = ElectricVioletPalette.primaryDark.copy(alpha = 0.15f),
@@ -2156,12 +2268,12 @@ private val CandyCrushLightColorScheme = lightColorScheme(
     tertiaryContainer = CandyCrushPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = CandyCrushPalette.tertiaryLight,
 
-    background = Color(0xFFFFF5F8),
+    background = CandyCrushPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFAFC),
+    surface = CandyCrushPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFE8F5),
+    surfaceVariant = CandyCrushPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E44),
 
     outline = CandyCrushPalette.primaryLight.copy(alpha = 0.12f),
@@ -2184,12 +2296,12 @@ private val CandyCrushDarkColorScheme = darkColorScheme(
     tertiaryContainer = CandyCrushPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = CandyCrushPalette.tertiaryDark,
 
-    background = Color(0xFF1A1416),
+    background = CandyCrushPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E4E6),
 
-    surface = Color(0xFF221A1E),
+    surface = CandyCrushPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E4E6),
-    surfaceVariant = Color(0xFF302428),
+    surfaceVariant = CandyCrushPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C4C8),
 
     outline = CandyCrushPalette.primaryDark.copy(alpha = 0.15f),
@@ -2213,12 +2325,12 @@ private val MidnightSunLightColorScheme = lightColorScheme(
     tertiaryContainer = MidnightSunPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = MidnightSunPalette.tertiaryLight,
 
-    background = Color(0xFFF5F8FF),
+    background = MidnightSunPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFAFCFF),
+    surface = MidnightSunPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFE8F0FF),
+    surfaceVariant = MidnightSunPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF3E4248),
 
     outline = MidnightSunPalette.primaryLight.copy(alpha = 0.12f),
@@ -2241,12 +2353,12 @@ private val MidnightSunDarkColorScheme = darkColorScheme(
     tertiaryContainer = MidnightSunPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = MidnightSunPalette.tertiaryDark,
 
-    background = Color(0xFF0F1418),
+    background = MidnightSunPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE2E6E8),
 
-    surface = Color(0xFF151A20),
+    surface = MidnightSunPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE2E6E8),
-    surfaceVariant = Color(0xFF202428),
+    surfaceVariant = MidnightSunPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFC0C8D0),
 
     outline = MidnightSunPalette.primaryDark.copy(alpha = 0.15f),
@@ -2270,12 +2382,12 @@ private val StrawberryMintLightColorScheme = lightColorScheme(
     tertiaryContainer = StrawberryMintPalette.tertiaryLight.copy(alpha = 0.12f),
     onTertiaryContainer = StrawberryMintPalette.tertiaryLight,
 
-    background = Color(0xFFFFF8F8),
+    background = StrawberryMintPalette.primaryLight.tintWithWhite(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFF1A1C1E),
 
-    surface = Color(0xFFFFFBFB),
+    surface = StrawberryMintPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFF1A1C1E),
-    surfaceVariant = Color(0xFFFFE8E8),
+    surfaceVariant = StrawberryMintPalette.primaryLight.tintWithWhite(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFF4A3E3E),
 
     outline = StrawberryMintPalette.primaryLight.copy(alpha = 0.12f),
@@ -2298,12 +2410,12 @@ private val StrawberryMintDarkColorScheme = darkColorScheme(
     tertiaryContainer = StrawberryMintPalette.tertiaryDark.copy(alpha = 0.15f),
     onTertiaryContainer = StrawberryMintPalette.tertiaryDark,
 
-    background = Color(0xFF1A1414),
+    background = StrawberryMintPalette.primaryDark.tintWithBlack(LIGHT_BACKGROUND_TINT),
     onBackground = Color(0xFFE8E4E4),
 
-    surface = Color(0xFF221A1A),
+    surface = StrawberryMintPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_TINT),
     onSurface = Color(0xFFE8E4E4),
-    surfaceVariant = Color(0xFF302424),
+    surfaceVariant = StrawberryMintPalette.primaryDark.tintWithBlack(LIGHT_SURFACE_VARIANT_TINT),
     onSurfaceVariant = Color(0xFFD0C4C4),
 
     outline = StrawberryMintPalette.primaryDark.copy(alpha = 0.15f),
@@ -2456,8 +2568,15 @@ fun CarTrackingAppTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+        typography = Typography
+    ) {
+        // Apply tinted background globally using Surface
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = colorScheme.background
+        ) {
+            content()
+        }
+    }
 }
 

@@ -106,8 +106,7 @@ fun CostGraphScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background
+        }
     ) { paddingValues ->
         when (val state = uiState) {
             is CostGraphUiState.Loading -> {
