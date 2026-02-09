@@ -31,10 +31,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
+import com.agcoding.cartrackingapp.data.preferences.ColorPalette
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun AppearanceCard(
@@ -113,5 +116,38 @@ fun AppearanceCard(
                 )
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewAppearanceCardLight() {
+    CarTrackingAppTheme(darkTheme = false, colorPalette = ColorPalette.DEFAULT_BLUE) {
+        AppearanceCard(
+            currentTheme = AppTheme.LIGHT,
+            onThemeChange = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewAppearanceCardDark() {
+    CarTrackingAppTheme(darkTheme = true, colorPalette = ColorPalette.DEFAULT_BLUE) {
+        AppearanceCard(
+            currentTheme = AppTheme.DARK,
+            onThemeChange = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewAppearanceCardSystem() {
+    CarTrackingAppTheme(darkTheme = false, colorPalette = ColorPalette.DEFAULT_BLUE) {
+        AppearanceCard(
+            currentTheme = AppTheme.SYSTEM,
+            onThemeChange = {}
+        )
     }
 }

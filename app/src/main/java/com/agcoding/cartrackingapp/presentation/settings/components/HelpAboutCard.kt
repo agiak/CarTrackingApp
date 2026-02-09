@@ -28,7 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun HelpAboutCard(
@@ -105,3 +107,26 @@ fun HelpAboutCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewHelpAboutCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        HelpAboutCard(
+            appVersion = "1.0.0",
+            onViewGuide = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewHelpAboutCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        HelpAboutCard(
+            appVersion = "1.0.0",
+            onViewGuide = {}
+        )
+    }
+}
+

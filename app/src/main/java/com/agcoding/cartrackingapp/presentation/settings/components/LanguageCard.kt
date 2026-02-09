@@ -29,8 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun LanguageCard(
@@ -134,3 +136,26 @@ private fun LanguageOption(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewLanguageCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        LanguageCard(
+            selectedLanguage = AppLanguage.ENGLISH,
+            onLanguageSelected = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewLanguageCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        LanguageCard(
+            selectedLanguage = AppLanguage.GREEK,
+            onLanguageSelected = {}
+        )
+    }
+}
+

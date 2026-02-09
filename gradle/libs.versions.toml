@@ -9,7 +9,7 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 lifecycleVersion = "2.8.7"
-composeVersion = "1.8.1"
+composeVersion = "1.10.2"
 composeMaterial3 = "1.4.0"
 composeNavigation = "2.9.0"
 roomVersion = "2.6.1"
@@ -22,6 +22,8 @@ datastoreVersion = "1.1.1"
 serializationVersion = "1.7.3"
 apachePoiVersion = "5.2.3"
 workVersion = "2.10.0"
+uiToolingPreview = "1.10.2"
+uiTooling = "1.10.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

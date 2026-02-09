@@ -24,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun DebugCard(
@@ -131,3 +133,40 @@ fun DebugCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDebugCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DebugCard(
+            isGenerating = false,
+            onGenerateSampleData = {},
+            onTriggerReminderCheck = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDebugCardGenerating() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DebugCard(
+            isGenerating = true,
+            onGenerateSampleData = {},
+            onTriggerReminderCheck = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDebugCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        DebugCard(
+            isGenerating = false,
+            onGenerateSampleData = {},
+            onTriggerReminderCheck = {}
+        )
+    }
+}
+

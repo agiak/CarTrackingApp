@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun ColorPaletteItem(
@@ -85,3 +87,32 @@ fun ColorPaletteItem(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewColorPaletteItemSelected() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ColorPaletteItem(
+            palette = ColorPalette.DEFAULT_BLUE,
+            primaryColor = Color(0xFF1976D2),
+            secondaryColor = Color(0xFF0288D1),
+            isSelected = true,
+            onClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewColorPaletteItemUnselected() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ColorPaletteItem(
+            palette = ColorPalette.SUNSET_ORANGE,
+            primaryColor = Color(0xFFFF6F00),
+            secondaryColor = Color(0xFFFF8F00),
+            isSelected = false,
+            onClick = {}
+        )
+    }
+}
+

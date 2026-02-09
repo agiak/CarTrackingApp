@@ -14,8 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun CustomizationCard(
@@ -50,3 +52,24 @@ fun CustomizationCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCustomizationCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CustomizationCard(
+            onManageExpenseCategoriesClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCustomizationCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        CustomizationCard(
+            onManageExpenseCategoriesClick = {}
+        )
+    }
+}
+

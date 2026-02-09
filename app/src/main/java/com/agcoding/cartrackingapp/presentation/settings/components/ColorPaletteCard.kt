@@ -21,8 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun ColorPaletteCard(
@@ -548,3 +550,26 @@ fun ColorPaletteCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewColorPaletteCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ColorPaletteCard(
+            selectedPalette = ColorPalette.DEFAULT_BLUE,
+            onPaletteSelected = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewColorPaletteCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        ColorPaletteCard(
+            selectedPalette = ColorPalette.SUNSET_ORANGE,
+            onPaletteSelected = {}
+        )
+    }
+}
+
