@@ -19,10 +19,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -48,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
+import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -74,23 +78,112 @@ fun TransactionsScreen(
     val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
     val useSplitView = isTablet || isLandscape
 
+    // Helper function to create active filter chips
+    val getActiveFilters: @Composable () -> List<ActiveFilter> = {
+        val filters = mutableListOf<ActiveFilter>()
+
+        // Sort option - show if not default (DATE_NEWEST)
+        if (sortOption != SortOption.DATE_NEWEST) {
+            val sortLabel = when (sortOption) {
+                SortOption.DATE_NEWEST -> "" // Default, won't be shown
+                SortOption.DATE_OLDEST -> stringResource(R.string.sort_date_oldest)
+                SortOption.COST_HIGHEST -> stringResource(R.string.sort_cost_highest)
+                SortOption.COST_LOWEST -> stringResource(R.string.sort_cost_lowest)
+            }
+            filters.add(ActiveFilter("sort", sortLabel) {
+                viewModel.setSortOption(SortOption.DATE_NEWEST) // Reset to default
+            })
+        }
+
+        // Type filters - only add if not both selected
+        if (!filter.showRefills && filter.showExpenses) {
+            filters.add(ActiveFilter("expenses", stringResource(R.string.services)) {
+                viewModel.toggleExpenseFilter()
+            })
+        } else if (filter.showRefills && !filter.showExpenses) {
+            filters.add(ActiveFilter("refills", stringResource(R.string.refills)) {
+                viewModel.toggleRefillFilter()
+            })
+        }
+
+        // Car filters
+        filter.selectedCarIds.forEach { carId ->
+            val car = cars.find { it.id == carId }
+            if (car != null) {
+                filters.add(ActiveFilter("car_$carId", car.name) {
+                    viewModel.toggleCarSelection(carId)
+                })
+            }
+        }
+
+        filters
+    }
+
+    val activeFilters = getActiveFilters()
+    val hasActiveFilters = activeFilters.isNotEmpty()
+    val hasNonDefaultSort = sortOption != SortOption.DATE_NEWEST
+
+    // Calculate active filter count excluding sort (for filter button badge)
+    val filterOnlyCount = activeFilters.count { it.id != "sort" }
+    val hasNonSortFilters = filterOnlyCount > 0
+
     Scaffold(
         topBar = {
             StyledTopAppBar(
                 title = { Text(stringResource(R.string.nav_transactions)) },
                 actions = {
                     if (transactions.isNotEmpty()) {
-                        IconButton(onClick = { showSortSheet = true }) {
-                            Icon(
-                                imageVector = Icons.Filled.Sort,
-                                contentDescription = stringResource(R.string.sort)
-                            )
+                        // Sort button with badge indicator
+                        BadgedBox(
+                            badge = {
+                                if (hasNonDefaultSort) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.secondary,
+                                        contentColor = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
+                            }
+                        ) {
+                            IconButton(onClick = { showSortSheet = true }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = stringResource(R.string.sort),
+                                    tint = if (hasNonDefaultSort) {
+                                        MaterialTheme.colorScheme.secondary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+                            }
                         }
-                        IconButton(onClick = { showFilterSheet = true }) {
-                            Icon(
-                                imageVector = Icons.Default.FilterList,
-                                contentDescription = stringResource(R.string.filter)
-                            )
+
+                        // Filter button with badge indicator
+                        BadgedBox(
+                            badge = {
+                                if (hasNonSortFilters) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ) {
+                                        Text(
+                                            text = filterOnlyCount.toString(),
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    }
+                                }
+                            }
+                        ) {
+                            IconButton(onClick = { showFilterSheet = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.FilterList,
+                                    contentDescription = stringResource(R.string.filter),
+                                    tint = if (hasNonSortFilters) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+                            }
                         }
                     }
                 },
@@ -293,13 +386,24 @@ fun TransactionsScreen(
                 }
 
                 // Right side: Transactions list (65%)
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .weight(0.65f)
-                        .fillMaxHeight(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .fillMaxHeight()
                 ) {
+                    // Active filters row at the top
+                    ActiveFiltersRow(
+                        activeFilters = activeFilters,
+                        onClearAll = if (activeFilters.size > 1) { { viewModel.clearAllFilters() } } else null,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Transactions list
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                     items(
                         items = transactions,
                         key = { "${it.transaction.type.name}_${it.transaction.id}" }
@@ -321,18 +425,30 @@ fun TransactionsScreen(
                             }
                         }
                     }
+                    }
                 }
             }
         } else {
             // Original single column layout for portrait phones
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                item { Spacer(modifier = Modifier.height(4.dp)) }
+                // Active filters row
+                ActiveFiltersRow(
+                    activeFilters = activeFilters,
+                    onClearAll = if (activeFilters.size > 1) { { viewModel.clearAllFilters() } } else null
+                )
+
+                // Transactions list
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item { Spacer(modifier = Modifier.height(4.dp)) }
 
                 items(
                     items = transactions,
@@ -357,6 +473,7 @@ fun TransactionsScreen(
                 }
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
             }
         }
     }

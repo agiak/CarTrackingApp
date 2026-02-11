@@ -554,6 +554,10 @@
     <string name="refill">Ανεφοδιασμός</string>
     <string name="expense">Δαπάνη</string>
 
+    <!-- Filter Chips -->
+    <string name="remove_filter">Αφαίρεση φίλτρου</string>
+    <string name="clear_all">Εκκαθάριση όλων</string>
+
     <!-- Expense Categories -->
     <string name="expense_category_tire_change">Αλλαγή ελαστικών</string>
     <string name="expense_category_oil_change">Αλλαγή λαδιών</string>

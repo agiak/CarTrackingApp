@@ -107,6 +107,15 @@ class TransactionsViewModel @Inject constructor(
         _filter.value = _filter.value.copy(selectedCarIds = emptySet())
     }
 
+    fun clearAllFilters() {
+        _filter.value = TransactionFilter()
+    }
+
+    fun hasActiveFilters(): Boolean {
+        val current = _filter.value
+        return !current.showRefills || !current.showExpenses || current.selectedCarIds.isNotEmpty()
+    }
+
     fun setSortOption(option: SortOption) {
         _sortOption.value = option
     }

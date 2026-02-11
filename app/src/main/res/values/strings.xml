@@ -570,6 +570,10 @@
     <string name="refill">Refill</string>
     <string name="expense">Expense</string>
 
+    <!-- Filter Chips -->
+    <string name="remove_filter">Remove filter</string>
+    <string name="clear_all">Clear all</string>
+
     <!-- Expense Categories -->
     <string name="expense_category_tire_change">Tire change</string>
     <string name="expense_category_oil_change">Oil change</string>
