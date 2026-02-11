@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 
 enum class MonthlyTrendsFilter(val labelRes: Int, val months: Int?) {
     LAST_3_MONTHS(R.string.filter_last_3_months, 3),
@@ -90,7 +90,7 @@ fun MonthlyTrendsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.monthly_trends_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {

@@ -18,8 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refillhistory.components.RefillHistoryContent
 
 enum class RefillSortOption(@StringRes val labelRes: Int) {
@@ -58,7 +57,7 @@ fun RefillHistoryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.refill_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -100,8 +99,7 @@ fun RefillHistoryScreen(
                             }
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                }
             )
         }
     ) { paddingValues ->

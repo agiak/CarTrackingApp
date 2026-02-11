@@ -21,8 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +40,7 @@ import com.agcoding.cartrackingapp.presentation.carlist.components.CarCard
 import com.agcoding.cartrackingapp.presentation.carlist.components.EmptyState
 import com.agcoding.cartrackingapp.presentation.carlist.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.carlist.components.ReminderBanner
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,8 +59,7 @@ fun CarListScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.car_list_title)) }
             )
         },
@@ -242,8 +240,7 @@ private fun CarListScreenContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.car_list_title)) }
             )
         },

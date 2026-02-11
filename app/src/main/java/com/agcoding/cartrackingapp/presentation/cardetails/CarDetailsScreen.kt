@@ -34,7 +34,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -53,6 +52,7 @@ import com.agcoding.cartrackingapp.presentation.cardetails.components.QuickStats
 import com.agcoding.cartrackingapp.presentation.cardetails.components.TotalSpendingCard
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +73,7 @@ fun CarDetailsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {

@@ -32,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -52,6 +51,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.transactions.model.Transaction
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 import kotlinx.coroutines.launch
@@ -76,7 +76,7 @@ fun TransactionsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.nav_transactions)) },
                 actions = {
                     if (transactions.isNotEmpty()) {

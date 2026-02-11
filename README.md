@@ -12,6 +12,8 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - Set and manage service reminders
 - Import/export data for backup and sharing
 - Manage multiple vehicles from a single dashboard
+- View all transactions in a unified interface
+- Customize appearance with multiple color themes
 
 ## ✨ Key Features
 
@@ -40,6 +42,7 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - Comprehensive validation to prevent invalid data entry
 - View refill history with filtering and sorting options
 - Edit and manage past refills
+- Detailed refill information screens
 
 ### 💰 Expense Management
 - Track various expense categories:
@@ -52,13 +55,25 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - Manage custom expense categories
 - View expense history with filtering
 - Edit and delete expenses
+- Detailed expense information screens
+
+### 📋 Transactions Overview
+- **Unified Transaction View**: View all fuel refills and expenses in one place
+- **Smart Filtering**: 
+  - Filter by transaction type (fuel refills, expenses, or both)
+  - Filter by car
+  - Filter by expense categories
+- **Flexible Sorting**: Sort by date, amount, or type
+- **Split View Layout**: Optimized for tablets and landscape orientation
+- **Quick Actions**: Direct access to transaction details and editing
+- **Summary Statistics**: Overview of total transactions and spending
 
 ### 🔔 Service Reminders
 - Set reminders based on:
   - **Date**: Get notified 1 day before due date
   - **Mileage**: Get notified within 500 km of target
   - **Both**: Combined date and mileage reminders
-- Notifications Overview screen showing:
+- **Notifications Overview Screen** showing:
   - All upcoming service reminders
   - Remaining kilometers until service is due
   - Days until service date
@@ -100,6 +115,13 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
   - Detailed breakdown of specific months
   - Refills and expenses grouped by date
   - Monthly totals and averages
+  - **Interactive Tooltips**: Info tooltips explaining metrics like "Fuel as % of spending"
+
+- **Monthly Trends Screen**:
+  - Comprehensive monthly analysis
+  - Sorting by time, cost, distance, or transactions
+  - Time period filtering (3 months, 6 months, 1 year, all time)
+  - Per-month summary cards
 
 ### 📥 Import/Export Features
 - **JSON Export/Import**:
@@ -135,20 +157,39 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - Graceful handling of denied permissions
 - Skip option available
 
-### 🎨 User Interface
-- Modern Material 3 Design
-- Dark and light theme support
-- Bottom navigation:
+### 🎨 User Interface & Theming
+- **Modern Material 3 Design** with dynamic theming
+- **Extensive Color Customization**: 
+  - 30+ built-in color palettes including:
+    - System colors (Android 12+ Dynamic Colors)
+    - Classic themes: Blue, Orange, Green, Purple, Teal, Red, etc.
+    - Modern themes: Neon, Cyber, Electric, Midnight, Ice, etc.
+    - High-contrast themes: Sunset Fire, Tropical Paradise, Royal Gold, etc.
+  - **Smart Background Tinting**: Backgrounds automatically tint based on selected primary color
+  - **Configurable Intensity**: Adjustable background color intensity
+- **Responsive Design**:
+  - **Adaptive Layouts**: Different layouts for phones vs tablets
+  - **Smart Split Views**: Automatic split-screen layouts on tablets and landscape phones
+  - **Optimized TopBar**: Reduced padding on mobile devices in landscape mode
+- **Bottom Navigation**: 
   - Home (Cars List)
+  - Transactions (All fuel refills and expenses)
   - Statistics
   - Settings
-- Floating Action Buttons for quick actions
-- Swipe gestures for banner dismissal
-- Smooth animations and transitions
-- Responsive layouts optimized for mobile
-- Greek and English localization
+- **Advanced UI Features**:
+  - Floating Action Buttons for quick actions
+  - Swipe gestures for banner dismissal
+  - Smooth animations and transitions
+  - Interactive tooltips and info popups
+  - Smart grid layouts (1-3 columns based on device)
+- **Localization**: Greek and English support
 
 ### ⚙️ Settings & Customization
+- **Appearance & Localization**:
+  - **Theme Selection**: Light, Dark, or System theme
+  - **Color Palette**: Choose from 30+ color themes
+  - **Language Selection**: Greek and English support
+
 - **Notifications Section**:
   - Enable/disable notifications globally
   - View upcoming service reminders
@@ -158,22 +199,17 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - **Data & Storage**:
   - View storage usage
   - Export/import data (JSON)
-  - Clear all data
-  
-- **Spreadsheet Import**:
-  - Import from Excel/CSV
-  - Generate sample import template
-  - Detailed import instructions
+  - Spreadsheet import with sample generation
+  - Clear all data with confirmation
   
 - **Customization**:
-  - Manage custom expense categories
-  - Add, edit, and delete categories
+  - **Expense Categories Management**: Add, edit, and delete custom expense categories
   
 - **Help & About**:
   - App version information
   - View onboarding guide again
   
-- **Debug Tools** (Development builds only):
+- **Developer Tools** (Debug builds only):
   - Generate sample data for testing
   - Pre-populate database with realistic data
   - Test reminders with various scenarios
@@ -182,25 +218,38 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 
 ### Core Technologies
 - **Language**: Kotlin
-- **UI Framework**: Jetpack Compose
+- **UI Framework**: Jetpack Compose with Material 3
 - **Architecture**: Clean Architecture with MVVM
 - **Dependency Injection**: Hilt/Dagger
 - **Database**: Room (SQLite)
 - **Asynchronous**: Coroutines + Flow
 - **Navigation**: Jetpack Navigation Compose
+- **Data Storage**: DataStore Preferences
+- **Background Tasks**: WorkManager
+
+### Advanced Features
+- **Device Detection**: Smart tablet vs phone detection using smallest width
+- **Location Services**: GPS integration for refill locations
+- **File Handling**: Apache POI for Excel/CSV processing
+- **Serialization**: Kotlinx Serialization for JSON export/import
+- **Theming System**: Advanced color palette management with dynamic backgrounds
+- **Responsive Design**: Automatic layout adaptation for different screen sizes
 
 ### Key Components
 - **Domain Layer**: Use cases, models, repositories
 - **Data Layer**: 
   - Local database with Room
-  - DAOs for Cars, Refills, Expenses
+  - DAOs for Cars, Refills, Expenses, Reminders
   - Foreign key relationships with cascade delete
   - Data mappers between entities and domain models
+  - Preferences management with DataStore
 - **Presentation Layer**: 
   - ViewModels with StateFlow
-  - Composable UI components
-  - Navigation graph
+  - Composable UI components with previews
+  - Navigation graph with type-safe arguments
+  - Reusable component library (StyledCard, StyledTopAppBar, etc.)
 - **Utilities**:
+  - DeviceUtils for proper tablet/landscape detection
   - Location provider for GPS tracking
   - Notification manager for reminders
   - Data validation (RefillValidator, ExpenseValidator)
@@ -212,6 +261,7 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - **Expense**: General expenses with optional reminder settings
 - **ExpenseReminder**: Service reminder configuration
 - **Statistics**: Aggregated data for charts and analytics
+- **Transaction**: Unified model for refills and expenses display
 
 ### Offline-First Design
 - All data stored locally in Room database
@@ -259,7 +309,7 @@ Fully localized in:
 - **English** (en)
 - **Greek** (el)
 
-All UI strings, error messages, and content are translated.
+All UI strings, error messages, tooltips, and content are translated.
 
 ## 📱 Supported Features by Screen
 
@@ -269,6 +319,7 @@ All UI strings, error messages, and content are translated.
 - Add new car dialog
 - Today's reminders banner (swipe to dismiss)
 - Navigate to car details
+- Adaptive grid layout (1-3 columns based on device)
 
 ### Car Details
 - Comprehensive car statistics
@@ -276,6 +327,16 @@ All UI strings, error messages, and content are translated.
 - Quick action buttons (Refill, Service, Edit)
 - Incomplete information banner
 - Navigate to detailed graphs
+- Split-view layout on tablets/landscape
+
+### Transactions Screen
+- **Unified view** of all refills and expenses
+- **Advanced filtering**: By type, car, and categories
+- **Flexible sorting**: Date, amount, type
+- **Quick actions**: View details, edit transactions
+- **Summary statistics**: Total count and spending
+- **Smart layout**: Split view on larger screens
+- **Filter chips**: Visual indication of active filters
 
 ### Add/Edit Refill
 - Input refill details with validation
@@ -286,17 +347,18 @@ All UI strings, error messages, and content are translated.
 
 ### Add/Edit Expense
 - Full-screen expense entry
-- Custom or predefined categories
+- Custom or predefined categories (displayed as capsules)
 - Service reminder toggle
 - Date and mileage-based reminders
 - Notes support
+- Split-view layout on tablets/landscape
 
 ### Statistics
 - Global statistics dashboard
 - Per-car filtering
-- Monthly trends list
+- Monthly trends list with detailed sorting options
 - Navigate to detailed graphs
-- Month-specific details
+- Month-specific details with interactive tooltips
 
 ### Graph Screens
 - Interactive line charts with tap interaction
@@ -304,6 +366,7 @@ All UI strings, error messages, and content are translated.
 - Time period filtering
 - Statistics summary cards
 - Recent items list
+- Split-view layout optimization
 
 ### Notifications/Reminders
 - All upcoming service reminders
@@ -313,19 +376,33 @@ All UI strings, error messages, and content are translated.
 - Smart deduplication
 
 ### Settings
-- Notifications management
-- Data import/export
-- Spreadsheet import with sample generation
-- Custom expense categories
-- App information
+- **Organized into groups**:
+  - Appearance & Localization (themes, colors, language)
+  - Data & Storage (import/export, storage info)
+  - Expense Categories (custom category management)
+  - Help & About (app info, onboarding guide)
+- **Color customization** with 30+ themes
+- **Theme preview** with real-time updates
 - Debug tools (dev builds)
 
 ## 🔧 Installation & Setup
 
+**System Requirements:**
+- Android 9.0 (API 28) or higher
+- 50MB storage space
+- Optional: Location services for GPS-tagged refills
+- Optional: Notification access for service reminders
+
+**Installation:**
 1. Clone the repository
 2. Open in Android Studio
 3. Sync Gradle dependencies
-4. Run on Android device or emulator (API 26+)
+4. Run on Android device or emulator (API 28+)
+
+**Version Information:**
+- Current Version: 1.0.3 (Build 5)
+- Target SDK: 36
+- Minimum SDK: 28
 
 ## 🐛 Debug Features
 
@@ -333,6 +410,7 @@ Development builds include:
 - **Generate Sample Data**: Populate database with realistic test data
 - **Test Reminders**: Create reminders with various due dates/mileages
 - **Sample Spreadsheet**: Generate Excel template for import testing
+- **Debug Mode Indicator**: Visual indication in settings
 
 ## 📄 License
 
@@ -350,7 +428,13 @@ Potential features for future development:
 - Expense sharing and reports
 - Widget support
 - Wear OS companion app
+- Voice input for quick data entry
+- Machine learning for expense categorization
+- Fuel price tracking and alerts
 
 ---
 
 **Built with ❤️ using Kotlin and Jetpack Compose**
+
+*Last updated: February 2026*
+

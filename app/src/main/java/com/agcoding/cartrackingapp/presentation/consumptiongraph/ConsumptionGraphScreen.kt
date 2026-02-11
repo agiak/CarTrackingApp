@@ -19,7 +19,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.ConsumptionGraphContent
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.NoDataState
@@ -51,7 +51,7 @@ fun ConsumptionGraphScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.consumption_graph_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {

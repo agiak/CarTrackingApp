@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsUiState
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsViewModel
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.editcar.components.BasicInfoSection
 import com.agcoding.cartrackingapp.presentation.editcar.components.InsuranceSection
 import com.agcoding.cartrackingapp.presentation.editcar.components.LegalComplianceSection
@@ -56,7 +56,7 @@ fun EditCarScreen(
             // Show loading state
             Scaffold(
                 topBar = {
-                    TopAppBar(
+                    StyledTopAppBar(
                         title = { Text(stringResource(R.string.edit_car_title)) },
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
@@ -118,7 +118,7 @@ fun EditCarScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.edit_car_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {

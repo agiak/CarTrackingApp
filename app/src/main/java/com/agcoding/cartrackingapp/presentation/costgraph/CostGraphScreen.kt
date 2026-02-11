@@ -14,13 +14,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.costgraph.components.CostGraphContent
 import com.agcoding.cartrackingapp.presentation.costgraph.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.costgraph.components.NoDataState
@@ -51,7 +49,7 @@ fun CostGraphScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -101,12 +99,9 @@ fun CostGraphScreen(
                             fontSize = 14.sp
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+                }
             )
-        }
+        },
     ) { paddingValues ->
         when (val state = uiState) {
             is CostGraphUiState.Loading -> {

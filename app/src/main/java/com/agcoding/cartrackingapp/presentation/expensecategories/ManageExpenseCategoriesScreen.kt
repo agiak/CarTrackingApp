@@ -15,7 +15,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.AddCategoryDialog
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.DeleteCategoryDialog
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.ManageExpenseCategoriesContent
@@ -44,7 +44,7 @@ fun ManageExpenseCategoriesScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            StyledTopAppBar(
                 title = { Text(stringResource(R.string.manage_expense_categories)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
