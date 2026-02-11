@@ -52,7 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -225,10 +224,9 @@ private fun DistanceGraphContent(
         SimpleDateFormat(tripDatePattern, Locale.getDefault())
     }
 
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    val useSplitView = screenWidthDp >= 600 || isLandscape
+    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+    val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
+    val useSplitView = isTablet || isLandscape
 
     if (useSplitView) {
         // Split view for tablets and landscape

@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
@@ -71,10 +70,9 @@ fun ManageExpenseCategoriesScreen(
             }
         }
     ) { paddingValues ->
-        val configuration = LocalConfiguration.current
-        val screenWidthDp = configuration.screenWidthDp
-        val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-        val useCenteredLayout = screenWidthDp >= 600 || isLandscape
+        val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+        val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
+        val useCenteredLayout = isTablet || isLandscape
 
         // Use centered content with max width on tablets and landscape
         Box(

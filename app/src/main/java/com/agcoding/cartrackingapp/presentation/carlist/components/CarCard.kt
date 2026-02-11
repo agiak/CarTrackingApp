@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,9 +42,9 @@ fun CarCard(
     onAddServiceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val configuration = LocalConfiguration.current
-    val isCompactLayout = configuration.screenWidthDp >= 600 ||
-                          configuration.screenWidthDp > configuration.screenHeightDp
+    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+    val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
+    val isCompactLayout = isTablet || isLandscape
 
     StyledCard(
         modifier = modifier

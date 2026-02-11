@@ -203,6 +203,18 @@
     <string name="settings_section_help_about">HELP &amp; ABOUT</string>
     <string name="settings_section_developer_options">DEVELOPER OPTIONS</string>
 
+    <!-- Settings Groups Navigation -->
+    <string name="settings_group_appearance_title">Appearance &amp; Localization</string>
+    <string name="settings_group_appearance_subtitle">Theme, colors, and language</string>
+    <string name="settings_group_data_storage_title">Data &amp; Storage</string>
+    <string name="settings_group_data_storage_subtitle">Backup, import, and export</string>
+    <string name="settings_group_expense_categories_title">Expense Categories</string>
+    <string name="settings_group_expense_categories_subtitle">Manage expense types</string>
+    <string name="settings_group_help_about_title">Notifications &amp; Help</string>
+    <string name="settings_group_help_about_subtitle">Service reminders, guide, and version</string>
+    <string name="settings_group_developer_title">Developer Options</string>
+    <string name="settings_group_developer_subtitle">Debug tools and features</string>
+
     <string name="settings_following_system">Following system</string>
     <string name="settings_dark_theme_active">Dark theme active</string>
 

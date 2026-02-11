@@ -185,6 +185,18 @@
     <string name="settings_section_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
     <string name="settings_section_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
 
+    <!-- Settings Groups Navigation -->
+    <string name="settings_group_appearance_title">Εμφάνιση &amp; Τοπικοποίηση</string>
+    <string name="settings_group_appearance_subtitle">Θέμα, χρώματα και γλώσσα</string>
+    <string name="settings_group_data_storage_title">Δεδομένα &amp; Αποθήκευση</string>
+    <string name="settings_group_data_storage_subtitle">Αντίγραφα ασφαλείας, εισαγωγή και εξαγωγή</string>
+    <string name="settings_group_expense_categories_title">Κατηγορίες Εξόδων</string>
+    <string name="settings_group_expense_categories_subtitle">Διαχείριση τύπων εξόδων</string>
+    <string name="settings_group_help_about_title">Ειδοποιήσεις &amp; Βοήθεια</string>
+    <string name="settings_group_help_about_subtitle">Υπενθυμίσεις σέρβις, οδηγός και έκδοση</string>
+    <string name="settings_group_developer_title">Επιλογές Προγραμματιστή</string>
+    <string name="settings_group_developer_subtitle">Εργαλεία εντοπισμού σφαλμάτων και λειτουργίες</string>
+
     <string name="settings_following_system">Ακολουθεί το σύστημα</string>
     <string name="settings_dark_theme_active">Ενεργό σκοτεινό θέμα</string>
 

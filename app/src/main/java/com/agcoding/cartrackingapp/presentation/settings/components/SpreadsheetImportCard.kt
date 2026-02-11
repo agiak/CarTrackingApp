@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 
 @Composable
 fun SpreadsheetImportCard(
@@ -43,14 +44,9 @@ fun SpreadsheetImportCard(
     onImport: () -> Unit,
     onGenerateSample: () -> Unit
 ) {
-    Card(
+    StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        tintAlpha = 0.3f
     ) {
         Column(
             modifier = Modifier

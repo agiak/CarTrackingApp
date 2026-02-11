@@ -14,17 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.DeviceUtils
 
 /**
  * Settings content component that wraps the settings content in a scrollable column.
  * This is a general composable that provides consistent layout for settings.
+ * Only applies horizontal padding on actual tablets, not phones in landscape mode.
  */
 @Composable
 fun SettingsContent(
-    isTablet: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val isTablet = DeviceUtils.isTablet()
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -44,7 +47,6 @@ fun SettingsContent(
 private fun PreviewSettingsContentPhone() {
     CarTrackingAppTheme(darkTheme = false) {
         SettingsContent(
-            isTablet = false,
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -66,7 +68,6 @@ private fun PreviewSettingsContentPhone() {
 private fun PreviewSettingsContentTablet() {
     CarTrackingAppTheme(darkTheme = false) {
         SettingsContent(
-            isTablet = true,
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -85,7 +86,6 @@ private fun PreviewSettingsContentTablet() {
 private fun PreviewSettingsContentDark() {
     CarTrackingAppTheme(darkTheme = true) {
         SettingsContent(
-            isTablet = false,
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.height(8.dp))

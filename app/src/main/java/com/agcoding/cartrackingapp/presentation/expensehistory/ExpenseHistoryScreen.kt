@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
@@ -97,10 +96,9 @@ fun ExpenseHistoryScreen(
             }
 
             is ExpenseHistoryUiState.Success -> {
-                val configuration = LocalConfiguration.current
-                val screenWidthDp = configuration.screenWidthDp
-                val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-                val useSplitView = screenWidthDp >= 600 || isLandscape
+                val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+                val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
+                val useSplitView = isTablet || isLandscape
 
                 ExpenseHistoryContent(
                     expenses = state.expenses,

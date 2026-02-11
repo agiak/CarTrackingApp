@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,6 +57,7 @@ import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
+import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
@@ -112,6 +114,13 @@ sealed class Screen(val route: String) {
     object EditReminder : Screen("edit_reminder/{expenseId}") {
         fun createRoute(expenseId: Long) = "edit_reminder/$expenseId"
     }
+
+    // Settings Group Screens
+    object AppearanceSettings : Screen("settings/appearance")
+    object DataStorageSettings : Screen("settings/data_storage")
+    object ExpenseCategoriesSettings : Screen("settings/expense_categories")
+    object HelpAboutSettings : Screen("settings/help_about")
+    object DeveloperSettings : Screen("settings/developer")
 }
 
 @Composable
@@ -290,14 +299,74 @@ fun AppNavigation(
 
             composable(BottomNavItem.Settings.route) {
                 SettingsScreen(
+                    onNavigateToAppearance = {
+                        navController.navigate(Screen.AppearanceSettings.route)
+                    },
+                    onNavigateToDataStorage = {
+                        navController.navigate(Screen.DataStorageSettings.route)
+                    },
+                    onNavigateToExpenseCategories = {
+                        navController.navigate(Screen.ExpenseCategoriesSettings.route)
+                    },
+                    onNavigateToHelpAbout = {
+                        navController.navigate(Screen.HelpAboutSettings.route)
+                    },
+                    onNavigateToNotifications = {
+                        navController.navigate(Screen.Notifications.route)
+                    },
+                    onNavigateToDeveloper = {
+                        navController.navigate(Screen.DeveloperSettings.route)
+                    }
+                )
+            }
+
+            // Settings Group Screens
+            composable(Screen.AppearanceSettings.route) {
+                com.agcoding.cartrackingapp.presentation.settings.appearance.AppearanceSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.DataStorageSettings.route) {
+                com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorageSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.ExpenseCategoriesSettings.route) {
+                com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.HelpAboutSettings.route) {
+                val context = LocalContext.current
+                com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
                     onViewGuide = {
                         navController.navigate(Screen.GuideOnly.route)
                     },
-                    onManageExpenseCategories = {
-                        navController.navigate(Screen.ManageExpenseCategories.route)
-                    },
                     onViewNotifications = {
                         navController.navigate(Screen.Notifications.route)
+                    },
+                    onOpenSettings = {
+                        PermissionUtil.openAppSettings(context)
+                    }
+                )
+            }
+
+            composable(Screen.DeveloperSettings.route) {
+                com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,9 +76,7 @@ fun OnboardingGuideScreen(
     val pagerState = rememberPagerState(pageCount = { slides.size })
     val scope = rememberCoroutineScope()
 
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val isTablet = screenWidthDp >= 600
+    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
 
     // Sync pager with viewModel
     LaunchedEffect(currentSlideIndex) {

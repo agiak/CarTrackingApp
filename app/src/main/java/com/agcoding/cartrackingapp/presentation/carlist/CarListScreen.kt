@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -102,17 +101,15 @@ fun CarListScreen(
                 }
 
                 is CarListUiState.Success -> {
-                    val configuration = LocalConfiguration.current
-                    val screenWidthDp = configuration.screenWidthDp
-                    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+                    val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
 
-                    // Determine grid columns based on screen size
-                    val useGrid = screenWidthDp >= 600 || isLandscape
+                    // Determine grid columns based on device type
+                    val useGrid = isTablet || isLandscape
                     val gridColumns = when {
-                        screenWidthDp >= 900 -> 3 // Large tablets
-                        screenWidthDp >= 600 -> 2 // Small tablets or landscape phones
-                        isLandscape -> 2 // Landscape mode on phones
-                        else -> 1 // Portrait mode
+                        isTablet -> 3 // Tablets get 3 columns
+                        isLandscape -> 2 // Landscape phones get 2 columns
+                        else -> 1 // Portrait phones get 1 column
                     }
 
                     if (useGrid && gridColumns > 1) {
@@ -286,17 +283,15 @@ private fun CarListScreenContent(
                 }
 
                 is CarListUiState.Success -> {
-                    val configuration = LocalConfiguration.current
-                    val screenWidthDp = configuration.screenWidthDp
-                    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+                    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
+                    val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
 
-                    // Determine grid columns based on screen size
-                    val useGrid = screenWidthDp >= 600 || isLandscape
+                    // Determine grid columns based on device type
+                    val useGrid = isTablet || isLandscape
                     val gridColumns = when {
-                        screenWidthDp >= 900 -> 3 // Large tablets
-                        screenWidthDp >= 600 -> 2 // Small tablets or landscape phones
-                        isLandscape -> 2 // Landscape mode on phones
-                        else -> 1 // Portrait mode
+                        isTablet -> 3 // Tablets get 3 columns
+                        isLandscape -> 2 // Landscape phones get 2 columns
+                        else -> 1 // Portrait phones get 1 column
                     }
 
                     if (useGrid && gridColumns > 1) {

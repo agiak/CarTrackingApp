@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,9 +57,7 @@ fun EditRefillScreen(
             )
         }
     ) { paddingValues ->
-        val configuration = LocalConfiguration.current
-        val screenWidthDp = configuration.screenWidthDp
-        val isTablet = screenWidthDp >= 600
+        val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
 
         if (uiState.isLoading) {
             Box(
