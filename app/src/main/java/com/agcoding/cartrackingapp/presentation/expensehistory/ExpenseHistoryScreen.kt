@@ -1,11 +1,14 @@
 package com.agcoding.cartrackingapp.presentation.expensehistory
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
+import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensehistory.components.ExpenseHistoryContent
 
@@ -42,6 +47,26 @@ fun ExpenseHistoryScreen(
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     var showSortMenu by remember { mutableStateOf(false) }
 
+    // Check if sort is non-default
+    val hasNonDefaultSort = sortOption != ExpenseSortOption.MOST_RECENT
+
+    // Create active sort chip
+    val getActiveSortChip: @Composable () -> List<ActiveFilter> = {
+        if (hasNonDefaultSort) {
+            listOf(
+                ActiveFilter(
+                    id = "sort",
+                    label = stringResource(sortOption.displayNameResId),
+                    onRemove = { viewModel.setSortOption(ExpenseSortOption.MOST_RECENT) }
+                )
+            )
+        } else {
+            emptyList()
+        }
+    }
+
+    val activeSortChips = getActiveSortChip()
+
     Scaffold(
         topBar = {
             StyledTopAppBar(
@@ -55,11 +80,28 @@ fun ExpenseHistoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showSortMenu = true }) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = stringResource(R.string.sort)
-                        )
+                    // Sort button with badge indicator
+                    BadgedBox(
+                        badge = {
+                            if (hasNonDefaultSort) {
+                                Badge(
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
+                        }
+                    ) {
+                        IconButton(onClick = { showSortMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = stringResource(R.string.sort),
+                                tint = if (hasNonDefaultSort) {
+                                    MaterialTheme.colorScheme.secondary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        }
                     }
                     DropdownMenu(
                         expanded = showSortMenu,
@@ -100,18 +142,29 @@ fun ExpenseHistoryScreen(
                 val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
                 val useSplitView = isTablet || isLandscape
 
-                ExpenseHistoryContent(
-                    expenses = state.expenses,
-                    availableCategories = state.availableCategories,
-                    selectedCategory = selectedCategory,
-                    onCategorySelected = viewModel::setSelectedCategory,
-                    sortOptionName = stringResource(sortOption.displayNameResId),
-                    onExpenseClick = onExpenseClick,
-                    useSplitView = useSplitView,
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                )
+                ) {
+                    // Active sort chip
+                    ActiveFiltersRow(
+                        activeFilters = activeSortChips,
+                        onClearAll = null // No clear all needed for single chip
+                    )
+
+                    // Expense list
+                    ExpenseHistoryContent(
+                        expenses = state.expenses,
+                        availableCategories = state.availableCategories,
+                        selectedCategory = selectedCategory,
+                        onCategorySelected = viewModel::setSelectedCategory,
+                        sortOptionName = stringResource(sortOption.displayNameResId),
+                        onExpenseClick = onExpenseClick,
+                        useSplitView = useSplitView,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
 
             is ExpenseHistoryUiState.Error -> {

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
+import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refillhistory.components.RefillHistoryContent
 
@@ -55,6 +59,26 @@ fun RefillHistoryScreen(
     val selectedSort by viewModel.selectedSort.collectAsState()
     var showSortMenu by remember { mutableStateOf(false) }
 
+    // Check if sort is non-default
+    val hasNonDefaultSort = selectedSort != RefillSortOption.MOST_RECENT
+
+    // Create active sort chip
+    val getActiveSortChip: @Composable () -> List<ActiveFilter> = {
+        if (hasNonDefaultSort) {
+            listOf(
+                ActiveFilter(
+                    id = "sort",
+                    label = stringResource(selectedSort.labelRes),
+                    onRemove = { viewModel.setSortOption(RefillSortOption.MOST_RECENT) }
+                )
+            )
+        } else {
+            emptyList()
+        }
+    }
+
+    val activeSortChips = getActiveSortChip()
+
     Scaffold(
         topBar = {
             StyledTopAppBar(
@@ -69,11 +93,28 @@ fun RefillHistoryScreen(
                 },
                 actions = {
                     Box {
-                        IconButton(onClick = { showSortMenu = true }) {
-                            Icon(
-                                imageVector = Icons.Default.FilterList,
-                                contentDescription = stringResource(R.string.sort)
-                            )
+                        // Sort button with badge indicator
+                        BadgedBox(
+                            badge = {
+                                if (hasNonDefaultSort) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.secondary,
+                                        contentColor = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
+                            }
+                        ) {
+                            IconButton(onClick = { showSortMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.FilterList,
+                                    contentDescription = stringResource(R.string.sort),
+                                    tint = if (hasNonDefaultSort) {
+                                        MaterialTheme.colorScheme.secondary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+                            }
                         }
                         DropdownMenu(
                             expanded = showSortMenu,
@@ -116,13 +157,26 @@ fun RefillHistoryScreen(
             }
 
             is RefillHistoryUiState.Success -> {
-                RefillHistoryContent(
-                    carName = state.carName,
-                    refills = state.refills,
-                    selectedSort = selectedSort,
-                    onRefillClick = onRefillClick,
-                    modifier = Modifier.padding(paddingValues)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    // Active sort chip
+                    ActiveFiltersRow(
+                        activeFilters = activeSortChips,
+                        onClearAll = null // No clear all needed for single chip
+                    )
+
+                    // Refills list
+                    RefillHistoryContent(
+                        carName = state.carName,
+                        refills = state.refills,
+                        selectedSort = selectedSort,
+                        onRefillClick = onRefillClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
 
             is RefillHistoryUiState.Error -> {
