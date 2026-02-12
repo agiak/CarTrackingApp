@@ -15,8 +15,8 @@ android {
         applicationId = "com.agcoding.cartrackingapp"
         minSdk = 28
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.3"
+        versionCode = 6
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -49,6 +49,31 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    // Custom output file naming for APKs
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val buildType = variant.buildType.name
+            val versionName = variant.versionName
+
+            // Set custom APK file name
+            output.outputFileName = "cariboo_${buildType}_${versionName}.apk"
+        }
+
+        // Custom bundle naming (AAB files)
+        val bundleTask = tasks.findByName("bundle${name.replaceFirstChar { it.uppercase() }}")
+        bundleTask?.doLast {
+            val bundleDir = file("${layout.buildDirectory.get()}/outputs/bundle/${name}")
+            val defaultBundleFile = File(bundleDir, "app-${name}.aab")
+            val customBundleFile = File(bundleDir, "cariboo_${buildType.name}_${versionName}.aab")
+
+            if (defaultBundleFile.exists()) {
+                defaultBundleFile.renameTo(customBundleFile)
+            }
         }
     }
 
