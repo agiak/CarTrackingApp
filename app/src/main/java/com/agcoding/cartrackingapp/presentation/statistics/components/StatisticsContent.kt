@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun StatisticsContent(
     statistics: GlobalStatistics,
     onMonthlyTrendsClick: () -> Unit,
+    onYearlyComparisonClick: () -> Unit = {},
     summarySection: @Composable () -> Unit,
     perCarBreakdownCards: @Composable () -> Unit,
     monthlyTrendCards: @Composable () -> Unit,
@@ -196,6 +198,31 @@ fun StatisticsContent(
                     }
                 }
 
+                // Yearly Comparison Button
+                item {
+                    OutlinedButton(
+                        onClick = onYearlyComparisonClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text("Compare Years")
+                    }
+                }
+
                 // Insights section
                 item {
                     Text(
@@ -296,6 +323,31 @@ fun StatisticsContent(
                             )
                         }
                     }
+                }
+            }
+
+            // Yearly Comparison Button
+            item {
+                OutlinedButton(
+                    onClick = onYearlyComparisonClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("Compare Years")
                 }
             }
 
