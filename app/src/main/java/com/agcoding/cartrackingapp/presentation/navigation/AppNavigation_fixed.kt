@@ -43,15 +43,23 @@ import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScree
 import com.agcoding.cartrackingapp.presentation.editcar.EditCarScreen
 import com.agcoding.cartrackingapp.presentation.editexpense.EditExpenseScreen
 import com.agcoding.cartrackingapp.presentation.editrefill.EditRefillScreen
+import com.agcoding.cartrackingapp.presentation.editreminder.EditReminderScreen
+import com.agcoding.cartrackingapp.presentation.expense.AddExpenseScreen
 import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseCategoriesScreen
 import com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsScreen
 import com.agcoding.cartrackingapp.presentation.expensehistory.ExpenseHistoryScreen
+import com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
 import com.agcoding.cartrackingapp.presentation.refill.AddRefillBottomSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.RefillDetailsScreen
 import com.agcoding.cartrackingapp.presentation.refillhistory.RefillHistoryScreen
 import com.agcoding.cartrackingapp.presentation.settings.SettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.appearance.AppearanceSettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorageSettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
@@ -206,7 +214,10 @@ fun AppNavigation(
             modifier = Modifier.padding(paddingValues)
         ) {
             // Onboarding screen
-            composable(Screen.Onboarding.route) {
+            animatedComposable(
+                route = Screen.Onboarding.route,
+                animationConfig = NavigationAnimations.FadeOnly
+            ) {
                 OnboardingScreen(
                     onOnboardingComplete = {
                         navController.navigate(BottomNavItem.Cars.route) {
@@ -219,7 +230,10 @@ fun AppNavigation(
             }
 
             // Guide only screen (accessed from settings)
-            composable(Screen.GuideOnly.route) {
+            animatedComposable(
+                route = Screen.GuideOnly.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
                 OnboardingGuideScreen(
                     viewModel = hiltViewModel(),
                     onSkip = {
@@ -321,33 +335,45 @@ fun AppNavigation(
             }
 
             // Settings Group Screens
-            composable(Screen.AppearanceSettings.route) {
-                com.agcoding.cartrackingapp.presentation.settings.appearance.AppearanceSettingsScreen(
+            animatedComposable(
+                route = Screen.AppearanceSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                AppearanceSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
             }
 
-            composable(Screen.DataStorageSettings.route) {
-                com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorageSettingsScreen(
+            animatedComposable(
+                route = Screen.DataStorageSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                DataStorageSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
             }
 
-            composable(Screen.ExpenseCategoriesSettings.route) {
-                com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen(
+            animatedComposable(
+                route = Screen.ExpenseCategoriesSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                ExpenseCategoriesSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
             }
 
-            composable(Screen.HelpAboutSettings.route) {
+            animatedComposable(
+                route = Screen.HelpAboutSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
                 val context = LocalContext.current
-                com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen(
+                HelpAboutSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -363,8 +389,11 @@ fun AppNavigation(
                 )
             }
 
-            composable(Screen.DeveloperSettings.route) {
-                com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen(
+            animatedComposable(
+                route = Screen.DeveloperSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                DeveloperSettingsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
@@ -372,8 +401,9 @@ fun AppNavigation(
             }
 
             // Detail Screens (without bottom bar)
-            composable(
+            animatedComposable(
                 route = Screen.CarDetails.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") { type = NavType.LongType }
                 )
@@ -407,8 +437,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.EditCar.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") { type = NavType.LongType }
                 )
@@ -421,8 +452,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.RefillHistory.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") { type = NavType.LongType }
                 )
@@ -438,8 +470,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.ExpenseHistory.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") { type = NavType.LongType }
                 )
@@ -455,8 +488,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.RefillDetails.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("refillId") { type = NavType.LongType }
                 )
@@ -472,8 +506,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.ConsumptionGraph.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") {
                         type = NavType.StringType
@@ -489,8 +524,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.DistanceGraph.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") {
                         type = NavType.StringType
@@ -507,8 +543,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.CostGraph.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") {
                         type = NavType.StringType
@@ -525,8 +562,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.RefillsGraph.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("carId") {
                         type = NavType.StringType
@@ -543,8 +581,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.EditRefill.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("refillId") { type = NavType.LongType }
                 )
@@ -556,8 +595,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.ExpenseDetails.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("expenseId") { type = NavType.LongType }
                 )
@@ -573,8 +613,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.EditExpense.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("expenseId") { type = NavType.LongType }
                 )
@@ -586,7 +627,10 @@ fun AppNavigation(
                 )
             }
 
-            composable(route = Screen.MonthlyTrends.route) {
+            animatedComposable(
+                route = Screen.MonthlyTrends.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
                 MonthlyTrendsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
@@ -597,8 +641,9 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.MonthDetails.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("month") { type = NavType.IntType },
                     navArgument("year") { type = NavType.IntType }
@@ -621,7 +666,10 @@ fun AppNavigation(
                 )
             }
 
-            composable(route = Screen.ManageExpenseCategories.route) {
+            animatedComposable(
+                route = Screen.ManageExpenseCategories.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
                 ManageExpenseCategoriesScreen(
                     onNavigateBack = {
                         navController.popBackStack()
@@ -629,14 +677,15 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.AddExpense.route,
+                animationConfig = NavigationAnimations.VerticalSlide,
                 arguments = listOf(
                     navArgument("carId") { type = NavType.LongType }
                 )
             ) { backStackEntry ->
                 val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
-                com.agcoding.cartrackingapp.presentation.expense.AddExpenseScreen(
+                AddExpenseScreen(
                     carId = carId,
                     onNavigateBack = {
                         navController.popBackStack()
@@ -644,8 +693,11 @@ fun AppNavigation(
                 )
             }
 
-            composable(route = Screen.Notifications.route) {
-                com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen(
+            animatedComposable(
+                route = Screen.Notifications.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                NotificationsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -655,14 +707,15 @@ fun AppNavigation(
                 )
             }
 
-            composable(
+            animatedComposable(
                 route = Screen.EditReminder.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
                 arguments = listOf(
                     navArgument("expenseId") { type = NavType.LongType }
                 )
             ) { backStackEntry ->
                 val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
-                com.agcoding.cartrackingapp.presentation.editreminder.EditReminderScreen(
+                EditReminderScreen(
                     expenseId = expenseId,
                     onNavigateBack = {
                         navController.popBackStack()
