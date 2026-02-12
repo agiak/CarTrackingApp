@@ -34,12 +34,45 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.CarTrackingApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Quick Entry Activity (Lightweight Overlay) -->
+        <activity
+            android:name=".widget.QuickEntryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuickEntry.Translucent"
+            android:excludeFromRecents="true"
+            android:taskAffinity="" />
+
+        <!-- Widget Configuration Activity -->
+        <activity
+            android:name=".widget.QuickAddWidgetConfigActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CarTrackingApp">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Quick Add Widget -->
+        <receiver
+            android:name=".widget.QuickAddWidgetReceiver"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.agcoding.cartrackingapp.ACTION_UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quick_add_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

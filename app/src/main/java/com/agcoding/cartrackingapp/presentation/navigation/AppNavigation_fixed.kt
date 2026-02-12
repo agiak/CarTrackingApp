@@ -16,6 +16,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -136,13 +137,31 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    navigationViewModel: NavigationViewModel = hiltViewModel()
+    navigationViewModel: NavigationViewModel = hiltViewModel(),
+    widgetAction: String? = null,
+    widgetCarId: Long? = null
 ) {
     var showAddRefillSheet by remember { mutableStateOf<Long?>(null) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Handle widget deep links
+    LaunchedEffect(widgetAction, widgetCarId) {
+        when (widgetAction) {
+            "add_refill" -> {
+                widgetCarId?.let { carId ->
+                    showAddRefillSheet = carId
+                }
+            }
+            "add_expense" -> {
+                widgetCarId?.let { carId ->
+                    navController.navigate(Screen.AddExpense.createRoute(carId))
+                }
+            }
+        }
+    }
 
     // Get pending alerts count for badge
     val pendingAlertsCount by navigationViewModel.pendingAlertsCount.collectAsStateWithLifecycle(initialValue = 0)

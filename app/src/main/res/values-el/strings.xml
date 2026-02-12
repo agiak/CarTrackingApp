@@ -2,6 +2,17 @@
 <resources>
     <string name="app_name">CarTrackingApp</string>
 
+    <!-- Widget -->
+    <string name="widget_description">Γρήγορη προσθήκη ανεφοδιασμών και εξόδων</string>
+    <string name="widget_quick_add">Widget Γρήγορης Προσθήκης</string>
+    <string name="widget_add_fuel">Προσθήκη Καυσίμου</string>
+    <string name="widget_add_expense">Προσθήκη Εξόδου</string>
+    <string name="widget_no_car">Προσθέστε πρώτα ένα αυτοκίνητο</string>
+    <string name="widget_this_month">Αυτόν το μήνα: %1$s</string>
+    <string name="widget_preview_transaction">Ανεφοδιασμός</string>
+    <string name="widget_preview_amount">€70.00</string>
+    <string name="widget_preview_details">12/02/2026 • Toyota Corolla</string>
+
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Μηνιαίες τάσεις</string>
     <string name="sort_by_label">Ταξινόμηση κατά</string>
@@ -771,6 +782,21 @@
     <string name="reminder_banner_today_single">Έχετε 1 υπενθύμιση προγραμματισμένη για σήμερα</string>
     <string name="reminder_banner_today_multiple">Έχετε %d υπενθυμίσεις προγραμματισμένες για σήμερα</string>
     <string name="view_reminders">Προβολή υπενθυμίσεων</string>
+
+    <!-- Quick Entry Widget Strings -->
+    <string name="quick_add_refill_title">Γρήγορη Προσθήκη Ανεφοδιασμού</string>
+    <string name="quick_add_expense_title">Γρήγορη Προσθήκη Εξόδου</string>
+    <string name="select_vehicle">Επιλογή Οχήματος</string>
+    <string name="error_car_required">Παρακαλώ επιλέξτε όχημα</string>
+    <string name="no_cars_available">Δεν υπάρχουν διαθέσιμα οχήματα</string>
+    <string name="loading">Φόρτωση…</string>
+    <string name="date_label">Ημερομηνία</string>
+    <string name="cost_label">Κόστος (€)</string>
+    <string name="notes_label">Σημειώσεις</string>
+    <string name="category_label">Κατηγορία</string>
+    <string name="calculated_info_title">Υπολογισμένες Πληροφορίες</string>
+    <string name="price_per_liter_label">Τιμή ανά λίτρο</string>
+    <string name="fuel_consumption_label">Κατανάλωση καυσίμου</string>
 
 </resources>
 

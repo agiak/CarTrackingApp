@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,8 +36,14 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var colorPalettePreferences: ColorPalettePreferences
 
+    private var widgetAction: String? = null
+    private var widgetCarId: Long? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Handle widget deep links
+        handleWidgetIntent(intent)
 
         // Enable edge-to-edge display with proper system bar handling
         enableEdgeToEdge()
@@ -81,9 +88,23 @@ class MainActivity : AppCompatActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    AppNavigation(
+                        widgetAction = this@MainActivity.widgetAction,
+                        widgetCarId = this@MainActivity.widgetCarId
+                    )
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleWidgetIntent(intent)
+    }
+
+    private fun handleWidgetIntent(intent: Intent) {
+        widgetAction = intent.getStringExtra("widget_action")
+        widgetCarId = intent.getLongExtra("car_id", -1L).takeIf { it != -1L }
     }
 }

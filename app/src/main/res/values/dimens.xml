@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Quick Entry Dialog Dimensions -->
+    <dimen name="quick_entry_dialog_max_width">420dp</dimen>
+    <dimen name="quick_entry_dialog_width_fraction">0.95</dimen>
+    <dimen name="quick_entry_dialog_horizontal_padding">20dp</dimen>
+    <dimen name="quick_entry_dialog_vertical_padding">20dp</dimen>
+</resources>
+

@@ -20,6 +20,9 @@ interface CarDao {
     @Query("SELECT * FROM cars WHERE id = :carId")
     fun getCarById(carId: Long): Flow<CarEntity?>
 
+    @Query("SELECT * FROM cars WHERE id = :carId")
+    suspend fun getCarByIdSync(carId: Long): CarEntity?
+
     @Transaction
     @Query("SELECT * FROM cars WHERE id = :carId")
     fun getCarWithRefills(carId: Long): Flow<CarWithRefills?>
