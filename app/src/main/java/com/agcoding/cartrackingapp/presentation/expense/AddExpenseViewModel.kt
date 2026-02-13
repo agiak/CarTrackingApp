@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -247,6 +248,10 @@ class AddExpenseViewModel @Inject constructor(
                 )
 
                 expenseRepository.insertExpense(expense)
+
+                // Update widgets to show latest transaction
+                QuickAddWidgetReceiver.updateWidgets(getApplication())
+
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.message ?: "Failed to save expense")

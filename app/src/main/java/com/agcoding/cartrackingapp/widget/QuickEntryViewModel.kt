@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.widget
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Expense
@@ -8,6 +9,7 @@ import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +20,8 @@ import javax.inject.Inject
 class QuickEntryViewModel @Inject constructor(
     private val refillRepository: RefillRepository,
     private val carRepository: CarRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private var carId: Long = -1L
@@ -92,7 +95,14 @@ class QuickEntryViewModel @Inject constructor(
                     timestamp = timestamp
                 )
                 refillRepository.insertRefill(refill)
+
                 onSuccess()
+
+                // Update widgets after a short delay to ensure UI is ready
+                viewModelScope.launch {
+                    kotlinx.coroutines.delay(300)
+                    QuickAddWidgetReceiver.updateWidgets(context)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 onError()
@@ -118,7 +128,14 @@ class QuickEntryViewModel @Inject constructor(
                     timestamp = timestamp
                 )
                 expenseRepository.insertExpense(expense)
+
                 onSuccess()
+
+                // Update widgets after a short delay to ensure UI is ready
+                viewModelScope.launch {
+                    kotlinx.coroutines.delay(300)
+                    QuickAddWidgetReceiver.updateWidgets(context)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 onError()

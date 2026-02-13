@@ -6,7 +6,8 @@
     <string name="widget_quick_add">Quick Add Widget</string>
     <string name="widget_add_fuel">Add Fuel</string>
     <string name="widget_add_expense">Add Expense</string>
-    <string name="widget_no_car">Add a car first</string>
+    <string name="widget_no_car">No cars available</string>
+    <string name="widget_add_car_first">Open the app to add your first car</string>
     <string name="widget_this_month">This month: %1$s</string>
     <string name="widget_preview_transaction">Refill</string>
     <string name="widget_preview_amount">€70.00</string>

@@ -1,15 +1,19 @@
 package com.agcoding.cartrackingapp.domain.usecase.refill
 
+import android.content.Context
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.Location
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class AddFuelRefillUseCase @Inject constructor(
     private val refillRepository: RefillRepository,
-    private val carRepository: CarRepository
+    private val carRepository: CarRepository,
+    @ApplicationContext private val context: Context
 ) {
     suspend operator fun invoke(
         carId: Long,
@@ -66,6 +70,9 @@ class AddFuelRefillUseCase @Inject constructor(
                 updatedAt = System.currentTimeMillis()
             )
             carRepository.updateCar(updatedCar)
+
+            // Update widgets to show latest transaction
+            QuickAddWidgetReceiver.updateWidgets(context)
 
             Result.success(refillId)
         } catch (e: Exception) {

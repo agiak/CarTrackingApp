@@ -7,7 +7,8 @@
     <string name="widget_quick_add">Widget Γρήγορης Προσθήκης</string>
     <string name="widget_add_fuel">Προσθήκη Καυσίμου</string>
     <string name="widget_add_expense">Προσθήκη Εξόδου</string>
-    <string name="widget_no_car">Προσθέστε πρώτα ένα αυτοκίνητο</string>
+    <string name="widget_no_car">Δεν υπάρχουν διαθέσιμα οχήματα</string>
+    <string name="widget_add_car_first">Ανοίξτε την εφαρμογή για να προσθέσετε το πρώτο σας αυτοκίνητο</string>
     <string name="widget_this_month">Αυτόν το μήνα: %1$s</string>
     <string name="widget_preview_transaction">Ανεφοδιασμός</string>
     <string name="widget_preview_amount">€70.00</string>

@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -48,7 +49,8 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
                         .filterNotNull()
                         .toSet()
 
-                    val availableIndex = (0 until glanceIds.size).firstOrNull { it !in usedIndices } ?: 0
+                    val availableIndex =
+                        (0 until glanceIds.size).firstOrNull { it !in usedIndices } ?: 0
                     prefs.edit().putInt("glance_index_$appWidgetId", availableIndex).apply()
 
                     if (availableIndex < glanceIds.size) glanceIds[availableIndex] else null
@@ -81,14 +83,9 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
 
         when (intent.action) {
             ACTION_UPDATE_WIDGET -> {
-                // Update all widget instances
-                MainScope().launch {
-                    val glanceAppWidgetManager = GlanceAppWidgetManager(context)
-                    val glanceIds = glanceAppWidgetManager.getGlanceIds(QuickAddWidget::class.java)
-                    glanceIds.forEach { glanceId ->
-                        QuickAddWidget().update(context, glanceId)
-                    }
-                }
+                Log.d("QuickAddWidgetReceiver", "Received ACTION_UPDATE_WIDGET")
+                // Update all widget instances with fresh data
+                updateWidgets(context)
             }
         }
     }
@@ -97,7 +94,7 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
         const val ACTION_UPDATE_WIDGET = "com.agcoding.cartrackingapp.ACTION_UPDATE_WIDGET"
 
         /**
-         * Request widget update from anywhere in the app
+         * Request widget update
          */
         fun requestUpdate(context: Context) {
             val intent = Intent(context, QuickAddWidgetReceiver::class.java).apply {
@@ -107,17 +104,61 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
         }
 
         /**
-         * Update a specific widget instance
+         * Update all widgets when data changes (e.g., car added/removed)
+         * This will trigger provideGlance for each widget instance
          */
-        fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        fun updateWidgets(context: Context) {
             MainScope().launch {
-                val glanceAppWidgetManager = GlanceAppWidgetManager(context)
-                val glanceIds = glanceAppWidgetManager.getGlanceIds(QuickAddWidget::class.java)
-                glanceIds.forEach { glanceId ->
-                    QuickAddWidget().update(context, glanceId)
+                try {
+                    Log.d(
+                        "QuickAddWidgetReceiver",
+                        "Starting widget update with fresh data fetch..."
+                    )
+
+                    val glanceAppWidgetManager = GlanceAppWidgetManager(context)
+                    val glanceIds = glanceAppWidgetManager.getGlanceIds(QuickAddWidget::class.java)
+
+                    if (glanceIds.isEmpty()) {
+                        Log.d("QuickAddWidgetReceiver", "No widgets to update")
+                        return@launch
+                    }
+
+                    Log.d(
+                        "QuickAddWidgetReceiver",
+                        "Fetching fresh data for ${glanceIds.size} widgets..."
+                    )
+
+                    // Fetch fresh data (same as provideGlance does)
+                    val hasCars = WidgetDataProvider.hasAnyCars(context)
+                    val lastTransaction = WidgetDataProvider.getLastTransaction(context)
+
+                    Log.d(
+                        "QuickAddWidgetReceiver",
+                        "Fresh data fetched - hasCars: $hasCars, lastTransaction: $lastTransaction"
+                    )
+
+                    // Force update all widgets with fresh data
+                    glanceIds.forEach { glanceId ->
+                        launch {
+                            try {
+                                Log.d("QuickAddWidgetReceiver", "Updating widget: $glanceId")
+                                //QuickAddWidget().provideGlance(context, glanceId)
+                                QuickAddWidget().update(context, glanceId)
+                            } catch (e: Exception) {
+                                Log.e(
+                                    "QuickAddWidgetReceiver",
+                                    "Error updating widget $glanceId: ${e.message}",
+                                    e
+                                )
+                            }
+                        }
+                    }
+
+                    Log.d("QuickAddWidgetReceiver", "✓ Widget update completed")
+                } catch (e: Exception) {
+                    Log.e("QuickAddWidgetReceiver", "Error in updateWidgets: ${e.message}", e)
                 }
             }
         }
     }
 }
-

@@ -5,9 +5,7 @@ import android.util.Log
 import androidx.core.content.edit
 import com.agcoding.cartrackingapp.data.local.database.CarDatabase
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,26 +26,26 @@ class WidgetDataProvider @Inject constructor(
         /**
          * Check if any cars exist in the database
          */
-        fun hasAnyCars(context: Context): Flow<Boolean> = flow {
-            try {
+        suspend fun hasAnyCars(context: Context): Boolean {
+            return try {
                 Log.d("WidgetDataProvider", "Checking if any cars exist")
                 val database = CarDatabase.getInstance(context)
                 val carDao = database.carDao()
                 val cars = carDao.getAllCars().first()
                 val hasCars = cars.isNotEmpty()
                 Log.d("WidgetDataProvider", "Cars found: ${cars.size}, hasCars: $hasCars")
-                emit(hasCars)
+                hasCars
             } catch (e: Exception) {
                 Log.e("WidgetDataProvider", "Error checking cars: ${e.message}", e)
-                emit(false)
+                false
             }
         }
 
         /**
          * Get the last transaction (refill or expense) from all cars
          */
-        fun getLastTransaction(context: Context): Flow<LastTransaction?> = flow {
-            try {
+        suspend fun getLastTransaction(context: Context): LastTransaction? {
+            return try {
                 Log.d("WidgetDataProvider", "Fetching last transaction")
                 val database = CarDatabase.getInstance(context)
                 val carDao = database.carDao()
@@ -64,7 +62,9 @@ class WidgetDataProvider @Inject constructor(
                 val lastRefill = allRefills.maxByOrNull { it.timestamp }
                 val lastExpense = allExpenses.maxByOrNull { it.timestamp }
 
-                val lastTransaction = when {
+                Log.d("WidgetDataProvider", "Last refill: $lastRefill, Last expense: $lastExpense")
+
+                when {
                     lastRefill != null && lastExpense != null -> {
                         if (lastRefill.timestamp > lastExpense.timestamp) {
                             // Last transaction is a refill
@@ -105,22 +105,21 @@ class WidgetDataProvider @Inject constructor(
                         )
                     }
                     else -> null
+                }.also { lastTransaction ->
+                    Log.d("WidgetDataProvider", "Last transaction: $lastTransaction")
                 }
-
-                Log.d("WidgetDataProvider", "Last transaction: $lastTransaction")
-                emit(lastTransaction)
             } catch (e: Exception) {
                 Log.e("WidgetDataProvider", "Error getting last transaction: ${e.message}", e)
-                emit(null)
+                null
             }
         }
 
         /**
-         * Get widget data flow for a specific widget instance
+         * Get widget data for a specific widget instance
          * This is a simplified version that doesn't require DI in the widget
          */
-        fun getWidgetData(context: Context, widgetId: Int? = null): Flow<WidgetData> = flow {
-            try {
+        suspend fun getWidgetData(context: Context, widgetId: Int? = null): WidgetData {
+            return try {
                 val database = CarDatabase.getInstance(context)
                 val carDao = database.carDao()
                 val refillDao = database.fuelRefillDao()
@@ -130,8 +129,7 @@ class WidgetDataProvider @Inject constructor(
                 val cars = carDao.getAllCars().first()
 
                 if (cars.isEmpty()) {
-                    emit(WidgetData(noCarsAvailable = true))
-                    return@flow
+                    return WidgetData(noCarsAvailable = true)
                 }
 
                 // Get car from widget configuration or last selected
@@ -226,17 +224,15 @@ class WidgetDataProvider @Inject constructor(
 
                 val monthlyTotal = monthlyRefillTotal + monthlyExpenseTotal
 
-                emit(
-                    WidgetData(
-                        noCarsAvailable = false,
-                        selectedCarName = selectedCar.name,
-                        lastSelectedCarId = selectedCar.id,
-                        monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
-                    )
+                WidgetData(
+                    noCarsAvailable = false,
+                    selectedCarName = selectedCar.name,
+                    lastSelectedCarId = selectedCar.id,
+                    monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                emit(WidgetData(noCarsAvailable = true))
+                WidgetData(noCarsAvailable = true)
             }
         }
 
@@ -244,8 +240,8 @@ class WidgetDataProvider @Inject constructor(
          * Get widget data for a specific car ID directly
          * This bypasses the widget ID lookup and uses the car ID directly
          */
-        fun getWidgetDataForCar(context: Context, carId: Long): Flow<WidgetData> = flow {
-            try {
+        suspend fun getWidgetDataForCar(context: Context, carId: Long): WidgetData {
+            return try {
                 Log.d("WidgetDataProvider", "=== Getting data for car ID: $carId ===")
 
                 val database = CarDatabase.getInstance(context)
@@ -258,8 +254,7 @@ class WidgetDataProvider @Inject constructor(
 
                 if (cars.isEmpty()) {
                     Log.d("WidgetDataProvider", "No cars available")
-                    emit(WidgetData(noCarsAvailable = true))
-                    return@flow
+                    return WidgetData(noCarsAvailable = true)
                 }
 
                 // Find the specific car or fall back to first car
@@ -316,19 +311,17 @@ class WidgetDataProvider @Inject constructor(
 
                 val monthlyTotal = monthlyRefillTotal + monthlyExpenseTotal
 
-                Log.d("WidgetDataProvider", "Emitting data for ${selectedCar.name} (ID: ${selectedCar.id})")
-                emit(
-                    WidgetData(
-                        noCarsAvailable = false,
-                        selectedCarName = selectedCar.name,
-                        lastSelectedCarId = selectedCar.id,
-                        monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
-                    )
+                Log.d("WidgetDataProvider", "Returning data for ${selectedCar.name} (ID: ${selectedCar.id})")
+                WidgetData(
+                    noCarsAvailable = false,
+                    selectedCarName = selectedCar.name,
+                    lastSelectedCarId = selectedCar.id,
+                    monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
                 )
             } catch (e: Exception) {
                 Log.e("WidgetDataProvider", "Error getting widget data for car $carId: ${e.message}")
                 e.printStackTrace()
-                emit(WidgetData(noCarsAvailable = true))
+                WidgetData(noCarsAvailable = true)
             }
         }
 
