@@ -6,6 +6,7 @@
     <string name="widget_quick_add">Quick Add Widget</string>
     <string name="widget_add_fuel">Add Fuel</string>
     <string name="widget_add_expense">Add Expense</string>
+    <string name="widget_voice_entry">Voice</string>
     <string name="widget_no_car">No cars available</string>
     <string name="widget_add_car_first">Open the app to add your first car</string>
     <string name="widget_this_month">This month: %1$s</string>
@@ -133,6 +134,8 @@
     <string name="permission_location_desc">Used to automatically save where a fuel refill happened. This helps you remember which gas stations you visited.</string>
     <string name="permission_notifications_title">Notifications</string>
     <string name="permission_notifications_desc">Get reminders about upcoming service dates, insurance renewals, and other important car-related events.</string>
+    <string name="permission_microphone_title">Microphone</string>
+    <string name="permission_microphone_desc">Required for voice entry feature. Allows you to add refills by speaking naturally instead of typing.</string>
     <string name="granted">Granted</string>
 
     <!-- Settings Section Headers -->
@@ -142,6 +145,14 @@
     <string name="settings_data_storage">DATA &amp; STORAGE</string>
     <string name="settings_help_about">HELP &amp; ABOUT</string>
     <string name="settings_developer_options">DEVELOPER OPTIONS</string>
+
+    <!-- Voice & AI Settings -->
+    <string name="voice_ai_model">Voice AI Model</string>
+    <string name="voice_ai_model_desc">Select the AI model for voice parsing</string>
+    <string name="select_llm_model">Select AI Model</string>
+    <string name="llm_model_applied">AI Model updated to %1$s</string>
+    <string name="current_model">Current: %1$s</string>
+    <string name="estimated_cost">~%1$s per voice entry</string>
 
     <!-- Settings Dialogs & Buttons -->
     <string name="import_data_title">Import Data</string>
@@ -479,6 +490,42 @@
     <string name="add_fuel_refill_title">Add Fuel Refill</string>
     <string name="save_refill">Save Refill</string>
     <string name="refill_odometer_hint">Previous: %d km</string>
+
+    <!-- Voice Entry -->
+    <string name="voice_entry">Voice Entry</string>
+    <string name="voice_entry_button">Use voice</string>
+    <string name="voice_initializing">Initializing…</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_stop">Stop</string>
+    <string name="voice_stop_recording">Stop</string>
+    <string name="voice_processing">Processing…</string>
+    <string name="voice_parsed_success">Voice data parsed!</string>
+    <string name="voice_error">Voice Error</string>
+    <string name="voice_tap_to_speak">Tap to speak</string>
+    <string name="voice_speak_refill_data">Speak naturally:\n"thirty five euros, twenty five liters, three eighty four kilometers"</string>
+    <string name="voice_speak_naturally">Speak naturally and clearly</string>
+
+    <!-- Voice Confirmation -->
+    <string name="voice_parsed_title">I understood:</string>
+    <string name="voice_confirm_data">Confirm Data</string>
+    <string name="voice_edit_manually">Edit Manually</string>
+    <string name="voice_retry">Try Again</string>
+    <string name="voice_cancel">Cancel</string>
+    <string name="voice_low_confidence_warning">⚠ Low confidence - Please verify the values</string>
+    <string name="voice_missing_fields">Missing: %1$s</string>
+
+    <!-- Voice Errors -->
+    <string name="voice_error_no_speech">No speech detected. Speak more clearly or move closer to the microphone.</string>
+    <string name="voice_error_permission">Microphone permission required for voice entry</string>
+    <string name="voice_error_not_available">Speech recognition not available on this device</string>
+    <string name="voice_error_network">Network error. Using local parsing.</string>
+    <string name="voice_error_parse_failed">Could not understand. Speak more slowly or enter manually.</string>
+
+    <!-- Voice Parsed Fields -->
+    <string name="voice_parsed_cost">Cost: %1$s</string>
+    <string name="voice_parsed_liters">Liters: %1$s</string>
+    <string name="voice_parsed_distance">Distance: %1$s</string>
+    <string name="voice_parsed_odometer">Odometer: %1$s</string>
 
     <!-- Expense History (entries moved to line ~201) -->
 

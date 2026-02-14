@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.agcoding.cartrackingapp.domain.model.LLMModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,7 +31,8 @@ enum class AppLanguage(val code: String) {
 data class AppSettings(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage = AppLanguage.ENGLISH,
-    val notificationsEnabled: Boolean = true
+    val notificationsEnabled: Boolean = true,
+    val llmModel: LLMModel = LLMModel.DEFAULT
 )
 
 @Singleton
@@ -41,6 +43,7 @@ class SettingsPreferences @Inject constructor(
         val THEME = stringPreferencesKey("app_theme")
         val LANGUAGE = stringPreferencesKey("app_language")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val LLM_MODEL = stringPreferencesKey("llm_model")
     }
 
     val settingsFlow: Flow<AppSettings> = context.settingsDataStore.data.map { preferences ->
@@ -51,7 +54,10 @@ class SettingsPreferences @Inject constructor(
             language = preferences[Keys.LANGUAGE]?.let { code ->
                 AppLanguage.entries.find { it.code == code }
             } ?: AppLanguage.ENGLISH,
-            notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true
+            notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true,
+            llmModel = preferences[Keys.LLM_MODEL]?.let { modelId ->
+                LLMModel.fromModelId(modelId)
+            } ?: LLMModel.DEFAULT
         )
     }
 
@@ -71,5 +77,18 @@ class SettingsPreferences @Inject constructor(
         context.settingsDataStore.edit { preferences ->
             preferences[Keys.NOTIFICATIONS_ENABLED] = enabled
         }
+    }
+
+    suspend fun updateLLMModel(model: LLMModel) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[Keys.LLM_MODEL] = model.modelId
+        }
+    }
+
+    // Flow for just LLM model (useful for voice parsing)
+    val llmModelFlow: Flow<LLMModel> = context.settingsDataStore.data.map { preferences ->
+        preferences[Keys.LLM_MODEL]?.let { modelId ->
+            LLMModel.fromModelId(modelId)
+        } ?: LLMModel.DEFAULT
     }
 }

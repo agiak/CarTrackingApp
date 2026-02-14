@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.refill.components.VoiceEntrySection
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -59,6 +60,7 @@ fun AddRefillBottomSheet(
 
     val uiState by viewModel.uiState.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
+    val voiceState by viewModel.voiceState.collectAsState()
     val scrollState = rememberScrollState()
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -113,6 +115,18 @@ fun AddRefillBottomSheet(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Voice Entry Section
+            VoiceEntrySection(
+                voiceState = voiceState,
+                onStartVoiceEntry = viewModel::startVoiceEntry,
+                onStopVoiceRecording = viewModel::stopVoiceRecording,
+                onConfirmParsedData = viewModel::confirmVoiceParsedData,
+                onCancelVoiceEntry = viewModel::cancelVoiceEntry,
+                onRetryVoiceEntry = viewModel::startVoiceEntry
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Amount paid
             StyledOutlinedTextField(

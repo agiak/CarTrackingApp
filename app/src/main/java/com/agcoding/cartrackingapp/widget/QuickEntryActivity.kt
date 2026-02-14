@@ -42,6 +42,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,11 +61,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -139,6 +140,37 @@ class QuickEntryActivity : AppCompatActivity() {
                             }
                         )
 
+                        ACTION_VOICE -> QuickRefillDialog(
+                            viewModel = viewModel,
+                            onDismiss = { finish() },
+                            onSuccess = { amount, timestamp ->
+                                // Get selected car
+                                val car = viewModel.selectedCar.value
+                                if (car != null) {
+                                    // Create result intent with transaction data
+                                    val resultIntent = createResultIntent(
+                                        type = "Refill",
+                                        amount = amount,
+                                        timestamp = timestamp,
+                                        carName = car.name,
+                                        carId = car.id
+                                    )
+                                    setResult(RESULT_OK, resultIntent)
+
+                                    // Send broadcast with transaction data for widget update
+                                    val broadcastIntent = Intent(ACTION_WIDGET_DATA_CHANGED).apply {
+                                        putExtra(RESULT_TRANSACTION_TYPE, "Refill")
+                                        putExtra(RESULT_TRANSACTION_AMOUNT, amount)
+                                        putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
+                                        putExtra(RESULT_TRANSACTION_CAR_NAME, car.name)
+                                        putExtra(RESULT_TRANSACTION_CAR_ID, car.id)
+                                    }
+                                    sendBroadcast(broadcastIntent)
+                                }
+                                finish()
+                            }
+                        )
+
                         ACTION_ADD_EXPENSE -> QuickExpenseDialog(
                             viewModel = viewModel,
                             onDismiss = { finish() },
@@ -180,6 +212,7 @@ class QuickEntryActivity : AppCompatActivity() {
         private const val EXTRA_CAR_ID = "car_id"
         const val ACTION_ADD_REFILL = "add_refill"
         const val ACTION_ADD_EXPENSE = "add_expense"
+        const val ACTION_VOICE = "voice_refill"
         const val ACTION_WIDGET_DATA_CHANGED =
             "com.agcoding.cartrackingapp.ACTION_WIDGET_DATA_CHANGED"
 
@@ -203,6 +236,16 @@ class QuickEntryActivity : AppCompatActivity() {
         fun createExpenseIntent(context: Context, carId: Long = -1L): Intent {
             return Intent(context, QuickEntryActivity::class.java).apply {
                 putExtra(EXTRA_ACTION, ACTION_ADD_EXPENSE)
+                if (carId != -1L) {
+                    putExtra(EXTRA_CAR_ID, carId)
+                }
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        }
+
+        fun createVoiceIntent(context: Context, carId: Long = -1L): Intent {
+            return Intent(context, QuickEntryActivity::class.java).apply {
+                putExtra(EXTRA_ACTION, ACTION_VOICE)
                 if (carId != -1L) {
                     putExtra(EXTRA_CAR_ID, carId)
                 }
@@ -322,6 +365,25 @@ private fun QuickRefillDialog(
     val selectedCar by viewModel.selectedCar.collectAsState()
     var showCarError by remember { mutableStateOf(false) }
 
+    // Voice state
+    val voiceState by viewModel.voiceState.collectAsState()
+
+    // Handle voice parsed data - auto-fill form fields
+    androidx.compose.runtime.LaunchedEffect(voiceState) {
+        if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed) {
+            val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
+
+            // Pre-fill form fields with parsed data
+            // Use Locale.US to ensure period (.) as decimal separator for parsing compatibility
+            parsedData.cost?.let { cost = String.format(Locale.US, "%.2f", it) }
+            parsedData.liters?.let { liters = String.format(Locale.US, "%.2f", it) }
+            parsedData.distance?.let { distance = String.format(Locale.US, "%.0f", it) }
+
+            // Reset voice state after applying data
+            viewModel.confirmVoiceParsedData()
+        }
+    }
+
     // Calculated values
     val pricePerLiter by remember {
         derivedStateOf {
@@ -384,6 +446,211 @@ private fun QuickRefillDialog(
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // Voice Entry Section
+                    when (voiceState) {
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle -> {
+                            // Show voice button
+                            OutlinedButton(
+                                onClick = { viewModel.startVoiceEntry() },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = !isLoading
+                            ) {
+                                Icon(
+                                    painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.voice_entry_button))
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening -> {
+                            // Listening state - show partial text and stop button
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = stringResource(R.string.voice_listening),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+
+                                    val partialText = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening).partialText
+                                    if (partialText.isNotBlank()) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = partialText,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = { viewModel.cancelVoiceEntry() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(stringResource(R.string.cancel))
+                                        }
+
+                                        Button(
+                                            onClick = { viewModel.stopVoiceRecording() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(stringResource(R.string.voice_stop))
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Processing -> {
+                            // Processing state
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = stringResource(R.string.voice_processing),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error -> {
+                            // Error state
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.voice_error),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+
+                                    val errorMessage = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error).message
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = errorMessage,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = { viewModel.cancelVoiceEntry() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(stringResource(R.string.cancel))
+                                        }
+
+                                        Button(
+                                            onClick = { viewModel.startVoiceEntry() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(stringResource(R.string.retry))
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed -> {
+                            // Success state - fields will be auto-filled
+                            // Just show brief success message
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.voice_parsed_success),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
 
                     // Car Selector
                     CarSelector(
@@ -842,3 +1109,216 @@ private fun QuickExpenseDialog(
     }
 }
 
+/**
+ * Voice Entry Dialog for quick widget voice input
+ * Full implementation with voice recognition, parsing, and pre-fill
+ */
+@Composable
+private fun QuickVoiceDialog(
+    viewModel: QuickEntryViewModel,
+    onDismiss: () -> Unit,
+    onSuccess: (amount: Double, timestamp: Long) -> Unit
+) {
+    val context = LocalContext.current
+    val voiceState by viewModel.voiceState.collectAsState()
+    val allCars by viewModel.allCars.collectAsState()
+    val selectedCar by viewModel.selectedCar.collectAsState()
+
+    // Auto-start voice recognition when dialog opens
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle) {
+            viewModel.startVoiceEntry()
+        }
+    }
+
+    Dialog(
+        onDismissRequest = {
+            viewModel.cancelVoiceEntry()
+            onDismiss()
+        },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .wrapContentHeight()
+                .padding(16.dp)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    when (voiceState) {
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle -> {
+                            // Starting state
+                            CircularProgressIndicator()
+                            Text(
+                                text = stringResource(R.string.voice_initializing),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening -> {
+                            // Listening state
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                text = stringResource(R.string.voice_listening),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            val partialText = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening).partialText
+                            if (partialText.isNotBlank()) {
+                                Text(
+                                    text = partialText,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        viewModel.cancelVoiceEntry()
+                                        onDismiss()
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+
+                                Button(
+                                    onClick = { viewModel.stopVoiceRecording() },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.voice_stop))
+                                }
+                            }
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Processing -> {
+                            // Processing state
+                            CircularProgressIndicator()
+                            Text(
+                                text = stringResource(R.string.voice_processing),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed -> {
+                            // Success - show parsed data and transition to refill form
+                            val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
+
+                            Text(
+                                text = stringResource(R.string.voice_parsed_success),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            // Show parsed values
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                parsedData.cost?.let {
+                                    Text("Cost: €%.2f".format(it))
+                                }
+                                parsedData.liters?.let {
+                                    Text("Liters: %.2f L".format(it))
+                                }
+                                parsedData.distance?.let {
+                                    Text("Distance: %.0f km".format(it))
+                                }
+                            }
+
+                            // Apply parsed data and close
+                            androidx.compose.runtime.LaunchedEffect(Unit) {
+                                viewModel.confirmVoiceParsedData()
+                                kotlinx.coroutines.delay(500) // Brief delay to show success
+                                // Get the filled values and save
+                                val amount = parsedData.cost ?: 0.0
+                                if (amount > 0) {
+                                    onSuccess(amount, System.currentTimeMillis())
+                                } else {
+                                    onDismiss()
+                                }
+                            }
+                        }
+
+                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error -> {
+                            // Error state
+                            val error = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error).message
+
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+
+                            Text(
+                                text = stringResource(R.string.voice_error),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = error,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                TextButton(
+                                    onClick = onDismiss,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+
+                                Button(
+                                    onClick = { viewModel.startVoiceEntry() },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(stringResource(R.string.retry))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

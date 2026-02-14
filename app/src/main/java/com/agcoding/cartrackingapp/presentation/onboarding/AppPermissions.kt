@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.agcoding.cartrackingapp.R
@@ -38,6 +39,13 @@ object AppPermissions {
             titleRes = R.string.permission_notifications_title,
             descriptionRes = R.string.permission_notifications_desc,
             icon = Icons.Default.Notifications,
+            isRequired = false
+        ),
+        PermissionItem(
+            permission = Manifest.permission.RECORD_AUDIO,
+            titleRes = R.string.permission_microphone_title,
+            descriptionRes = R.string.permission_microphone_desc,
+            icon = Icons.Default.Mic,
             isRequired = false
         )
     )

@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
 import com.agcoding.cartrackingapp.presentation.settings.components.DebugCard
+import com.agcoding.cartrackingapp.presentation.settings.components.LLMModelCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import kotlinx.coroutines.launch
@@ -44,6 +46,7 @@ fun DeveloperSettingsScreen(
     onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -102,6 +105,26 @@ fun DeveloperSettingsScreen(
                 )
             ) {
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Voice & AI Section
+            SectionHeader(title = "VOICE & AI")
+
+            LLMModelCard(
+                currentModel = uiState.appSettings.llmModel,
+                onModelChange = { model ->
+                    viewModel.updateLLMModel(model)
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = context.getString(
+                                R.string.llm_model_applied,
+                                model.displayName
+                            )
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // DEBUG Section
             SectionHeader(title = stringResource(R.string.settings_section_developer_options))

@@ -5,7 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.data.local.LocationProvider
+import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
+import com.agcoding.cartrackingapp.data.voice.SpeechRecognitionEvent
+import com.agcoding.cartrackingapp.data.voice.SpeechRecognitionService
+import com.agcoding.cartrackingapp.domain.model.VoiceParsingResult
+import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
+import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,6 +28,9 @@ class AddRefillViewModel @Inject constructor(
     private val addFuelRefillUseCase: AddFuelRefillUseCase,
     private val carRepository: com.agcoding.cartrackingapp.domain.repository.CarRepository,
     private val locationProvider: LocationProvider,
+    private val speechRecognitionService: SpeechRecognitionService,
+    private val parseVoiceRefillUseCase: ParseVoiceRefillUseCase,
+    private val settingsPreferences: SettingsPreferences,
     @ApplicationContext private val context: android.content.Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -33,6 +42,10 @@ class AddRefillViewModel @Inject constructor(
 
     private val _showDatePicker = MutableStateFlow(false)
     val showDatePicker: StateFlow<Boolean> = _showDatePicker.asStateFlow()
+
+    // Voice recognition state
+    private val _voiceState = MutableStateFlow<VoiceRefillState>(VoiceRefillState.Idle)
+    val voiceState: StateFlow<VoiceRefillState> = _voiceState.asStateFlow()
 
     fun setCarId(id: Long) {
         carId = id
@@ -216,12 +229,192 @@ class AddRefillViewModel @Inject constructor(
         }
     }
 
+    // ===== Voice Entry Methods =====
+
+    /**
+     * Start voice entry for refill data
+     * Prioritizes Greek language support
+     */
+    fun startVoiceEntry() {
+        if (!speechRecognitionService.isAvailable()) {
+            _voiceState.value = VoiceRefillState.Error("Speech recognition not available on this device")
+            return
+        }
+
+        _voiceState.value = VoiceRefillState.Listening("")
+
+        viewModelScope.launch {
+            // Get device locale, prefer Greek if available
+            val deviceLocale = speechRecognitionService.getDeviceLocale()
+            val languageCode = if (deviceLocale.startsWith("el")) {
+                "el-GR" // Explicitly use Greek
+            } else {
+                deviceLocale
+            }
+
+            android.util.Log.d("VoiceEntry", "Starting voice recognition with locale: $languageCode")
+
+            speechRecognitionService.startListening(
+                languageCode = languageCode
+            ).collect { event ->
+                handleSpeechRecognitionEvent(event)
+            }
+        }
+    }
+
+    /**
+     * Handle speech recognition events
+     */
+    private suspend fun handleSpeechRecognitionEvent(event: SpeechRecognitionEvent) {
+        when (event) {
+            is SpeechRecognitionEvent.ReadyForSpeech -> {
+                _voiceState.value = VoiceRefillState.Listening("")
+            }
+            is SpeechRecognitionEvent.BeginningOfSpeech -> {
+                _voiceState.value = VoiceRefillState.Listening("")
+            }
+            is SpeechRecognitionEvent.PartialResults -> {
+                _voiceState.value = VoiceRefillState.Listening(event.text)
+            }
+            is SpeechRecognitionEvent.Results -> {
+                _voiceState.value = VoiceRefillState.Processing(event.text)
+                parseVoiceTranscript(event.text)
+            }
+            is SpeechRecognitionEvent.Error -> {
+                val errorMsg = when {
+                    event.message.contains("No speech") -> "No speech detected. Please try again."
+                    event.message.contains("permission") -> "Microphone permission required"
+                    event.message.contains("Network") -> "Network error. Using offline parsing."
+                    else -> event.message
+                }
+                _voiceState.value = VoiceRefillState.Error(errorMsg)
+            }
+            else -> { /* Ignore other events */ }
+        }
+    }
+
+    /**
+     * Parse voice transcript using LLM or regex
+     * Uses the selected LLM model from settings
+     */
+    private suspend fun parseVoiceTranscript(transcript: String) {
+        try {
+            android.util.Log.d("VoiceEntry", "Parsing transcript: '$transcript'")
+
+            // Get the selected LLM model from preferences
+            val selectedModel = settingsPreferences.llmModelFlow.first()
+            android.util.Log.d("VoiceEntry", "Selected LLM model: ${selectedModel.displayName} (${selectedModel.modelId})")
+
+            // Get OpenAI API key from BuildConfig (if configured)
+            // To configure: Add to local.properties: OPENAI_API_KEY=your_key_here
+            // Then in build.gradle.kts: buildConfigField("String", "OPENAI_API_KEY", "\"${properties["OPENAI_API_KEY"]}\"")
+            val apiKey: String? = try {
+                BuildConfig.OPENAI_API_KEY.takeIf { it.isNotBlank() }
+            } catch (e: Exception) {
+                null // API key not configured, will use regex fallback
+            }
+
+            val result = parseVoiceRefillUseCase(transcript, null, selectedModel)
+
+            when (result) {
+                is VoiceParsingResult.Success -> {
+                    android.util.Log.d("VoiceEntry", "Parse SUCCESS: ${result.data}")
+                    _voiceState.value = VoiceRefillState.Parsed(result.data)
+                }
+                is VoiceParsingResult.LowConfidence -> {
+                    android.util.Log.d("VoiceEntry", "Parse LOW CONFIDENCE: ${result.data}")
+                    _voiceState.value = VoiceRefillState.Parsed(result.data, lowConfidence = true)
+                }
+                is VoiceParsingResult.Error -> {
+                    android.util.Log.e("VoiceEntry", "Parse ERROR: ${result.message}")
+                    _voiceState.value = VoiceRefillState.Error(result.message, result.transcript)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("VoiceEntry", "Exception parsing transcript: ${e.message}", e)
+            _voiceState.value = VoiceRefillState.Error(
+                "Failed to parse voice input: ${e.message}",
+                transcript
+            )
+        }
+    }
+
+    /**
+     * Confirm and apply parsed voice data to form
+     * Uses US Locale to ensure period (.) as decimal separator
+     */
+    fun confirmVoiceParsedData() {
+        val currentVoiceState = _voiceState.value
+        if (currentVoiceState is VoiceRefillState.Parsed) {
+            val data = currentVoiceState.data
+
+            android.util.Log.d("VoiceEntry", "Applying parsed data to form:")
+            android.util.Log.d("VoiceEntry", "  cost=${data.cost}, liters=${data.liters}, distance=${data.distance}")
+
+            // Apply parsed data to form fields with period (.) separator
+            if (data.cost != null && data.cost > 0) {
+                val formatted = String.format(java.util.Locale.US, "%.2f", data.cost)
+                android.util.Log.d("VoiceEntry", "  Applying cost: $formatted")
+                updateAmountPaid(formatted)
+            }
+            if (data.liters != null && data.liters > 0) {
+                val formatted = String.format(java.util.Locale.US, "%.2f", data.liters)
+                android.util.Log.d("VoiceEntry", "  Applying liters: $formatted")
+                updateLitersAdded(formatted)
+            }
+            if (data.distance != null && data.distance > 0) {
+                val formatted = String.format(java.util.Locale.US, "%.0f", data.distance)
+                android.util.Log.d("VoiceEntry", "  Applying distance: $formatted")
+                updateTripDistance(formatted)
+            }
+
+            // Reset voice state
+            _voiceState.value = VoiceRefillState.Idle
+        }
+    }
+
+    /**
+     * Manually stop voice recording (user pressed Stop button)
+     * This triggers the final results processing
+     */
+    fun stopVoiceRecording() {
+        android.util.Log.d("VoiceEntry", "User manually stopped recording")
+        speechRecognitionService.stopListeningManually()
+        // State will be updated when onResults callback fires
+    }
+
+    /**
+     * Cancel voice entry (dismiss without processing)
+     */
+    fun cancelVoiceEntry() {
+        android.util.Log.d("VoiceEntry", "User cancelled voice entry")
+        speechRecognitionService.stopListening()
+        _voiceState.value = VoiceRefillState.Idle
+    }
+
+    /**
+     * Stop voice listening (internal cleanup)
+     */
+    fun stopVoiceEntry() {
+        speechRecognitionService.stopListening()
+    }
+
     fun resetForm() {
         _uiState.value = AddRefillUiState()
         _showDatePicker.value = false
+        _voiceState.value = VoiceRefillState.Idle
+        speechRecognitionService.stopListening()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        speechRecognitionService.stopListening()
     }
 }
 
+/**
+ * UI State for refill form
+ */
 data class AddRefillUiState(
     val amountPaid: String = "",
     val litersAdded: String = "",
@@ -236,3 +429,15 @@ data class AddRefillUiState(
     val errorMessage: String? = null,
     val fieldErrors: Map<String, String> = emptyMap()
 )
+
+/**
+ * Voice recognition state
+ */
+sealed class VoiceRefillState {
+    object Idle : VoiceRefillState()
+    data class Listening(val partialText: String) : VoiceRefillState()
+    data class Processing(val transcript: String) : VoiceRefillState()
+    data class Parsed(val data: VoiceRefillData, val lowConfidence: Boolean = false) : VoiceRefillState()
+    data class Error(val message: String, val transcript: String = "") : VoiceRefillState()
+}
+

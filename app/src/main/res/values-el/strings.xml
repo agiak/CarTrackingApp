@@ -7,6 +7,7 @@
     <string name="widget_quick_add">Widget Γρήγορης Προσθήκης</string>
     <string name="widget_add_fuel">Προσθήκη Καυσίμου</string>
     <string name="widget_add_expense">Προσθήκη Εξόδου</string>
+    <string name="widget_voice_entry">Φωνή</string>
     <string name="widget_no_car">Δεν υπάρχουν διαθέσιμα οχήματα</string>
     <string name="widget_add_car_first">Ανοίξτε την εφαρμογή για να προσθέσετε το πρώτο σας αυτοκίνητο</string>
     <string name="widget_this_month">Αυτόν το μήνα: %1$s</string>
@@ -117,6 +118,8 @@
     <string name="permission_location_desc">Χρησιμοποιείται για την αυτόματη αποθήκευση της τοποθεσίας ενός ανεφοδιασμού. Έτσι θυμάστε σε ποια πρατήρια πήγατε.</string>
     <string name="permission_notifications_title">Ειδοποιήσεις</string>
     <string name="permission_notifications_desc">Λάβετε υπενθυμίσεις για επερχόμενα σέρβις, ανανεώσεις ασφάλειας και άλλα σημαντικά γεγονότα.</string>
+    <string name="permission_microphone_title">Μικρόφωνο</string>
+    <string name="permission_microphone_desc">Απαιτείται για τη φωνητική εισαγωγή. Σας επιτρέπει να προσθέτετε ανεφοδιασμούς μιλώντας φυσιολογικά αντί να πληκτρολογείτε.</string>
     <string name="granted">Επιτράπηκε</string>
 
     <!-- Settings Section Headers -->
@@ -126,6 +129,14 @@
     <string name="settings_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
     <string name="settings_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
     <string name="settings_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
+
+    <!-- Voice & AI Settings -->
+    <string name="voice_ai_model">Μοντέλο AI Φωνής</string>
+    <string name="voice_ai_model_desc">Επιλέξτε το μοντέλο AI για ανάλυση φωνής</string>
+    <string name="select_llm_model">Επιλογή Μοντέλου AI</string>
+    <string name="llm_model_applied">Το μοντέλο AI ενημερώθηκε σε %1$s</string>
+    <string name="current_model">Τρέχον: %1$s</string>
+    <string name="estimated_cost">~%1$s ανά φωνητική εισαγωγή</string>
 
     <!-- Settings Dialogs & Buttons -->
     <string name="import_data_title">Εισαγωγή δεδομένων</string>
@@ -461,6 +472,42 @@
     <string name="add_fuel_refill_title">Προσθήκη Ανεφοδιασμού</string>
     <string name="save_refill">Αποθήκευση</string>
     <string name="refill_odometer_hint">Προηγούμενο: %d km</string>
+
+    <!-- Voice Entry -->
+    <string name="voice_entry">Φωνητική Εισαγωγή</string>
+    <string name="voice_entry_button">Χρήση φωνής</string>
+    <string name="voice_initializing">Αρχικοποίηση…</string>
+    <string name="voice_listening">Ακούω…</string>
+    <string name="voice_stop">Τέλος</string>
+    <string name="voice_stop_recording">Τέλος</string>
+    <string name="voice_processing">Επεξεργασία…</string>
+    <string name="voice_parsed_success">Τα δεδομένα αναλύθηκαν!</string>
+    <string name="voice_error">Σφάλμα Φωνής</string>
+    <string name="voice_tap_to_speak">Πατήστε για να μιλήσετε</string>
+    <string name="voice_speak_refill_data">Μιλήστε φυσιολογικά:\n\"τριάντα πέντε ευρώ, είκοσι πέντε λίτρα, τετρακόσια χιλιόμετρα\"</string>
+    <string name="voice_speak_naturally">Μιλήστε φυσιολογικά και καθαρά</string>
+
+    <!-- Voice Confirmation -->
+    <string name="voice_parsed_title">Κατάλαβα:</string>
+    <string name="voice_confirm_data">Επιβεβαίωση</string>
+    <string name="voice_edit_manually">Επεξεργασία</string>
+    <string name="voice_retry">Ξαναδοκιμάστε</string>
+    <string name="voice_cancel">Ακύρωση</string>
+    <string name="voice_low_confidence_warning">⚠ Χαμηλή βεβαιότητα - Παρακαλώ ελέγξτε τις τιμές</string>
+    <string name="voice_missing_fields">Λείπουν: %1$s</string>
+
+    <!-- Voice Errors -->
+    <string name="voice_error_no_speech">Δεν ανιχνεύθηκε ομιλία. Μιλήστε πιο καθαρά ή πλησιάστε το μικρόφωνο.</string>
+    <string name="voice_error_permission">Απαιτείται άδεια μικροφώνου για τη χρήση φωνητικής εισαγωγής</string>
+    <string name="voice_error_not_available">Η αναγνώριση φωνής δεν είναι διαθέσιμη σε αυτή τη συσκευή</string>
+    <string name="voice_error_network">Σφάλμα δικτύου. Χρήση τοπικής ανάλυσης.</string>
+    <string name="voice_error_parse_failed">Δεν κατάφερα να καταλάβω. Μιλήστε πιο αργά ή εισάγετε χειροκίνητα.</string>
+
+    <!-- Voice Parsed Fields -->
+    <string name="voice_parsed_cost">Κόστος: %1$s</string>
+    <string name="voice_parsed_liters">Λίτρα: %1$s</string>
+    <string name="voice_parsed_distance">Απόσταση: %1$s</string>
+    <string name="voice_parsed_odometer">Χιλιομετρητής: %1$s</string>
 
     <!-- Expense History (entries moved to line ~201) -->
 

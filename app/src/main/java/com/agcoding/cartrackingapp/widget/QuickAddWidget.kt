@@ -134,7 +134,7 @@ object QuickAddWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetContent(context: Context, hasCars: Boolean, lastTransaction: LastTransaction?) {
         Log.d("QuickAddWidget", "=== Widget Content Render ===")
-        Log.d("QuickAddWidget", "Has cars: $hasCars, xLast transaction: $lastTransaction")
+        Log.d("QuickAddWidget", "Has cars: $hasCars, Last transaction: $lastTransaction")
 
         Box(
             modifier = GlanceModifier
@@ -343,12 +343,14 @@ object QuickAddWidget : GlanceAppWidget() {
 
     @Composable
     private fun QuickAddButtons(context: Context) {
+        // Always show 2-button layout: Refill and Expense
+        // Voice functionality is available inside the Refill dialog
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Add Refill Button - uses ActionCallback to launch activity then refresh
+            // Add Refill Button
             QuickActionButton(
                 icon = R.drawable.ic_refill,
                 text = context.getString(R.string.widget_add_fuel),
@@ -358,7 +360,7 @@ object QuickAddWidget : GlanceAppWidget() {
 
             Spacer(modifier = GlanceModifier.width(8.dp))
 
-            // Add Expense Button - uses ActionCallback to launch activity then refresh
+            // Add Expense Button
             QuickActionButton(
                 icon = R.drawable.ic_receipt_24dp,
                 text = context.getString(R.string.widget_add_expense),
@@ -478,6 +480,52 @@ class ExpenseActionCallback : ActionCallback {
 
         } catch (e: Exception) {
             Log.e("ExpenseActionCallback", "Error in action callback: ${e.message}", e)
+        }
+    }
+}
+
+/**
+ * ActionCallback for voice entry from widget
+ * Launches QuickEntryActivity in voice mode
+ */
+class VoiceActionCallback : ActionCallback {
+
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        Log.d("VoiceActionCallback", "=== Voice onAction triggered ===")
+        Log.d("VoiceActionCallback", "GlanceId: $glanceId")
+
+        try {
+            // Check permission one more time before launching
+            if (!WidgetPermissionChecker.hasMicrophonePermission(context)) {
+                Log.w("VoiceActionCallback", "Microphone permission not granted")
+                // Could launch app to permission screen, but for now just log
+                return
+            }
+
+            // Launch the voice entry activity
+            val intent = QuickEntryActivity.createVoiceIntent(context)
+
+            // Start the activity
+            context.startActivity(intent)
+
+            Log.d("VoiceActionCallback", "✓ Voice activity launched successfully")
+
+            // Immediately update widget state
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs.toMutablePreferences()
+            }
+
+            // Trigger widget refresh
+            QuickAddWidget.update(context, glanceId)
+
+            // Widget will be updated again via broadcast when activity finishes
+
+        } catch (e: Exception) {
+            Log.e("VoiceActionCallback", "Error in voice action callback: ${e.message}", e)
         }
     }
 }

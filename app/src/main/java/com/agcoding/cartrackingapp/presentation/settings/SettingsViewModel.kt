@@ -240,6 +240,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateLLMModel(model: com.agcoding.cartrackingapp.domain.model.LLMModel) {
+        viewModelScope.launch {
+            settingsPreferences.updateLLMModel(model)
+            Log.d("SettingsViewModel", "LLM model updated to: ${model.displayName} (${model.modelId})")
+        }
+    }
+
     fun updateNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsPreferences.updateNotificationsEnabled(enabled)
