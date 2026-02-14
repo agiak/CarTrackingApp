@@ -73,7 +73,8 @@ class WidgetDataProvider @Inject constructor(
                                 type = "Refill",
                                 amount = lastRefill.amountPaid,
                                 timestamp = lastRefill.timestamp,
-                                carName = car?.name ?: ""
+                                carName = car?.name ?: "",
+                                carId = lastRefill.carId
                             )
                         } else {
                             // Last transaction is an expense
@@ -82,7 +83,8 @@ class WidgetDataProvider @Inject constructor(
                                 type = lastExpense.category,
                                 amount = lastExpense.amount,
                                 timestamp = lastExpense.timestamp,
-                                carName = car?.name ?: ""
+                                carName = car?.name ?: "",
+                                carId = lastExpense.carId
                             )
                         }
                     }
@@ -92,7 +94,8 @@ class WidgetDataProvider @Inject constructor(
                             type = "Refill",
                             amount = lastRefill.amountPaid,
                             timestamp = lastRefill.timestamp,
-                            carName = car?.name ?: ""
+                            carName = car?.name ?: "",
+                            carId = lastRefill.carId
                         )
                     }
                     lastExpense != null -> {
@@ -101,7 +104,8 @@ class WidgetDataProvider @Inject constructor(
                             type = lastExpense.category,
                             amount = lastExpense.amount,
                             timestamp = lastExpense.timestamp,
-                            carName = car?.name ?: ""
+                            carName = car?.name ?: "",
+                            carId = lastExpense.carId
                         )
                     }
                     else -> null
@@ -344,6 +348,7 @@ data class LastTransaction(
     val type: String,
     val amount: Double,
     val timestamp: Long,
-    val carName: String
+    val carName: String,
+    val carId: Long
 )
 

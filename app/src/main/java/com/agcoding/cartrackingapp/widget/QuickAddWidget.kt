@@ -14,13 +14,16 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
@@ -45,11 +48,15 @@ import com.agcoding.cartrackingapp.R
  * Quick Add Widget - Glance implementation
  * Provides quick access to add refills and expenses
  */
-class QuickAddWidget : GlanceAppWidget() {
+object QuickAddWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Single
 
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
+
+    // Widget state keys
+    val WIDGET_ID_KEY = intPreferencesKey("widget_id")
+    val CAR_ID_KEY = androidx.datastore.preferences.core.longPreferencesKey("car_id")
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         Log.d("QuickAddWidget", "=== provideGlance called ===")
@@ -57,9 +64,37 @@ class QuickAddWidget : GlanceAppWidget() {
         Log.d("QuickAddWidget", "Glance ID: $id")
 
         try {
+            // First, check if we have cached transaction data in widget state
+            val currentState = androidx.glance.appwidget.state.getAppWidgetState(
+                context,
+                PreferencesGlanceStateDefinition,
+                id
+            )
+
+            val cachedType = currentState[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_type")]
+            val cachedAmount = currentState[androidx.datastore.preferences.core.doublePreferencesKey("cached_transaction_amount")]
+            val cachedTimestamp = currentState[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_timestamp")]
+            val cachedCarName = currentState[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_car_name")]
+            val cachedCarId = currentState[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_car_id")]
+
+            val lastTransaction = if (cachedType != null && cachedAmount != null && cachedTimestamp != null && cachedCarName != null && cachedCarId != null) {
+                // Use cached transaction data (instant update!)
+                Log.d("QuickAddWidget", "Using cached transaction data")
+                LastTransaction(
+                    type = cachedType,
+                    amount = cachedAmount,
+                    timestamp = cachedTimestamp,
+                    carName = cachedCarName,
+                    carId = cachedCarId
+                )
+            } else {
+                // Fetch from database
+                Log.d("QuickAddWidget", "Fetching transaction from database")
+                WidgetDataProvider.getLastTransaction(context)
+            }
+
             // Fetch data BEFORE provideContent for proper Glance behavior
             val hasCars = WidgetDataProvider.hasAnyCars(context)
-            val lastTransaction = WidgetDataProvider.getLastTransaction(context)
 
             Log.d("QuickAddWidget", "Has cars: $hasCars")
             Log.d("QuickAddWidget", "Last transaction: $lastTransaction")
@@ -116,11 +151,6 @@ class QuickAddWidget : GlanceAppWidget() {
                 QuickAddContent(context, lastTransaction)
             }
         }
-    }
-
-    companion object {
-        val WIDGET_ID_KEY = intPreferencesKey("widget_id")
-        val CAR_ID_KEY = androidx.datastore.preferences.core.longPreferencesKey("car_id")
     }
 
     @Composable
@@ -318,25 +348,21 @@ class QuickAddWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Add Refill Button
+            // Add Refill Button - uses ActionCallback to launch activity then refresh
             QuickActionButton(
                 icon = R.drawable.ic_refill,
                 text = context.getString(R.string.widget_add_fuel),
-                onClick = actionStartActivity(
-                    QuickEntryActivity.createRefillIntent(context)
-                ),
+                onClick = actionRunCallback<RefillActionCallback>(),
                 modifier = GlanceModifier.defaultWeight()
             )
 
             Spacer(modifier = GlanceModifier.width(8.dp))
 
-            // Add Expense Button
+            // Add Expense Button - uses ActionCallback to launch activity then refresh
             QuickActionButton(
                 icon = R.drawable.ic_receipt_24dp,
                 text = context.getString(R.string.widget_add_expense),
-                onClick = actionStartActivity(
-                    QuickEntryActivity.createExpenseIntent(context)
-                ),
+                onClick = actionRunCallback<ExpenseActionCallback>(),
                 modifier = GlanceModifier.defaultWeight()
             )
         }
@@ -380,6 +406,81 @@ class QuickAddWidget : GlanceAppWidget() {
     }
 }
 
+/**
+ * ActionCallback that launches QuickEntryActivity and refreshes widget after completion
+ * This is triggered when user taps the refill or expense button on the widget
+ */
+class RefillActionCallback : ActionCallback {
+
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        Log.d("RefillActionCallback", "=== onAction triggered ===")
+        Log.d("RefillActionCallback", "GlanceId: $glanceId")
+
+        try {
+            // Launch the refill activity
+            val intent = QuickEntryActivity.createRefillIntent(context)
+
+            // Start the activity
+            context.startActivity(intent)
+
+            Log.d("RefillActionCallback", "✓ Activity launched successfully")
+
+            // Immediately update widget state to show it's loading/pending
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs.toMutablePreferences()
+            }
+
+            // Trigger widget refresh
+            QuickAddWidget.update(context, glanceId)
+
+            // Note: Widget will be updated again via broadcast when activity finishes
+            // The broadcast mechanism in QuickEntryActivity will handle the final refresh with new data
+
+        } catch (e: Exception) {
+            Log.e("RefillActionCallback", "Error in action callback: ${e.message}", e)
+        }
+    }
+}
+
+class ExpenseActionCallback : ActionCallback {
+
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        Log.d("ExpenseActionCallback", "=== onAction triggered ===")
+        Log.d("ExpenseActionCallback", "GlanceId: $glanceId")
+
+        try {
+            // Launch the expense activity
+            val intent = QuickEntryActivity.createExpenseIntent(context)
+
+            // Start the activity
+            context.startActivity(intent)
+
+            Log.d("ExpenseActionCallback", "✓ Activity launched successfully")
+
+            // Immediately update widget state to show it's loading/pending
+            updateAppWidgetState(context, glanceId) { prefs ->
+                prefs.toMutablePreferences()
+            }
+
+            // Trigger widget refresh
+            QuickAddWidget.update(context, glanceId)
+
+            // Note: Widget will be updated again via broadcast when activity finishes
+            // The broadcast mechanism in QuickEntryActivity will handle the final refresh with new data
+
+        } catch (e: Exception) {
+            Log.e("ExpenseActionCallback", "Error in action callback: ${e.message}", e)
+        }
+    }
+}
 
 /**
  * Widget data model
@@ -390,4 +491,3 @@ data class WidgetData(
     val lastSelectedCarId: Long? = null,
     val monthlyTotal: Double? = null
 )
-

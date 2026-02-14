@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
 
-    override val glanceAppWidget: GlanceAppWidget = QuickAddWidget()
+    override val glanceAppWidget: GlanceAppWidget = QuickAddWidget
 
     override fun onUpdate(
         context: Context,
@@ -62,7 +62,7 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
                             set(QuickAddWidget.WIDGET_ID_KEY, appWidgetId)
                         }
                     }
-                    QuickAddWidget().update(context, mappedGlanceId)
+                    QuickAddWidget.update(context, mappedGlanceId)
                 }
             }
         }
@@ -83,9 +83,35 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
 
         when (intent.action) {
             ACTION_UPDATE_WIDGET -> {
-                Log.d("QuickAddWidgetReceiver", "Received ACTION_UPDATE_WIDGET")
-                // Update all widget instances with fresh data
-                updateWidgets(context)
+                Log.d("QuickAddWidgetReceiver", "Received widget update request: ${intent.action}")
+                // Update all widget instances with fresh data from database
+                updateWidgets(context, null)
+            }
+            QuickEntryActivity.ACTION_WIDGET_DATA_CHANGED -> {
+                Log.d("QuickAddWidgetReceiver", "Received widget update with transaction data")
+
+                // Extract transaction data from intent
+                val type = intent.getStringExtra(QuickEntryActivity.RESULT_TRANSACTION_TYPE)
+                val amount = intent.getDoubleExtra(QuickEntryActivity.RESULT_TRANSACTION_AMOUNT, 0.0)
+                val timestamp = intent.getLongExtra(QuickEntryActivity.RESULT_TRANSACTION_TIMESTAMP, 0L)
+                val carName = intent.getStringExtra(QuickEntryActivity.RESULT_TRANSACTION_CAR_NAME) ?: ""
+                val carId = intent.getLongExtra(QuickEntryActivity.RESULT_TRANSACTION_CAR_ID, -1L)
+
+                if (type != null && carName.isNotEmpty()) {
+                    val transaction = LastTransaction(
+                        type = type,
+                        amount = amount,
+                        timestamp = timestamp,
+                        carName = carName,
+                        carId = carId
+                    )
+                    Log.d("QuickAddWidgetReceiver", "Transaction data: $transaction")
+                    // Update widgets with the provided transaction data (no database query needed!)
+                    updateWidgets(context, transaction)
+                } else {
+                    Log.w("QuickAddWidgetReceiver", "Invalid transaction data in broadcast, fetching from database")
+                    updateWidgets(context, null)
+                }
             }
         }
     }
@@ -104,15 +130,16 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
         }
 
         /**
-         * Update all widgets when data changes (e.g., car added/removed)
-         * This will trigger provideGlance for each widget instance
+         * Update all widgets when data changes
+         * @param transaction If provided, use this transaction data directly without querying database
          */
-        fun updateWidgets(context: Context) {
+        fun updateWidgets(context: Context, transaction: LastTransaction? = null) {
             MainScope().launch {
                 try {
                     Log.d(
                         "QuickAddWidgetReceiver",
-                        "Starting widget update with fresh data fetch..."
+                        if (transaction != null) "Starting widget update with provided transaction data..."
+                        else "Starting widget update with fresh data fetch..."
                     )
 
                     val glanceAppWidgetManager = GlanceAppWidgetManager(context)
@@ -125,25 +152,33 @@ class QuickAddWidgetReceiver : GlanceAppWidgetReceiver() {
 
                     Log.d(
                         "QuickAddWidgetReceiver",
-                        "Fetching fresh data for ${glanceIds.size} widgets..."
+                        "Updating ${glanceIds.size} widget(s) with ${if (transaction != null) "provided" else "database"} data"
                     )
 
-                    // Fetch fresh data (same as provideGlance does)
-                    val hasCars = WidgetDataProvider.hasAnyCars(context)
-                    val lastTransaction = WidgetDataProvider.getLastTransaction(context)
-
-                    Log.d(
-                        "QuickAddWidgetReceiver",
-                        "Fresh data fetched - hasCars: $hasCars, lastTransaction: $lastTransaction"
-                    )
-
-                    // Force update all widgets with fresh data
+                    // Force update all widgets
                     glanceIds.forEach { glanceId ->
                         launch {
                             try {
                                 Log.d("QuickAddWidgetReceiver", "Updating widget: $glanceId")
-                                //QuickAddWidget().provideGlance(context, glanceId)
-                                QuickAddWidget().update(context, glanceId)
+
+                                // If we have transaction data, store it in the widget state
+                                if (transaction != null) {
+                                    updateAppWidgetState(context, glanceId) { prefs ->
+                                        prefs.toMutablePreferences().apply {
+                                            // Store transaction data temporarily for immediate display
+                                            this[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_type")] = transaction.type
+                                            this[androidx.datastore.preferences.core.doublePreferencesKey("cached_transaction_amount")] = transaction.amount
+                                            this[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_timestamp")] = transaction.timestamp
+                                            this[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_car_name")] = transaction.carName
+                                            this[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_car_id")] = transaction.carId
+                                        }
+                                    }
+                                }
+
+                                // Trigger widget update
+                                QuickAddWidget.update(context, glanceId)
+
+                                Log.d("QuickAddWidgetReceiver", "✓ Widget $glanceId updated successfully")
                             } catch (e: Exception) {
                                 Log.e(
                                     "QuickAddWidgetReceiver",

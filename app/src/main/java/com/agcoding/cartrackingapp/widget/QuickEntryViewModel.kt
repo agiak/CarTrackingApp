@@ -79,7 +79,7 @@ class QuickEntryViewModel @Inject constructor(
         cost: Double,
         distance: Double,
         timestamp: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (amount: Double, timestamp: Long) -> Unit,
         onError: () -> Unit
     ) {
         viewModelScope.launch {
@@ -95,14 +95,7 @@ class QuickEntryViewModel @Inject constructor(
                     timestamp = timestamp
                 )
                 refillRepository.insertRefill(refill)
-
-                onSuccess()
-
-                // Update widgets after a short delay to ensure UI is ready
-                viewModelScope.launch {
-                    kotlinx.coroutines.delay(300)
-                    QuickAddWidgetReceiver.updateWidgets(context)
-                }
+                onSuccess(cost, timestamp)
             } catch (e: Exception) {
                 e.printStackTrace()
                 onError()
@@ -115,7 +108,7 @@ class QuickEntryViewModel @Inject constructor(
         category: String,
         notes: String?,
         timestamp: Long,
-        onSuccess: () -> Unit,
+        onSuccess: (amount: Double, timestamp: Long) -> Unit,
         onError: () -> Unit
     ) {
         viewModelScope.launch {
@@ -128,14 +121,7 @@ class QuickEntryViewModel @Inject constructor(
                     timestamp = timestamp
                 )
                 expenseRepository.insertExpense(expense)
-
-                onSuccess()
-
-                // Update widgets after a short delay to ensure UI is ready
-                viewModelScope.launch {
-                    kotlinx.coroutines.delay(300)
-                    QuickAddWidgetReceiver.updateWidgets(context)
-                }
+                onSuccess(cost, timestamp)
             } catch (e: Exception) {
                 e.printStackTrace()
                 onError()
@@ -143,4 +129,3 @@ class QuickEntryViewModel @Inject constructor(
         }
     }
 }
-

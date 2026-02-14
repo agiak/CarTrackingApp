@@ -184,7 +184,7 @@ class QuickAddWidgetConfigActivity : AppCompatActivity() {
                 // Force update all widgets to refresh their data
                 val allGlanceIds = glanceAppWidgetManager.getGlanceIds(QuickAddWidget::class.java)
                 for (glanceId in allGlanceIds) {
-                    QuickAddWidget().update(this@QuickAddWidgetConfigActivity, glanceId)
+                    QuickAddWidget.update(this@QuickAddWidgetConfigActivity, glanceId)
                 }
                 android.util.Log.d("WidgetConfig", "✓ All widgets updated")
             } else {
