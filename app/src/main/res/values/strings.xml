@@ -844,5 +844,40 @@
     <string name="price_per_liter_label">Price per liter</string>
     <string name="fuel_consumption_label">Fuel consumption</string>
 
+    <!-- Car Comparison -->
+    <string name="car_comparison_title">Car Comparison</string>
+    <string name="car_comparison_button">Compare Cars</string>
+    <string name="car_comparison_all_cars">All Cars</string>
+    <string name="car_comparison_two_cars">Two Cars</string>
+    <string name="car_comparison_cost_per_km">Cost per km</string>
+    <string name="car_comparison_avg_consumption">Average Consumption</string>
+    <string name="car_comparison_maintenance_per_year">Maintenance per Year</string>
+    <string name="car_comparison_summary">Summary</string>
+    <string name="car_comparison_difference">Difference</string>
+    <string name="car_comparison_total_expenses">Total Expenses</string>
+    <string name="car_comparison_total_kilometers">Total Kilometers</string>
+    <string name="car_comparison_total_liters">Total Liters</string>
+    <string name="car_comparison_years_active">Years Active</string>
+    <string name="car_comparison_overall_ranking">Overall Ranking</string>
+    <string name="car_comparison_insufficient_cars_title">Not Enough Cars</string>
+    <string name="car_comparison_insufficient_cars_message">You need at least 2 cars to compare. Add more cars to use this feature.</string>
+    <string name="car_comparison_insufficient_data_title">Not Enough Data</string>
+    <string name="car_comparison_insufficient_data_message">Not enough data to compare. Please add more refills and expenses (at least 100km and 3 refills per car).</string>
+    <string name="car_comparison_select_cars_title">Select two cars to compare</string>
+    <string name="car_comparison_car_1">Car 1</string>
+    <string name="car_comparison_car_2">Car 2</string>
+    <string name="car_comparison_same_car_error">Please select two different cars</string>
+    <string name="car_comparison_overall_winner">Overall, %1$s is more economical based on cost per kilometer.</string>
+    <string name="car_comparison_cost_per_km_insight">%1$s is %2$s more expensive per km than %3$s</string>
+    <string name="car_comparison_consumption_insight">%1$s has %2$s better fuel efficiency than %3$s</string>
+    <string name="car_comparison_maintenance_insight">%1$s costs %2$s more per year in maintenance than %3$s</string>
+    <string name="car_comparison_equal_performance">Both cars have similar performance metrics</string>
+    <string name="car_comparison_most_economical">Most Economical: %1$s</string>
+    <string name="car_comparison_least_economical">Least Economical: %1$s</string>
+    <string name="car_comparison_best_performer">This car performs best in overall cost efficiency.</string>
+    <string name="car_comparison_needs_attention">This car may need attention to reduce costs.</string>
+    <string name="car_comparison_cost_detail">at €%.2f per km</string>
+    <string name="car_comparison_no_data_available">No data available for this metric</string>
+
 </resources>
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -179,46 +180,113 @@ private fun YearlyComparisonContent(
     onDismissYear2Selector: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Year Selectors
-        item {
-            YearSelectorRow(
-                year1 = selectedYear1 ?: 0,
-                year2 = selectedYear2 ?: 0,
-                availableYears = availableYears,
-                showYear1Selector = showYear1Selector,
-                showYear2Selector = showYear2Selector,
-                onYear1Click = onYear1Click,
-                onYear2Click = onYear2Click,
-                onYear1Selected = onYear1Selected,
-                onYear2Selected = onYear2Selected,
-                onDismissYear1Selector = onDismissYear1Selector,
-                onDismissYear2Selector = onDismissYear2Selector
-            )
-        }
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val useSplitView = screenWidthDp >= 600 || isLandscape
 
-        // Comparison Metrics
-        items(data.metrics) { metric ->
-            ComparisonMetricCard(metric = metric)
-        }
+    if (useSplitView) {
+        // Tablet/Landscape: Split view with metrics on left and chart on right
+        Row(
+            modifier = modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Left column: Year selectors + Metrics
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Year Selectors
+                item {
+                    YearSelectorRow(
+                        year1 = selectedYear1 ?: 0,
+                        year2 = selectedYear2 ?: 0,
+                        availableYears = availableYears,
+                        showYear1Selector = showYear1Selector,
+                        showYear2Selector = showYear2Selector,
+                        onYear1Click = onYear1Click,
+                        onYear2Click = onYear2Click,
+                        onYear1Selected = onYear1Selected,
+                        onYear2Selected = onYear2Selected,
+                        onDismissYear1Selector = onDismissYear1Selector,
+                        onDismissYear2Selector = onDismissYear2Selector
+                    )
+                }
 
-        // Monthly Comparison Chart
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Monthly Trends",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+                // Comparison Metrics
+                items(data.metrics) { metric ->
+                    ComparisonMetricCard(metric = metric)
+                }
+            }
 
-        item {
-            MonthlyComparisonChart(data = data)
+            // Right column: Chart
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Text(
+                        text = "Monthly Trends",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                item {
+                    MonthlyComparisonChart(data = data)
+                }
+            }
+        }
+    } else {
+        // Phone Portrait: Single column
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Year Selectors
+            item {
+                YearSelectorRow(
+                    year1 = selectedYear1 ?: 0,
+                    year2 = selectedYear2 ?: 0,
+                    availableYears = availableYears,
+                    showYear1Selector = showYear1Selector,
+                    showYear2Selector = showYear2Selector,
+                    onYear1Click = onYear1Click,
+                    onYear2Click = onYear2Click,
+                    onYear1Selected = onYear1Selected,
+                    onYear2Selected = onYear2Selected,
+                    onDismissYear1Selector = onDismissYear1Selector,
+                    onDismissYear2Selector = onDismissYear2Selector
+                )
+            }
+
+            // Comparison Metrics
+            items(data.metrics) { metric ->
+                ComparisonMetricCard(metric = metric)
+            }
+
+            // Monthly Comparison Chart
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Monthly Trends",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            item {
+                MonthlyComparisonChart(data = data)
+            }
         }
     }
 }
@@ -238,63 +306,93 @@ private fun YearSelectorRow(
     onDismissYear2Selector: () -> Unit
 ) {
     StyledCard {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            // Year 1 Selector
-            Box {
-                YearSelector(
-                    year = year1,
-                    label = "Base Year",
-                    onClick = onYear1Click,
-                    isPrimary = true
+            // Labels Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Base Year",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.width(140.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
 
-                DropdownMenu(
-                    expanded = showYear1Selector,
-                    onDismissRequest = onDismissYear1Selector
-                ) {
-                    availableYears.forEach { yearData ->
-                        DropdownMenuItem(
-                            text = { Text(yearData.year.toString()) },
-                            onClick = { onYear1Selected(yearData.year) },
-                            enabled = yearData.year != year2
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.width(32.dp)) // Space for icon
+
+                Text(
+                    text = "Comparison Year",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.width(140.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             }
 
-            // VS Icon
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(32.dp)
-            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Year 2 Selector
-            Box {
-                YearSelector(
-                    year = year2,
-                    label = "Comparison Year",
-                    onClick = onYear2Click,
-                    isPrimary = false
+            // Selectors and Icon Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Year 1 Selector
+                Box {
+                    YearSelectorBox(
+                        year = year1,
+                        onClick = onYear1Click,
+                        isPrimary = true
+                    )
+
+                    DropdownMenu(
+                        expanded = showYear1Selector,
+                        onDismissRequest = onDismissYear1Selector
+                    ) {
+                        availableYears.forEach { yearData ->
+                            DropdownMenuItem(
+                                text = { Text(yearData.year.toString()) },
+                                onClick = { onYear1Selected(yearData.year) },
+                                enabled = yearData.year != year2
+                            )
+                        }
+                    }
+                }
+
+                // VS Icon - now aligned with boxes
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(32.dp)
                 )
 
-                DropdownMenu(
-                    expanded = showYear2Selector,
-                    onDismissRequest = onDismissYear2Selector
-                ) {
-                    availableYears.forEach { yearData ->
-                        DropdownMenuItem(
-                            text = { Text(yearData.year.toString()) },
-                            onClick = { onYear2Selected(yearData.year) },
-                            enabled = yearData.year != year1
-                        )
+                // Year 2 Selector
+                Box {
+                    YearSelectorBox(
+                        year = year2,
+                        onClick = onYear2Click,
+                        isPrimary = false
+                    )
+
+                    DropdownMenu(
+                        expanded = showYear2Selector,
+                        onDismissRequest = onDismissYear2Selector
+                    ) {
+                        availableYears.forEach { yearData ->
+                            DropdownMenuItem(
+                                text = { Text(yearData.year.toString()) },
+                                onClick = { onYear2Selected(yearData.year) },
+                                enabled = yearData.year != year1
+                            )
+                        }
                     }
                 }
             }
@@ -303,46 +401,41 @@ private fun YearSelectorRow(
 }
 
 @Composable
-private fun YearSelector(
+private fun YearSelectorBox(
     year: Int,
-    label: String,
     onClick: () -> Unit,
     isPrimary: Boolean
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .width(140.dp)
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (isPrimary) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.secondaryContainer
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         Text(
-            text = label,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = year.toString(),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isPrimary) MaterialTheme.colorScheme.onPrimaryContainer
+            else MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.weight(1f),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(
-                    if (isPrimary) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.secondaryContainer
-                )
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = year.toString(),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isPrimary) MaterialTheme.colorScheme.onPrimaryContainer
-                else MaterialTheme.colorScheme.onSecondaryContainer
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null,
-                tint = if (isPrimary) MaterialTheme.colorScheme.onPrimaryContainer
-                else MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = null,
+            tint = if (isPrimary) MaterialTheme.colorScheme.onPrimaryContainer
+            else MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 

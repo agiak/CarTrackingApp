@@ -846,5 +846,40 @@
     <string name="price_per_liter_label">Τιμή ανά λίτρο</string>
     <string name="fuel_consumption_label">Κατανάλωση καυσίμου</string>
 
+    <!-- Car Comparison -->
+    <string name="car_comparison_title">Σύγκριση Αυτοκινήτων</string>
+    <string name="car_comparison_button">Σύγκριση Αυτοκινήτων</string>
+    <string name="car_comparison_all_cars">Όλα τα Αυτοκίνητα</string>
+    <string name="car_comparison_two_cars">Δύο Αυτοκίνητα</string>
+    <string name="car_comparison_cost_per_km">Κόστος ανά km</string>
+    <string name="car_comparison_avg_consumption">Μέση Κατανάλωση</string>
+    <string name="car_comparison_maintenance_per_year">Συντήρηση ανά Έτος</string>
+    <string name="car_comparison_summary">Περίληψη</string>
+    <string name="car_comparison_difference">Διαφορά</string>
+    <string name="car_comparison_total_expenses">Συνολικά Έξοδα</string>
+    <string name="car_comparison_total_kilometers">Συνολικά Χιλιόμετρα</string>
+    <string name="car_comparison_total_liters">Συνολικά Λίτρα</string>
+    <string name="car_comparison_years_active">Έτη Χρήσης</string>
+    <string name="car_comparison_overall_ranking">Συνολική Κατάταξη</string>
+    <string name="car_comparison_insufficient_cars_title">Ανεπαρκή Αυτοκίνητα</string>
+    <string name="car_comparison_insufficient_cars_message">Χρειάζεστε τουλάχιστον 2 αυτοκίνητα για σύγκριση. Προσθέστε περισσότερα αυτοκίνητα για να χρησιμοποιήσετε αυτή τη λειτουργία.</string>
+    <string name="car_comparison_insufficient_data_title">Ανεπαρκή Δεδομένα</string>
+    <string name="car_comparison_insufficient_data_message">Δεν υπάρχουν αρκετά δεδομένα για σύγκριση. Προσθέστε περισσότερα ανεφοδιασμούς και έξοδα (τουλάχιστον 100km και 3 ανεφοδιασμούς ανά αυτοκίνητο).</string>
+    <string name="car_comparison_select_cars_title">Επιλέξτε δύο αυτοκίνητα για σύγκριση</string>
+    <string name="car_comparison_car_1">Αυτοκίνητο 1</string>
+    <string name="car_comparison_car_2">Αυτοκίνητο 2</string>
+    <string name="car_comparison_same_car_error">Παρακαλώ επιλέξτε δύο διαφορετικά αυτοκίνητα</string>
+    <string name="car_comparison_overall_winner">Συνολικά, το %1$s είναι πιο οικονομικό βάσει κόστους ανά χιλιόμετρο.</string>
+    <string name="car_comparison_cost_per_km_insight">Το %1$s είναι %2$s πιο ακριβό ανά km από το %3$s</string>
+    <string name="car_comparison_consumption_insight">Το %1$s έχει %2$s καλύτερη απόδοση καυσίμου από το %3$s</string>
+    <string name="car_comparison_maintenance_insight">Το %1$s κοστίζει %2$s περισσότερο το χρόνο σε συντήρηση από το %3$s</string>
+    <string name="car_comparison_equal_performance">Και τα δύο αυτοκίνητα έχουν παρόμοιες επιδόσεις</string>
+    <string name="car_comparison_most_economical">Πιο Οικονομικό: %1$s</string>
+    <string name="car_comparison_least_economical">Λιγότερο Οικονομικό: %1$s</string>
+    <string name="car_comparison_best_performer">Αυτό το αυτοκίνητο έχει τις καλύτερες επιδόσεις στη συνολική αποδοτικότητα κόστους.</string>
+    <string name="car_comparison_needs_attention">Αυτό το αυτοκίνητο μπορεί να χρειάζεται προσοχή για μείωση του κόστους.</string>
+    <string name="car_comparison_cost_detail">στα €%.2f ανά km</string>
+    <string name="car_comparison_no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα για αυτό το μέτρο</string>
+
 </resources>
 

@@ -49,6 +49,7 @@ fun StatisticsContent(
     statistics: GlobalStatistics,
     onMonthlyTrendsClick: () -> Unit,
     onYearlyComparisonClick: () -> Unit = {},
+    onCarComparisonClick: () -> Unit = {},
     summarySection: @Composable () -> Unit,
     perCarBreakdownCards: @Composable () -> Unit,
     monthlyTrendCards: @Composable () -> Unit,
@@ -223,6 +224,33 @@ fun StatisticsContent(
                     }
                 }
 
+                // Car Comparison Button (only show if 2+ cars)
+                if (statistics.perCarStatistics.size >= 2) {
+                    item {
+                        OutlinedButton(
+                            onClick = onCarComparisonClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+                                contentColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(stringResource(R.string.car_comparison_button))
+                        }
+                    }
+                }
+
                 // Insights section
                 item {
                     Text(
@@ -348,6 +376,33 @@ fun StatisticsContent(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text("Compare Years")
+                }
+            }
+
+            // Car Comparison Button (only show if 2+ cars)
+            if (statistics.perCarStatistics.size >= 2) {
+                item {
+                    OutlinedButton(
+                        onClick = onCarComparisonClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.tertiary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(stringResource(R.string.car_comparison_button))
+                    }
                 }
             }
 

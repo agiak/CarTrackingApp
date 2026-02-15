@@ -110,3 +110,4 @@ lint/tmp/
 .idea/deploymentTargetSelector.xml
 .idea/deploymentTargetDropDown.xml
 
+/.idea/.name

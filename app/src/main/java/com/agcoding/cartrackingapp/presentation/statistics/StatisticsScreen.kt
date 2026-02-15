@@ -56,6 +56,7 @@ fun StatisticsScreen(
     onRefillsGraphClick: () -> Unit = {},
     onMonthlyTrendsClick: () -> Unit = {},
     onYearlyComparisonClick: () -> Unit = {},
+    onCarComparisonClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
@@ -97,6 +98,7 @@ fun StatisticsScreen(
                     statistics = state.statistics,
                     onMonthlyTrendsClick = onMonthlyTrendsClick,
                     onYearlyComparisonClick = onYearlyComparisonClick,
+                    onCarComparisonClick = onCarComparisonClick,
                     summarySection = {
                         SummarySection(
                             statistics = state.statistics,

@@ -63,10 +63,12 @@ import com.agcoding.cartrackingapp.presentation.settings.expensecategories.Expen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
-import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
+import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
+import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
+import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
@@ -117,6 +119,7 @@ sealed class Screen(val route: String) {
         fun createRoute(month: Int, year: Int) = "month_details/$month/$year"
     }
     object YearlyComparison : Screen("yearly_comparison")
+    object CarComparison : Screen("car_comparison")
     object ManageExpenseCategories : Screen("manage_expense_categories")
     object AddExpense : Screen("add_expense/{carId}") {
         fun createRoute(carId: Long) = "add_expense/$carId"
@@ -328,6 +331,9 @@ fun AppNavigation(
                     },
                     onYearlyComparisonClick = {
                         navController.navigate(Screen.YearlyComparison.route)
+                    },
+                    onCarComparisonClick = {
+                        navController.navigate(Screen.CarComparison.route)
                     },
                     onMonthClick = { month, year ->
                         navController.navigate(Screen.MonthDetails.createRoute(month, year))
@@ -752,6 +758,17 @@ fun AppNavigation(
                 animationConfig = NavigationAnimations.HorizontalSlide
             ) {
                 YearlyComparisonScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CarComparison.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                CarComparisonScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }
