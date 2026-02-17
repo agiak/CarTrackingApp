@@ -14,6 +14,12 @@
     <string name="widget_preview_amount">€70.00</string>
     <string name="widget_preview_details">12/02/2026 • Toyota Corolla</string>
 
+    <!-- 1x1 Widgets -->
+    <string name="refill_widget_label">Add Refill</string>
+    <string name="refill_widget_description">Quick shortcut to add fuel refill</string>
+    <string name="expense_widget_label">Add Expense</string>
+    <string name="expense_widget_description">Quick shortcut to add expense</string>
+
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Monthly Trends</string>
     <string name="sort_by_label">Sort by</string>
@@ -834,6 +840,8 @@
     <string name="quick_add_expense_title">Quick Add Expense</string>
     <string name="select_vehicle">Select Vehicle</string>
     <string name="error_car_required">Please select a vehicle</string>
+    <string name="error_saving_refill">Failed to save refill. Please check your input and try again.</string>
+    <string name="error_saving_expense">Failed to save expense. Please check your input and try again.</string>
     <string name="no_cars_available">No cars available</string>
     <string name="loading">Loading…</string>
     <string name="date_label">Date</string>
@@ -878,6 +886,25 @@
     <string name="car_comparison_needs_attention">This car may need attention to reduce costs.</string>
     <string name="car_comparison_cost_detail">at €%.2f per km</string>
     <string name="car_comparison_no_data_available">No data available for this metric</string>
+
+    <!-- Yearly Comparison -->
+    <string name="yearly_comparison_button">Compare Years</string>
+    <string name="yearly_comparison_title">Yearly Comparison</string>
+    <string name="yearly_comparison_back">Back</string>
+    <string name="yearly_comparison_insufficient_data_title">Insufficient Data</string>
+    <string name="yearly_comparison_insufficient_data_message">You need data from at least 2 different years to use yearly comparison</string>
+    <string name="yearly_comparison_error">Error: %s</string>
+    <string name="yearly_comparison_monthly_trends">Monthly Trends</string>
+    <string name="yearly_comparison_base_year">Base Year</string>
+    <string name="yearly_comparison_comparison_year">Comparison Year</string>
+    <string name="yearly_comparison_monthly_cost_breakdown">Monthly Cost Breakdown</string>
+    <string name="yearly_comparison_month">Month</string>
+
+    <!-- Default Car -->
+    <string name="set_as_default">Set as Default</string>
+    <string name="default_car">Default Car</string>
+    <string name="default_car_updated">Default car updated</string>
+    <string name="default_badge">Default</string>
 
 </resources>
 

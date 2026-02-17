@@ -17,8 +17,8 @@ android {
         applicationId = "com.agcoding.cartrackingapp"
         minSdk = 28
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.0.5"
+        versionCode = 8
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -53,6 +53,10 @@ android {
             versionNameSuffix = "-debug"
             isMinifyEnabled = false
             isDebuggable = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
 
         release {

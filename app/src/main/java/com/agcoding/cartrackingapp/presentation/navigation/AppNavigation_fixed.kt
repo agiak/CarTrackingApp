@@ -37,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
@@ -439,6 +440,7 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
+                val context = LocalContext.current
                 CarDetailsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
@@ -463,6 +465,14 @@ fun AppNavigation(
                     },
                     onViewAllExpensesClick = {
                         navController.navigate(Screen.ExpenseHistory.createRoute(carId))
+                    },
+                    onDefaultCarSet = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.default_car_updated),
+                                duration = androidx.compose.material3.SnackbarDuration.Short
+                            )
+                        }
                     }
                 )
             }

@@ -15,6 +15,7 @@ fun CarEntity.toDomain(
         licensePlate = licensePlate,
         currentOdometer = currentOdometer,
         initialOdometer = initialOdometer,
+        isDefault = isDefault,
         // Insurance
         insuranceExpirationDate = insuranceExpirationDate,
         // Legal & Compliance
@@ -49,6 +50,7 @@ fun Car.toEntity(): CarEntity {
         licensePlate = licensePlate,
         currentOdometer = currentOdometer,
         initialOdometer = initialOdometer,
+        isDefault = isDefault,
         // Insurance
         insuranceExpirationDate = insuranceExpirationDate,
         // Legal & Compliance

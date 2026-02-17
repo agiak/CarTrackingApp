@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.domain.usecase.expense.AddExpenseUseCase
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val carRepository: CarRepository,
     private val expenseCategoryDao: ExpenseCategoryDao,
+    private val addExpenseUseCase: AddExpenseUseCase,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -247,6 +249,9 @@ class AddExpenseViewModel @Inject constructor(
                     reminderMileage = targetMileage
                 )
 
+                // Use AddExpenseUseCase for validation and widget updates
+                // But insert directly here because we need to handle reminders
+                // which are not part of the basic UseCase
                 expenseRepository.insertExpense(expense)
 
                 // Update widgets to show latest transaction

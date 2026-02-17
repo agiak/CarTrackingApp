@@ -76,6 +76,32 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/quick_add_widget_info" />
         </receiver>
+
+        <!-- Refill 1x1 Widget -->
+        <receiver
+            android:name=".widget.RefillWidgetReceiver"
+            android:exported="true"
+            android:label="@string/refill_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/refill_widget_info" />
+        </receiver>
+
+        <!-- Expense 1x1 Widget -->
+        <receiver
+            android:name=".widget.ExpenseWidgetReceiver"
+            android:exported="true"
+            android:label="@string/expense_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/expense_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

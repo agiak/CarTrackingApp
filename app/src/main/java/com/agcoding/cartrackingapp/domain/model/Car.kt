@@ -8,6 +8,9 @@ data class Car(
     val currentOdometer: Double,
     val initialOdometer: Double,
 
+    // Default car setting
+    val isDefault: Boolean = false,
+
     // Insurance Information
     val insuranceExpirationDate: Long? = null,
 

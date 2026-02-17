@@ -220,7 +220,7 @@ fun StatisticsContent(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.size(8.dp))
-                        Text("Compare Years")
+                        Text(stringResource(R.string.yearly_comparison_button))
                     }
                 }
 

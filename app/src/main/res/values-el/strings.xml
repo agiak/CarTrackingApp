@@ -15,6 +15,12 @@
     <string name="widget_preview_amount">€70.00</string>
     <string name="widget_preview_details">12/02/2026 • Toyota Corolla</string>
 
+    <!-- 1x1 Widgets -->
+    <string name="refill_widget_label">Προσθήκη Ανεφοδιασμού</string>
+    <string name="refill_widget_description">Γρήγορη συντόμευση για προσθήκη ανεφοδιασμού καυσίμου</string>
+    <string name="expense_widget_label">Προσθήκη Εξόδου</string>
+    <string name="expense_widget_description">Γρήγορη συντόμευση για προσθήκη εξόδου</string>
+
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Μηνιαίες τάσεις</string>
     <string name="sort_by_label">Ταξινόμηση κατά</string>
@@ -836,6 +842,8 @@
     <string name="quick_add_expense_title">Γρήγορη Προσθήκη Εξόδου</string>
     <string name="select_vehicle">Επιλογή Οχήματος</string>
     <string name="error_car_required">Παρακαλώ επιλέξτε όχημα</string>
+    <string name="error_saving_refill">Αποτυχία αποθήκευσης ανεφοδιασμού. Ελέγξτε τα δεδομένα σας και δοκιμάστε ξανά.</string>
+    <string name="error_saving_expense">Αποτυχία αποθήκευσης εξόδου. Ελέγξτε τα δεδομένα σας και δοκιμάστε ξανά.</string>
     <string name="no_cars_available">Δεν υπάρχουν διαθέσιμα οχήματα</string>
     <string name="loading">Φόρτωση…</string>
     <string name="date_label">Ημερομηνία</string>
@@ -880,6 +888,24 @@
     <string name="car_comparison_needs_attention">Αυτό το αυτοκίνητο μπορεί να χρειάζεται προσοχή για μείωση του κόστους.</string>
     <string name="car_comparison_cost_detail">στα €%.2f ανά km</string>
     <string name="car_comparison_no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα για αυτό το μέτρο</string>
+
+    <!-- Yearly Comparison -->
+    <string name="yearly_comparison_title">Ετήσια Σύγκριση</string>
+    <string name="yearly_comparison_back">Πίσω</string>
+    <string name="yearly_comparison_insufficient_data_title">Ανεπαρκή Δεδομένα</string>
+    <string name="yearly_comparison_insufficient_data_message">Χρειάζεστε δεδομένα από τουλάχιστον 2 διαφορετικά έτη για να χρησιμοποιήσετε την ετήσια σύγκριση</string>
+    <string name="yearly_comparison_error">Σφάλμα: %s</string>
+    <string name="yearly_comparison_monthly_trends">Μηνιαίες Τάσεις</string>
+    <string name="yearly_comparison_base_year">Βασικό Έτος</string>
+    <string name="yearly_comparison_comparison_year">Έτος Σύγκρισης</string>
+    <string name="yearly_comparison_monthly_cost_breakdown">Μηνιαία Ανάλυση Κόστους</string>
+    <string name="yearly_comparison_month">Μήνας</string>
+
+    <!-- Default Car -->
+    <string name="set_as_default">Ορισμός ως Προεπιλεγμένο</string>
+    <string name="default_car">Προεπιλεγμένο Αυτοκίνητο</string>
+    <string name="default_car_updated">Το προεπιλεγμένο αυτοκίνητο ενημερώθηκε</string>
+    <string name="default_badge">Προεπιλογή</string>
 
 </resources>
 

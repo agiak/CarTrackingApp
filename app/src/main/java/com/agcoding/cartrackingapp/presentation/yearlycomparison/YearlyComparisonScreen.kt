@@ -41,10 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ComparisonMetric
 import com.agcoding.cartrackingapp.domain.model.YearlyComparisonData
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -67,12 +69,12 @@ fun YearlyComparisonScreen(
     Scaffold(
         topBar = {
             StyledTopAppBar(
-                title = { Text("Yearly Comparison") },
+                title = { Text(stringResource(R.string.yearly_comparison_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.yearly_comparison_back)
                         )
                     }
                 },
@@ -113,13 +115,13 @@ fun YearlyComparisonScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Insufficient Data",
+                            text = stringResource(R.string.yearly_comparison_insufficient_data_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "You need data from at least 2 different years to use yearly comparison",
+                            text = stringResource(R.string.yearly_comparison_insufficient_data_message),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -154,7 +156,7 @@ fun YearlyComparisonScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Error: ${state.message}",
+                        text = stringResource(R.string.yearly_comparison_error, state.message),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -232,7 +234,7 @@ private fun YearlyComparisonContent(
             ) {
                 item {
                     Text(
-                        text = "Monthly Trends",
+                        text = stringResource(R.string.yearly_comparison_monthly_trends),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -277,7 +279,7 @@ private fun YearlyComparisonContent(
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Monthly Trends",
+                    text = stringResource(R.string.yearly_comparison_monthly_trends),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -318,7 +320,7 @@ private fun YearSelectorRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Base Year",
+                    text = stringResource(R.string.yearly_comparison_base_year),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.width(140.dp),
@@ -328,7 +330,7 @@ private fun YearSelectorRow(
                 Spacer(modifier = Modifier.width(32.dp)) // Space for icon
 
                 Text(
-                    text = "Comparison Year",
+                    text = stringResource(R.string.yearly_comparison_comparison_year),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.width(140.dp),
@@ -440,6 +442,17 @@ private fun YearSelectorBox(
 }
 
 @Composable
+private fun getLocalizedMetricName(metricName: String): String {
+    return when (metricName) {
+        "Total Cost" -> stringResource(R.string.total_cost)
+        "Total Distance" -> stringResource(R.string.distance_label)
+        "Average Consumption" -> stringResource(R.string.avg_consumption)
+        "Cost per km" -> stringResource(R.string.cost_per_km)
+        else -> metricName // Fallback to original name
+    }
+}
+
+@Composable
 private fun ComparisonMetricCard(metric: ComparisonMetric) {
     StyledCard {
         Column(
@@ -449,7 +462,7 @@ private fun ComparisonMetricCard(metric: ComparisonMetric) {
         ) {
             // Metric Name
             Text(
-                text = metric.name,
+                text = getLocalizedMetricName(metric.name),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -553,7 +566,7 @@ private fun MonthlyComparisonChart(data: YearlyComparisonData) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Monthly Cost Breakdown",
+                text = stringResource(R.string.yearly_comparison_monthly_cost_breakdown),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -566,7 +579,7 @@ private fun MonthlyComparisonChart(data: YearlyComparisonData) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Month",
+                    text = stringResource(R.string.yearly_comparison_month),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -32,56 +32,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Last Transaction Preview -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/widget_button_background"
-        android:orientation="vertical"
-        android:padding="10dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:contentDescription="@string/widget_add_fuel"
-                android:src="@drawable/ic_refill"
-                android:tint="@color/black"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:text="@string/widget_preview_transaction"
-                android:textColor="#000000"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/widget_preview_amount"
-                android:textColor="#69F0AE"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/widget_preview_details"
-            android:textColor="#666666"
-            android:textSize="11sp" />
-    </LinearLayout>
-
     <!-- Action Buttons Row -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,8 +43,8 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="1"
             android:layout_marginEnd="4dp"
+            android:layout_weight="1"
             android:background="@drawable/widget_button_background"
             android:gravity="center"
             android:orientation="horizontal">
@@ -104,16 +54,8 @@
                 android:layout_height="20dp"
                 android:contentDescription="@string/widget_add_fuel"
                 android:src="@drawable/ic_refill"
-                android:tint="@color/black"/>
+                android:tint="@color/black" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/widget_add_fuel"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
         </LinearLayout>
 
 
@@ -121,8 +63,8 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="1"
             android:layout_marginStart="4dp"
+            android:layout_weight="1"
             android:background="@drawable/widget_button_background"
             android:gravity="center"
             android:orientation="horizontal">
@@ -132,17 +74,10 @@
                 android:layout_height="20dp"
                 android:contentDescription="@string/widget_add_expense"
                 android:src="@drawable/ic_receipt_24dp"
-                android:tint="@color/black"/>
+                android:tint="@color/black" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/widget_add_expense"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

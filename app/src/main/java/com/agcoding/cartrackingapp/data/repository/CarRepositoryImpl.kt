@@ -69,4 +69,28 @@ class CarRepositoryImpl @Inject constructor(
     override suspend fun isLicensePlateExists(licensePlate: String, excludeCarId: Long?): Boolean {
         return carDao.countCarsWithLicensePlate(licensePlate, excludeCarId) > 0
     }
+
+    override fun getDefaultCar(): Flow<Car?> {
+        return carDao.getDefaultCar().map { carEntity ->
+            carEntity?.let {
+                // Get refills for this car to calculate statistics
+                val refills = refillDao.getRefillsByCarIdSync(it.id)
+                val totalCost = refills.sumOf { refill -> refill.amountPaid }
+                val totalDistance = refills.sumOf { refill -> refill.tripDistance }
+                val totalLiters = refills.sumOf { refill -> refill.litersAdded }
+                val averageConsumption = calculateConsumption(totalLiters, totalDistance)
+
+                it.toDomain(
+                    averageConsumption = averageConsumption,
+                    totalRefills = refills.size,
+                    totalCost = totalCost,
+                    totalDistance = totalDistance
+                )
+            }
+        }
+    }
+
+    override suspend fun setDefaultCar(carId: Long) {
+        carDao.setDefaultCar(carId)
+    }
 }

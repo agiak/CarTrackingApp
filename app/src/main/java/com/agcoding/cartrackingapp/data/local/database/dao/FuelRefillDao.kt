@@ -15,6 +15,9 @@ interface FuelRefillDao {
     @Query("SELECT * FROM fuel_refills WHERE carId = :carId ORDER BY timestamp DESC")
     fun getRefillsByCarId(carId: Long): Flow<List<FuelRefillEntity>>
 
+    @Query("SELECT * FROM fuel_refills WHERE carId = :carId ORDER BY timestamp DESC")
+    suspend fun getRefillsByCarIdSync(carId: Long): List<FuelRefillEntity>
+
     @Query("SELECT * FROM fuel_refills ORDER BY timestamp DESC")
     fun getAllRefills(): Flow<List<FuelRefillEntity>>
 

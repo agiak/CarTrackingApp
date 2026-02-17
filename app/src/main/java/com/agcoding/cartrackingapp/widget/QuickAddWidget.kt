@@ -64,44 +64,16 @@ object QuickAddWidget : GlanceAppWidget() {
         Log.d("QuickAddWidget", "Glance ID: $id")
 
         try {
-            // First, check if we have cached transaction data in widget state
-            val currentState = androidx.glance.appwidget.state.getAppWidgetState(
-                context,
-                PreferencesGlanceStateDefinition,
-                id
-            )
-
-            val cachedType = currentState[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_type")]
-            val cachedAmount = currentState[androidx.datastore.preferences.core.doublePreferencesKey("cached_transaction_amount")]
-            val cachedTimestamp = currentState[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_timestamp")]
-            val cachedCarName = currentState[androidx.datastore.preferences.core.stringPreferencesKey("cached_transaction_car_name")]
-            val cachedCarId = currentState[androidx.datastore.preferences.core.longPreferencesKey("cached_transaction_car_id")]
-
-            val lastTransaction = if (cachedType != null && cachedAmount != null && cachedTimestamp != null && cachedCarName != null && cachedCarId != null) {
-                // Use cached transaction data (instant update!)
-                Log.d("QuickAddWidget", "Using cached transaction data")
-                LastTransaction(
-                    type = cachedType,
-                    amount = cachedAmount,
-                    timestamp = cachedTimestamp,
-                    carName = cachedCarName,
-                    carId = cachedCarId
-                )
-            } else {
-                // Fetch from database
-                Log.d("QuickAddWidget", "Fetching transaction from database")
-                WidgetDataProvider.getLastTransaction(context)
-            }
-
             // Fetch data BEFORE provideContent for proper Glance behavior
             val hasCars = WidgetDataProvider.hasAnyCars(context)
+            val hasMicPermission = WidgetPermissionChecker.hasMicrophonePermission(context)
 
             Log.d("QuickAddWidget", "Has cars: $hasCars")
-            Log.d("QuickAddWidget", "Last transaction: $lastTransaction")
+            Log.d("QuickAddWidget", "Has microphone permission: $hasMicPermission")
 
             provideContent {
                 GlanceTheme {
-                    WidgetContent(context, hasCars, lastTransaction)
+                    WidgetContent(context, hasCars, hasMicPermission)
                 }
             }
         } catch (e: Exception) {
@@ -132,9 +104,10 @@ object QuickAddWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun WidgetContent(context: Context, hasCars: Boolean, lastTransaction: LastTransaction?) {
+    private fun WidgetContent(context: Context, hasCars: Boolean, hasMicPermission: Boolean) {
         Log.d("QuickAddWidget", "=== Widget Content Render ===")
-        Log.d("QuickAddWidget", "Has cars: $hasCars, Last transaction: $lastTransaction")
+        Log.d("QuickAddWidget", "Has cars: $hasCars")
+        Log.d("QuickAddWidget", "Has mic permission: $hasMicPermission")
 
         Box(
             modifier = GlanceModifier
@@ -142,13 +115,13 @@ object QuickAddWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .background(GlanceTheme.colors.background)
                 .cornerRadius(16.dp)
-                .padding(12.dp),
+                .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
             if (!hasCars) {
                 EmptyState(context)
             } else {
-                QuickAddContent(context, lastTransaction)
+                QuickAddContent(context, hasMicPermission)
             }
         }
     }
@@ -241,13 +214,13 @@ object QuickAddWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun QuickAddContent(context: Context, lastTransaction: LastTransaction?) {
+    private fun QuickAddContent(context: Context, hasMicPermission: Boolean) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App branding
+            // App branding - Smaller for 2x2 widget
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -255,13 +228,13 @@ object QuickAddWidget : GlanceAppWidget() {
                 Image(
                     provider = ImageProvider(R.mipmap.ic_launcher_cariboo1_monochrome),
                     contentDescription = context.getString(R.string.app_name),
-                    modifier = GlanceModifier.size(28.dp)
+                    modifier = GlanceModifier.size(24.dp)
                 )
-                Spacer(modifier = GlanceModifier.width(8.dp))
+                Spacer(modifier = GlanceModifier.width(6.dp))
                 Text(
                     text = context.getString(R.string.app_name),
                     style = TextStyle(
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = GlanceTheme.colors.primary
                     )
@@ -270,140 +243,70 @@ object QuickAddWidget : GlanceAppWidget() {
 
             Spacer(modifier = GlanceModifier.height(12.dp))
 
-            // Last Transaction (if available)
-            if (lastTransaction != null) {
-                LastTransactionWidget(lastTransaction)
-                Spacer(modifier = GlanceModifier.height(12.dp))
-            }
-
-            // Quick Add Buttons
-            QuickAddButtons(context)
+            // Quick Add Buttons - Icon Only
+            QuickAddButtons(context, hasMicPermission)
         }
     }
 
-    @Composable
-    private fun LastTransactionWidget(transaction: LastTransaction) {
-        val dateFormatter = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-        val formattedDate = dateFormatter.format(java.util.Date(transaction.timestamp))
-        val formattedAmount = String.format(java.util.Locale.getDefault(), "€%.2f", transaction.amount)
-
-        // Transaction preview as simple text (no card background)
-        Column(
-            modifier = GlanceModifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = GlanceModifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Transaction icon
-                Image(
-                    provider = ImageProvider(R.drawable.ic_refill),
-                    contentDescription = null,
-                    modifier = GlanceModifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
-                )
-                Spacer(modifier = GlanceModifier.width(6.dp))
-
-                // Transaction type
-                Text(
-                    text = transaction.type,
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = GlanceTheme.colors.onSurface
-                    )
-                )
-
-                Spacer(modifier = GlanceModifier.defaultWeight())
-
-                // Amount
-                Text(
-                    text = formattedAmount,
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = GlanceTheme.colors.primary
-                    )
-                )
-            }
-
-            Spacer(modifier = GlanceModifier.height(4.dp))
-
-            // Date and car name
-            Text(
-                text = "$formattedDate • ${transaction.carName}",
-                style = TextStyle(
-                    fontSize = 11.sp,
-                    color = GlanceTheme.colors.onSurfaceVariant
-                )
-            )
-        }
-    }
+    // Remove LastTransactionWidget composable - no longer needed
 
     @Composable
-    private fun QuickAddButtons(context: Context) {
-        // Always show 2-button layout: Refill and Expense
-        // Voice functionality is available inside the Refill dialog
+    private fun QuickAddButtons(context: Context, hasMicPermission: Boolean) {
+        // Icon-only buttons: Refill, Expense, and optionally Voice (if mic permission granted)
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Add Refill Button
+            // Add Refill Button - Icon Only
             QuickActionButton(
                 icon = R.drawable.ic_refill,
-                text = context.getString(R.string.widget_add_fuel),
-                onClick = actionRunCallback<RefillActionCallback>(),
-                modifier = GlanceModifier.defaultWeight()
+                contentDescription = context.getString(R.string.widget_add_fuel),
+                onClick = actionRunCallback<RefillActionCallback>()
             )
 
-            Spacer(modifier = GlanceModifier.width(8.dp))
+            Spacer(modifier = GlanceModifier.width(12.dp))
 
-            // Add Expense Button
+            // Add Expense Button - Icon Only
             QuickActionButton(
                 icon = R.drawable.ic_receipt_24dp,
-                text = context.getString(R.string.widget_add_expense),
-                onClick = actionRunCallback<ExpenseActionCallback>(),
-                modifier = GlanceModifier.defaultWeight()
+                contentDescription = context.getString(R.string.widget_add_expense),
+                onClick = actionRunCallback<ExpenseActionCallback>()
             )
+
+            // Voice Button - Only show if microphone permission is granted
+            if (hasMicPermission) {
+                Spacer(modifier = GlanceModifier.width(12.dp))
+
+                QuickActionButton(
+                    icon = R.drawable.ic_mic,
+                    contentDescription = context.getString(R.string.voice_entry),
+                    onClick = actionRunCallback<VoiceActionCallback>()
+                )
+            }
         }
     }
 
     @Composable
     private fun QuickActionButton(
         icon: Int,
-        text: String,
-        onClick: Action,
-        modifier: GlanceModifier = GlanceModifier
+        contentDescription: String,
+        onClick: Action
     ) {
         Box(
-            modifier = modifier
-                .height(48.dp)
+            modifier = GlanceModifier
+                .size(48.dp)
                 .background(GlanceTheme.colors.secondaryContainer)
                 .cornerRadius(12.dp)
                 .clickable(onClick),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    provider = ImageProvider(icon),
-                    contentDescription = null,
-                    modifier = GlanceModifier.size(20.dp),
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
-                )
-                Spacer(modifier = GlanceModifier.width(8.dp))
-                Text(
-                    text = text,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = GlanceTheme.colors.onSecondaryContainer
-                    )
-                )
-            }
+            Image(
+                provider = ImageProvider(icon),
+                contentDescription = contentDescription,
+                modifier = GlanceModifier.size(24.dp),
+                colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
+            )
         }
     }
 }

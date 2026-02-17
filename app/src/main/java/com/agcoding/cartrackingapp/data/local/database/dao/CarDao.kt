@@ -45,4 +45,17 @@ interface CarDao {
 
     @Query("SELECT COUNT(*) FROM cars WHERE LOWER(licensePlate) = LOWER(:licensePlate) AND id != COALESCE(:excludeCarId, -1)")
     suspend fun countCarsWithLicensePlate(licensePlate: String, excludeCarId: Long?): Int
+
+    // Default car methods
+    @Query("SELECT * FROM cars WHERE isDefault = 1 LIMIT 1")
+    fun getDefaultCar(): Flow<CarEntity?>
+
+    @Query("SELECT * FROM cars WHERE isDefault = 1 LIMIT 1")
+    suspend fun getDefaultCarSync(): CarEntity?
+
+    @Query("UPDATE cars SET isDefault = 0")
+    suspend fun clearAllDefaultFlags()
+
+    @Query("UPDATE cars SET isDefault = CASE WHEN id = :carId THEN 1 ELSE 0 END")
+    suspend fun setDefaultCar(carId: Long)
 }

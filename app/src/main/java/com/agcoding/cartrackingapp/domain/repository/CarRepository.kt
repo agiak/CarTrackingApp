@@ -10,5 +10,9 @@ interface CarRepository {
     suspend fun updateCar(car: Car)
     suspend fun deleteCar(carId: Long)
     suspend fun isLicensePlateExists(licensePlate: String, excludeCarId: Long? = null): Boolean
+
+    // Default car methods
+    fun getDefaultCar(): Flow<Car?>
+    suspend fun setDefaultCar(carId: Long)
 }
 

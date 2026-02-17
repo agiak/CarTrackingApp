@@ -41,82 +41,6 @@ class WidgetDataProvider @Inject constructor(
             }
         }
 
-        /**
-         * Get the last transaction (refill or expense) from all cars
-         */
-        suspend fun getLastTransaction(context: Context): LastTransaction? {
-            return try {
-                Log.d("WidgetDataProvider", "Fetching last transaction")
-                val database = CarDatabase.getInstance(context)
-                val carDao = database.carDao()
-                val refillDao = database.fuelRefillDao()
-                val expenseDao = database.expenseDao()
-
-                // Get all refills and expenses
-                val allRefills = refillDao.getAllRefills().first()
-                val allExpenses = expenseDao.getAllExpenses().first()
-
-                Log.d("WidgetDataProvider", "Found ${allRefills.size} refills, ${allExpenses.size} expenses")
-
-                // Find the most recent transaction
-                val lastRefill = allRefills.maxByOrNull { it.timestamp }
-                val lastExpense = allExpenses.maxByOrNull { it.timestamp }
-
-                Log.d("WidgetDataProvider", "Last refill: $lastRefill, Last expense: $lastExpense")
-
-                when {
-                    lastRefill != null && lastExpense != null -> {
-                        if (lastRefill.timestamp > lastExpense.timestamp) {
-                            // Last transaction is a refill
-                            val car = carDao.getCarByIdSync(lastRefill.carId)
-                            LastTransaction(
-                                type = "Refill",
-                                amount = lastRefill.amountPaid,
-                                timestamp = lastRefill.timestamp,
-                                carName = car?.name ?: "",
-                                carId = lastRefill.carId
-                            )
-                        } else {
-                            // Last transaction is an expense
-                            val car = carDao.getCarByIdSync(lastExpense.carId)
-                            LastTransaction(
-                                type = lastExpense.category,
-                                amount = lastExpense.amount,
-                                timestamp = lastExpense.timestamp,
-                                carName = car?.name ?: "",
-                                carId = lastExpense.carId
-                            )
-                        }
-                    }
-                    lastRefill != null -> {
-                        val car = carDao.getCarByIdSync(lastRefill.carId)
-                        LastTransaction(
-                            type = "Refill",
-                            amount = lastRefill.amountPaid,
-                            timestamp = lastRefill.timestamp,
-                            carName = car?.name ?: "",
-                            carId = lastRefill.carId
-                        )
-                    }
-                    lastExpense != null -> {
-                        val car = carDao.getCarByIdSync(lastExpense.carId)
-                        LastTransaction(
-                            type = lastExpense.category,
-                            amount = lastExpense.amount,
-                            timestamp = lastExpense.timestamp,
-                            carName = car?.name ?: "",
-                            carId = lastExpense.carId
-                        )
-                    }
-                    else -> null
-                }.also { lastTransaction ->
-                    Log.d("WidgetDataProvider", "Last transaction: $lastTransaction")
-                }
-            } catch (e: Exception) {
-                Log.e("WidgetDataProvider", "Error getting last transaction: ${e.message}", e)
-                null
-            }
-        }
 
         /**
          * Get widget data for a specific widget instance
@@ -340,15 +264,4 @@ class WidgetDataProvider @Inject constructor(
         }
     }
 }
-
-/**
- * Data class for the last transaction info
- */
-data class LastTransaction(
-    val type: String,
-    val amount: Double,
-    val timestamp: Long,
-    val carName: String,
-    val carId: Long
-)
 

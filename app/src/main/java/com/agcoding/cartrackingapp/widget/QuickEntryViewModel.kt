@@ -13,7 +13,10 @@ import com.agcoding.cartrackingapp.domain.model.VoiceParsingResult
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.domain.usecase.expense.AddExpenseUseCase
+import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
+import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,6 +32,8 @@ class QuickEntryViewModel @Inject constructor(
     private val refillRepository: RefillRepository,
     private val carRepository: CarRepository,
     private val expenseRepository: ExpenseRepository,
+    private val addFuelRefillUseCase: AddFuelRefillUseCase,
+    private val addExpenseUseCase: AddExpenseUseCase,
     private val speechRecognitionService: SpeechRecognitionService,
     private val parseVoiceRefillUseCase: ParseVoiceRefillUseCase,
     private val settingsPreferences: SettingsPreferences,
@@ -69,7 +74,10 @@ class QuickEntryViewModel @Inject constructor(
         viewModelScope.launch {
             carRepository.getAllCars().collect { cars ->
                 _allCars.value = cars
-                // Auto-select if only one car or if carId was provided
+                // Auto-select logic priority:
+                // 1. If carId was provided, use it
+                // 2. If not, try to select default car
+                // 3. If no default, select first car if only one exists
                 if (cars.isNotEmpty()) {
                     if (carId != -1L) {
                         val car = cars.find { it.id == carId }
@@ -78,8 +86,14 @@ class QuickEntryViewModel @Inject constructor(
                         } else if (cars.size == 1) {
                             selectCar(cars.first())
                         }
-                    } else if (cars.size == 1) {
-                        selectCar(cars.first())
+                    } else {
+                        // Try to select default car
+                        val defaultCar = cars.find { it.isDefault }
+                        if (defaultCar != null) {
+                            selectCar(defaultCar)
+                        } else if (cars.size == 1) {
+                            selectCar(cars.first())
+                        }
                     }
                 }
             }
@@ -102,20 +116,40 @@ class QuickEntryViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val refill = FuelRefill(
-                    carId = carId,
-                    litersAdded = liters,
-                    amountPaid = cost,
-                    pricePerLiter = cost / liters,
-                    tripDistance = distance,
-                    odometerReading = 0.0,
-                    fuelConsumption = if (distance > 0) (liters / distance) * 100 else 0.0,
-                    timestamp = timestamp
+                // Validate inputs using the same validator as the main app
+                val validationResult = RefillValidator.validateRefill(
+                    context = context,
+                    liters = liters.toString(),
+                    cost = cost.toString(),
+                    distance = distance.toString()
                 )
-                refillRepository.insertRefill(refill)
-                onSuccess(cost, timestamp)
+
+                if (!validationResult.isValid) {
+                    // Validation failed
+                    android.util.Log.w("QuickEntryViewModel", "Validation failed: ${validationResult.errors}")
+                    onError()
+                    return@launch
+                }
+
+                // Use the same UseCase as the main app to ensure consistency
+                val result = addFuelRefillUseCase(
+                    carId = carId,
+                    amountPaid = cost,
+                    litersAdded = liters,
+                    tripDistance = distance,
+                    timestamp = timestamp,
+                    location = null, // Widget doesn't capture location
+                    notes = null
+                )
+
+                result.onSuccess {
+                    onSuccess(cost, timestamp)
+                }.onFailure { error ->
+                    android.util.Log.e("QuickEntryViewModel", "Failed to save refill: ${error.message}", error)
+                    onError()
+                }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("QuickEntryViewModel", "Error saving refill: ${e.message}", e)
                 onError()
             }
         }
@@ -131,17 +165,23 @@ class QuickEntryViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val expense = Expense(
+                // Use the same UseCase as the main app to ensure consistency
+                val result = addExpenseUseCase(
                     carId = carId,
                     category = category,
                     amount = cost,
-                    notes = notes,
-                    timestamp = timestamp
+                    timestamp = timestamp,
+                    notes = notes
                 )
-                expenseRepository.insertExpense(expense)
-                onSuccess(cost, timestamp)
+
+                result.onSuccess {
+                    onSuccess(cost, timestamp)
+                }.onFailure { error ->
+                    android.util.Log.e("QuickEntryViewModel", "Failed to save expense: ${error.message}", error)
+                    onError()
+                }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("QuickEntryViewModel", "Error saving expense: ${e.message}", e)
                 onError()
             }
         }

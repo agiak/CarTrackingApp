@@ -365,6 +365,12 @@ private fun QuickRefillDialog(
     val selectedCar by viewModel.selectedCar.collectAsState()
     var showCarError by remember { mutableStateOf(false) }
 
+    // Error states
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var litersError by remember { mutableStateOf<String?>(null) }
+    var costError by remember { mutableStateOf<String?>(null) }
+    var distanceError by remember { mutableStateOf<String?>(null) }
+
     // Voice state
     val voiceState by viewModel.voiceState.collectAsState()
 
@@ -652,19 +658,21 @@ private fun QuickRefillDialog(
                         }
                     }
 
-                    // Car Selector
-                    CarSelector(
-                        cars = allCars,
-                        selectedCar = selectedCar,
-                        onCarSelected = {
-                            viewModel.selectCar(it)
-                            showCarError = false
-                        },
-                        showError = showCarError,
-                        enabled = !isLoading
-                    )
+                    // Car Selector - Only show if there are multiple cars
+                    if (allCars.size > 1) {
+                        CarSelector(
+                            cars = allCars,
+                            selectedCar = selectedCar,
+                            onCarSelected = {
+                                viewModel.selectCar(it)
+                                showCarError = false
+                            },
+                            showError = showCarError,
+                            enabled = !isLoading
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
                     // Date field
                     OutlinedTextField(
@@ -689,11 +697,17 @@ private fun QuickRefillDialog(
                     // Liters field
                     OutlinedTextField(
                         value = liters,
-                        onValueChange = { liters = it },
+                        onValueChange = {
+                            liters = it
+                            litersError = null
+                            errorMessage = null
+                        },
                         label = { Text(stringResource(id = R.string.liters_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        isError = litersError != null,
+                        supportingText = litersError?.let { { Text(it) } }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -701,11 +715,17 @@ private fun QuickRefillDialog(
                     // Cost field
                     OutlinedTextField(
                         value = cost,
-                        onValueChange = { cost = it },
+                        onValueChange = {
+                            cost = it
+                            costError = null
+                            errorMessage = null
+                        },
                         label = { Text(stringResource(id = R.string.cost_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        isError = costError != null,
+                        supportingText = costError?.let { { Text(it) } }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -713,11 +733,17 @@ private fun QuickRefillDialog(
                     // Distance field
                     OutlinedTextField(
                         value = distance,
-                        onValueChange = { distance = it },
+                        onValueChange = {
+                            distance = it
+                            distanceError = null
+                            errorMessage = null
+                        },
                         label = { Text(stringResource(id = R.string.distance_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        isError = distanceError != null,
+                        supportingText = distanceError?.let { { Text(it) } }
                     )
 
                     // Info section with calculations
@@ -781,6 +807,37 @@ private fun QuickRefillDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    // Error message display
+                    errorMessage?.let { error ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = error,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
                     // Action buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -797,9 +854,40 @@ private fun QuickRefillDialog(
 
                         Button(
                             onClick = {
+                                // Clear previous errors
+                                litersError = null
+                                costError = null
+                                distanceError = null
+                                errorMessage = null
+
                                 // Validate car selection first
                                 if (selectedCar == null) {
                                     showCarError = true
+                                    errorMessage = context.getString(R.string.error_car_required)
+                                    return@Button
+                                }
+
+                                // Validate using RefillValidator
+                                val validationResult = com.agcoding.cartrackingapp.domain.validation.RefillValidator.validateRefill(
+                                    context = context,
+                                    liters = liters,
+                                    cost = cost,
+                                    distance = if (distance.isBlank()) "0" else distance
+                                )
+
+                                if (!validationResult.isValid) {
+                                    // Show field-specific errors
+                                    validationResult.errors["liters"]?.let { litersError = it }
+                                    validationResult.errors["cost"]?.let { costError = it }
+                                    validationResult.errors["distance"]?.let { distanceError = it }
+                                    validationResult.errors["consumption"]?.let {
+                                        errorMessage = it
+                                    }
+
+                                    // If no field-specific error, show general error
+                                    if (errorMessage == null && validationResult.errors.isNotEmpty()) {
+                                        errorMessage = validationResult.errors.values.first()
+                                    }
                                     return@Button
                                 }
 
@@ -815,7 +903,10 @@ private fun QuickRefillDialog(
                                         distance = distanceValue,
                                         timestamp = selectedDate,
                                         onSuccess = onSuccess,
-                                        onError = { isLoading = false }
+                                        onError = {
+                                            isLoading = false
+                                            errorMessage = context.getString(R.string.error_saving_refill)
+                                        }
                                     )
                                 }
                             },
@@ -901,6 +992,10 @@ private fun QuickExpenseDialog(
     val selectedCar by viewModel.selectedCar.collectAsState()
     var showCarError by remember { mutableStateOf(false) }
 
+    // Error states
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var costError by remember { mutableStateOf<String?>(null) }
+
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
     // Get dimension resources for responsive layout
@@ -947,19 +1042,21 @@ private fun QuickExpenseDialog(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Car Selector
-                    CarSelector(
-                        cars = allCars,
-                        selectedCar = selectedCar,
-                        onCarSelected = {
-                            viewModel.selectCar(it)
-                            showCarError = false
-                        },
-                        showError = showCarError,
-                        enabled = !isLoading
-                    )
+                    // Car Selector - Only show if there are multiple cars
+                    if (allCars.size > 1) {
+                        CarSelector(
+                            cars = allCars,
+                            selectedCar = selectedCar,
+                            onCarSelected = {
+                                viewModel.selectCar(it)
+                                showCarError = false
+                            },
+                            showError = showCarError,
+                            enabled = !isLoading
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
                     // Date field
                     OutlinedTextField(
@@ -984,11 +1081,17 @@ private fun QuickExpenseDialog(
                     // Cost field
                     OutlinedTextField(
                         value = cost,
-                        onValueChange = { cost = it },
+                        onValueChange = {
+                            cost = it
+                            costError = null
+                            errorMessage = null
+                        },
                         label = { Text(stringResource(id = R.string.cost_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        isError = costError != null,
+                        supportingText = costError?.let { { Text(it) } }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -1030,6 +1133,37 @@ private fun QuickExpenseDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    // Error message display
+                    errorMessage?.let { error ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = error,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
                     // Action buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1046,25 +1180,41 @@ private fun QuickExpenseDialog(
 
                         Button(
                             onClick = {
+                                // Clear previous errors
+                                costError = null
+                                errorMessage = null
+
                                 // Validate car selection first
                                 if (selectedCar == null) {
                                     showCarError = true
+                                    errorMessage = context.getString(R.string.error_car_required)
                                     return@Button
                                 }
 
                                 val costValue = cost.toDoubleOrNull()
 
-                                if (costValue != null) {
-                                    isLoading = true
-                                    viewModel.saveQuickExpense(
-                                        cost = costValue,
-                                        category = category,
-                                        notes = notes.ifBlank { null },
-                                        timestamp = selectedDate,
-                                        onSuccess = onSuccess,
-                                        onError = { isLoading = false }
-                                    )
+                                // Validate cost
+                                if (costValue == null) {
+                                    costError = context.getString(R.string.error_cost_invalid)
+                                    return@Button
                                 }
+                                if (costValue <= 0) {
+                                    costError = context.getString(R.string.error_cost_positive)
+                                    return@Button
+                                }
+
+                                isLoading = true
+                                viewModel.saveQuickExpense(
+                                    cost = costValue,
+                                    category = category,
+                                    notes = notes.ifBlank { null },
+                                    timestamp = selectedDate,
+                                    onSuccess = onSuccess,
+                                    onError = {
+                                        isLoading = false
+                                        errorMessage = context.getString(R.string.error_saving_expense)
+                                    }
+                                )
                             },
                             enabled = !isLoading && cost.isNotBlank()
                         ) {

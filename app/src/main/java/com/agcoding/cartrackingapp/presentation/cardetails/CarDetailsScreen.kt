@@ -31,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -65,6 +66,7 @@ fun CarDetailsScreen(
     onEditCarClick: () -> Unit = {},
     onViewAllRefillsClick: () -> Unit = {},
     onViewAllExpensesClick: () -> Unit = {},
+    onDefaultCarSet: () -> Unit = {},
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -191,6 +193,23 @@ fun CarDetailsScreen(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(stringResource(R.string.add_refill))
                                     }
+                                }
+
+                                // Set as Default button
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = {
+                                        viewModel.setDefaultCar()
+                                        onDefaultCarSet()
+                                    },
+                                    enabled = !state.statistics.car.isDefault,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        if (state.statistics.car.isDefault)
+                                            stringResource(R.string.default_car)
+                                        else
+                                            stringResource(R.string.set_as_default)
+                                    )
                                 }
                             }
 
@@ -386,6 +405,25 @@ fun CarDetailsScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(stringResource(R.string.add_refill))
                                 }
+                            }
+                        }
+
+                        // Set as Default button
+                        item {
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = {
+                                    viewModel.setDefaultCar()
+                                    onDefaultCarSet()
+                                },
+                                enabled = !state.statistics.car.isDefault,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    if (state.statistics.car.isDefault)
+                                        stringResource(R.string.default_car)
+                                    else
+                                        stringResource(R.string.set_as_default)
+                                )
                             }
                         }
 

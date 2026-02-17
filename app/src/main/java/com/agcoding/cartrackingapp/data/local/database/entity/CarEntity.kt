@@ -13,6 +13,9 @@ data class CarEntity(
     val initialOdometer: Double,
     val currentOdometer: Double,
 
+    // Default car setting
+    val isDefault: Boolean = false,
+
     // Insurance Information
     val insuranceExpirationDate: Long? = null,
 

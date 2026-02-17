@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.presentation.cardetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.usecase.car.DeleteCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
@@ -19,6 +20,7 @@ class CarDetailsViewModel @Inject constructor(
     private val getCarStatisticsUseCase: GetCarStatisticsUseCase,
     private val deleteCarUseCase: DeleteCarUseCase,
     private val updateCarUseCase: UpdateCarUseCase,
+    private val carRepository: CarRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -118,6 +120,12 @@ class CarDetailsViewModel @Inject constructor(
             }.onFailure {
                 // Handle error
             }
+        }
+    }
+
+    fun setDefaultCar() {
+        viewModelScope.launch {
+            carRepository.setDefaultCar(carId)
         }
     }
 }
