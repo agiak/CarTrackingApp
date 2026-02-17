@@ -890,6 +890,7 @@
     <string name="car_comparison_no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα για αυτό το μέτρο</string>
 
     <!-- Yearly Comparison -->
+    <string name="yearly_comparison_button">Ετήσια Σύγκριση</string>
     <string name="yearly_comparison_title">Ετήσια Σύγκριση</string>
     <string name="yearly_comparison_back">Πίσω</string>
     <string name="yearly_comparison_insufficient_data_title">Ανεπαρκή Δεδομένα</string>
