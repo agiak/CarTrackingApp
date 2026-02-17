@@ -908,5 +908,67 @@
     <string name="default_car_updated">Το προεπιλεγμένο αυτοκίνητο ενημερώθηκε</string>
     <string name="default_badge">Προεπιλογή</string>
 
+    <!-- Insights / Smart Anomaly Detection -->
+    <string name="insights_title">Έξυπνες Αναλύσεις</string>
+    <string name="insights_preview_card_title">🚨 %d ανωμαλίες εντοπίστηκαν αυτό τον μήνα</string>
+    <string name="insights_preview_card_no_anomalies">Δεν εντοπίστηκαν ανωμαλίες</string>
+    <string name="insights_summary">%d ανωμαλίες εντοπίστηκαν</string>
+    <string name="insights_description">Ασυνήθιστα μοτίβα στα έξοδα του οχήματός σας</string>
+    <string name="insights_empty_title">Δεν εντοπίστηκαν ανωμαλίες</string>
+    <string name="insights_empty_description">Τα έξοδα του οχήματός σας είναι σταθερά και εντός των αναμενόμενων ορίων.</string>
+    <string name="insights_error_title">Αποτυχία φόρτωσης αναλύσεων</string>
+    <string name="insights_detected_on">Εντοπίστηκε στις %s</string>
+    <string name="insights_filter_by_type">Φιλτράρισμα κατά τύπο</string>
+
+    <!-- Anomaly Types -->
+    <string name="anomaly_type_fuel_price">Τιμή Καυσίμου</string>
+    <string name="anomaly_type_consumption">Κατανάλωση</string>
+    <string name="anomaly_type_maintenance">Συντήρηση</string>
+    <string name="anomaly_type_spending">Δαπάνες</string>
+    <string name="anomaly_type_cost_per_km">Κόστος/χλμ</string>
+
+    <!-- Severity Levels -->
+    <string name="severity_low">ΧΑΜΗΛΗ</string>
+    <string name="severity_medium">ΜΕΤΡΙΑ</string>
+    <string name="severity_high">ΥΨΗΛΗ</string>
+
+    <!-- Filters -->
+    <string name="filter_all">Όλα</string>
+    <string name="clear_filter">Εκκαθάριση φίλτρου</string>
+
+    <!-- Anomaly Titles -->
+    <string name="anomaly_title_fuel_price_spike">Ανίχνευση Αύξησης Τιμής Καυσίμου</string>
+    <string name="anomaly_title_consumption_spike">Ασυνήθιστη Κατανάλωση Καυσίμου</string>
+    <string name="anomaly_title_maintenance_outlier">Υψηλό Κόστος Συντήρησης</string>
+    <string name="anomaly_title_monthly_spending">Αύξηση Μηνιαίων Εξόδων</string>
+    <string name="anomaly_title_cost_per_km">Απόκλιση Κόστους ανά Χλμ</string>
+
+    <!-- Anomaly Descriptions -->
+    <string name="anomaly_desc_fuel_price_spike">Η τιμή καυσίμου αυξήθηκε κατά %1$s%% σε σχέση με τον μέσο όρο 6 μηνών (€%2$s/L). Τρέχουσα: €%3$s/L</string>
+    <string name="anomaly_desc_consumption_spike">Η κατανάλωση καυσίμου %1$s κατά %2$s%% σε σχέση με τον μέσο όρο 6 μηνών (%3$s L/100km). Τρέχουσα: %4$s L/100km</string>
+    <string name="anomaly_desc_maintenance_outlier">Το κόστος για %1$s (€%2$s) είναι %3$s%% υψηλότερο από τον ιστορικό μέσο όρο (€%4$s).</string>
+    <string name="anomaly_desc_monthly_spending">Τα συνολικά έξοδα τον %1$s %2$s (€%3$s) είναι %4$s%% υψηλότερα από τον μέσο όρο 3 μηνών (€%5$s).</string>
+    <string name="anomaly_desc_cost_per_km">Το κόστος ανά χλμ %1$s κατά %2$s%% σε σχέση με τον μέσο όρο. Τρέχον: €%3$s/χλμ (μ.ό.: €%4$s/χλμ) με βάση %5$s χλμ διαδρομής.</string>
+    <string name="anomaly_desc_cost_per_km_with_month">Το κόστος ανά χλμ τον %1$s %2$s %3$s κατά %4$s%% σε σχέση με τον μέσο όρο. Τρέχον: €%5$s/χλμ (μ.ό.: €%6$s/χλμ) με βάση %7$s χλμ διαδρομής.</string>
+
+    <!-- Direction words -->
+    <string name="increased">αυξήθηκε</string>
+    <string name="decreased">μειώθηκε</string>
+    <string name="maintenance">Συντήρηση</string>
+
+    <!-- Expense Categories (for anomaly localization) -->
+    <string name="category_service">Συντήρηση</string>
+    <string name="category_tire_change">Αλλαγή Ελαστικών</string>
+    <string name="category_oil_change">Αλλαγή Λαδιών</string>
+    <string name="category_small_service">Μικρό Service</string>
+    <string name="category_big_service">Μεγάλο Service</string>
+    <string name="category_repairs">Επισκευές</string>
+    <string name="category_insurance">Ασφάλεια</string>
+    <string name="category_tax">Τέλη Κυκλοφορίας</string>
+    <string name="category_parking">Πάρκινγκ</string>
+    <string name="category_toll">Διόδια</string>
+    <string name="category_car_wash">Πλύσιμο</string>
+    <string name="category_other">Άλλο</string>
+
 </resources>
 

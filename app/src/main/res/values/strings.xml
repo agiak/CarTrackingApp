@@ -906,5 +906,67 @@
     <string name="default_car_updated">Default car updated</string>
     <string name="default_badge">Default</string>
 
+    <!-- Insights / Smart Anomaly Detection -->
+    <string name="insights_title">Smart Insights</string>
+    <string name="insights_preview_card_title">🚨 %d insights detected this month</string>
+    <string name="insights_preview_card_no_anomalies">No anomalies detected</string>
+    <string name="insights_summary">%d anomalies detected</string>
+    <string name="insights_description">Unusual patterns in your vehicle expenses</string>
+    <string name="insights_empty_title">No anomalies detected</string>
+    <string name="insights_empty_description">Your vehicle expenses are stable and within expected patterns.</string>
+    <string name="insights_error_title">Failed to load insights</string>
+    <string name="insights_detected_on">Detected on %s</string>
+    <string name="insights_filter_by_type">Filter by type</string>
+
+    <!-- Anomaly Types -->
+    <string name="anomaly_type_fuel_price">Fuel Price</string>
+    <string name="anomaly_type_consumption">Consumption</string>
+    <string name="anomaly_type_maintenance">Maintenance</string>
+    <string name="anomaly_type_spending">Spending</string>
+    <string name="anomaly_type_cost_per_km">Cost/km</string>
+
+    <!-- Severity Levels -->
+    <string name="severity_low">LOW</string>
+    <string name="severity_medium">MEDIUM</string>
+    <string name="severity_high">HIGH</string>
+
+    <!-- Filters -->
+    <string name="filter_all">All</string>
+    <string name="clear_filter">Clear filter</string>
+
+    <!-- Anomaly Titles -->
+    <string name="anomaly_title_fuel_price_spike">Fuel Price Spike Detected</string>
+    <string name="anomaly_title_consumption_spike">Unusual Fuel Consumption</string>
+    <string name="anomaly_title_maintenance_outlier">High Maintenance Cost</string>
+    <string name="anomaly_title_monthly_spending">Monthly Spending Increased</string>
+    <string name="anomaly_title_cost_per_km">Cost Per Km Deviation</string>
+
+    <!-- Anomaly Descriptions -->
+    <string name="anomaly_desc_fuel_price_spike">Fuel price increased by %1$s%% compared to 6-month average (€%2$s/L). Current: €%3$s/L</string>
+    <string name="anomaly_desc_consumption_spike">Fuel consumption %1$s by %2$s%% compared to 6-month average (%3$s L/100km). Current: %4$s L/100km</string>
+    <string name="anomaly_desc_maintenance_outlier">%1$s expense (€%2$s) is %3$s%% higher than historical average (€%4$s).</string>
+    <string name="anomaly_desc_monthly_spending">Total spending in %1$s %2$s (€%3$s) is %4$s%% higher than 3-month average (€%5$s).</string>
+    <string name="anomaly_desc_cost_per_km">Cost per km %1$s by %2$s%% compared to average. Current: €%3$s/km (avg: €%4$s/km) based on %5$s km driven.</string>
+    <string name="anomaly_desc_cost_per_km_with_month">Cost per km in %1$s %2$s %3$s by %4$s%% compared to average. Current: €%5$s/km (avg: €%6$s/km) based on %7$s km driven.</string>
+
+    <!-- Direction words -->
+    <string name="increased">increased</string>
+    <string name="decreased">decreased</string>
+    <string name="maintenance">Maintenance</string>
+
+    <!-- Expense Categories (for anomaly localization) -->
+    <string name="category_service">Service</string>
+    <string name="category_tire_change">Tire Change</string>
+    <string name="category_oil_change">Oil Change</string>
+    <string name="category_small_service">Small Service</string>
+    <string name="category_big_service">Big Service</string>
+    <string name="category_repairs">Repairs</string>
+    <string name="category_insurance">Insurance</string>
+    <string name="category_tax">Tax</string>
+    <string name="category_parking">Parking</string>
+    <string name="category_toll">Toll</string>
+    <string name="category_car_wash">Car Wash</string>
+    <string name="category_other">Other</string>
+
 </resources>
 

@@ -50,6 +50,7 @@ import com.agcoding.cartrackingapp.presentation.expense.AddExpenseScreen
 import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseCategoriesScreen
 import com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsScreen
 import com.agcoding.cartrackingapp.presentation.expensehistory.ExpenseHistoryScreen
+import com.agcoding.cartrackingapp.presentation.insights.InsightsScreen
 import com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
@@ -121,6 +122,7 @@ sealed class Screen(val route: String) {
     }
     object YearlyComparison : Screen("yearly_comparison")
     object CarComparison : Screen("car_comparison")
+    object Insights : Screen("insights")
     object ManageExpenseCategories : Screen("manage_expense_categories")
     object AddExpense : Screen("add_expense/{carId}") {
         fun createRoute(carId: Long) = "add_expense/$carId"
@@ -335,6 +337,9 @@ fun AppNavigation(
                     },
                     onCarComparisonClick = {
                         navController.navigate(Screen.CarComparison.route)
+                    },
+                    onInsightsClick = {
+                        navController.navigate(Screen.Insights.route)
                     },
                     onMonthClick = { month, year ->
                         navController.navigate(Screen.MonthDetails.createRoute(month, year))
@@ -781,6 +786,23 @@ fun AppNavigation(
                 CarComparisonScreen(
                     onNavigateBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.Insights.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                InsightsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToRefillDetails = { refillId ->
+                        navController.navigate(Screen.RefillDetails.createRoute(refillId))
+                    },
+                    onNavigateToExpenseDetails = { expenseId ->
+                        navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
                     }
                 )
             }

@@ -43,6 +43,7 @@ import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.statistics.components.InsightsPreviewCard
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
 
@@ -57,6 +58,7 @@ fun StatisticsScreen(
     onMonthlyTrendsClick: () -> Unit = {},
     onYearlyComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
+    onInsightsClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
@@ -127,7 +129,7 @@ fun StatisticsScreen(
                         }
                     },
                     insightsSection = {
-                        InsightsSection(state.statistics)
+                        InsightsSection(onInsightsClick = onInsightsClick)
                     },
                     modifier = Modifier.padding(paddingValues)
                 )
@@ -545,6 +547,14 @@ private fun InsightRow(
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+private fun InsightsSection(onInsightsClick: () -> Unit) {
+    InsightsPreviewCard(
+        onNavigateToInsights = onInsightsClick,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
