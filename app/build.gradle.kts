@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace = "com.agcoding.cartrackingapp"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.agcoding.cartrackingapp"
-        minSdk = 28
-        targetSdk = 36
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 8
         versionName = "1.0.6"
 
@@ -127,33 +127,22 @@ dependencies {
     implementation(libs.material)
 
     // Lifecycle
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.bundles.lifecycle)
 
     // Compose
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.icons)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.bundles.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
+    implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
 
     // Hilt
-    implementation(libs.hilt.android)
+    implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
 
     // Coroutines
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.bundles.coroutines)
 
     // Location
     implementation(libs.play.services.location)
@@ -165,27 +154,20 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Apache POI for Excel files
-    implementation(libs.apache.poi)
-    implementation(libs.apache.poi.ooxml)
+    implementation(libs.bundles.apache.poi.bundle)
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
 
     // Glance (Widgets)
-    implementation(libs.androidx.glance.appwidget)
-    implementation(libs.androidx.glance.material3)
+    implementation(libs.bundles.glance)
 
-    // Retrofit for API calls (Voice LLM integration)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    // Retrofit & OkHttp for API calls (Voice LLM integration)
+    implementation(libs.bundles.networking)
 
     // Moshi for JSON parsing
-    implementation("com.squareup.moshi:moshi:1.15.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+    implementation(libs.bundles.moshi.bundle)
+    ksp(libs.moshi.kotlin.codegen)
 
     // Testing
     testImplementation(libs.junit)
