@@ -32,7 +32,8 @@ data class AppSettings(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage = AppLanguage.ENGLISH,
     val notificationsEnabled: Boolean = true,
-    val llmModel: LLMModel = LLMModel.DEFAULT
+    val llmModel: LLMModel = LLMModel.DEFAULT,
+    val forecastingEnabled: Boolean = true
 )
 
 @Singleton
@@ -44,6 +45,7 @@ class SettingsPreferences @Inject constructor(
         val LANGUAGE = stringPreferencesKey("app_language")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val LLM_MODEL = stringPreferencesKey("llm_model")
+        val FORECASTING_ENABLED = booleanPreferencesKey("forecasting_enabled")
     }
 
     val settingsFlow: Flow<AppSettings> = context.settingsDataStore.data.map { preferences ->
@@ -57,7 +59,8 @@ class SettingsPreferences @Inject constructor(
             notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true,
             llmModel = preferences[Keys.LLM_MODEL]?.let { modelId ->
                 LLMModel.fromModelId(modelId)
-            } ?: LLMModel.DEFAULT
+            } ?: LLMModel.DEFAULT,
+            forecastingEnabled = preferences[Keys.FORECASTING_ENABLED] ?: true
         )
     }
 
@@ -82,6 +85,12 @@ class SettingsPreferences @Inject constructor(
     suspend fun updateLLMModel(model: LLMModel) {
         context.settingsDataStore.edit { preferences ->
             preferences[Keys.LLM_MODEL] = model.modelId
+        }
+    }
+
+    suspend fun updateForecastingEnabled(enabled: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[Keys.FORECASTING_ENABLED] = enabled
         }
     }
 

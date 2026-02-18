@@ -253,6 +253,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateForecastingEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsPreferences.updateForecastingEnabled(enabled)
+        }
+    }
+
     // ==================== Data Export/Import ====================
 
     fun exportData() {

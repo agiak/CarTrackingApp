@@ -50,6 +50,8 @@ fun StatisticsContent(
     onMonthlyTrendsClick: () -> Unit,
     onYearlyComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
+    onFuelForecastClick: () -> Unit = {},
+    forecastingEnabled: Boolean = false,
     summarySection: @Composable () -> Unit,
     perCarBreakdownCards: @Composable () -> Unit,
     monthlyTrendCards: @Composable () -> Unit,
@@ -251,6 +253,27 @@ fun StatisticsContent(
                     }
                 }
 
+                // Fuel Forecast Button (only show if forecasting enabled)
+                if (forecastingEnabled) {
+                    item {
+                        OutlinedButton(
+                            onClick = onFuelForecastClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                                contentColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                            )
+                        ) {
+                            Text(stringResource(R.string.view_fuel_forecast))
+                        }
+                    }
+                }
+
                 // Insights section
                 item {
                     Text(
@@ -402,6 +425,27 @@ fun StatisticsContent(
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         Text(stringResource(R.string.car_comparison_button))
+                    }
+                }
+            }
+
+            // Fuel Forecast Button (only show if forecasting enabled)
+            if (forecastingEnabled) {
+                item {
+                    OutlinedButton(
+                        onClick = onFuelForecastClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Text(stringResource(R.string.view_fuel_forecast))
                     }
                 }
             }

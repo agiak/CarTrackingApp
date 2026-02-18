@@ -65,6 +65,7 @@ import com.agcoding.cartrackingapp.presentation.settings.expensecategories.Expen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
+import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
 import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
 import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
@@ -122,6 +123,7 @@ sealed class Screen(val route: String) {
     }
     object YearlyComparison : Screen("yearly_comparison")
     object CarComparison : Screen("car_comparison")
+    object FuelForecast : Screen("fuel_forecast")
     object Insights : Screen("insights")
     object ManageExpenseCategories : Screen("manage_expense_categories")
     object AddExpense : Screen("add_expense/{carId}") {
@@ -340,6 +342,9 @@ fun AppNavigation(
                     },
                     onInsightsClick = {
                         navController.navigate(Screen.Insights.route)
+                    },
+                    onFuelForecastClick = {
+                        navController.navigate(Screen.FuelForecast.route)
                     },
                     onMonthClick = { month, year ->
                         navController.navigate(Screen.MonthDetails.createRoute(month, year))
@@ -784,6 +789,17 @@ fun AppNavigation(
                 animationConfig = NavigationAnimations.HorizontalSlide
             ) {
                 CarComparisonScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.FuelForecast.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                FuelForecastScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

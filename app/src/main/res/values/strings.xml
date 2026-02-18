@@ -968,5 +968,48 @@
     <string name="category_car_wash">Car Wash</string>
     <string name="category_other">Other</string>
 
-</resources>
+    <!-- Fuel Forecast -->
+    <string name="fuel_forecast_title">Fuel Forecast</string>
+    <string name="fuel_forecast_subtitle">Next month predictions based on historical data</string>
+    <string name="fuel_forecast_screen_description">View predicted fuel costs and efficiency for next month based on your historical refill data. These predictions use Holt\'s Linear Exponential Smoothing algorithm to analyze trends in your fuel consumption patterns.</string>
+    <string name="forecast_explanation">Based on %1$d months of historical data, here are the predicted values for next month:</string>
+    <string name="forecast_cost_per_km">Cost per km</string>
+    <string name="forecast_cost_per_km_explanation">This is how much you\'ll spend on fuel per kilometer driven next month. A lower value means better fuel economy. The algorithm analyzes your refill patterns to predict this cost.</string>
+    <string name="forecast_efficiency">Fuel Efficiency</string>
+    <string name="forecast_efficiency_explanation">This is your predicted fuel consumption in liters per 100 kilometers. Lower values indicate more efficient fuel usage. This prediction helps you spot changes in your driving habits or vehicle performance.</string>
+    <string name="currency_per_km">€/km</string>
+    <string name="liters_per_100km">L/100km</string>
+    <string name="forecast_low_data_warning">Not enough historical data for reliable forecast</string>
+    <string name="forecasting_enabled">Enable Fuel Forecasting</string>
+    <string name="forecasting_description">Predict future fuel costs and efficiency using historical trends</string>
+    <string name="forecast_predictions">Forecast &amp; Predictions</string>
+    <string name="forecasting_disabled_message">Fuel forecasting is currently disabled.\n\nEnable it in Settings → Data &amp; Storage → Forecast &amp; Predictions</string>
+    <string name="forecast_no_data_message">No forecast data available.\n\nAdd at least 3 months of fuel refills to see predictions.</string>
+    <string name="view_fuel_forecast">View Fuel Forecast</string>
 
+    <!-- Forecast Confidence and Trend Explanations -->
+    <string name="forecast_confidence_label">Confidence:</string>
+    <string name="forecast_confidence_general_explanation">📊 Understanding Confidence Scores:\n\nThe confidence percentage shows how reliable each prediction is. It\'s calculated based on:\n• Amount of historical data (more months = higher confidence)\n• Consistency of your refill patterns\n• Historical prediction accuracy\n\n🟢 70-100%% = Excellent reliability\n🟠 40-69%% = Good reliability\n🔴 Below 40%% = Limited reliability (need more data)</string>
+    <string name="forecast_confidence_explanation">Confidence: %1$d%% - This shows how reliable the prediction is. Higher percentages mean more accurate predictions based on consistent historical data. With %2$d months of data, the forecast reliability is %3$s.</string>
+    <string name="forecast_confidence_high">excellent</string>
+    <string name="forecast_confidence_medium">good</string>
+    <string name="forecast_confidence_low">limited</string>
+    <string name="forecast_trend_increasing">🔺 Increasing - Your costs are trending upward. This may be due to rising fuel prices, longer trips, or decreased efficiency. Monitor your driving habits and vehicle maintenance.</string>
+    <string name="forecast_trend_decreasing">🔻 Decreasing - Your costs are trending downward. Great job! This indicates improving fuel efficiency, better driving habits, or lower fuel prices.</string>
+    <string name="forecast_trend_stable">➡️ Stable - Your costs remain consistent. Your fuel consumption patterns are predictable and stable month-to-month.</string>
+    <string name="forecast_how_to_improve">💡 How to improve:\n• Maintain steady speed and avoid rapid acceleration\n• Keep tires properly inflated\n• Regular vehicle maintenance\n• Plan routes to minimize distance\n• Remove unnecessary weight from vehicle</string>
+
+    <!-- Car-Specific Tips -->
+    <string name="forecast_tips_for_car">Tips for %1$s:</string>
+    <string name="forecast_tip_summer_issue">Your data shows higher fuel consumption during summer months. Consider checking your A/C system efficiency and avoid excessive use when possible</string>
+    <string name="forecast_tip_winter_issue">Your fuel consumption increases in winter. This is normal due to cold engine starts and heating. Allow engine to warm up properly and consider using a block heater</string>
+    <string name="forecast_tip_weather_stable">Great news! Your fuel efficiency remains consistent across seasons, indicating good driving habits and vehicle maintenance</string>
+    <string name="forecast_tip_increasing_trend">Recent months show an upward cost trend. Check tire pressure, air filter, and consider a service check. Review if your driving patterns have changed</string>
+    <string name="forecast_tip_improving_trend">Excellent! Your fuel efficiency has been improving. Keep up your current driving habits and maintenance schedule</string>
+    <string name="forecast_tip_high_variation">Your fuel consumption varies significantly month-to-month. Try to maintain more consistent driving patterns and track what affects your efficiency</string>
+    <string name="forecast_tip_stable_consumption">Your consumption is very stable. This suggests consistent driving habits and good vehicle condition. Continue your current approach</string>
+    <string name="forecast_tip_general_1">Maintain steady speed and avoid rapid acceleration</string>
+    <string name="forecast_tip_general_2">Keep tires properly inflated and rotate them regularly</string>
+    <string name="forecast_tip_general_3">Schedule regular vehicle maintenance to ensure optimal performance</string>
+
+</resources>

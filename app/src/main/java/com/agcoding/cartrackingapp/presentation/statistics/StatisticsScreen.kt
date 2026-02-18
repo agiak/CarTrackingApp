@@ -59,10 +59,12 @@ fun StatisticsScreen(
     onYearlyComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
+    onFuelForecastClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val forecastingEnabled by viewModel.forecastingEnabled.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -101,6 +103,8 @@ fun StatisticsScreen(
                     onMonthlyTrendsClick = onMonthlyTrendsClick,
                     onYearlyComparisonClick = onYearlyComparisonClick,
                     onCarComparisonClick = onCarComparisonClick,
+                    onFuelForecastClick = onFuelForecastClick,
+                    forecastingEnabled = forecastingEnabled,
                     summarySection = {
                         SummarySection(
                             statistics = state.statistics,

@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
+import com.agcoding.cartrackingapp.presentation.settings.components.ForecastCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.presentation.settings.components.SpreadsheetImportCard
@@ -260,6 +261,16 @@ fun DataStorageSettingsScreen(
                 onExport = { viewModel.exportData() },
                 onImport = { showImportConfirmDialog = true },
                 onClear = { showClearConfirmDialog = true }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // FORECAST & PREDICTIONS Section
+            SectionHeader(title = stringResource(R.string.forecast_predictions))
+
+            ForecastCard(
+                forecastingEnabled = uiState.appSettings.forecastingEnabled,
+                onForecastingToggle = { viewModel.updateForecastingEnabled(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

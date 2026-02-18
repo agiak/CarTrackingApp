@@ -141,6 +141,57 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
     - Best/worst performer highlighting
     - Dynamic percentage differences
 
+  - **🔮 Fuel Forecast & Predictions** (AI-Powered):
+    - **Smart Forecasting Engine**: Predicts next month's fuel costs and efficiency using Holt's Linear Exponential Smoothing algorithm
+    - **Per-Car Predictions**:
+      - Cost per kilometer forecast
+      - Fuel efficiency forecast (L/100km)
+      - Trend indicators with semantic color coding:
+        - 🔴 Red = Increasing costs (bad)
+        - 🟢 Green = Decreasing costs (good)
+        - ⚪ Gray = Stable trends
+      - Confidence scores (0-100%) showing prediction reliability
+    - **Intelligent Quality Filtering**:
+      - Automatically hidden when data quality is too low (<20% confidence)
+      - Requires minimum 3 months of refill data per car
+      - Graceful degradation with "insufficient data" warnings
+    - **Car-Specific Personalized Tips**:
+      - Seasonal pattern detection (summer A/C usage, winter cold starts)
+      - Weather stability analysis (consistent vs. variable across seasons)
+      - Trend-based recommendations (improving vs. deteriorating efficiency)
+      - Consumption consistency insights (stable vs. fluctuating patterns)
+      - Dynamic tip generation based on actual historical data
+    - **User-Friendly Presentation**:
+      - Clean confidence explanation at screen level
+      - Color-coded trend explanations
+      - Labeled confidence percentages
+      - Actionable, data-driven insights per vehicle
+    - **Enable/Disable in Settings**: Full control over feature visibility
+    - **Minimum Requirements**:
+      - 3+ months of refill data for basic predictions
+      - 6+ months for partial seasonal analysis
+      - 12+ months for comprehensive seasonal insights
+      - Valid distance and liters values per refill
+
+- **Smart Insights** (Rule-Based Anomaly Detection):
+  - **Automatic Pattern Recognition**:
+    - Fuel price spike detection (>20-30% above average)
+    - Consumption anomalies (>15-25% deviation from norm)
+    - Maintenance cost outliers (>40% above average)
+    - Monthly spending increases (>25-40% vs. 3-month average)
+    - Cost per km deviations (>20% from historical norm)
+  - **Severity Classification**:
+    - 🔴 High severity (requires immediate attention)
+    - 🟠 Medium severity (monitor closely)
+    - 🟢 Low severity (informational)
+  - **Interactive Anomaly Cards**:
+    - Tap to view related transaction details
+    - Edit transaction to resolve anomaly
+    - Automatic anomaly removal when resolved
+    - Real-time anomaly list updates
+  - **No Database Storage**: Anomalies computed dynamically for privacy and freshness
+  - **Fully Offline**: No external APIs, completely deterministic
+
 - **Monthly Details View**:
   - Detailed breakdown of specific months
   - Refills and expenses grouped by date
@@ -250,6 +301,7 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
   - Export/import data (JSON)
   - Spreadsheet import with sample generation
   - Clear all data with confirmation
+  - **Forecast & Predictions**: Enable/disable fuel forecasting feature
   
 - **Customization**:
   - **Expense Categories Management**: Add, edit, and delete custom expense categories
@@ -280,6 +332,8 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - **Background Tasks**: WorkManager
 
 ### Advanced Features
+- **Fuel Forecasting**: Holt's Linear Exponential Smoothing algorithm for time-series predictions
+- **Anomaly Detection**: Rule-based pattern recognition for expense outliers and irregularities
 - **Voice Recognition**: OpenAI GPT integration for natural language refill entry
 - **Speech-to-Text**: Android SpeechRecognizer API for voice input
 - **Home Screen Widgets**: Glance-based widgets for quick entry
@@ -293,6 +347,9 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 
 ### Key Components
 - **Domain Layer**: Use cases, models, repositories
+  - Forecasting use cases (ForecastFuelCostPerKmUseCase, ForecastFuelEfficiencyUseCase)
+  - Forecasting engine (HoltLinearSmoothingEngine)
+  - Anomaly detection use cases (DetectFuelAnomaliesUseCase, DetectMaintenanceAnomaliesUseCase, etc.)
   - Voice recognition use cases (ParseVoiceRefillUseCase)
   - Centralized business logic (AddFuelRefillUseCase, AddExpenseUseCase)
   - Validation (RefillValidator, ExpenseValidator)
@@ -556,6 +613,41 @@ This project is a private car expense tracking application.
   - Maintenance cost per year
   - AI-generated insights and recommendations
   - Best/worst performer highlighting
+
+#### 🔮 Fuel Forecast & Predictions
+- **Holt's Linear Exponential Smoothing**: Advanced forecasting algorithm
+- **Next Month Predictions**:
+  - Cost per kilometer forecast
+  - Fuel efficiency forecast (L/100km)
+  - Confidence scores (0-100%)
+  - Trend indicators (increasing/decreasing/stable)
+- **Intelligent Quality Control**:
+  - Automatically hidden when all cars have <20% confidence
+  - Minimum 3 months of data required
+  - Graceful degradation with warnings
+- **Car-Specific Personalized Tips**:
+  - Seasonal pattern detection (summer A/C, winter cold starts)
+  - Weather stability analysis
+  - Trend-based recommendations
+  - Consumption consistency insights
+- **User-Friendly Display**:
+  - Color-coded trends (🔴 red = bad, 🟢 green = good)
+  - Clean confidence explanations
+  - Actionable data-driven insights
+- **Enable/Disable in Settings**: Full user control
+
+#### 🔍 Smart Insights (Anomaly Detection)
+- **Automatic Pattern Recognition**:
+  - Fuel price spikes (>20-30% above average)
+  - Consumption anomalies (>15-25% deviation)
+  - Maintenance cost outliers (>40% above average)
+  - Monthly spending increases (>25-40%)
+  - Cost per km deviations (>20%)
+- **Severity Classification**: High/Medium/Low
+- **Interactive Cards**: Tap to view/edit related transactions
+- **Automatic Resolution**: Anomalies disappear when resolved
+- **Real-time Updates**: Live anomaly list updates
+- **Fully Offline**: No external APIs, deterministic calculations
 
 #### 🎨 Enhanced Theming System
 - **Dynamic Background Tinting**: Backgrounds tint based on selected primary color
