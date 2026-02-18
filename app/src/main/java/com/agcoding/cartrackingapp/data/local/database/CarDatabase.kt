@@ -6,18 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.agcoding.cartrackingapp.data.local.database.dao.CarAttachmentDao
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
+import com.agcoding.cartrackingapp.data.local.database.entity.CarAttachmentEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.CarEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseCategoryEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.FuelRefillEntity
 
 @Database(
-    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class],
-    version = 14,
+    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class],
+    version = 15,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -25,6 +27,7 @@ abstract class CarDatabase : RoomDatabase() {
     abstract fun fuelRefillDao(): FuelRefillDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun expenseCategoryDao(): ExpenseCategoryDao
+    abstract fun carAttachmentDao(): CarAttachmentDao
 
     companion object {
         @Volatile
@@ -41,7 +44,7 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
-                        MIGRATION_13_14
+                        MIGRATION_13_14, MIGRATION_14_15
                     )
                     .fallbackToDestructiveMigration()
                     .build()
@@ -242,3 +245,24 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Create car_attachments table
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS car_attachments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                carId INTEGER NOT NULL,
+                fileName TEXT NOT NULL,
+                fileType TEXT NOT NULL,
+                fileSizeBytes INTEGER NOT NULL,
+                dateAdded INTEGER NOT NULL,
+                internalPath TEXT NOT NULL,
+                FOREIGN KEY(carId) REFERENCES cars(id) ON DELETE CASCADE
+            )
+        """.trimIndent())
+
+        // Create indices
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_car_attachments_carId ON car_attachments(carId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_car_attachments_dateAdded ON car_attachments(dateAdded)")
+    }
+}

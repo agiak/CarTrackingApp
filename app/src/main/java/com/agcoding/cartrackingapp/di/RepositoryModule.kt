@@ -1,8 +1,10 @@
 package com.agcoding.cartrackingapp.di
 
+import com.agcoding.cartrackingapp.data.repository.CarAttachmentRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.CarRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.ExpenseRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.RefillRepositoryImpl
+import com.agcoding.cartrackingapp.domain.repository.CarAttachmentRepository
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindExpenseRepository(
         expenseRepositoryImpl: ExpenseRepositoryImpl
     ): ExpenseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCarAttachmentRepository(
+        carAttachmentRepositoryImpl: CarAttachmentRepositoryImpl
+    ): CarAttachmentRepository
 }

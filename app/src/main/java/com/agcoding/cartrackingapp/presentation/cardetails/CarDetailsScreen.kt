@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocalGasStation
@@ -31,7 +32,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,6 +67,7 @@ fun CarDetailsScreen(
     onViewAllRefillsClick: () -> Unit = {},
     onViewAllExpensesClick: () -> Unit = {},
     onDefaultCarSet: () -> Unit = {},
+    onViewAttachments: () -> Unit = {},
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -195,21 +196,39 @@ fun CarDetailsScreen(
                                     }
                                 }
 
-                                // Set as Default button
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = {
-                                        viewModel.setDefaultCar()
-                                        onDefaultCarSet()
-                                    },
-                                    enabled = !state.statistics.car.isDefault,
-                                    modifier = Modifier.fillMaxWidth()
+                                // Set as Default and View Attachments buttons
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Text(
-                                        if (state.statistics.car.isDefault)
-                                            stringResource(R.string.default_car)
-                                        else
-                                            stringResource(R.string.set_as_default)
-                                    )
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = {
+                                            viewModel.setDefaultCar()
+                                            onDefaultCarSet()
+                                        },
+                                        enabled = !state.statistics.car.isDefault,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            if (state.statistics.car.isDefault)
+                                                stringResource(R.string.default_car)
+                                            else
+                                                stringResource(R.string.set_as_default)
+                                        )
+                                    }
+
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = onViewAttachments,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AttachFile,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.view_attachments))
+                                    }
                                 }
                             }
 
@@ -408,22 +427,40 @@ fun CarDetailsScreen(
                             }
                         }
 
-                        // Set as Default button
+                        // Set as Default and View Attachments buttons
                         item {
-                            androidx.compose.material3.OutlinedButton(
-                                onClick = {
-                                    viewModel.setDefaultCar()
-                                    onDefaultCarSet()
-                                },
-                                enabled = !state.statistics.car.isDefault,
-                                modifier = Modifier.fillMaxWidth()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Text(
-                                    if (state.statistics.car.isDefault)
-                                        stringResource(R.string.default_car)
-                                    else
-                                        stringResource(R.string.set_as_default)
-                                )
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = {
+                                        viewModel.setDefaultCar()
+                                        onDefaultCarSet()
+                                    },
+                                    enabled = !state.statistics.car.isDefault,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        if (state.statistics.car.isDefault)
+                                            stringResource(R.string.default_car)
+                                        else
+                                            stringResource(R.string.set_as_default)
+                                    )
+                                }
+
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = onViewAttachments,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AttachFile,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.view_attachments))
+                                }
                             }
                         }
 

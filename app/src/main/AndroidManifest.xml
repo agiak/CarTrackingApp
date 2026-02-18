@@ -8,6 +8,26 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Storage permissions for downloading files -->
+    <!-- For Android 9 and below -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <!-- Android 10+ uses scoped storage, no permission needed -->
+
+    <!-- Queries for Android 11+ package visibility -->
+    <queries>
+        <!-- Query for PDF viewers -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+        <!-- Query for image viewers -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+
     <application
         android:name=".CarTrackingApplication"
         android:allowBackup="false"
@@ -102,6 +122,18 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/expense_widget_info" />
         </receiver>
+
+        <!-- FileProvider for secure file sharing -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
+

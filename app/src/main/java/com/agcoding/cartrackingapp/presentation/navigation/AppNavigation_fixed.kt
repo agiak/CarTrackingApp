@@ -38,7 +38,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.attachments.AttachmentsScreen
+import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
+import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
 import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScreen
@@ -63,11 +66,9 @@ import com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorage
 import com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
+import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
-import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
-import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
-import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
@@ -81,6 +82,9 @@ sealed class Screen(val route: String) {
     object CarList : Screen("car_list")
     object CarDetails : Screen("car_details/{carId}") {
         fun createRoute(carId: Long) = "car_details/$carId"
+    }
+    object Attachments : Screen("attachments/{carId}") {
+        fun createRoute(carId: Long) = "attachments/$carId"
     }
     object EditCar : Screen("edit_car/{carId}") {
         fun createRoute(carId: Long) = "edit_car/$carId"
@@ -450,7 +454,7 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
-                val context = LocalContext.current
+                val defaultCarUpdatedMsg = stringResource(R.string.default_car_updated)
                 CarDetailsScreen(
                     onNavigateBack = {
                         navController.popBackStack()
@@ -479,10 +483,28 @@ fun AppNavigation(
                     onDefaultCarSet = {
                         scope.launch {
                             snackbarHostState.showSnackbar(
-                                message = context.getString(R.string.default_car_updated),
+                                message = defaultCarUpdatedMsg,
                                 duration = androidx.compose.material3.SnackbarDuration.Short
                             )
                         }
+                    },
+                    onViewAttachments = {
+                        navController.navigate(Screen.Attachments.createRoute(carId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.Attachments.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
+                AttachmentsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

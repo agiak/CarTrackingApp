@@ -29,6 +29,46 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
   - Service history
 - Edit car details with incomplete information banner
 - View per-vehicle statistics and history
+- **Set default car** for quick access and widget shortcuts
+
+### 📎 Attachments & Document Management
+- **File Attachments Per Vehicle**:
+  - Attach important documents to each car (PDFs, images)
+  - Supported formats: PDF, JPG, JPEG, PNG
+  - Maximum file size: 10 MB per attachment
+  - Files stored securely in app private storage
+  - Automatic file organization by car
+
+- **Attachment Management**:
+  - **View Attachments**: Dedicated full-screen attachments browser
+  - **Add Files**: Pick documents from device storage via FAB or button
+  - **Open Files**: Tap to open in external apps (PDF readers, photo viewers)
+  - **Rename Files**: Change display names without modifying original files
+    - Pre-filled with current name
+    - Real-time validation
+    - Instant UI updates
+  - **Download to Device**: Save files to Downloads folder
+    - Android 10+ uses scoped storage (no permissions needed)
+    - Android 9- requests storage permission only when needed
+    - Automatic duplicate name handling (file.pdf → file (1).pdf)
+    - Success/failure notifications
+  - **Delete Files**: Remove attachments with confirmation dialog
+  - **File Count Display**: Shows number of attached files in dedicated screen
+
+- **Smart Features**:
+  - **Platform-Aware Downloads**: Automatic handling based on Android version
+  - **FileProvider Security**: Secure file sharing without exposing internal paths
+  - **MIME Type Detection**: Automatic file type recognition
+  - **File Size Formatting**: Human-readable file sizes (KB, MB)
+  - **Date Tracking**: Shows when each file was added
+  - **Empty State Guidance**: Helpful prompts when no files attached
+
+- **Bilingual Support**: Full Greek and English localization
+- **Attachment Actions Menu**:
+  - 📂 Open (in external app)
+  - ✏️ Rename (change display name)
+  - 📥 Download (save to Downloads)
+  - 🗑️ Delete (with confirmation)
 
 ### ⛽ Fuel Refill Tracking
 - Log fuel refills with detailed information:
@@ -339,7 +379,11 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
 - **Home Screen Widgets**: Glance-based widgets for quick entry
 - **Device Detection**: Smart tablet vs phone detection using smallest width
 - **Location Services**: GPS integration for refill locations
-- **File Handling**: Apache POI for Excel/CSV processing
+- **File Handling**: 
+  - Apache POI for Excel/CSV processing
+  - FileProvider for secure attachment sharing
+  - Platform-aware downloads (MediaStore API on Android 10+)
+  - Automatic MIME type detection
 - **Serialization**: Kotlinx Serialization for JSON export/import
 - **Theming System**: Advanced color palette management with dynamic backgrounds
 - **Responsive Design**: Automatic layout adaptation for different screen sizes
@@ -355,9 +399,11 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
   - Validation (RefillValidator, ExpenseValidator)
 - **Data Layer**: 
   - Local database with Room
-  - DAOs for Cars, Refills, Expenses, Reminders
+  - DAOs for Cars, Refills, Expenses, Reminders, Attachments
   - Foreign key relationships with cascade delete
   - Data mappers between entities and domain models
+  - Secure file storage in app-private directories
+  - Attachment metadata stored in database with file references
   - Preferences management with DataStore
 - **Presentation Layer**: 
   - ViewModels with StateFlow
@@ -377,12 +423,15 @@ Car Tracking App is a feature-rich mobile application designed to help car owner
   - Data validation (RefillValidator, ExpenseValidator)
   - Import/export managers (JSON, Excel/CSV)
   - AI parsing with OpenAI integration
+  - FileOpener for secure file viewing via FileProvider
+  - FileDownloader for platform-aware downloads (MediaStore API on Android 10+, legacy on Android 9-)
 
 ### Data Models
 - **Car**: Vehicle information with statistics
 - **FuelRefill**: Refill details with consumption calculations
 - **Expense**: General expenses with optional reminder settings
 - **ExpenseReminder**: Service reminder configuration
+- **CarAttachment**: File attachments with metadata (name, type, size, path)
 - **Statistics**: Aggregated data for charts and analytics
 - **Transaction**: Unified model for refills and expenses display
 
@@ -438,15 +487,19 @@ The app includes comprehensive validation and edge case handling:
   - Microphone (for voice entry)
   - Location (for GPS-tagged refills)
   - Notifications (for service reminders)
+  - Storage (WRITE_EXTERNAL_STORAGE, only on Android 9 and below for downloads)
 - **Graceful Degradation**:
   - Features hidden when permissions denied
   - Voice button only shows with microphone permission
   - GPS unavailable fallback (non-blocking)
   - Notification permission state tracking
+  - Storage permission requested only when downloading attachments (Android 9-)
+  - Android 10+ uses scoped storage (no permission needed)
 - **Permission Recovery**:
   - Settings link for manual permission grant
   - Re-check on app resume
   - Clear user messaging
+  - Permission-specific guidance per feature
 
 ### Edge Case Handling
 - **Single Car Optimization**: Car selector hidden when only one car exists

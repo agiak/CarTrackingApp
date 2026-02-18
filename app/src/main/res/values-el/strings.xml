@@ -1014,4 +1014,32 @@
     <string name="forecast_tip_general_2">Διατηρήστε τα ελαστικά σωστά φουσκωμένα και περιστρέφετέ τα τακτικά</string>
     <string name="forecast_tip_general_3">Προγραμματίστε τακτική συντήρηση οχήματος για βέλτιστη απόδοση</string>
 
+    <!-- Attachments -->
+    <string name="attachments">Συνημμένα</string>
+    <string name="attach_file">Προσάρτηση Αρχείου</string>
+    <string name="no_attachments">Δεν έχουν προστεθεί συνημμένα ακόμα.</string>
+    <string name="attached_files_count">%1$d αρχείο/α συνημμένο/α</string>
+    <string name="view_attachments">Προβολή Συνημμένων</string>
+    <string name="more_options">Περισσότερες επιλογές</string>
+    <string name="open">Άνοιγμα</string>
+    <string name="rename">Μετονομασία</string>
+    <string name="download">Λήψη</string>
+    <string name="download_success">Το αρχείο αποθηκεύτηκε στις Λήψεις</string>
+    <string name="download_failed">Αποτυχία λήψης αρχείου</string>
+    <string name="storage_permission_required">Απαιτείται άδεια αποθήκευσης για λήψη αρχείων</string>
+    <string name="rename_attachment">Μετονομασία Συνημμένου</string>
+    <string name="new_file_name">Νέο όνομα αρχείου</string>
+    <string name="file_name_cannot_be_empty">Το όνομα αρχείου δεν μπορεί να είναι κενό</string>
+    <string name="delete_attachment">Διαγραφή Συνημμένου</string>
+    <string name="delete_attachment_confirmation">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το συνημμένο;</string>
+    <string name="delete_attachment_confirm">Είστε βέβαιοι ότι θέλετε να διαγράψετε το \"%1$s\";</string>
+    <string name="attachment_deleted">Το συνημμένο διαγράφηκε</string>
+    <string name="failed_to_open_attachment">Αποτυχία ανοίγματος συνημμένου. Δεν βρέθηκε συμβατή εφαρμογή.</string>
+    <string name="no_app_to_open_file">Δεν βρέθηκε εφαρμογή για άνοιγμα αυτού του αρχείου</string>
+    <string name="file_not_found">Το αρχείο δεν βρέθηκε</string>
+    <string name="unsupported_file_type">Μη υποστηριζόμενος τύπος αρχείου. Επιτρέπονται μόνο PDF και εικόνες.</string>
+    <string name="file_too_large">Το αρχείο είναι πολύ μεγάλο. Το μέγιστο μέγεθος είναι %1$dMB.</string>
+    <string name="invalid_file">Μη έγκυρο αρχείο.</string>
+    <string name="failed_to_add_attachment">Αποτυχία προσθήκης συνημμένου.</string>
+
 </resources>
