@@ -17,11 +17,13 @@ import javax.inject.Inject
 class GetAllAnomaliesUseCase @Inject constructor(
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository,
+    private val tripRepository: com.agcoding.cartrackingapp.domain.repository.TripRepository,
     private val detectFuelAnomaliesUseCase: DetectFuelAnomaliesUseCase,
     private val detectConsumptionAnomaliesUseCase: DetectConsumptionAnomaliesUseCase,
     private val detectMaintenanceAnomaliesUseCase: DetectMaintenanceAnomaliesUseCase,
     private val detectMonthlySpendingAnomaliesUseCase: DetectMonthlySpendingAnomaliesUseCase,
-    private val detectCostPerKmAnomaliesUseCase: DetectCostPerKmAnomaliesUseCase
+    private val detectCostPerKmAnomaliesUseCase: DetectCostPerKmAnomaliesUseCase,
+    private val detectMissingTripRefillsUseCase: DetectMissingTripRefillsUseCase
 ) {
 
     /**
@@ -35,6 +37,7 @@ class GetAllAnomaliesUseCase @Inject constructor(
         // Fetch all refills and expenses
         val allRefills = refillRepository.getAllRefills().first()
         val allExpenses = expenseRepository.getAllExpenses().first()
+        val allTrips = tripRepository.getAllTrips().first()
 
         // Filter by car if specified
         val refills = if (carId != null) {
@@ -47,6 +50,12 @@ class GetAllAnomaliesUseCase @Inject constructor(
             allExpenses.filter { it.carId == carId }
         } else {
             allExpenses
+        }
+
+        val trips = if (carId != null) {
+            allTrips.filter { it.carId == carId }
+        } else {
+            allTrips
         }
 
         // Run all detectors
@@ -66,6 +75,9 @@ class GetAllAnomaliesUseCase @Inject constructor(
 
         // 5. Detect cost per km deviations
         anomalies.addAll(detectCostPerKmAnomaliesUseCase(refills, expenses))
+
+        // 6. Detect missing trip refills
+        anomalies.addAll(detectMissingTripRefillsUseCase(allRefills, trips))
 
         // Sort by detection date (newest first) and severity
         return anomalies

@@ -38,7 +38,12 @@ data class GlobalStatistics(
     val serviceExpenseCount: Int = 0,
     val otherExpenseCount: Int = 0,
     val totalExpenseCount: Int = 0,
-    val costPerKilometer: Double = 0.0
+    val costPerKilometer: Double = 0.0,
+    // Trip-related fields
+    val totalTrips: Int = 0,
+    val tripDistance: Double = 0.0,
+    val tripAverageConsumption: Double = 0.0,
+    val tripRefillCount: Int = 0
 )
 
 data class MonthlyTrend(

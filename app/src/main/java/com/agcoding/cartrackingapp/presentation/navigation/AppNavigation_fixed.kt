@@ -42,7 +42,6 @@ import com.agcoding.cartrackingapp.presentation.attachments.AttachmentsScreen
 import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
-import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
 import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScreen
 import com.agcoding.cartrackingapp.presentation.editcar.EditCarScreen
@@ -136,6 +135,17 @@ sealed class Screen(val route: String) {
     object Notifications : Screen("notifications")
     object EditReminder : Screen("edit_reminder/{expenseId}") {
         fun createRoute(expenseId: Long) = "edit_reminder/$expenseId"
+    }
+
+    // Trip Screens
+    object TripsList : Screen("trips_list/{carId}") {
+        fun createRoute(carId: Long) = "trips_list/$carId"
+    }
+    object CreateTrip : Screen("create_trip/{carId}") {
+        fun createRoute(carId: Long) = "create_trip/$carId"
+    }
+    object TripDetails : Screen("trip_details/{tripId}") {
+        fun createRoute(tripId: Long) = "trip_details/$tripId"
     }
 
     // Settings Group Screens
@@ -480,6 +490,15 @@ fun AppNavigation(
                     onViewAllExpensesClick = {
                         navController.navigate(Screen.ExpenseHistory.createRoute(carId))
                     },
+                    onViewAllTripsClick = {
+                        navController.navigate(Screen.TripsList.createRoute(carId))
+                    },
+                    onTripClick = { tripId ->
+                        navController.navigate(Screen.TripDetails.createRoute(tripId))
+                    },
+                    onCreateTripClick = {
+                        navController.navigate(Screen.CreateTrip.createRoute(carId))
+                    },
                     onDefaultCarSet = {
                         scope.launch {
                             snackbarHostState.showSnackbar(
@@ -538,6 +557,9 @@ fun AppNavigation(
                     },
                     onRefillClick = { refillId ->
                         navController.navigate(Screen.RefillDetails.createRoute(refillId))
+                    },
+                    onCreateTripClick = {
+                        navController.navigate(Screen.CreateTrip.createRoute(carId))
                     }
                 )
             }
@@ -841,6 +863,61 @@ fun AppNavigation(
                     },
                     onNavigateToExpenseDetails = { expenseId ->
                         navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
+                    }
+                )
+            }
+
+            // Trip Screens
+            animatedComposable(
+                route = Screen.TripsList.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
+                com.agcoding.cartrackingapp.presentation.tripslist.TripsListScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onTripClick = { tripId ->
+                        navController.navigate(Screen.TripDetails.createRoute(tripId))
+                    },
+                    onCreateTripClick = {
+                        navController.navigate(Screen.CreateTrip.createRoute(carId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CreateTrip.route,
+                animationConfig = NavigationAnimations.VerticalSlide,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val carId = backStackEntry.arguments?.getLong("carId") ?: 0L
+                com.agcoding.cartrackingapp.presentation.createtrip.CreateTripScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.TripDetails.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument("tripId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val tripId = backStackEntry.arguments?.getLong("tripId") ?: 0L
+                com.agcoding.cartrackingapp.presentation.tripdetails.TripDetailsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onRefillClick = { refillId ->
+                        navController.navigate(Screen.RefillDetails.createRoute(refillId))
                     }
                 )
             }

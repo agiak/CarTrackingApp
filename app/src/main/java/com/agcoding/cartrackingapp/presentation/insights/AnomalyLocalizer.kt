@@ -27,6 +27,7 @@ class AnomalyLocalizer @Inject constructor(
             AnomalyType.MAINTENANCE_OUTLIER -> context.getString(R.string.anomaly_title_maintenance_outlier)
             AnomalyType.MONTHLY_SPENDING_INCREASE -> context.getString(R.string.anomaly_title_monthly_spending)
             AnomalyType.COST_PER_KM_DEVIATION -> context.getString(R.string.anomaly_title_cost_per_km)
+            AnomalyType.MISSING_TRIP_REFILL -> anomaly.title // Use the dynamically generated title
         }
     }
 
@@ -212,6 +213,11 @@ class AnomalyLocalizer @Inject constructor(
                         distance
                     )
                 }
+            }
+
+            AnomalyType.MISSING_TRIP_REFILL -> {
+                // Use the dynamically generated description
+                anomaly.description
             }
         }
     }

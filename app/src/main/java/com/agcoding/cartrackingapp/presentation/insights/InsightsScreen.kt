@@ -1,12 +1,29 @@
 package com.agcoding.cartrackingapp.presentation.insights
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -96,7 +113,10 @@ fun InsightsScreen(
                         selectedFilter = selectedFilter,
                         onFilterSelected = { viewModel.filterByType(it) },
                         onClearFilter = { viewModel.clearFilter() },
-                        onAnomalyClick = { viewModel.onAnomalyClick(it) }
+                        onAnomalyClick = { viewModel.onAnomalyClick(it) },
+                        onAddToTrip = { refillId, tripId ->
+                            viewModel.addRefillToTrip(refillId, tripId)
+                        }
                     )
                 }
 
@@ -184,7 +204,8 @@ private fun SuccessState(
     selectedFilter: AnomalyType?,
     onFilterSelected: (AnomalyType?) -> Unit,
     onClearFilter: () -> Unit,
-    onAnomalyClick: (Anomaly) -> Unit
+    onAnomalyClick: (Anomaly) -> Unit,
+    onAddToTrip: (Long, Long) -> Unit = { _, _ -> }
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -226,6 +247,7 @@ private fun SuccessState(
             AnomalyCard(
                 anomaly = anomaly,
                 onClick = { onAnomalyClick(anomaly) },
+                onAddToTrip = onAddToTrip,
                 modifier = Modifier.fillMaxWidth()
             )
         }

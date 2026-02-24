@@ -258,6 +258,43 @@ private fun SummarySection(
                 )
             }
         }
+
+        // Trips Statistics Section
+        if (statistics.totalTrips > 0) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Trips Overview",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                TripStatsCard(
+                    title = "Total Trips",
+                    value = "${statistics.totalTrips}",
+                    subtitle = "${statistics.tripRefillCount} refills",
+                    modifier = Modifier.weight(1f)
+                )
+                TripStatsCard(
+                    title = "Trip Distance",
+                    value = "${String.format("%.0f", statistics.tripDistance)} km",
+                    subtitle = "${String.format("%.1f%%", if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0)} of total",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            if (statistics.tripAverageConsumption > 0) {
+                TripStatsCard(
+                    title = "Trip Avg Consumption",
+                    value = "${String.format("%.2f", statistics.tripAverageConsumption)} L/100km",
+                    subtitle = "Average consumption during trips",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
     }
 }
 
@@ -368,6 +405,43 @@ private fun ExpenseCard(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = pluralStringResource(R.plurals.expense_lowercase_count, count, count),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun TripStatsCard(
+    title: String,
+    value: String,
+    subtitle: String,
+    modifier: Modifier = Modifier
+) {
+    StyledCard(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

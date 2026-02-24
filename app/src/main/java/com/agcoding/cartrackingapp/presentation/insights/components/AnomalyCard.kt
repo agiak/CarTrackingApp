@@ -4,16 +4,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -45,12 +51,14 @@ import java.util.Locale
  *
  * @param anomaly The anomaly to display
  * @param onClick Callback when card is clicked (only triggered if anomaly has related transaction)
+ * @param onAddToTrip Callback for adding refill to trip (for MISSING_TRIP_REFILL anomalies)
  * @param modifier Modifier for the card
  */
 @Composable
 fun AnomalyCard(
     anomaly: Anomaly,
     onClick: () -> Unit,
+    onAddToTrip: ((refillId: Long, tripId: Long) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isClickable = anomaly.relatedTransactionId != null
@@ -126,6 +134,33 @@ fun AnomalyCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                // Add to Trip button for MISSING_TRIP_REFILL anomalies
+                if (anomaly.type == AnomalyType.MISSING_TRIP_REFILL &&
+                    anomaly.relatedTransactionId != null &&
+                    anomaly.suggestedTripId != null &&
+                    onAddToTrip != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            onAddToTrip(anomaly.relatedTransactionId, anomaly.suggestedTripId)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Add to Trip",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
             }
 
             // Arrow indicator for clickable cards
@@ -167,6 +202,7 @@ private fun getAnomalyIcon(type: AnomalyType): ImageVector {
         AnomalyType.MAINTENANCE_OUTLIER -> Icons.Default.Build
         AnomalyType.MONTHLY_SPENDING_INCREASE -> Icons.Default.AccountBalanceWallet
         AnomalyType.COST_PER_KM_DEVIATION -> Icons.Default.Payments
+        AnomalyType.MISSING_TRIP_REFILL -> Icons.Default.Flag
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.CarAttachment
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.domain.usecase.attachment.AddCarAttachmentUseCase
 import com.agcoding.cartrackingapp.domain.usecase.attachment.DeleteCarAttachmentUseCase
 import com.agcoding.cartrackingapp.domain.usecase.attachment.GetAttachmentFileUseCase
@@ -14,6 +15,7 @@ import com.agcoding.cartrackingapp.domain.usecase.attachment.RenameCarAttachment
 import com.agcoding.cartrackingapp.domain.usecase.car.DeleteCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
+import com.agcoding.cartrackingapp.domain.usecase.trip.GetRecentTripsByCarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +36,8 @@ class CarDetailsViewModel @Inject constructor(
     private val deleteCarAttachmentUseCase: DeleteCarAttachmentUseCase,
     private val renameCarAttachmentUseCase: RenameCarAttachmentUseCase,
     private val getAttachmentFileUseCase: GetAttachmentFileUseCase,
+    private val getRecentTripsByCarUseCase: GetRecentTripsByCarUseCase,
+    private val tripRepository: TripRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -61,9 +65,21 @@ class CarDetailsViewModel @Inject constructor(
     private val _attachmentError = MutableStateFlow<String?>(null)
     val attachmentError: StateFlow<String?> = _attachmentError.asStateFlow()
 
+    // Trips state
+    private val _tripCount = MutableStateFlow(0)
+    val tripCount: StateFlow<Int> = _tripCount.asStateFlow()
+
+    private val _recentTrips = MutableStateFlow<List<com.agcoding.cartrackingapp.domain.model.Trip>>(emptyList())
+    val recentTrips: StateFlow<List<com.agcoding.cartrackingapp.domain.model.Trip>> = _recentTrips.asStateFlow()
+
+    // Map of refill ID to trip name for displaying trip badges
+    private val _refillTripNames = MutableStateFlow<Map<Long, String>>(emptyMap())
+    val refillTripNames: StateFlow<Map<Long, String>> = _refillTripNames.asStateFlow()
+
     init {
         loadCarDetails()
         loadAttachments()
+        loadTrips()
     }
 
     private fun loadCarDetails() {
@@ -166,6 +182,41 @@ class CarDetailsViewModel @Inject constructor(
                 }
                 .collect { attachmentList ->
                     _attachments.value = attachmentList
+                }
+        }
+    }
+
+    private fun loadTrips() {
+        viewModelScope.launch {
+            // Load trip count
+            tripRepository.getTripCountByCarId(carId)
+                .catch { /* ignore errors */ }
+                .collect { count ->
+                    _tripCount.value = count
+                }
+        }
+
+        viewModelScope.launch {
+            // Load recent trips (for display)
+            getRecentTripsByCarUseCase(carId, limit = 5)
+                .catch { /* ignore errors */ }
+                .collect { trips ->
+                    _recentTrips.value = trips
+                }
+        }
+
+        viewModelScope.launch {
+            // Load all trips to build refill -> trip name map
+            tripRepository.getTripsByCarId(carId)
+                .catch { /* ignore errors */ }
+                .collect { allTrips ->
+                    val tripNamesMap = mutableMapOf<Long, String>()
+                    allTrips.forEach { trip ->
+                        trip.refills.forEach { refill ->
+                            tripNamesMap[refill.id] = trip.name
+                        }
+                    }
+                    _refillTripNames.value = tripNamesMap
                 }
         }
     }

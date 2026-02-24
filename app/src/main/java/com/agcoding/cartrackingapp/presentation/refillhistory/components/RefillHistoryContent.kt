@@ -35,6 +35,10 @@ fun RefillHistoryContent(
     refills: List<FuelRefill>,
     selectedSort: RefillSortOption,
     onRefillClick: (Long) -> Unit,
+    onRefillLongClick: (Long) -> Unit = {},
+    isSelectionMode: Boolean = false,
+    selectedRefillIds: Set<Long> = emptySet(),
+    refillTripNames: Map<Long, String> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
@@ -105,7 +109,11 @@ fun RefillHistoryContent(
                     RefillItemCard(
                         refill = refill,
                         carName = null,
-                        onClick = { onRefillClick(refill.id) }
+                        onClick = { onRefillClick(refill.id) },
+                        onLongClick = { onRefillLongClick(refill.id) },
+                        isSelectionMode = isSelectionMode,
+                        isSelected = refill.id in selectedRefillIds,
+                        tripName = refillTripNames[refill.id]
                     )
                 }
             }
@@ -145,7 +153,11 @@ fun RefillHistoryContent(
                 RefillItemCard(
                     refill = refill,
                     carName = null,
-                    onClick = { onRefillClick(refill.id) }
+                    onClick = { onRefillClick(refill.id) },
+                    onLongClick = { onRefillLongClick(refill.id) },
+                    isSelectionMode = isSelectionMode,
+                    isSelected = refill.id in selectedRefillIds,
+                    tripName = refillTripNames[refill.id]
                 )
             }
         }

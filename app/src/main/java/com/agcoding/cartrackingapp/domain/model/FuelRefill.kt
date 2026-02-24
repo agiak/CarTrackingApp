@@ -11,6 +11,7 @@ data class FuelRefill(
     val pricePerLiter: Double,
     val location: Location? = null,
     val timestamp: Long = System.currentTimeMillis(),
-    val notes: String? = null
+    val notes: String? = null,
+    val tripId: Long? = null
 )
 

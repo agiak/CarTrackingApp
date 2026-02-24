@@ -13,9 +13,15 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["carId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = TripEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["tripId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index("carId"), Index("timestamp")]
+    indices = [Index("carId"), Index("timestamp"), Index("tripId")]
 )
 data class FuelRefillEntity(
     @PrimaryKey(autoGenerate = true)
@@ -30,6 +36,7 @@ data class FuelRefillEntity(
     val latitude: Double?,
     val longitude: Double?,
     val timestamp: Long,
-    val notes: String? = null
+    val notes: String? = null,
+    val tripId: Long? = null
 )
 

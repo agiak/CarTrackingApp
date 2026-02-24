@@ -35,7 +35,8 @@ import javax.inject.Inject
 class InsightsViewModel @Inject constructor(
     private val getAllAnomaliesUseCase: GetAllAnomaliesUseCase,
     private val refillRepository: RefillRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val addRefillsToTripUseCase: com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<InsightsUiState>(InsightsUiState.Loading)
@@ -146,6 +147,10 @@ class InsightsViewModel @Inject constructor(
                 AnomalyType.MAINTENANCE_OUTLIER -> {
                     NavigationEvent.NavigateToExpenseDetails(transactionId)
                 }
+                AnomalyType.MISSING_TRIP_REFILL -> {
+                    // For missing trip refills, navigate to refill details
+                    NavigationEvent.NavigateToRefillDetails(transactionId)
+                }
                 // Monthly and cost/km anomalies may not have a specific transaction
                 AnomalyType.MONTHLY_SPENDING_INCREASE,
                 AnomalyType.COST_PER_KM_DEVIATION -> {
@@ -186,6 +191,21 @@ class InsightsViewModel @Inject constructor(
      */
     fun refresh(carId: Long? = null) {
         loadAnomalies(carId)
+    }
+
+    /**
+     * Add a refill to a trip (for MISSING_TRIP_REFILL anomalies).
+     * This will trigger automatic refresh via transaction observation.
+     */
+    fun addRefillToTrip(refillId: Long, tripId: Long) {
+        viewModelScope.launch {
+            addRefillsToTripUseCase(tripId, listOf(refillId)).onSuccess {
+                // Refill added successfully
+                // The observeTransactionChanges() will automatically trigger recomputation
+            }.onFailure {
+                // Handle error if needed - for now we'll let the automatic refresh handle it
+            }
+        }
     }
 
     private fun applyFilter(anomalies: List<Anomaly>): List<Anomaly> {

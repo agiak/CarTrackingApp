@@ -926,6 +926,7 @@
     <string name="anomaly_type_maintenance">Συντήρηση</string>
     <string name="anomaly_type_spending">Δαπάνες</string>
     <string name="anomaly_type_cost_per_km">Κόστος/χλμ</string>
+    <string name="anomaly_type_missing_trip_refill">Ανεφοδιασμοί Ταξιδιού που Λείπουν</string>
 
     <!-- Severity Levels -->
     <string name="severity_low">ΧΑΜΗΛΗ</string>

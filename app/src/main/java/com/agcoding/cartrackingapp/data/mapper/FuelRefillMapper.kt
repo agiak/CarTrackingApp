@@ -18,7 +18,8 @@ fun FuelRefillEntity.toDomain(): FuelRefill {
             Location(latitude, longitude)
         } else null,
         timestamp = timestamp,
-        notes = notes
+        notes = notes,
+        tripId = tripId
     )
 }
 
@@ -35,7 +36,8 @@ fun FuelRefill.toEntity(): FuelRefillEntity {
         latitude = location?.latitude,
         longitude = location?.longitude,
         timestamp = timestamp,
-        notes = notes
+        notes = notes,
+        tripId = tripId
     )
 }
 

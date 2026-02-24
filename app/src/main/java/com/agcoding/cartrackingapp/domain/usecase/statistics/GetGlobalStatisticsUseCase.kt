@@ -15,14 +15,16 @@ import javax.inject.Inject
 class GetGlobalStatisticsUseCase @Inject constructor(
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
-    private val expenseRepository: com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+    private val expenseRepository: com.agcoding.cartrackingapp.domain.repository.ExpenseRepository,
+    private val tripRepository: com.agcoding.cartrackingapp.domain.repository.TripRepository
 ) {
     operator fun invoke(): Flow<GlobalStatistics> {
         return combine(
             carRepository.getAllCars(),
             refillRepository.getAllRefills(),
-            expenseRepository.getAllExpenses()
-        ) { cars, refills, expenses ->
+            expenseRepository.getAllExpenses(),
+            tripRepository.getAllTrips()
+        ) { cars, refills, expenses, allTrips ->
             val refillsCost = refills.sumOf { it.amountPaid }
             val expensesCost = expenses.sumOf { it.amount }
             val totalCost = refillsCost + expensesCost
@@ -34,6 +36,19 @@ class GetGlobalStatisticsUseCase @Inject constructor(
             } else 0.0
             val averagePricePerLiter = if (totalLiters > 0) {
                 refillsCost / totalLiters
+            } else 0.0
+
+            // Calculate trip statistics
+            val totalTrips = allTrips.size
+            val tripRefillCount = allTrips.sumOf { it.refills.size }
+            val tripDistance = allTrips.sumOf { trip ->
+                trip.refills.sumOf { it.tripDistance }
+            }
+            val tripLiters = allTrips.sumOf { trip ->
+                trip.refills.sumOf { it.litersAdded }
+            }
+            val tripAverageConsumption = if (tripDistance > 0) {
+                (tripLiters / tripDistance) * 100.0
             } else 0.0
 
             // Expense breakdown by category
@@ -110,7 +125,11 @@ class GetGlobalStatisticsUseCase @Inject constructor(
                 serviceExpenseCount = serviceExpenses.size,
                 otherExpenseCount = otherExpenses.size,
                 totalExpenseCount = expenses.size,
-                costPerKilometer = costPerKm
+                costPerKilometer = costPerKm,
+                totalTrips = totalTrips,
+                tripDistance = tripDistance,
+                tripAverageConsumption = tripAverageConsumption,
+                tripRefillCount = tripRefillCount
             )
         }
     }

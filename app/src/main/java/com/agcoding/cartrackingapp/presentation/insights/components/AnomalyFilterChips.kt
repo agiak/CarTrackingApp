@@ -83,6 +83,7 @@ private fun getAnomalyTypeLabel(type: AnomalyType): String {
         AnomalyType.MAINTENANCE_OUTLIER -> stringResource(R.string.anomaly_type_maintenance)
         AnomalyType.MONTHLY_SPENDING_INCREASE -> stringResource(R.string.anomaly_type_spending)
         AnomalyType.COST_PER_KM_DEVIATION -> stringResource(R.string.anomaly_type_cost_per_km)
+        AnomalyType.MISSING_TRIP_REFILL -> stringResource(R.string.anomaly_type_missing_trip_refill)
     }
 }
 

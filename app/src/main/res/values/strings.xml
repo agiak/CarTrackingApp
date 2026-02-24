@@ -924,6 +924,7 @@
     <string name="anomaly_type_maintenance">Maintenance</string>
     <string name="anomaly_type_spending">Spending</string>
     <string name="anomaly_type_cost_per_km">Cost/km</string>
+    <string name="anomaly_type_missing_trip_refill">Missing Trip Refills</string>
 
     <!-- Severity Levels -->
     <string name="severity_low">LOW</string>

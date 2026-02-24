@@ -16,7 +16,8 @@ data class Anomaly(
     val detectedAt: LocalDate,
     val relatedTransactionId: Long? = null,
     val value: Double? = null, // The actual value that triggered the anomaly
-    val threshold: Double? = null // The threshold that was exceeded
+    val threshold: Double? = null, // The threshold that was exceeded
+    val suggestedTripId: Long? = null // For MISSING_TRIP_REFILL: the trip to add the refill to
 )
 
 enum class AnomalyType {
@@ -24,7 +25,8 @@ enum class AnomalyType {
     CONSUMPTION_SPIKE,
     MAINTENANCE_OUTLIER,
     MONTHLY_SPENDING_INCREASE,
-    COST_PER_KM_DEVIATION
+    COST_PER_KM_DEVIATION,
+    MISSING_TRIP_REFILL // New: Suggests adding an unassigned refill to a trip
 }
 
 enum class AnomalySeverity {
