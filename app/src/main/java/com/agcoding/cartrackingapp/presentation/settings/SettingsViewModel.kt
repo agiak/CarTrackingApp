@@ -105,11 +105,11 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
 
-    // Sample data configuration
+    // Sample data configuration - exactly 3 cars
     private val sampleCars = listOf(
-        SampleCarConfig("Toyota Corolla", "ABC-1234", 75000.0),
-        SampleCarConfig("Honda Civic", "XYZ-5678", 52000.0),
-        SampleCarConfig("Volkswagen Golf", "VWG-9012", 88000.0)
+        SampleCarConfig("Toyota Corolla", "ABC-1234", 0.0), // Will be calculated based on 7 years
+        SampleCarConfig("Honda Civic", "XYZ-5678", 0.0),
+        SampleCarConfig("Volkswagen Golf", "VWG-9012", 0.0)
     )
 
     private val expenseCategories = listOf(
@@ -505,18 +505,28 @@ class SettingsViewModel @Inject constructor(
     private suspend fun generateAllSampleData() {
         val random = Random(System.currentTimeMillis())
         val now = System.currentTimeMillis()
-        val twoYearsAgo = now - (24L * 30 * 24 * 60 * 60 * 1000) // 2 years ago
+        val sevenYearsAgo = now - (7L * 365 * 24 * 60 * 60 * 1000) // 7 years ago
 
         for (carConfig in sampleCars) {
-            // Generate random total distance between 20,000 and 30,000 km
-            val totalDistance = random.nextInt(20000, 30001).toDouble()
-            val initialOdometer = carConfig.currentOdometer - totalDistance
+            // Generate random yearly mileage between 8,000 and 25,000 km per year
+            // Total distance over 7 years
+            var totalDistance = 0.0
+            val yearlyMileages = mutableListOf<Double>()
+
+            for (year in 0 until 7) {
+                val yearlyMileage = random.nextInt(8000, 25001).toDouble()
+                yearlyMileages.add(yearlyMileage)
+                totalDistance += yearlyMileage
+            }
+
+            val currentOdometer = totalDistance
+            val initialOdometer = 0.0
 
             // Create car
             val car = Car(
                 name = carConfig.name,
                 licensePlate = carConfig.licensePlate,
-                currentOdometer = carConfig.currentOdometer,
+                currentOdometer = currentOdometer,
                 initialOdometer = initialOdometer
             )
             val carId = carRepository.insertCar(car)
@@ -526,17 +536,20 @@ class SettingsViewModel @Inject constructor(
                 carId = carId,
                 totalDistance = totalDistance,
                 initialOdometer = initialOdometer,
-                startTime = twoYearsAgo,
+                startTime = sevenYearsAgo,
                 endTime = now,
                 random = random
             )
 
-            // Generate expenses (5-8k per year = 10-16k total for 2 years)
+            // Generate expenses (300-10,000 per car over 7 years)
+            val numberOfExpenses = random.nextInt(300, 10001)
             generateExpensesForCar(
                 carId = carId,
-                startTime = twoYearsAgo,
+                startTime = sevenYearsAgo,
                 endTime = now,
-                random = random
+                random = random,
+                targetNumberOfExpenses = numberOfExpenses,
+                currentOdometer = currentOdometer.toInt()
             )
         }
     }
@@ -606,28 +619,21 @@ class SettingsViewModel @Inject constructor(
         carId: Long,
         startTime: Long,
         endTime: Long,
-        random: Random
+        random: Random,
+        targetNumberOfExpenses: Int,
+        currentOdometer: Int
     ) {
         val timeRange = endTime - startTime
         val now = System.currentTimeMillis()
 
-        // Target 5-8k per year = 10-16k total for 2 years
-        val targetTotalExpenses = random.nextDouble(10000.0, 16000.0)
-        var currentTotal = 0.0
         val usedCategories = mutableSetOf<String>()
         val generatedExpenses = mutableListOf<Expense>()
-
-        // Get current car odometer for mileage-based reminders
-        val car = carRepository.getCarById(carId).first()
-        val currentOdometer = car?.currentOdometer?.toInt() ?: 75000
 
         // Service categories that should have reminders
         val serviceCategories = listOf("Oil change", "Big service", "Small service", "Tire change", "Brakes")
 
-        // First, ensure every category is used at least once
+        // First, ensure every category is used at least once (15 categories)
         for ((category, costRange) in expenseCategories) {
-            if (currentTotal >= targetTotalExpenses) break
-
             val cost = random.nextDouble(costRange.start, costRange.endInclusive)
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
@@ -656,19 +662,19 @@ class SettingsViewModel @Inject constructor(
                 )
             )
 
-            currentTotal += cost
             usedCategories.add(category)
         }
 
-        // Continue adding expenses until we reach the target
-        while (currentTotal < targetTotalExpenses) {
+        // Continue adding expenses until we reach the target number
+        val remainingExpenses = targetNumberOfExpenses - expenseCategories.size
+        for (i in 0 until remainingExpenses) {
             // Pick a random expense category
             val (category, costRange) = expenseCategories[random.nextInt(expenseCategories.size)]
 
             // Random cost within the range
             val cost = random.nextDouble(costRange.start, costRange.endInclusive)
 
-            // Random timestamp within the time range
+            // Random timestamp within the time range, distributed evenly
             val expenseTime = startTime + random.nextLong(0, timeRange)
 
             // Occasionally add reminders to service categories
@@ -695,8 +701,6 @@ class SettingsViewModel @Inject constructor(
                     reminderMileage = reminderMileage
                 )
             )
-
-            currentTotal += cost
         }
 
         // Add a few guaranteed upcoming reminders for better testing
@@ -725,8 +729,6 @@ class SettingsViewModel @Inject constructor(
                     reminderMileage = currentOdometer + kmInFuture
                 )
             )
-
-            currentTotal += cost
         }
 
         // Add pre-expiry test cases (within notification thresholds)
@@ -765,8 +767,6 @@ class SettingsViewModel @Inject constructor(
                     preExpiryNotificationSent = false
                 )
             )
-
-            currentTotal += cost
         }
 
         // Sort by timestamp and insert

@@ -31,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
@@ -100,6 +102,8 @@ fun StatisticsContent(
             }
         }
     } else if (useSplitView) {
+        val distinctYears = statistics.monthlyTrends.map { it.year }.distinct().size
+
         // Split view for tablets and landscape
         Row(
             modifier = modifier
@@ -122,6 +126,13 @@ fun StatisticsContent(
                 )
 
                 summarySection()
+
+                // Analysis shortcuts – compact grid after summary
+                AnalysisButtonsGrid(
+                    onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
+                    onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
+                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null
+                )
             }
 
             // Right side: Details, Trends, and Insights (65%)
@@ -201,78 +212,6 @@ fun StatisticsContent(
                     }
                 }
 
-                // Yearly Comparison Button
-                item {
-                    OutlinedButton(
-                        onClick = onYearlyComparisonClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                            contentColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(stringResource(R.string.yearly_comparison_button))
-                    }
-                }
-
-                // Car Comparison Button (only show if 2+ cars)
-                if (statistics.perCarStatistics.size >= 2) {
-                    item {
-                        OutlinedButton(
-                            onClick = onCarComparisonClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.size(8.dp))
-                            Text(stringResource(R.string.car_comparison_button))
-                        }
-                    }
-                }
-
-                // Fuel Forecast Button (only show if forecasting enabled)
-                if (forecastingEnabled) {
-                    item {
-                        OutlinedButton(
-                            onClick = onFuelForecastClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                                contentColor = MaterialTheme.colorScheme.secondary
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                            )
-                        ) {
-                            Text(stringResource(R.string.view_fuel_forecast))
-                        }
-                    }
-                }
 
                 // Insights section
                 item {
@@ -289,6 +228,8 @@ fun StatisticsContent(
             }
         }
     } else {
+        val distinctYears = statistics.monthlyTrends.map { it.year }.distinct().size
+
         // Original single-column layout for portrait phones
         LazyColumn(
             modifier = modifier.fillMaxSize(),
@@ -306,6 +247,15 @@ fun StatisticsContent(
 
             item {
                 summarySection()
+            }
+
+            // Analysis shortcuts – compact grid after summary / expenses overview
+            item {
+                AnalysisButtonsGrid(
+                    onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
+                    onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
+                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null
+                )
             }
 
             // Per-Car Breakdown
@@ -377,78 +327,6 @@ fun StatisticsContent(
                 }
             }
 
-            // Yearly Comparison Button
-            item {
-                OutlinedButton(
-                    onClick = onYearlyComparisonClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                        contentColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(stringResource(R.string.yearly_comparison_button))
-                }
-            }
-
-            // Car Comparison Button (only show if 2+ cars)
-            if (statistics.perCarStatistics.size >= 2) {
-                item {
-                    OutlinedButton(
-                        onClick = onCarComparisonClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
-                            contentColor = MaterialTheme.colorScheme.tertiary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(stringResource(R.string.car_comparison_button))
-                    }
-                }
-            }
-
-            // Fuel Forecast Button (only show if forecasting enabled)
-            if (forecastingEnabled) {
-                item {
-                    OutlinedButton(
-                        onClick = onFuelForecastClick,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                            contentColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Text(stringResource(R.string.view_fuel_forecast))
-                    }
-                }
-            }
 
             // Insights section
             item {
@@ -461,6 +339,138 @@ fun StatisticsContent(
 
             item {
                 insightsSection()
+            }
+        }
+    }
+}
+
+// ============================================
+// Analysis Buttons Grid
+// ============================================
+
+/**
+ * Compact grid of analysis shortcut buttons.
+ * - Yearly Comparison + Car Comparison (if available) on the same row.
+ * - Fuel Forecast (if enabled) on the row below, full-width.
+ */
+@Composable
+private fun AnalysisButtonsGrid(
+    onYearlyComparisonClick: (() -> Unit)?,
+    onCarComparisonClick: (() -> Unit)?,
+    onFuelForecastClick: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    // Nothing to show – return early
+    if (onYearlyComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null) return
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // First row: Yearly Comparison + Car Comparison (each shown when available)
+        if (onYearlyComparisonClick != null || onCarComparisonClick != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Yearly Comparison
+                if (onYearlyComparisonClick != null) {
+                    OutlinedButton(
+                        onClick = onYearlyComparisonClick,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.size(4.dp))
+                        Text(
+                            text = stringResource(R.string.yearly_comparison_button),
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                // Car Comparison
+                if (onCarComparisonClick != null) {
+                    OutlinedButton(
+                        onClick = onCarComparisonClick,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.tertiary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.size(4.dp))
+                        Text(
+                            text = stringResource(R.string.car_comparison_button),
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+
+        // Fuel Forecast – full-width row below when enabled
+        if (onFuelForecastClick != null) {
+            OutlinedButton(
+                onClick = onFuelForecastClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.QueryStats,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = stringResource(R.string.view_fuel_forecast),
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }

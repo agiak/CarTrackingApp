@@ -1,11 +1,9 @@
 package com.agcoding.cartrackingapp.presentation.consumptiongraph
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
@@ -18,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
@@ -64,41 +60,21 @@ fun ConsumptionGraphScreen(
                 actions = {
                     // Car filter button
                     if (allCars.size > 1) {
-                        TextButton(
-                            onClick = { viewModel.showCarFilter() },
-                            modifier = Modifier.width(160.dp)
-                        ) {
+                        IconButton(onClick = { viewModel.showCarFilter() }) {
                             Icon(
                                 imageVector = Icons.Default.DirectionsCar,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            val selectedCars = allCars.filter { selectedCarIds.contains(it.id) }
-                            Text(
-                                text = when {
-                                    selectedCars.isEmpty() -> stringResource(R.string.all_cars)
-                                    selectedCars.size == 1 -> selectedCars[0].name
-                                    else -> selectedCars.joinToString(", ") { it.name }
-                                },
-                                fontSize = 14.sp
+                                contentDescription = stringResource(R.string.all_cars),
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
 
                     // Period selector button
-                    TextButton(
-                        onClick = { viewModel.showPeriodSelector() }
-                    ) {
+                    IconButton(onClick = { viewModel.showPeriodSelector() }) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(selectedPeriod.labelResId),
-                            fontSize = 14.sp
+                            contentDescription = stringResource(selectedPeriod.labelResId),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 },

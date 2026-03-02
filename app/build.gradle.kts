@@ -17,8 +17,8 @@ android {
         applicationId = "com.agcoding.cartrackingapp"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 9
-        versionName = "1.0.7"
+        versionCode = 10
+        versionName = "1.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -80,16 +80,24 @@ android {
             // Set custom APK file name
             output.outputFileName = "cariboo_${buildType}_${versionName}.apk"
         }
+    }
 
-        // Custom bundle naming (AAB files)
-        val bundleTask = tasks.findByName("bundle${name.replaceFirstChar { it.uppercase() }}")
-        bundleTask?.doLast {
-            val bundleDir = file("${layout.buildDirectory.get()}/outputs/bundle/${name}")
-            val defaultBundleFile = File(bundleDir, "app-${name}.aab")
-            val customBundleFile = File(bundleDir, "cariboo_${buildType.name}_${versionName}.aab")
+    // Custom bundle naming (AAB files)
+    tasks.whenTaskAdded {
+        if (name.startsWith("bundle")) {
+            doLast {
+                val variantName = name.removePrefix("bundle").replaceFirstChar { it.lowercase() }
+                val buildType = if (variantName.contains("release", ignoreCase = true)) "release" else "debug"
+                val versionName = defaultConfig.versionName
 
-            if (defaultBundleFile.exists()) {
-                defaultBundleFile.renameTo(customBundleFile)
+                val bundleDir = file("${layout.buildDirectory.get()}/outputs/bundle/${variantName}")
+                val defaultBundleFile = File(bundleDir, "app-${variantName}.aab")
+                val customBundleFile = File(bundleDir, "cariboo_${buildType}_${versionName}.aab")
+
+                if (defaultBundleFile.exists()) {
+                    // Copy instead of rename so Android Studio's Locate button still works
+                    defaultBundleFile.copyTo(customBundleFile, overwrite = true)
+                }
             }
         }
     }
