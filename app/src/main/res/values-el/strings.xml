@@ -1043,4 +1043,27 @@
     <string name="invalid_file">Μη έγκυρο αρχείο.</string>
     <string name="failed_to_add_attachment">Αποτυχία προσθήκης συνημμένου.</string>
 
+    <!-- Trips Analytics Screen -->
+    <string name="trips_analytics_title">Αναλυτικά Ταξιδιών</string>
+    <string name="trips_analytics_highlights_title">Κορυφαία Ταξίδια</string>
+    <string name="trips_analytics_all_trips_title">Όλα τα Ταξίδια</string>
+    <string name="trips_analytics_no_trips_title">Δεν βρέθηκαν ταξίδια</string>
+    <string name="trips_analytics_no_trips_desc">Δημιουργήστε ταξίδια ομαδοποιώντας ανεφοδιασμούς για να δείτε αναλυτικά εδώ.</string>
+    <string name="trips_analytics_most_costly">Πιο Ακριβό</string>
+    <string name="trips_analytics_cheapest">Πιο Οικονομικό</string>
+    <string name="trips_analytics_longest">Μεγαλύτερη Απόσταση</string>
+    <string name="trips_analytics_shortest">Μικρότερη Απόσταση</string>
+    <string name="trips_analytics_most_efficient">Πιο Αποδοτικό</string>
+    <string name="trips_analytics_least_efficient">Λιγότερο Αποδοτικό</string>
+    <!-- Trips Sort Options -->
+    <string name="trips_sort_most_recent">Πιο Πρόσφατα</string>
+    <string name="trips_sort_most_costly">Πιο Ακριβά</string>
+    <string name="trips_sort_least_costly">Πιο Οικονομικά</string>
+    <string name="trips_sort_highest_consumption">Υψηλότερη Κατανάλωση</string>
+    <string name="trips_sort_lowest_consumption">Χαμηλότερη Κατανάλωση</string>
+    <string name="trips_sort_longest">Μεγαλύτερη Απόσταση</string>
+    <string name="trips_sort_shortest">Μικρότερη Απόσταση</string>
+    <!-- Statistics – Trips Overview Show All button -->
+    <string name="trips_overview_show_all">Εμφάνιση Όλων</string>
+
 </resources>

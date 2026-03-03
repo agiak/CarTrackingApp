@@ -60,6 +60,7 @@ fun StatisticsScreen(
     onCarComparisonClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
+    onTripAnalyticsClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
@@ -111,7 +112,8 @@ fun StatisticsScreen(
                             onConsumptionGraphClick = onConsumptionGraphClick,
                             onDistanceGraphClick = onDistanceGraphClick,
                             onCostGraphClick = onCostGraphClick,
-                            onRefillsGraphClick = onRefillsGraphClick
+                            onRefillsGraphClick = onRefillsGraphClick,
+                            onTripAnalyticsClick = onTripAnalyticsClick
                         )
                     },
                     perCarBreakdownCards = {
@@ -159,7 +161,8 @@ private fun SummarySection(
     onConsumptionGraphClick: () -> Unit,
     onDistanceGraphClick: () -> Unit,
     onCostGraphClick: () -> Unit,
-    onRefillsGraphClick: () -> Unit
+    onRefillsGraphClick: () -> Unit,
+    onTripAnalyticsClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -262,11 +265,24 @@ private fun SummarySection(
         // Trips Statistics Section
         if (statistics.totalTrips > 0) {
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Trips Overview",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Trips Overview",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                androidx.compose.material3.TextButton(onClick = onTripAnalyticsClick) {
+                    Text(
+                        text = stringResource(R.string.trips_overview_show_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 13.sp
+                    )
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -71,6 +71,7 @@ import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
+import com.agcoding.cartrackingapp.presentation.tripsanalytics.TripsAnalyticsScreen
 import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
@@ -147,6 +148,8 @@ sealed class Screen(val route: String) {
     object TripDetails : Screen("trip_details/{tripId}") {
         fun createRoute(tripId: Long) = "trip_details/$tripId"
     }
+
+    object TripAnalytics : Screen("trip_analytics")
 
     // Settings Group Screens
     object AppearanceSettings : Screen("settings/appearance")
@@ -359,6 +362,9 @@ fun AppNavigation(
                     },
                     onFuelForecastClick = {
                         navController.navigate(Screen.FuelForecast.route)
+                    },
+                    onTripAnalyticsClick = {
+                        navController.navigate(Screen.TripAnalytics.route)
                     },
                     onMonthClick = { month, year ->
                         navController.navigate(Screen.MonthDetails.createRoute(month, year))
@@ -918,6 +924,20 @@ fun AppNavigation(
                     },
                     onRefillClick = { refillId ->
                         navController.navigate(Screen.RefillDetails.createRoute(refillId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.TripAnalytics.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                TripsAnalyticsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onTripClick = { tripId ->
+                        navController.navigate(Screen.TripDetails.createRoute(tripId))
                     }
                 )
             }

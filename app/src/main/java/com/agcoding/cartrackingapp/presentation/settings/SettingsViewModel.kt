@@ -29,6 +29,7 @@ import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.util.StorageCheckResult
 import com.agcoding.cartrackingapp.util.StorageUtil
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
@@ -98,6 +99,7 @@ class SettingsViewModel @Inject constructor(
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository,
+    private val tripRepository: TripRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -106,10 +108,13 @@ class SettingsViewModel @Inject constructor(
 
 
     // Sample data configuration - exactly 3 cars
+    // Toyota Corolla = heavy trip user (8-9 trips/year) to simulate power usage
+    // Honda Civic    = moderate user (4-6 trips/year)
+    // VW Golf        = light user (1-3 trips/year)
     private val sampleCars = listOf(
-        SampleCarConfig("Toyota Corolla", "ABC-1234", 0.0), // Will be calculated based on 7 years
-        SampleCarConfig("Honda Civic", "XYZ-5678", 0.0),
-        SampleCarConfig("Volkswagen Golf", "VWG-9012", 0.0)
+        SampleCarConfig("Toyota Corolla", "ABC-1234", 0.0, tripsPerYear = 8..9),
+        SampleCarConfig("Honda Civic",    "XYZ-5678", 0.0, tripsPerYear = 4..6),
+        SampleCarConfig("Volkswagen Golf","VWG-9012", 0.0, tripsPerYear = 1..3)
     )
 
     private val expenseCategories = listOf(
@@ -505,43 +510,34 @@ class SettingsViewModel @Inject constructor(
     private suspend fun generateAllSampleData() {
         val random = Random(System.currentTimeMillis())
         val now = System.currentTimeMillis()
-        val sevenYearsAgo = now - (7L * 365 * 24 * 60 * 60 * 1000) // 7 years ago
+        val sevenYearsAgo = now - (7L * 365 * 24 * 60 * 60 * 1000)
 
         for (carConfig in sampleCars) {
-            // Generate random yearly mileage between 8,000 and 25,000 km per year
-            // Total distance over 7 years
+            // Total distance = sum of random yearly mileage (8 000 – 25 000 km/year × 7 years)
             var totalDistance = 0.0
-            val yearlyMileages = mutableListOf<Double>()
-
-            for (year in 0 until 7) {
-                val yearlyMileage = random.nextInt(8000, 25001).toDouble()
-                yearlyMileages.add(yearlyMileage)
-                totalDistance += yearlyMileage
+            for (ignored in 0 until 7) {
+                totalDistance += random.nextInt(8000, 25001).toDouble()
             }
 
-            val currentOdometer = totalDistance
-            val initialOdometer = 0.0
-
-            // Create car
             val car = Car(
                 name = carConfig.name,
                 licensePlate = carConfig.licensePlate,
-                currentOdometer = currentOdometer,
-                initialOdometer = initialOdometer
+                currentOdometer = totalDistance,
+                initialOdometer = 0.0
             )
             val carId = carRepository.insertCar(car)
 
-            // Generate refills
-            generateRefillsForCar(
+            // Plan trip windows first, then generate ALL refills (trip + regular) together
+            generateRefillsAndTripsForCar(
                 carId = carId,
                 totalDistance = totalDistance,
-                initialOdometer = initialOdometer,
                 startTime = sevenYearsAgo,
                 endTime = now,
+                tripsPerYear = carConfig.tripsPerYear,
                 random = random
             )
 
-            // Generate expenses (300-10,000 per car over 7 years)
+            // Generate expenses (300 – 10 000 per car over 7 years)
             val numberOfExpenses = random.nextInt(300, 10001)
             generateExpensesForCar(
                 carId = carId,
@@ -549,69 +545,227 @@ class SettingsViewModel @Inject constructor(
                 endTime = now,
                 random = random,
                 targetNumberOfExpenses = numberOfExpenses,
-                currentOdometer = currentOdometer.toInt()
+                currentOdometer = totalDistance.toInt()
             )
         }
     }
 
-    private suspend fun generateRefillsForCar(
+    /**
+     * Core generation function.
+     *
+     * Strategy
+     * ─────────
+     * 1. For every calendar year in the 7-year window, decide HOW MANY trips to create and
+     *    WHEN (random anchor timestamps spread across the year, kept at least 21 days apart).
+     * 2. Build a flat list of ALL refill timestamps:
+     *      • Trip refills: 2-4 per trip, each 2-5 days after the previous, starting at the anchor.
+     *      • Regular refills: fill the remaining timeline so that every ~35-55 days there is a
+     *        refill (mimicking real-world fuelling that is not part of a trip).
+     * 3. Sort every timestamp, assign progressive odometer readings, insert FuelRefill rows.
+     * 4. Insert Trip rows and link their refill IDs.
+     *
+     * This guarantees:
+     *   • Every trip cluster stays within 14 days  ✓
+     *   • Refills inside a trip are chronologically ordered with realistic mileage  ✓
+     *   • Trips never overlap  ✓
+     *   • The heavy-user car (Toyota) gets 8-9 trips/year  ✓
+     */
+    private suspend fun generateRefillsAndTripsForCar(
         carId: Long,
         totalDistance: Double,
-        initialOdometer: Double,
         startTime: Long,
         endTime: Long,
+        tripsPerYear: IntRange,
         random: Random
     ) {
-        // Calculate number of refills (approximately one per 400-600 km)
-        val avgTripDistance = random.nextInt(400, 601)
-        val numberOfRefills = (totalDistance / avgTripDistance).toInt().coerceIn(40, 80)
+        val cal = java.util.Calendar.getInstance()
 
-        val timeRange = endTime - startTime
-        val timeInterval = timeRange / numberOfRefills
+        cal.timeInMillis = startTime
+        val firstYear = cal.get(java.util.Calendar.YEAR)
+        cal.timeInMillis = endTime
+        val lastYear = cal.get(java.util.Calendar.YEAR)
 
-        var currentOdometer = initialOdometer
-        var remainingDistance = totalDistance
+        val dayMs     = 24L * 60 * 60 * 1000
+        val twoWeekMs = 14L * dayMs
 
-        for (i in 0 until numberOfRefills) {
-            // Calculate trip distance for this refill
-            val tripDistance = if (i == numberOfRefills - 1) {
-                // Last refill gets remaining distance
-                remainingDistance
-            } else {
-                val avgTripForThisRefill = remainingDistance / (numberOfRefills - i)
-                val variance = avgTripForThisRefill * 0.3
-                (avgTripForThisRefill + random.nextDouble(-variance, variance)).coerceAtLeast(100.0)
+        val tripNamePool = listOf(
+            "Road Trip", "Weekend Getaway", "Business Trip", "Holiday Drive",
+            "City Tour", "Mountain Drive", "Coastal Ride", "Cross-Country Trip"
+        )
+        val sdf = java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale.ENGLISH)
+
+        // ── Step 1: plan trip windows ─────────────────────────────────────────
+        // A "trip window" is [anchorTime .. anchorTime + (refillCount-1)*5 days]
+        data class TripWindow(
+            val anchorMs: Long,
+            val refillCount: Int,
+            val name: String,
+            val description: String
+        )
+
+        val tripWindows = mutableListOf<TripWindow>()
+        var tripCounter = 1
+
+        for (year in firstYear..lastYear) {
+            val targetTrips = random.nextInt(tripsPerYear.first, tripsPerYear.last + 1)
+
+            cal.set(year, java.util.Calendar.JANUARY, 1, 0, 0, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            val yearStartMs = maxOf(cal.timeInMillis, startTime)
+
+            cal.set(year, java.util.Calendar.DECEMBER, 31, 23, 59, 59)
+            cal.set(java.util.Calendar.MILLISECOND, 999)
+            val yearEndMs = minOf(cal.timeInMillis, endTime)
+
+            val yearRangeMs = yearEndMs - yearStartMs
+            if (yearRangeMs < twoWeekMs) continue          // not enough room
+
+            // Divide the year into equal slots; place one trip anchor in each slot
+            val slotMs = yearRangeMs / targetTrips
+            var lastWindowEndMs = yearStartMs - 1L          // track previous window end
+
+            for (slot in 0 until targetTrips) {
+                val slotStart = yearStartMs + slot * slotMs
+                val slotEnd   = slotStart + slotMs - 1
+
+                // Anchor must be at least 7 days after the previous trip ended
+                val earliestAnchor = maxOf(slotStart, lastWindowEndMs + 7 * dayMs)
+                if (earliestAnchor + twoWeekMs > slotEnd) continue   // slot too tight
+
+                val refillCount = random.nextInt(2, 5)                // 2–4
+                val maxWindowMs = (refillCount - 1) * 5 * dayMs       // worst case: 15 days at 5d gap
+
+                // Random anchor within the slot so the full window still fits
+                val anchorRange = (slotEnd - maxWindowMs - earliestAnchor).coerceAtLeast(1L)
+                val anchorMs    = earliestAnchor + random.nextLong(0, anchorRange)
+
+                val windowEndMs = anchorMs + maxWindowMs
+                val name        = "${tripNamePool[random.nextInt(tripNamePool.size)]} #$tripCounter"
+                val desc        = "Generated trip with $refillCount refills from " +
+                        "${sdf.format(java.util.Date(anchorMs))} to ${sdf.format(java.util.Date(windowEndMs))}"
+
+                tripWindows.add(TripWindow(anchorMs, refillCount, name, desc))
+                lastWindowEndMs = windowEndMs
+                tripCounter++
             }
+        }
 
-            remainingDistance -= tripDistance
-            currentOdometer += tripDistance
+        // ── Step 2: build ALL refill timestamps ───────────────────────────────
+        // Each entry: Pair(timestamp, isTripRefill)
+        // We will later stitch together the full sorted list.
 
-            // Random consumption between 5.0 and 12.0 L/100km (more realistic range)
-            val consumption = random.nextDouble(5.0, 12.0)
+        // 2a. Trip refill timestamps (key = tripWindow index → list of timestamps)
+        val tripRefillTimestamps = mutableListOf<MutableList<Long>>()
+        for (tw in tripWindows) {
+            val timestamps = mutableListOf<Long>()
+            var t = tw.anchorMs
+            for (r in 0 until tw.refillCount) {
+                timestamps.add(t)
+                if (r < tw.refillCount - 1) {
+                    // gap between successive refills: 2-5 days
+                    t += (2 + random.nextInt(4)) * dayMs
+                }
+            }
+            tripRefillTimestamps.add(timestamps)
+        }
 
-            // Calculate liters based on consumption and distance
-            val litersAdded = (consumption * tripDistance) / 100.0
+        // Flatten the set of timestamps already occupied by trips
+        val occupiedTimestamps = tripRefillTimestamps.flatten().toSet()
 
-            // Random price per liter between 1.65 and 2.40 (wider range over 2 years)
-            val pricePerLiter = random.nextDouble(1.65, 2.40)
-            val amountPaid = litersAdded * pricePerLiter
+        // 2b. Regular (non-trip) refill timestamps
+        // Space them roughly every 35-55 days across the full timeline, skipping any slot
+        // that falls within an active trip window (±3 days of a trip refill).
+        val regularTimestamps = mutableListOf<Long>()
+        var cursor = startTime
+        while (cursor < endTime) {
+            val gap = (35 + random.nextInt(21)) * dayMs   // 35-55 days
+            cursor += gap
+            if (cursor >= endTime) break
 
-            // Calculate timestamp for this refill
-            val refillTime = startTime + (timeInterval * i) + random.nextLong(0, timeInterval / 2)
+            // Skip if this timestamp is too close to any trip refill (within 3 days)
+            val tooClose = occupiedTimestamps.any { kotlin.math.abs(it - cursor) < 3 * dayMs }
+            if (!tooClose) {
+                regularTimestamps.add(cursor)
+            }
+        }
+
+        // ── Step 3: merge, sort, assign odometer, insert refills ──────────────
+        // Build a unified sorted list of (timestamp, isTrip, tripWindowIdx, posInTrip)
+        data class RefillSlot(
+            val timestamp: Long,
+            val tripWindowIdx: Int,   // -1 = regular refill
+            val posInTrip: Int        // 0-based position within the trip, -1 if regular
+        )
+
+        val allSlots = mutableListOf<RefillSlot>()
+        for ((idx, tsList) in tripRefillTimestamps.withIndex()) {
+            for ((pos, ts) in tsList.withIndex()) {
+                allSlots.add(RefillSlot(ts, idx, pos))
+            }
+        }
+        for (ts in regularTimestamps) {
+            allSlots.add(RefillSlot(ts, -1, -1))
+        }
+        allSlots.sortBy { it.timestamp }
+
+        val totalSlots     = allSlots.size
+        val distPerSlot    = if (totalSlots > 0) totalDistance / totalSlots else totalDistance
+        var odometer       = 0.0
+
+        // Map: tripWindowIdx → list of (insertedRefillId, posInTrip)
+        val insertedTripRefills = mutableMapOf<Int, MutableList<Pair<Long, Int>>>()
+
+        for (slot in allSlots) {
+            val variance     = distPerSlot * 0.3
+            val tripDistance = (distPerSlot + random.nextDouble(-variance, variance)).coerceAtLeast(50.0)
+            odometer        += tripDistance
+
+            val consumption  = random.nextDouble(5.0, 12.0)
+            val liters       = (consumption * tripDistance) / 100.0
+            val ppl          = random.nextDouble(1.65, 2.40)
+            val amount       = liters * ppl
 
             val refill = FuelRefill(
-                carId = carId,
-                amountPaid = Math.round(amountPaid * 100) / 100.0,
-                litersAdded = Math.round(litersAdded * 100) / 100.0,
-                tripDistance = Math.round(tripDistance * 10) / 10.0,
-                odometerReading = Math.round(currentOdometer * 10) / 10.0,
-                fuelConsumption = Math.round(consumption * 100) / 100.0,
-                pricePerLiter = Math.round(pricePerLiter * 1000) / 1000.0,
-                timestamp = refillTime,
-                notes = null
+                carId            = carId,
+                amountPaid       = Math.round(amount       * 100) / 100.0,
+                litersAdded      = Math.round(liters       * 100) / 100.0,
+                tripDistance     = Math.round(tripDistance * 10 ) / 10.0,
+                odometerReading  = Math.round(odometer     * 10 ) / 10.0,
+                fuelConsumption  = Math.round(consumption  * 100) / 100.0,
+                pricePerLiter    = Math.round(ppl          * 1000) / 1000.0,
+                timestamp        = slot.timestamp,
+                notes            = null
             )
 
-            refillRepository.insertRefill(refill)
+            val refillId = refillRepository.insertRefill(refill)
+
+            if (slot.tripWindowIdx >= 0) {
+                insertedTripRefills
+                    .getOrPut(slot.tripWindowIdx) { mutableListOf() }
+                    .add(Pair(refillId, slot.posInTrip))
+            }
+        }
+
+        // ── Step 4: insert Trip rows and link refill IDs ──────────────────────
+        for ((idx, tw) in tripWindows.withIndex()) {
+            val linkedRefills = insertedTripRefills[idx]
+                ?.sortedBy { it.second }   // order by posInTrip
+                ?.map { it.first }         // extract IDs
+                ?: continue
+
+            if (linkedRefills.size < 2) continue  // shouldn't happen, but guard anyway
+
+            val trip = com.agcoding.cartrackingapp.domain.model.Trip(
+                carId       = carId,
+                name        = tw.name,
+                description = tw.description,
+                createdAt   = tw.anchorMs,
+                updatedAt   = tw.anchorMs + (tw.refillCount - 1) * 5L * dayMs
+            )
+
+            tripRepository.insertTrip(trip).onSuccess { tripId ->
+                tripRepository.addRefillsToTrip(tripId, linkedRefills)
+            }
         }
     }
 
@@ -804,7 +958,9 @@ class SettingsViewModel @Inject constructor(
     private data class SampleCarConfig(
         val name: String,
         val licensePlate: String,
-        val currentOdometer: Double
+        val currentOdometer: Double,
+        /** Target number of trips to generate per calendar year. */
+        val tripsPerYear: IntRange = 1..5
     )
 }
 
