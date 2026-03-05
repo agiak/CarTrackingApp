@@ -755,7 +755,7 @@
     <!-- Spreadsheet Import Feature -->
     <string name="settings_section_spreadsheet_import">Εισαγωγή Υπολογιστικού Φύλλου</string>
     <string name="spreadsheet_import_title">Εισαγωγή από Excel/CSV</string>
-    <string name="spreadsheet_import_description">Εισαγωγή αυτοκινήτων, ανεφοδιασμών και εξόδων από αρχείο Excel (.xlsx) ή CSV. Προσθέτει νέα δεδομένα χωρίς να αντικαθιστά τα υπάρχοντα.</string>
+    <string name="spreadsheet_import_description">Εισαγωγή αυτοκινήτων, ανεφοδιασμών, εξόδων και ταξιδιών από αρχείο Excel (.xlsx) ή CSV. Προσθέτει νέα δεδομένα χωρίς να αντικαθιστά τα υπάρχοντα.</string>
     <string name="spreadsheet_import_how_to_title">Πώς να χρησιμοποιήσετε</string>
     <string name="spreadsheet_import_how_to_1">1. Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
     <string name="spreadsheet_import_how_to_2">2. Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
@@ -768,7 +768,7 @@
     <string name="spreadsheet_import_failed">Αποτυχία εισαγωγής: %s</string>
     <string name="spreadsheet_sample_generated">Το δείγμα αρχείου αποθηκεύτηκε στο %s</string>
     <string name="spreadsheet_sample_failed">Αποτυχία δημιουργίας δείγματος: %s</string>
-    <string name="spreadsheet_import_note">Σημείωση: Τα αυτοκίνητα αντιστοιχούνται με βάση τον αριθμό κυκλοφορίας. Βεβαιωθείτε ότι προσθέτετε πρώτα τα αυτοκίνητα και μετά τους ανεφοδιασμούς και τα έξοδά τους.</string>
+    <string name="spreadsheet_import_note">Σημείωση: Τα φύλλα επεξεργάζονται με σειρά: Αυτοκίνητα → Ανεφοδιασμοί → Έξοδα → Ταξίδια. Οι νέες στήλες (ταξίδια, υπενθυμίσεις) είναι προαιρετικές για συμβατότητα.</string>
     <string name="spreadsheet_file_format">Υποστηριζόμενες μορφές: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->

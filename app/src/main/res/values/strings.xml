@@ -771,7 +771,7 @@
     <!-- Spreadsheet Import Feature -->
     <string name="settings_section_spreadsheet_import">Spreadsheet Import</string>
     <string name="spreadsheet_import_title">Import from Excel/CSV</string>
-    <string name="spreadsheet_import_description">Import cars, refills, and expenses from an Excel (.xlsx) or CSV file. This adds new data without replacing existing records.</string>
+    <string name="spreadsheet_import_description">Import cars, refills, expenses, and trips from an Excel (.xlsx) or CSV file. This adds new data without replacing existing records.</string>
     <string name="spreadsheet_import_how_to_title">How to use</string>
     <string name="spreadsheet_import_how_to_1">1. Download the sample file to see the required format</string>
     <string name="spreadsheet_import_how_to_2">2. Fill in your data following the same column structure</string>
@@ -784,7 +784,7 @@
     <string name="spreadsheet_import_failed">Import failed: %s</string>
     <string name="spreadsheet_sample_generated">Sample file saved to %s</string>
     <string name="spreadsheet_sample_failed">Failed to generate sample file: %s</string>
-    <string name="spreadsheet_import_note">Note: Cars are matched by license plate. Make sure to add cars first, then their refills and expenses.</string>
+    <string name="spreadsheet_import_note">Note: Sheets are processed in order: Cars → Refills → Expenses → Trips. All new columns (trips, reminders) are optional for backward compatibility.</string>
     <string name="spreadsheet_file_format">Supported formats: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->

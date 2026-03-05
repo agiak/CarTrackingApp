@@ -410,6 +410,8 @@ class SettingsViewModel @Inject constructor(
                         if (result.carsImported > 0) parts.add("${result.carsImported} cars")
                         if (result.refillsImported > 0) parts.add("${result.refillsImported} refills")
                         if (result.expensesImported > 0) parts.add("${result.expensesImported} expenses")
+                        if (result.tripsImported > 0) parts.add("${result.tripsImported} trips")
+                        if (result.remindersConfigured > 0) parts.add("${result.remindersConfigured} reminders")
                         append(parts.joinToString(", "))
                     }
                     _uiState.value = _uiState.value.copy(
@@ -427,6 +429,8 @@ class SettingsViewModel @Inject constructor(
                         if (result.carsImported > 0) parts.add("${result.carsImported} cars")
                         if (result.refillsImported > 0) parts.add("${result.refillsImported} refills")
                         if (result.expensesImported > 0) parts.add("${result.expensesImported} expenses")
+                        if (result.tripsImported > 0) parts.add("${result.tripsImported} trips")
+                        if (result.remindersConfigured > 0) parts.add("${result.remindersConfigured} reminders")
                         append(parts.joinToString(", "))
                         append(". Some rows had errors.")
                     }
