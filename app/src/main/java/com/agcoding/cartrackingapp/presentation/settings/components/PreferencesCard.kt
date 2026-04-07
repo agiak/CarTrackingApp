@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,7 +32,8 @@ fun PreferencesCard(
     permissionPermanentlyDenied: Boolean,
     onNotificationsToggle: (Boolean) -> Unit,
     onOpenSettings: () -> Unit,
-    onViewNotifications: () -> Unit
+    onViewNotifications: () -> Unit,
+    onViewNotificationHistory: () -> Unit = {}
 ) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
@@ -120,6 +122,29 @@ fun PreferencesCard(
                 },
                 onClick = if (notificationsEnabled) onViewNotifications else null,
                 enabled = notificationsEnabled
+            )
+
+            // Divider
+            androidx.compose.material3.HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            // View Notification History Row
+            SettingsRow(
+                icon = Icons.Default.History,
+                iconBackgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                iconTint = MaterialTheme.colorScheme.secondary,
+                title = stringResource(R.string.notification_history_view),
+                subtitle = stringResource(R.string.notification_history_view_desc),
+                trailing = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                onClick = onViewNotificationHistory
             )
         }
     }

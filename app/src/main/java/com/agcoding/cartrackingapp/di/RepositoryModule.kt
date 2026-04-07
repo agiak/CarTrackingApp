@@ -3,11 +3,13 @@ package com.agcoding.cartrackingapp.di
 import com.agcoding.cartrackingapp.data.repository.CarAttachmentRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.CarRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.ExpenseRepositoryImpl
+import com.agcoding.cartrackingapp.data.repository.NotificationHistoryRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.RefillRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.TripRepositoryImpl
 import com.agcoding.cartrackingapp.domain.repository.CarAttachmentRepository
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import dagger.Binds
@@ -49,4 +51,10 @@ abstract class RepositoryModule {
     abstract fun bindTripRepository(
         tripRepositoryImpl: TripRepositoryImpl
     ): TripRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationHistoryRepository(
+        notificationHistoryRepositoryImpl: NotificationHistoryRepositoryImpl
+    ): NotificationHistoryRepository
 }

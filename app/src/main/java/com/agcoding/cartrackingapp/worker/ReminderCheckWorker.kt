@@ -35,44 +35,60 @@ class ReminderCheckWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            Log.d(TAG, "Starting reminder check")
+            Log.d(TAG, "=== ReminderCheckWorker starting ===")
 
             if (!notificationHelper.areNotificationsEnabled()) {
-                Log.d(TAG, "Notifications disabled, skipping check")
-                return Result.success()
+                Log.w(TAG, "Notifications are disabled by the user or system. " +
+                        "Skipping this run – will retry on next schedule.")
+                return Result.success() // don't retry endlessly; next periodic run will check again
             }
 
             checkAndNotifyReminders()
-            Log.d(TAG, "Reminder check completed successfully")
+            Log.d(TAG, "=== ReminderCheckWorker completed ===")
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error during reminder check", e)
-            Result.failure()
+            Result.retry() // transient failure → retry
         }
     }
 
+    /**
+     * Checks all expenses with reminders and sends notifications for those
+     * that are approaching or have passed their reminder thresholds.
+     *
+     * **Date-based reminders:** Triggers if the reminder date is within
+     * [PRE_EXPIRY_DAYS] days from now, or if it is already overdue (past).
+     *
+     * **Mileage-based reminders:** Triggers if the remaining distance to
+     * the target mileage is within [PRE_EXPIRY_KM] km, or already exceeded.
+     *
+     * Once a notification is sent for an expense the [Expense.preExpiryNotificationSent]
+     * flag is set to `true` so the same expense is not re-notified.
+     */
     private suspend fun checkAndNotifyReminders() {
         val now = System.currentTimeMillis()
-        val oneDayInMillis = TimeUnit.DAYS.toMillis(PRE_EXPIRY_DAYS)
-        val preExpiryThreshold = now + oneDayInMillis
+        val preExpiryThreshold = now + TimeUnit.DAYS.toMillis(PRE_EXPIRY_DAYS)
 
         // Get all expenses with reminders
         val allExpenses = expenseRepository.getAllExpenses().first()
-        Log.d(TAG, "Checking ${allExpenses.size} expenses")
+        Log.d(TAG, "Checking ${allExpenses.size} expenses for reminders")
 
         var notificationCount = 0
 
         allExpenses.forEach { expense ->
             // Skip if reminder is disabled, dismissed, or pre-expiry notification already sent
             if (!expense.reminderEnabled) {
+                Log.d(TAG, "Expense ${expense.id} (${expense.category}): reminder disabled – skip")
                 return@forEach
             }
 
             if (expense.reminderDismissed) {
+                Log.d(TAG, "Expense ${expense.id} (${expense.category}): reminder dismissed – skip")
                 return@forEach
             }
 
             if (expense.preExpiryNotificationSent) {
+                Log.d(TAG, "Expense ${expense.id} (${expense.category}): notification already sent – skip")
                 return@forEach
             }
 
@@ -84,22 +100,35 @@ class ReminderCheckWorker @AssistedInject constructor(
             var shouldNotify = false
             var message = ""
 
-            // Check date-based reminder (1 day before)
+            // ── Date-based check ──────────────────────────────────────────
+            // Fire if the reminder date is:
+            //   • already overdue (reminderDate <= now), OR
+            //   • within PRE_EXPIRY_DAYS from now (reminderDate <= preExpiryThreshold)
             expense.reminderDate?.let { reminderDate ->
-                if (reminderDate in (now + 1)..preExpiryThreshold) {
+                if (reminderDate <= preExpiryThreshold) {
                     shouldNotify = true
                     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                     val formattedDate = dateFormat.format(Date(reminderDate))
-                    message = applicationContext.getString(
-                        R.string.notification_reminder_date_message,
-                        expense.category,
-                        formattedDate
-                    )
-                    Log.d(TAG, "Date reminder matched for expense ${expense.id}: ${expense.category}")
+                    message = if (reminderDate <= now) {
+                        // Already overdue
+                        applicationContext.getString(
+                            R.string.notification_reminder_overdue_message,
+                            expense.category,
+                            formattedDate
+                        )
+                    } else {
+                        applicationContext.getString(
+                            R.string.notification_reminder_date_message,
+                            expense.category,
+                            formattedDate
+                        )
+                    }
+                    Log.d(TAG, "Date reminder matched for expense ${expense.id}: ${expense.category} (date=$formattedDate, overdue=${reminderDate <= now})")
                 }
             }
 
-            // Check mileage-based reminder (within 500 km)
+            // ── Mileage-based check ───────────────────────────────────────
+            // Fire if the remaining km is within PRE_EXPIRY_KM, or already exceeded.
             expense.reminderMileage?.let { targetMileage ->
                 val car = carRepository.getCarById(expense.carId).first()
                 car?.let {
@@ -108,20 +137,21 @@ class ReminderCheckWorker @AssistedInject constructor(
 
                     Log.d(TAG, "Checking mileage for expense ${expense.id}: current=$currentMileage, target=$targetMileage, remaining=$remainingKm")
 
-                    if (remainingKm in 1..PRE_EXPIRY_KM) {
+                    if (remainingKm <= PRE_EXPIRY_KM) {
                         shouldNotify = true
+                        val displayKm = remainingKm.coerceAtLeast(0)
                         message = if (message.isEmpty()) {
                             applicationContext.getString(
                                 R.string.notification_reminder_mileage_message,
                                 expense.category,
-                                remainingKm
+                                displayKm
                             )
                         } else {
                             // Combine both date and mileage messages
                             applicationContext.getString(
                                 R.string.notification_reminder_both_message,
                                 expense.category,
-                                remainingKm
+                                displayKm
                             )
                         }
                         Log.d(TAG, "Mileage reminder matched for expense ${expense.id}: ${expense.category}, $remainingKm km remaining")
@@ -131,14 +161,14 @@ class ReminderCheckWorker @AssistedInject constructor(
 
             // Send notification if threshold met
             if (shouldNotify) {
-                Log.d(TAG, "Sending notification for expense ${expense.id}")
+                Log.d(TAG, "Sending notification for expense ${expense.id}: ${expense.category}")
                 notificationHelper.showPreExpiryNotification(
                     expenseId = expense.id,
                     category = expense.category,
                     message = message
                 )
 
-                // Mark notification as sent
+                // Mark notification as sent so we don't re-notify
                 expenseRepository.updateExpense(
                     expense.copy(preExpiryNotificationSent = true)
                 )
@@ -146,6 +176,6 @@ class ReminderCheckWorker @AssistedInject constructor(
             }
         }
 
-        Log.d(TAG, "Sent $notificationCount notifications")
+        Log.d(TAG, "Reminder check complete – sent $notificationCount notifications")
     }
 }

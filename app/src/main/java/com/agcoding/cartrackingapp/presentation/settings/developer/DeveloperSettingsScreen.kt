@@ -160,6 +160,35 @@ fun DeveloperSettingsScreen(
                             }
                         }
                     )
+                },
+                onSendTestNotification = {
+                    viewModel.sendTestNotification(
+                        onSuccess = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Test notification sent! Check your notification shade.")
+                            }
+                        },
+                        onError = { error ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(error)
+                            }
+                        }
+                    )
+                },
+                onResetNotificationFlags = {
+                    viewModel.resetNotificationFlags(
+                        onSuccess = { count ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Reset $count notification flag(s). Reminders can fire again.")
+                            }
+                        },
+                        onError = { error ->
+                            val errorMessage = String.format(errorFormatTemplate, error)
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = errorMessage)
+                            }
+                        }
+                    )
                 }
             )
 

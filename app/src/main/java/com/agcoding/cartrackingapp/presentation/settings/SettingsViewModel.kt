@@ -26,10 +26,13 @@ import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.domain.model.NotificationHistoryItem
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
+import com.agcoding.cartrackingapp.util.NotificationHelper
 import com.agcoding.cartrackingapp.util.StorageCheckResult
 import com.agcoding.cartrackingapp.util.StorageUtil
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
@@ -100,6 +103,8 @@ class SettingsViewModel @Inject constructor(
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository,
     private val tripRepository: TripRepository,
+    private val notificationHistoryRepository: NotificationHistoryRepository,
+    private val notificationHelper: NotificationHelper,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -552,6 +557,13 @@ class SettingsViewModel @Inject constructor(
                 currentOdometer = totalDistance.toInt()
             )
         }
+
+        // Generate sample notification history entries
+        generateSampleNotifications(
+            startTime = sevenYearsAgo,
+            endTime = now,
+            random = random
+        )
     }
 
     /**
@@ -894,11 +906,11 @@ class SettingsViewModel @Inject constructor(
         val preExpiryTestCases = listOf(
             // Date-based: expires tomorrow (within 1 day)
             Triple("Small service", 1, null),
-            // Date-based: expires in 2 days
+            // Date-based: expires in 2 days (also within 1-day threshold now)
             Triple("Brakes", 2, null),
             // Mileage-based: within 500 km
             Triple("Oil change", null, 300),
-            // Mileage-based: within 2000 km (not yet eligible)
+            // Mileage-based: within 2000 km (not yet eligible for 500-km threshold)
             Triple("Big service", null, 1800),
             // Both date and mileage
             Triple("Tire change", 1, 400)
@@ -927,10 +939,161 @@ class SettingsViewModel @Inject constructor(
             )
         }
 
+        // Add OVERDUE test cases – these reminders are already past due and
+        // should definitely fire a notification on the very first worker run.
+        val overdueTestCases = listOf(
+            // Date-based: overdue by 2 days
+            Triple("Insurance", -2, null),
+            // Date-based: overdue by 5 hours (just barely past)
+            Triple("Registration", 0, null), // 0 means "today" → will be slightly in the past by the time worker runs
+            // Mileage already exceeded by 100 km
+            Triple("Car wash", null, -100)
+        )
+
+        overdueTestCases.forEach { (category, daysInFuture, kmOffset) ->
+            val costRange = expenseCategories.find { it.first == category }?.second
+                ?: (50.0..200.0)
+            val cost = random.nextDouble(costRange.start, costRange.endInclusive)
+            val pastExpenseTime = now - random.nextLong(30L * 24 * 60 * 60 * 1000, 90L * 24 * 60 * 60 * 1000)
+
+            generatedExpenses.add(
+                Expense(
+                    carId = carId,
+                    category = category,
+                    amount = Math.round(cost * 100) / 100.0,
+                    timestamp = pastExpenseTime,
+                    notes = "Overdue test case – should trigger immediately",
+                    reminderDate = daysInFuture?.let { now + (it.toLong() * 24 * 60 * 60 * 1000) },
+                    reminderMileage = kmOffset?.let { (currentOdometer + it).coerceAtLeast(0) },
+                    reminderEnabled = true,
+                    preExpiryNotificationSent = false
+                )
+            )
+        }
+
         // Sort by timestamp and insert
         generatedExpenses.sortedBy { it.timestamp }.forEach { expense ->
             expenseRepository.insertExpense(expense)
         }
+    }
+
+    /**
+     * Generates a realistic set of sample notification history entries spread across the
+     * given time range. The notifications simulate real reminder events a user would have
+     * received while using the app (overdue services, upcoming mileage, etc.).
+     *
+     * Notification types generated:
+     *  - Date-based: service is due tomorrow / already overdue
+     *  - Mileage-based: approaching target odometer
+     *  - Combined: both date and mileage thresholds close
+     *  - Test notifications (a handful, recent)
+     */
+    private suspend fun generateSampleNotifications(
+        startTime: Long,
+        endTime: Long,
+        random: Random
+    ) {
+        val timeRange = endTime - startTime
+
+        // Templates: Pair(title pattern, message pattern) keyed by category name
+        val notificationTemplates = listOf(
+            Triple("Oil Change Reminder",          "Your Oil change is due tomorrow (%s)",                         "oil"),
+            Triple("Oil Change Reminder",          "Your Oil change is overdue! It was due on %s",                "oil"),
+            Triple("Oil Change Reminder",          "Your Oil change is due soon (within %d km)",                  "oil_km"),
+            Triple("Tire Change Reminder",         "Your Tire change is due tomorrow (%s)",                       "tire"),
+            Triple("Tire Change Reminder",         "Your Tire change is overdue! It was due on %s",              "tire"),
+            Triple("Tire Change Reminder",         "Your Tire change is due soon (within %d km)",                "tire_km"),
+            Triple("Big Service Reminder",         "Your Big service is due tomorrow (%s)",                      "service"),
+            Triple("Big Service Reminder",         "Your Big service is overdue! It was due on %s",              "service"),
+            Triple("Big Service Reminder",         "Your Big service is due soon (within %d km)",                "service_km"),
+            Triple("Small Service Reminder",       "Your Small service is due tomorrow (%s)",                    "small"),
+            Triple("Small Service Reminder",       "Your Small service is overdue! It was due on %s",            "small"),
+            Triple("Insurance Reminder",           "Your Insurance is due tomorrow (%s)",                        "insurance"),
+            Triple("Insurance Reminder",           "Your Insurance renewal is overdue! It was due on %s",        "insurance"),
+            Triple("Brake Inspection Reminder",    "Your Brakes are due soon (within %d km)",                    "brakes_km"),
+            Triple("Brake Inspection Reminder",    "Your Brakes inspection is overdue! It was due on %s",        "brakes"),
+            Triple("Inspection (KTEO) Reminder",   "Your Inspection (KTEO) is due tomorrow (%s)",                "kteo"),
+            Triple("Inspection (KTEO) Reminder",   "Your Inspection (KTEO) is overdue! It was due on %s",        "kteo"),
+            Triple("Battery Check Reminder",       "Your Battery check is due soon (within %d km)",              "battery_km"),
+            Triple("Air Filter Reminder",          "Your Air filter replacement is due soon (within %d km)",     "airfilter_km"),
+            Triple("Road Tax Reminder",            "Your Road tax payment is due tomorrow (%s)",                  "tax"),
+            Triple("Road Tax Reminder",            "Your Road tax payment is overdue! It was due on %s",         "tax"),
+            Triple("Test Reminder",                "This is a test notification from Developer Options.",        "test"),
+            Triple("Test Reminder",                "This is a test notification from Developer Options. If you see this, the notification pipeline is working correctly!", "test")
+        )
+
+        val dateFormat = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+
+        // Build a realistic set: ~40-80 entries spread across the 7-year window
+        val targetCount = random.nextInt(40, 81)
+        val notificationsToInsert = mutableListOf<NotificationHistoryItem>()
+
+        repeat(targetCount) {
+            val template = notificationTemplates[random.nextInt(notificationTemplates.size)]
+            val (title, messageTemplate, kind) = template
+
+            val timestamp = startTime + (random.nextLong(0, timeRange))
+
+            // Fill in the message placeholder depending on template kind
+            val message = when {
+                kind.endsWith("_km") -> {
+                    val km = (random.nextInt(1, 11)) * 50  // 50-500 km remaining
+                    String.format(messageTemplate, km)
+                }
+                kind == "test" -> messageTemplate
+                else -> {
+                    // Date-based — use the notification's own timestamp as the "due date"
+                    val dueDateOffset = (-3..3).random() * 24L * 60 * 60 * 1000  // ±3 days from notification
+                    val dueDate = timestamp + dueDateOffset
+                    String.format(messageTemplate, dateFormat.format(java.util.Date(dueDate)))
+                }
+            }
+
+            notificationsToInsert.add(
+                NotificationHistoryItem(
+                    title = title,
+                    description = message,
+                    timestamp = timestamp
+                )
+            )
+        }
+
+        // Additionally, always include a few guaranteed recent entries (last 30 days)
+        // so the user immediately sees something useful in the history screen.
+        val recentTemplates = listOf(
+            NotificationHistoryItem(
+                title = "Oil Change Reminder",
+                description = "Your Oil change is due tomorrow (${dateFormat.format(java.util.Date(endTime + 24L * 60 * 60 * 1000))})",
+                timestamp = endTime - 2L * 24 * 60 * 60 * 1000   // 2 days ago
+            ),
+            NotificationHistoryItem(
+                title = "Tire Change Reminder",
+                description = "Your Tire change is due soon (within 300 km)",
+                timestamp = endTime - 5L * 24 * 60 * 60 * 1000   // 5 days ago
+            ),
+            NotificationHistoryItem(
+                title = "Insurance Reminder",
+                description = "Your Insurance renewal is overdue! It was due on ${dateFormat.format(java.util.Date(endTime - 3L * 24 * 60 * 60 * 1000))}",
+                timestamp = endTime - 1L * 24 * 60 * 60 * 1000   // yesterday
+            ),
+            NotificationHistoryItem(
+                title = "Big Service Reminder",
+                description = "Your Big service is overdue! It was due on ${dateFormat.format(java.util.Date(endTime - 7L * 24 * 60 * 60 * 1000))}",
+                timestamp = endTime - 3L * 60 * 60 * 1000        // 3 hours ago
+            ),
+            NotificationHistoryItem(
+                title = "Test Reminder",
+                description = "This is a test notification from Developer Options. If you see this, the notification pipeline is working correctly!",
+                timestamp = endTime - 30L * 60 * 1000             // 30 minutes ago
+            )
+        )
+
+        // Insert all entries sorted by timestamp (oldest first → DB ordering is DESC anyway)
+        (notificationsToInsert + recentTemplates)
+            .sortedBy { it.timestamp }
+            .forEach { item ->
+                notificationHistoryRepository.insertNotification(item)
+            }
     }
 
     fun resetDataGenerationSuccess() {
@@ -938,7 +1101,23 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Manually trigger the reminder check worker for testing/debugging
+     * Immediately fire a test notification via [NotificationHelper].
+     * Does **not** go through WorkManager – the notification appears within
+     * milliseconds so the developer can confirm the pipeline end-to-end.
+     */
+    fun sendTestNotification(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val sent = notificationHelper.showTestNotification()
+        if (sent) {
+            onSuccess()
+        } else {
+            onError("Notification permission is not granted. Please enable it in system settings.")
+        }
+    }
+
+    /**
+     * Manually trigger the reminder check worker for testing/debugging.
+     * The worker runs in the background and will send notifications for
+     * any expenses whose reminder thresholds are met.
      */
     fun triggerReminderCheck(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
@@ -955,6 +1134,35 @@ class SettingsViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("SettingsViewModel", "Failed to trigger reminder check", e)
                 onError(e.message ?: "Failed to trigger reminder check")
+            }
+        }
+    }
+
+    /**
+     * Reset the [Expense.preExpiryNotificationSent] flag on every expense that
+     * has an active reminder. This allows the same reminders to fire again the
+     * next time the worker runs – useful for repeated testing.
+     */
+    fun resetNotificationFlags(onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val allExpenses = expenseRepository.getAllExpenses().first()
+                var resetCount = 0
+                allExpenses.forEach { expense ->
+                    if (expense.preExpiryNotificationSent &&
+                        (expense.reminderDate != null || expense.reminderMileage != null)
+                    ) {
+                        expenseRepository.updateExpense(
+                            expense.copy(preExpiryNotificationSent = false)
+                        )
+                        resetCount++
+                    }
+                }
+                Log.d("SettingsViewModel", "Reset preExpiryNotificationSent on $resetCount expenses")
+                onSuccess(resetCount)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Failed to reset notification flags", e)
+                onError(e.message ?: "Failed to reset notification flags")
             }
         }
     }

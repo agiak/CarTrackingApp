@@ -48,6 +48,7 @@ fun HelpAboutSettingsScreen(
     onNavigateBack: () -> Unit,
     onViewGuide: () -> Unit,
     onViewNotifications: () -> Unit,
+    onViewNotificationHistory: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -144,7 +145,8 @@ fun HelpAboutSettingsScreen(
                         }
                     },
                     onOpenSettings = onOpenSettings,
-                    onViewNotifications = onViewNotifications
+                    onViewNotifications = onViewNotifications,
+                    onViewNotificationHistory = onViewNotificationHistory
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -11,17 +11,19 @@ import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
+import com.agcoding.cartrackingapp.data.local.database.dao.NotificationHistoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.TripDao
 import com.agcoding.cartrackingapp.data.local.database.entity.CarAttachmentEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.CarEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseCategoryEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.FuelRefillEntity
+import com.agcoding.cartrackingapp.data.local.database.entity.NotificationHistoryEntity
 import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
-    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class],
-    version = 16,
+    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class],
+    version = 17,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -31,6 +33,7 @@ abstract class CarDatabase : RoomDatabase() {
     abstract fun expenseCategoryDao(): ExpenseCategoryDao
     abstract fun carAttachmentDao(): CarAttachmentDao
     abstract fun tripDao(): TripDao
+    abstract fun notificationHistoryDao(): NotificationHistoryDao
 
     companion object {
         @Volatile
@@ -47,7 +50,7 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
-                        MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16
+                        MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17
                     )
                     .fallbackToDestructiveMigration()
                     .build()
@@ -294,6 +297,23 @@ val MIGRATION_15_16 = object : Migration(15, 16) {
 
         // Create index for tripId in fuel_refills
         db.execSQL("CREATE INDEX IF NOT EXISTS index_fuel_refills_tripId ON fuel_refills(tripId)")
+    }
+}
+
+val MIGRATION_16_17 = object : Migration(16, 17) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Create notification_history table
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS notification_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT NOT NULL,
+                timestamp INTEGER NOT NULL
+            )
+        """.trimIndent())
+
+        // Create index on timestamp for efficient ordering
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_notification_history_timestamp ON notification_history(timestamp)")
     }
 }
 

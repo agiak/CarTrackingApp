@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,7 +35,9 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun DebugCard(
     isGenerating: Boolean,
     onGenerateSampleData: () -> Unit,
-    onTriggerReminderCheck: () -> Unit
+    onTriggerReminderCheck: () -> Unit,
+    onSendTestNotification: () -> Unit,
+    onResetNotificationFlags: () -> Unit
 ) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
@@ -53,7 +57,7 @@ fun DebugCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Sample Data Generation
+            // ── Sample Data Generation ─────────────────────────────────
             Text(
                 text = stringResource(R.string.settings_sample_data_details),
                 fontSize = 14.sp,
@@ -85,41 +89,96 @@ fun DebugCard(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ── Notification Testing Section ───────────────────────────
+            Text(
+                text = "Notification Testing",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Send Test Notification (instant)
+            Button(
+                onClick = onSendTestNotification,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.NotificationsActive,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.dev_trigger_test_notification))
+            }
+
             Text(
-                text = stringResource(R.string.settings_sample_data_details),
+                text = stringResource(R.string.dev_trigger_test_notification_desc),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 14.sp
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Trigger Reminder Check Button
+            // Trigger Reminder Check (via WorkManager)
             OutlinedButton(
                 onClick = onTriggerReminderCheck,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.dev_trigger_reminder_check),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Text(
+                text = stringResource(R.string.dev_trigger_reminder_check_desc),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 14.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Reset Notification Flags
+            OutlinedButton(
+                onClick = onResetNotificationFlags,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Notifications,
+                    imageVector = Icons.Default.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.error
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Check Reminders Now",
+                    text = stringResource(R.string.dev_reset_notification_flags),
                     color = MaterialTheme.colorScheme.error
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
             Text(
-                text = "Manually trigger reminder check worker (for testing)",
+                text = stringResource(R.string.dev_reset_notification_flags_desc),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 14.sp
@@ -135,7 +194,9 @@ private fun PreviewDebugCardLight() {
         DebugCard(
             isGenerating = false,
             onGenerateSampleData = {},
-            onTriggerReminderCheck = {}
+            onTriggerReminderCheck = {},
+            onSendTestNotification = {},
+            onResetNotificationFlags = {}
         )
     }
 }
@@ -147,7 +208,9 @@ private fun PreviewDebugCardGenerating() {
         DebugCard(
             isGenerating = true,
             onGenerateSampleData = {},
-            onTriggerReminderCheck = {}
+            onTriggerReminderCheck = {},
+            onSendTestNotification = {},
+            onResetNotificationFlags = {}
         )
     }
 }
@@ -159,7 +222,9 @@ private fun PreviewDebugCardDark() {
         DebugCard(
             isGenerating = false,
             onGenerateSampleData = {},
-            onTriggerReminderCheck = {}
+            onTriggerReminderCheck = {},
+            onSendTestNotification = {},
+            onResetNotificationFlags = {}
         )
     }
 }

@@ -53,6 +53,7 @@ import com.agcoding.cartrackingapp.presentation.expensecategories.ManageExpenseC
 import com.agcoding.cartrackingapp.presentation.expensedetails.ExpenseDetailsScreen
 import com.agcoding.cartrackingapp.presentation.expensehistory.ExpenseHistoryScreen
 import com.agcoding.cartrackingapp.presentation.insights.InsightsScreen
+import com.agcoding.cartrackingapp.presentation.notifications.NotificationHistoryScreen
 import com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
@@ -157,6 +158,7 @@ sealed class Screen(val route: String) {
     object ExpenseCategoriesSettings : Screen("settings/expense_categories")
     object HelpAboutSettings : Screen("settings/help_about")
     object DeveloperSettings : Screen("settings/developer")
+    object NotificationHistory : Screen("notification_history")
 }
 
 @Composable
@@ -444,6 +446,9 @@ fun AppNavigation(
                     onViewNotifications = {
                         navController.navigate(Screen.Notifications.route)
                     },
+                    onViewNotificationHistory = {
+                        navController.navigate(Screen.NotificationHistory.route)
+                    },
                     onOpenSettings = {
                         PermissionUtil.openAppSettings(context)
                     }
@@ -455,6 +460,17 @@ fun AppNavigation(
                 animationConfig = NavigationAnimations.HorizontalSlide
             ) {
                 DeveloperSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.NotificationHistory.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                NotificationHistoryScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

@@ -86,8 +86,17 @@
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">%s Reminder</string>
     <string name="notification_reminder_date_message">Your %s is due tomorrow (%s)</string>
+    <string name="notification_reminder_overdue_message">Your %s is overdue! It was due on %s</string>
     <string name="notification_reminder_mileage_message">Your %s is due soon (within %d km)</string>
     <string name="notification_reminder_both_message">Your %s is due soon (within %d km)</string>
+
+    <!-- Developer / Test Notifications -->
+    <string name="dev_trigger_test_notification">Send Test Notification</string>
+    <string name="dev_trigger_test_notification_desc">Send a real notification immediately to verify the notification pipeline works</string>
+    <string name="dev_trigger_reminder_check">Check Reminders Now</string>
+    <string name="dev_trigger_reminder_check_desc">Run the reminder-check worker immediately and send any due notifications</string>
+    <string name="dev_reset_notification_flags">Reset Notification Flags</string>
+    <string name="dev_reset_notification_flags_desc">Clear all \"already sent\" flags so reminders can fire again (for testing)</string>
 
     <!-- Reminder Banner -->
     <string name="reminder_banner_title">Service Reminders</string>
@@ -1063,5 +1072,21 @@
     <string name="trips_sort_shortest">Shortest Distance</string>
     <!-- Statistics – Trips Overview Show All button -->
     <string name="trips_overview_show_all">Show All</string>
+
+    <!-- Notification History -->
+    <string name="notification_history_title">Notification History</string>
+    <string name="notification_history_count">%d notification(s)</string>
+    <string name="notification_history_empty_title">No Notifications Yet</string>
+    <string name="notification_history_empty_message">Notifications you receive will appear here so you can review them later.</string>
+    <string name="notification_history_clear_title">Clear History</string>
+    <string name="notification_history_clear_message">Are you sure you want to delete all notification history? This action cannot be undone.</string>
+    <string name="notification_history_just_now">Just now</string>
+    <string name="notification_history_minutes_ago">%d min ago</string>
+    <string name="notification_history_hours_ago">%d hr ago</string>
+    <string name="notification_history_days_ago">%d day(s) ago</string>
+    <string name="notification_history_weeks_ago">%d week(s) ago</string>
+    <string name="notification_history_months_ago">%d month(s) ago</string>
+    <string name="notification_history_view">View Notification History</string>
+    <string name="notification_history_view_desc">See all previously received notifications</string>
 
 </resources>

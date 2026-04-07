@@ -827,8 +827,17 @@
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">Υπενθύμιση %s</string>
     <string name="notification_reminder_date_message">Το %s σας οφείλεται αύριο (%s)</string>
+    <string name="notification_reminder_overdue_message">Το %s σας έχει λήξει! Η ημερομηνία ήταν %s</string>
     <string name="notification_reminder_mileage_message">Το %s σας οφείλεται σύντομα (εντός %d χλμ)</string>
     <string name="notification_reminder_both_message">Το %s σας οφείλεται σύντομα (εντός %d χλμ)</string>
+
+    <!-- Developer / Test Notifications -->
+    <string name="dev_trigger_test_notification">Αποστολή Δοκιμαστικής Ειδοποίησης</string>
+    <string name="dev_trigger_test_notification_desc">Αποστολή πραγματικής ειδοποίησης αμέσως για επαλήθευση της λειτουργίας ειδοποιήσεων</string>
+    <string name="dev_trigger_reminder_check">Έλεγχος Υπενθυμίσεων Τώρα</string>
+    <string name="dev_trigger_reminder_check_desc">Εκτέλεση του worker ελέγχου υπενθυμίσεων αμέσως και αποστολή τυχόν οφειλόμενων ειδοποιήσεων</string>
+    <string name="dev_reset_notification_flags">Επαναφορά Σημαιών Ειδοποιήσεων</string>
+    <string name="dev_reset_notification_flags_desc">Καθαρισμός όλων των σημαιών \"ήδη εστάλη\" ώστε οι υπενθυμίσεις να ενεργοποιηθούν ξανά (για δοκιμή)</string>
 
     <!-- Reminder Banner -->
     <string name="reminder_banner_title">Υπενθυμίσεις Σέρβις</string>
@@ -1065,5 +1074,21 @@
     <string name="trips_sort_shortest">Μικρότερη Απόσταση</string>
     <!-- Statistics – Trips Overview Show All button -->
     <string name="trips_overview_show_all">Εμφάνιση Όλων</string>
+
+    <!-- Notification History -->
+    <string name="notification_history_title">Ιστορικό Ειδοποιήσεων</string>
+    <string name="notification_history_count">%d ειδοποίηση(εις)</string>
+    <string name="notification_history_empty_title">Δεν Υπάρχουν Ειδοποιήσεις</string>
+    <string name="notification_history_empty_message">Οι ειδοποιήσεις που λαμβάνετε θα εμφανίζονται εδώ για να τις ελέγχετε αργότερα.</string>
+    <string name="notification_history_clear_title">Εκκαθάριση Ιστορικού</string>
+    <string name="notification_history_clear_message">Είστε βέβαιοι ότι θέλετε να διαγράψετε όλο το ιστορικό ειδοποιήσεων; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+    <string name="notification_history_just_now">Μόλις τώρα</string>
+    <string name="notification_history_minutes_ago">%d λεπτ. πριν</string>
+    <string name="notification_history_hours_ago">%d ώρ. πριν</string>
+    <string name="notification_history_days_ago">%d ημέρ. πριν</string>
+    <string name="notification_history_weeks_ago">%d εβδ. πριν</string>
+    <string name="notification_history_months_ago">%d μήν. πριν</string>
+    <string name="notification_history_view">Ιστορικό Ειδοποιήσεων</string>
+    <string name="notification_history_view_desc">Δείτε όλες τις προηγούμενες ειδοποιήσεις</string>
 
 </resources>
