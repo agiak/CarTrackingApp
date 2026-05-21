@@ -54,6 +54,9 @@ workVersion = "2.10.0"
 # Glance (Widgets)
 glanceVersion = "1.1.1"
 
+# Android Auto / Car App Library
+carAppVersion = "1.7.0"
+
 # Retrofit & OkHttp
 retrofitVersion = "2.9.0"
 okhttpVersion = "4.12.0"
@@ -122,6 +125,9 @@ androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx"
 # Glance (Widgets)
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceVersion" }
 androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glanceVersion" }
+
+# Android Auto / Car App Library
+androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "carAppVersion" }
 
 # Retrofit & OkHttp
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }

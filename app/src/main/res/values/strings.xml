@@ -727,8 +727,13 @@
 
     <!-- Error Messages -->
     <string name="error_database">Database error. Please try again.</string>
+    <string name="error_http">Server error (code %1$d)</string>
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_not_found">Not found</string>
     <string name="error_permission">Permission required: %s</string>
-    <string name="error_not_found">%s not found</string>
+    <string name="error_server">Server error. Please try again.</string>
+    <string name="error_timeout">Request timed out</string>
+    <string name="error_unauthorized">Unauthorized. Please sign in again.</string>
     <string name="error_unknown">An unexpected error occurred</string>
 
     <!-- Expense Categories Management -->
@@ -1088,5 +1093,18 @@
     <string name="notification_history_months_ago">%d month(s) ago</string>
     <string name="notification_history_view">View Notification History</string>
     <string name="notification_history_view_desc">See all previously received notifications</string>
+
+    <!-- Android Auto -->
+    <string name="auto_home_title">Cariboo – My Cars</string>
+    <string name="auto_no_cars">No cars added yet. Open the app to add your first car.</string>
+    <string name="auto_car_plate">Plate: %1$s</string>
+    <string name="auto_add_refill">Add Refill</string>
+    <string name="auto_add_refill_subtitle">Log a new fuel refill for this car</string>
+    <string name="auto_add_refill_message">How would you like to log the refill for %1$s?</string>
+    <string name="auto_voice_input">🎤 Voice Input</string>
+    <string name="auto_manual_input">✏️ Manual Input</string>
+    <string name="auto_no_refills">No refills recorded yet</string>
+    <string name="auto_refill_row_title">Refill on %1$s</string>
+    <string name="auto_refill_row_detail">%1$s  •  %2$s</string>
 
 </resources>
