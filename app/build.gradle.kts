@@ -170,6 +170,9 @@ dependencies {
     // Glance (Widgets)
     implementation(libs.bundles.glance)
 
+    // Android Auto / Car App Library
+    implementation(libs.androidx.car.app)
+
     // Retrofit & OkHttp for API calls (Voice LLM integration)
     implementation(libs.bundles.networking)
 

@@ -702,8 +702,13 @@
 
     <!-- Error Messages -->
     <string name="error_database">Σφάλμα βάσης δεδομένων. Παρακαλώ δοκιμάστε ξανά.</string>
+    <string name="error_http">Σφάλμα διακομιστή (κωδικός %1$d)</string>
+    <string name="error_no_internet">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
+    <string name="error_not_found">Δεν βρέθηκε</string>
     <string name="error_permission">Απαιτείται άδεια: %s</string>
-    <string name="error_not_found">%s δεν βρέθηκε</string>
+    <string name="error_server">Σφάλμα διακομιστή. Παρακαλώ δοκιμάστε ξανά.</string>
+    <string name="error_timeout">Το αίτημα έληξε</string>
+    <string name="error_unauthorized">Μη εξουσιοδοτημένη πρόσβαση. Παρακαλώ συνδεθείτε ξανά.</string>
     <string name="error_unknown">Προέκυψε μη αναμενόμενο σφάλμα</string>
 
     <!-- Expense Categories Management -->
@@ -1090,5 +1095,18 @@
     <string name="notification_history_months_ago">%d μήν. πριν</string>
     <string name="notification_history_view">Ιστορικό Ειδοποιήσεων</string>
     <string name="notification_history_view_desc">Δείτε όλες τις προηγούμενες ειδοποιήσεις</string>
+
+    <!-- Android Auto -->
+    <string name="auto_home_title">Cariboo – Τα Αυτοκίνητά μου</string>
+    <string name="auto_no_cars">Δεν έχουν προστεθεί αυτοκίνητα. Ανοίξτε την εφαρμογή για να προσθέσετε το πρώτο σας.</string>
+    <string name="auto_car_plate">Πινακίδα: %1$s</string>
+    <string name="auto_add_refill">Προσθήκη Ανεφοδιασμού</string>
+    <string name="auto_add_refill_subtitle">Καταγραφή νέου ανεφοδιασμού για αυτό το αυτοκίνητο</string>
+    <string name="auto_add_refill_message">Πώς θέλετε να καταγράψετε τον ανεφοδιασμό για %1$s;</string>
+    <string name="auto_voice_input">🎤 Φωνητική Εισαγωγή</string>
+    <string name="auto_manual_input">✏️ Χειροκίνητη Εισαγωγή</string>
+    <string name="auto_no_refills">Δεν έχουν καταγραφεί ανεφοδιασμοί ακόμα</string>
+    <string name="auto_refill_row_title">Ανεφοδιασμός %1$s</string>
+    <string name="auto_refill_row_detail">%1$s  •  %2$s</string>
 
 </resources>
