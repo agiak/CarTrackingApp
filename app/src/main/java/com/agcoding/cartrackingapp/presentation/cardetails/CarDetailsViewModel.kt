@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.cardetails
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -16,7 +17,10 @@ import com.agcoding.cartrackingapp.domain.usecase.car.DeleteCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetRecentTripsByCarUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +42,8 @@ class CarDetailsViewModel @Inject constructor(
     private val getAttachmentFileUseCase: GetAttachmentFileUseCase,
     private val getRecentTripsByCarUseCase: GetRecentTripsByCarUseCase,
     private val tripRepository: TripRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val carId: Long = savedStateHandle.get<Long>("carId") ?: 0L
@@ -131,7 +136,7 @@ class CarDetailsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val odometerValue = odometer.toDoubleOrNull() ?: 0.0
-            updateCarUseCase(
+            when (updateCarUseCase(
                 carId = carId,
                 name = name,
                 licensePlate = licensePlate,
@@ -145,23 +150,23 @@ class CarDetailsViewModel @Inject constructor(
                 lastTireChangeDate = lastTireChangeDate,
                 tireBrand = tireBrand,
                 tireDimensions = tireDimensions,
-                tireInstallationDate = tireInstallationDate
-            ).onSuccess {
-                hideEditDialog()
-                // Car details will auto-refresh through the flow
-            }.onFailure {
-                // Handle error - could add error state
+                tireInstallationDate = tireInstallationDate,
+            )) {
+                is Result.Success -> hideEditDialog()
+                is Result.Error -> Unit
             }
         }
     }
 
     fun deleteCar(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            deleteCarUseCase(carId).onSuccess {
-                hideDeleteDialog()
-                onSuccess()
-            }.onFailure {
-                // Handle error
+            when (deleteCarUseCase(carId)) {
+                is Result.Success -> {
+                    QuickAddWidgetReceiver.updateWidgets(context)
+                    hideDeleteDialog()
+                    onSuccess()
+                }
+                is Result.Error -> hideDeleteDialog()
             }
         }
     }

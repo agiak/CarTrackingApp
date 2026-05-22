@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.domain.repository
 
 import com.agcoding.cartrackingapp.domain.model.Trip
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import kotlinx.coroutines.flow.Flow
 
 interface TripRepository {

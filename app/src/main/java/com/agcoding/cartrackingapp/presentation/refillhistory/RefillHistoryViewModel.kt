@@ -9,6 +9,8 @@ import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -156,11 +158,9 @@ class RefillHistoryViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            addRefillsToTripUseCase(tripId, selectedIds).onSuccess {
-                clearSelection()
-                onSuccess()
-            }.onFailure { error ->
-                onError(error.message ?: "Failed to add refills to trip")
+            when (val result = addRefillsToTripUseCase(tripId, selectedIds)) {
+                is Result.Success -> { clearSelection(); onSuccess() }
+                is Result.Error -> onError(result.error.simpleMessage)
             }
         }
     }

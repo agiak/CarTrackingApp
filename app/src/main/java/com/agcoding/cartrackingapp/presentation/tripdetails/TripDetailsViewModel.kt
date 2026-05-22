@@ -10,6 +10,8 @@ import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.DeleteTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetTripDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.RemoveRefillsFromTripUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,11 +79,9 @@ class TripDetailsViewModel @Inject constructor(
 
     fun deleteTrip(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            deleteTripUseCase(tripId).onSuccess {
-                hideDeleteDialog()
-                onSuccess()
-            }.onFailure {
-                hideDeleteDialog()
+            when (deleteTripUseCase(tripId)) {
+                is Result.Success -> { hideDeleteDialog(); onSuccess() }
+                is Result.Error -> hideDeleteDialog()
             }
         }
     }
@@ -121,21 +121,18 @@ class TripDetailsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            addRefillsToTripUseCase(tripId, selectedIds).onSuccess {
-                hideAddRefillsDialog()
-                onSuccess()
-            }.onFailure { error ->
-                onError(error.message ?: "Failed to add refills")
+            when (val result = addRefillsToTripUseCase(tripId, selectedIds)) {
+                is Result.Success -> { hideAddRefillsDialog(); onSuccess() }
+                is Result.Error -> onError(result.error.simpleMessage)
             }
         }
     }
 
     fun removeRefill(refillId: Long, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            removeRefillsFromTripUseCase(listOf(refillId)).onSuccess {
-                onSuccess()
-            }.onFailure { error ->
-                onError(error.message ?: "Failed to remove refill")
+            when (val result = removeRefillsFromTripUseCase(listOf(refillId))) {
+                is Result.Success -> onSuccess()
+                is Result.Error -> onError(result.error.simpleMessage)
             }
         }
     }

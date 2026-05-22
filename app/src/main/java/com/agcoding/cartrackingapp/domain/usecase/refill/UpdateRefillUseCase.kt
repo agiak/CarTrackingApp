@@ -3,10 +3,12 @@ package com.agcoding.cartrackingapp.domain.usecase.refill
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.Location
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.shared.domain.error.AppError
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import javax.inject.Inject
 
 class UpdateRefillUseCase @Inject constructor(
-    private val refillRepository: RefillRepository
+    private val refillRepository: RefillRepository,
 ) {
     suspend operator fun invoke(
         refillId: Long,
@@ -17,15 +19,13 @@ class UpdateRefillUseCase @Inject constructor(
         odometerReading: Double,
         timestamp: Long,
         location: Location?,
-        notes: String?
-    ): Result<Unit> {
-        return try {
-            val pricePerLiter = amountPaid / litersAdded
-            val fuelConsumption = if (tripDistance > 0) {
-                (litersAdded / tripDistance) * 100.0
-            } else 0.0
+        notes: String?,
+    ): Result<Unit> = try {
+        val pricePerLiter = amountPaid / litersAdded
+        val fuelConsumption = if (tripDistance > 0) (litersAdded / tripDistance) * 100.0 else 0.0
 
-            val refill = FuelRefill(
+        refillRepository.updateRefill(
+            FuelRefill(
                 id = refillId,
                 carId = carId,
                 amountPaid = amountPaid,
@@ -36,14 +36,11 @@ class UpdateRefillUseCase @Inject constructor(
                 pricePerLiter = pricePerLiter,
                 location = location,
                 timestamp = timestamp,
-                notes = notes
+                notes = notes,
             )
-
-            refillRepository.updateRefill(refill)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        )
+        Result.Success(Unit)
+    } catch (e: Exception) {
+        Result.Error(AppError.DatabaseError(e))
     }
 }
-

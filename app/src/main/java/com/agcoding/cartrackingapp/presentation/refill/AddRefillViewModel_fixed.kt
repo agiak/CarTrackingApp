@@ -13,8 +13,12 @@ import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -208,22 +212,24 @@ class AddRefillViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true, errorMessage = null, fieldErrors = emptyMap())
 
-            addFuelRefillUseCase(
+            when (val result = addFuelRefillUseCase(
                 carId = carId,
                 amountPaid = amount,
                 litersAdded = liters,
                 tripDistance = distance,
                 timestamp = state.selectedDateMillis,
                 location = state.location,
-                notes = state.notes.takeIf { it.isNotBlank() }
-            ).onSuccess {
-                _uiState.value = state.copy(isSaving = false)
-                resetForm()
-                onSuccess()
-            }.onFailure { e ->
-                _uiState.value = state.copy(
+                notes = state.notes.takeIf { it.isNotBlank() },
+            )) {
+                is Result.Success -> {
+                    QuickAddWidgetReceiver.updateWidgets(context)
+                    _uiState.value = state.copy(isSaving = false)
+                    resetForm()
+                    onSuccess()
+                }
+                is Result.Error -> _uiState.value = state.copy(
                     isSaving = false,
-                    errorMessage = e.message ?: "Failed to save refill"
+                    errorMessage = result.error.simpleMessage,
                 )
             }
         }
@@ -252,7 +258,7 @@ class AddRefillViewModel @Inject constructor(
                 deviceLocale
             }
 
-            android.util.Log.d("VoiceEntry", "Starting voice recognition with locale: $languageCode")
+            Timber.d( "Starting voice recognition with locale: $languageCode")
 
             speechRecognitionService.startListening(
                 languageCode = languageCode
@@ -299,11 +305,11 @@ class AddRefillViewModel @Inject constructor(
      */
     private suspend fun parseVoiceTranscript(transcript: String) {
         try {
-            android.util.Log.d("VoiceEntry", "Parsing transcript: '$transcript'")
+            Timber.d( "Parsing transcript: '$transcript'")
 
             // Get the selected LLM model from preferences
             val selectedModel = settingsPreferences.llmModelFlow.first()
-            android.util.Log.d("VoiceEntry", "Selected LLM model: ${selectedModel.displayName} (${selectedModel.modelId})")
+            Timber.d( "Selected LLM model: ${selectedModel.displayName} (${selectedModel.modelId})")
 
             // Get OpenAI API key from BuildConfig (if configured)
             // To configure: Add to local.properties: OPENAI_API_KEY=your_key_here
@@ -318,20 +324,20 @@ class AddRefillViewModel @Inject constructor(
 
             when (result) {
                 is VoiceParsingResult.Success -> {
-                    android.util.Log.d("VoiceEntry", "Parse SUCCESS: ${result.data}")
+                    Timber.d( "Parse SUCCESS: ${result.data}")
                     _voiceState.value = VoiceRefillState.Parsed(result.data)
                 }
                 is VoiceParsingResult.LowConfidence -> {
-                    android.util.Log.d("VoiceEntry", "Parse LOW CONFIDENCE: ${result.data}")
+                    Timber.d( "Parse LOW CONFIDENCE: ${result.data}")
                     _voiceState.value = VoiceRefillState.Parsed(result.data, lowConfidence = true)
                 }
                 is VoiceParsingResult.Error -> {
-                    android.util.Log.e("VoiceEntry", "Parse ERROR: ${result.message}")
+                    Timber.e( "Parse ERROR: ${result.message}")
                     _voiceState.value = VoiceRefillState.Error(result.message, result.transcript)
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("VoiceEntry", "Exception parsing transcript: ${e.message}", e)
+            Timber.e(e, "Exception parsing transcript: ${e.message}")
             _voiceState.value = VoiceRefillState.Error(
                 "Failed to parse voice input: ${e.message}",
                 transcript
@@ -348,23 +354,23 @@ class AddRefillViewModel @Inject constructor(
         if (currentVoiceState is VoiceRefillState.Parsed) {
             val data = currentVoiceState.data
 
-            android.util.Log.d("VoiceEntry", "Applying parsed data to form:")
-            android.util.Log.d("VoiceEntry", "  cost=${data.cost}, liters=${data.liters}, distance=${data.distance}")
+            Timber.d( "Applying parsed data to form:")
+            Timber.d( "  cost=${data.cost}, liters=${data.liters}, distance=${data.distance}")
 
             // Apply parsed data to form fields with period (.) separator
             if (data.cost != null && data.cost > 0) {
                 val formatted = String.format(java.util.Locale.US, "%.2f", data.cost)
-                android.util.Log.d("VoiceEntry", "  Applying cost: $formatted")
+                Timber.d( "  Applying cost: $formatted")
                 updateAmountPaid(formatted)
             }
             if (data.liters != null && data.liters > 0) {
                 val formatted = String.format(java.util.Locale.US, "%.2f", data.liters)
-                android.util.Log.d("VoiceEntry", "  Applying liters: $formatted")
+                Timber.d( "  Applying liters: $formatted")
                 updateLitersAdded(formatted)
             }
             if (data.distance != null && data.distance > 0) {
                 val formatted = String.format(java.util.Locale.US, "%.0f", data.distance)
-                android.util.Log.d("VoiceEntry", "  Applying distance: $formatted")
+                Timber.d( "  Applying distance: $formatted")
                 updateTripDistance(formatted)
             }
 
@@ -378,7 +384,7 @@ class AddRefillViewModel @Inject constructor(
      * This triggers the final results processing
      */
     fun stopVoiceRecording() {
-        android.util.Log.d("VoiceEntry", "User manually stopped recording")
+        Timber.d( "User manually stopped recording")
         speechRecognitionService.stopListeningManually()
         // State will be updated when onResults callback fires
     }
@@ -387,7 +393,7 @@ class AddRefillViewModel @Inject constructor(
      * Cancel voice entry (dismiss without processing)
      */
     fun cancelVoiceEntry() {
-        android.util.Log.d("VoiceEntry", "User cancelled voice entry")
+        Timber.d( "User cancelled voice entry")
         speechRecognitionService.stopListening()
         _voiceState.value = VoiceRefillState.Idle
     }

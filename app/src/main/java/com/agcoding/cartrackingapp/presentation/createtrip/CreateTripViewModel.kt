@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.usecase.trip.CreateTripUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -99,20 +101,18 @@ class CreateTripViewModel @Inject constructor(
         _uiState.update { it.copy(isCreating = true) }
 
         viewModelScope.launch {
-            createTripUseCase(
+            when (val result = createTripUseCase(
                 carId = carId,
                 name = state.tripName,
                 description = state.tripDescription.ifBlank { null },
-                refillIds = state.selectedRefillIds.toList()
-            ).onSuccess {
-                _uiState.update { it.copy(isCreating = false) }
-                onSuccess()
-            }.onFailure { error ->
-                _uiState.update {
-                    it.copy(
-                        isCreating = false,
-                        error = error.message ?: "Failed to create trip"
-                    )
+                refillIds = state.selectedRefillIds.toList(),
+            )) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(isCreating = false) }
+                    onSuccess()
+                }
+                is Result.Error -> _uiState.update {
+                    it.copy(isCreating = false, error = result.error.simpleMessage)
                 }
             }
         }

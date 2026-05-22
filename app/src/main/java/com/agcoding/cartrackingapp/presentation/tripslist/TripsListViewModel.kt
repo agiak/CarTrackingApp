@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.domain.usecase.trip.DeleteTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetTripsByCarUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,11 +66,8 @@ class TripsListViewModel @Inject constructor(
     fun deleteTrip() {
         val tripId = _tripToDelete.value ?: return
         viewModelScope.launch {
-            deleteTripUseCase(tripId).onSuccess {
-                hideDeleteDialog()
-            }.onFailure {
-                // Handle error - could show snackbar
-                hideDeleteDialog()
+            when (deleteTripUseCase(tripId)) {
+                is Result.Success, is Result.Error -> hideDeleteDialog()
             }
         }
     }

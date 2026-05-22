@@ -7,6 +7,7 @@ import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.usecase.insights.GetAllAnomaliesUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -199,12 +200,7 @@ class InsightsViewModel @Inject constructor(
      */
     fun addRefillToTrip(refillId: Long, tripId: Long) {
         viewModelScope.launch {
-            addRefillsToTripUseCase(tripId, listOf(refillId)).onSuccess {
-                // Refill added successfully
-                // The observeTransactionChanges() will automatically trigger recomputation
-            }.onFailure {
-                // Handle error if needed - for now we'll let the automatic refresh handle it
-            }
+            addRefillsToTripUseCase(tripId, listOf(refillId))
         }
     }
 

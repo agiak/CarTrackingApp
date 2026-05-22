@@ -2,7 +2,6 @@ package com.agcoding.cartrackingapp.presentation.settings
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
@@ -32,11 +31,13 @@ import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.util.NotificationHelper
 import com.agcoding.cartrackingapp.util.StorageCheckResult
 import com.agcoding.cartrackingapp.util.StorageUtil
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import timber.log.Timber
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -253,7 +254,7 @@ class SettingsViewModel @Inject constructor(
     fun updateLLMModel(model: com.agcoding.cartrackingapp.domain.model.LLMModel) {
         viewModelScope.launch {
             settingsPreferences.updateLLMModel(model)
-            Log.d("SettingsViewModel", "LLM model updated to: ${model.displayName} (${model.modelId})")
+            Timber.d("LLM model updated to: ${model.displayName} (${model.modelId})")
         }
     }
 
@@ -779,8 +780,9 @@ class SettingsViewModel @Inject constructor(
                 updatedAt   = tw.anchorMs + (tw.refillCount - 1) * 5L * dayMs
             )
 
-            tripRepository.insertTrip(trip).onSuccess { tripId ->
-                tripRepository.addRefillsToTrip(tripId, linkedRefills)
+            when (val insertResult = tripRepository.insertTrip(trip)) {
+                is Result.Success -> tripRepository.addRefillsToTrip(insertResult.data, linkedRefills)
+                is Result.Error -> Timber.e("Failed to insert trip: ${insertResult.error}")
             }
         }
     }
@@ -1122,7 +1124,7 @@ class SettingsViewModel @Inject constructor(
     fun triggerReminderCheck(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                Log.d("SettingsViewModel", "Manually triggering reminder check worker")
+                Timber.d("Manually triggering reminder check worker")
 
                 val workRequest = OneTimeWorkRequestBuilder<ReminderCheckWorker>()
                     .build()
@@ -1130,9 +1132,9 @@ class SettingsViewModel @Inject constructor(
                 WorkManager.getInstance(context).enqueue(workRequest)
 
                 onSuccess()
-                Log.d("SettingsViewModel", "Reminder check worker enqueued successfully")
+                Timber.d("Reminder check worker enqueued successfully")
             } catch (e: Exception) {
-                Log.e("SettingsViewModel", "Failed to trigger reminder check", e)
+                Timber.e(e, "Failed to trigger reminder check")
                 onError(e.message ?: "Failed to trigger reminder check")
             }
         }
@@ -1158,10 +1160,10 @@ class SettingsViewModel @Inject constructor(
                         resetCount++
                     }
                 }
-                Log.d("SettingsViewModel", "Reset preExpiryNotificationSent on $resetCount expenses")
+                Timber.d("Reset preExpiryNotificationSent on $resetCount expenses")
                 onSuccess(resetCount)
             } catch (e: Exception) {
-                Log.e("SettingsViewModel", "Failed to reset notification flags", e)
+                Timber.e(e, "Failed to reset notification flags")
                 onError(e.message ?: "Failed to reset notification flags")
             }
         }

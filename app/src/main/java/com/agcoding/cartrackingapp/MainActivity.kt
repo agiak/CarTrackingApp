@@ -20,7 +20,7 @@ import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.presentation.navigation.AppNavigation
-import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -73,9 +73,9 @@ class MainActivity : AppCompatActivity() {
                 insetsController.isAppearanceLightNavigationBars = !useDarkTheme
             }
 
-            CarTrackingAppTheme(
-                darkTheme = useDarkTheme,
-                colorPalette = selectedPalette
+            AppTheme(
+                colorPalette = selectedPalette,
+                isDark       = useDarkTheme,
             ) {
                 // Set navigation bar color to match theme background
                 val backgroundColor = MaterialTheme.colorScheme.background
@@ -86,11 +86,11 @@ class MainActivity : AppCompatActivity() {
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color    = MaterialTheme.colorScheme.background,
                 ) {
                     AppNavigation(
                         widgetAction = this@MainActivity.widgetAction,
-                        widgetCarId = this@MainActivity.widgetCarId
+                        widgetCarId  = this@MainActivity.widgetCarId,
                     )
                 }
             }

@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import com.agcoding.cartrackingapp.data.export.SpreadsheetImportManager.Companion.REFILL_TOKEN_REGEX
 import com.agcoding.cartrackingapp.data.export.SpreadsheetImportManager.Companion.REFILL_TOKEN_SEP
 import com.agcoding.cartrackingapp.domain.model.Car
@@ -31,8 +30,10 @@ import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Result of spreadsheet import operation.
@@ -227,7 +228,7 @@ class SpreadsheetImportManager @Inject constructor(
 
             SampleFileResult.Success(filePath)
         } catch (e: Exception) {
-            Log.e("SpreadsheetImport", "Failed to generate sample file", e)
+            Timber.e(e, "Failed to generate sample file")
             SampleFileResult.Error("Failed to generate sample file: ${e.message}")
         }
     }
@@ -718,16 +719,17 @@ class SpreadsheetImportManager @Inject constructor(
                 )
 
                 val insertResult = tripRepository.insertTrip(trip)
-                insertResult.onSuccess { tripId ->
-                    if (resolvedRefillIds.isNotEmpty()) {
-                        tripRepository.addRefillsToTrip(tripId, resolvedRefillIds)
-                            .onFailure { e ->
-                                errors.add("Trips row ${rowIndex + 1}: failed to link refills – ${e.message}")
+                when (insertResult) {
+                    is Result.Success -> {
+                        if (resolvedRefillIds.isNotEmpty()) {
+                            when (val linkResult = tripRepository.addRefillsToTrip(insertResult.data, resolvedRefillIds)) {
+                                is Result.Success -> Unit
+                                is Result.Error -> errors.add("Trips row ${rowIndex + 1}: failed to link refills – ${linkResult.error}")
                             }
+                        }
+                        imported++
                     }
-                    imported++
-                }.onFailure { e ->
-                    errors.add("Trips row ${rowIndex + 1}: failed to create trip – ${e.message}")
+                    is Result.Error -> errors.add("Trips row ${rowIndex + 1}: failed to create trip – ${insertResult.error}")
                 }
             } catch (e: Exception) {
                 errors.add("Trips row ${rowIndex + 1}: ${e.message}")

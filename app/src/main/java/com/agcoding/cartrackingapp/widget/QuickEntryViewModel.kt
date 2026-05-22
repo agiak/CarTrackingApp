@@ -18,8 +18,11 @@ import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -125,31 +128,28 @@ class QuickEntryViewModel @Inject constructor(
                 )
 
                 if (!validationResult.isValid) {
-                    // Validation failed
-                    android.util.Log.w("QuickEntryViewModel", "Validation failed: ${validationResult.errors}")
+                    Timber.w("Validation failed: ${validationResult.errors}")
                     onError()
                     return@launch
                 }
 
-                // Use the same UseCase as the main app to ensure consistency
-                val result = addFuelRefillUseCase(
+                when (addFuelRefillUseCase(
                     carId = carId,
                     amountPaid = cost,
                     litersAdded = liters,
                     tripDistance = distance,
                     timestamp = timestamp,
-                    location = null, // Widget doesn't capture location
-                    notes = null
-                )
-
-                result.onSuccess {
-                    onSuccess(cost, timestamp)
-                }.onFailure { error ->
-                    android.util.Log.e("QuickEntryViewModel", "Failed to save refill: ${error.message}", error)
-                    onError()
+                    location = null,
+                    notes = null,
+                )) {
+                    is Result.Success -> {
+                        QuickAddWidgetReceiver.updateWidgets(context)
+                        onSuccess(cost, timestamp)
+                    }
+                    is Result.Error -> onError()
                 }
             } catch (e: Exception) {
-                android.util.Log.e("QuickEntryViewModel", "Error saving refill: ${e.message}", e)
+                Timber.e(e, "Error saving refill")
                 onError()
             }
         }
@@ -166,22 +166,21 @@ class QuickEntryViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // Use the same UseCase as the main app to ensure consistency
-                val result = addExpenseUseCase(
+                when (addExpenseUseCase(
                     carId = carId,
                     category = category,
                     amount = cost,
                     timestamp = timestamp,
-                    notes = notes
-                )
-
-                result.onSuccess {
-                    onSuccess(cost, timestamp)
-                }.onFailure { error ->
-                    android.util.Log.e("QuickEntryViewModel", "Failed to save expense: ${error.message}", error)
-                    onError()
+                    notes = notes,
+                )) {
+                    is Result.Success -> {
+                        QuickAddWidgetReceiver.updateWidgets(context)
+                        onSuccess(cost, timestamp)
+                    }
+                    is Result.Error -> onError()
                 }
             } catch (e: Exception) {
-                android.util.Log.e("QuickEntryViewModel", "Error saving expense: ${e.message}", e)
+                Timber.e(e, "Error saving expense")
                 onError()
             }
         }
@@ -193,29 +192,29 @@ class QuickEntryViewModel @Inject constructor(
      * Start voice entry - begins speech recognition
      */
     fun startVoiceEntry() {
-        android.util.Log.d("QuickVoiceEntry", "Starting voice entry")
+        Timber.d("Starting voice entry")
         _voiceState.value = VoiceRefillState.Listening(partialText = "")
 
         viewModelScope.launch {
             speechRecognitionService.startListening().collect { event ->
                 when (event) {
                     is SpeechRecognitionEvent.PartialResults -> {
-                        android.util.Log.d("QuickVoiceEntry", "Partial: ${event.text}")
+                        Timber.d("Partial: ${event.text}")
                         _voiceState.value = VoiceRefillState.Listening(partialText = event.text)
                     }
                     is SpeechRecognitionEvent.Results -> {
-                        android.util.Log.d("QuickVoiceEntry", "Final: ${event.text}")
+                        Timber.d("Final: ${event.text}")
                         parseVoiceTranscript(event.text)
                     }
                     is SpeechRecognitionEvent.Error -> {
-                        android.util.Log.e("QuickVoiceEntry", "Error: ${event.message}")
+                        Timber.e("Error: ${event.message}")
                         _voiceState.value = VoiceRefillState.Error(event.message)
                     }
                     SpeechRecognitionEvent.ReadyForSpeech -> {
-                        android.util.Log.d("QuickVoiceEntry", "Ready for speech")
+                        Timber.d("Ready for speech")
                     }
                     SpeechRecognitionEvent.EndOfSpeech -> {
-                        android.util.Log.d("QuickVoiceEntry", "End of speech")
+                        Timber.d("End of speech")
                     }
                     else -> {
                         // Ignore other events (Starting, BeginningOfSpeech, VolumeChanged)
@@ -230,7 +229,7 @@ class QuickEntryViewModel @Inject constructor(
      * This triggers the final result processing and parsing
      */
     fun stopVoiceRecording() {
-        android.util.Log.d("QuickVoiceEntry", "Stopping voice recording manually")
+        Timber.d("Stopping voice recording manually")
         speechRecognitionService.stopListeningManually()
     }
 
@@ -238,7 +237,7 @@ class QuickEntryViewModel @Inject constructor(
      * Cancel voice entry
      */
     fun cancelVoiceEntry() {
-        android.util.Log.d("QuickVoiceEntry", "Canceling voice entry")
+        Timber.d("Canceling voice entry")
         speechRecognitionService.stopListening()
         _voiceState.value = VoiceRefillState.Idle
         parsedVoiceData = null
@@ -248,7 +247,7 @@ class QuickEntryViewModel @Inject constructor(
      * Parse voice transcript using LLM or regex
      */
     private fun parseVoiceTranscript(transcript: String) {
-        android.util.Log.d("QuickVoiceEntry", "Parsing transcript: '$transcript'")
+        Timber.d("Parsing transcript: '$transcript'")
 
         if (transcript.isBlank()) {
             _voiceState.value = VoiceRefillState.Error("No speech detected")
@@ -261,7 +260,7 @@ class QuickEntryViewModel @Inject constructor(
             try {
                 // Get the selected LLM model from preferences
                 val selectedModel = settingsPreferences.llmModelFlow.first()
-                android.util.Log.d("QuickVoiceEntry", "Selected LLM model: ${selectedModel.displayName}")
+                Timber.d("Selected LLM model: ${selectedModel.displayName}")
 
                 // Get OpenAI API key from BuildConfig
                 val apiKey: String? = try {
@@ -274,22 +273,22 @@ class QuickEntryViewModel @Inject constructor(
 
                 when (result) {
                     is VoiceParsingResult.Success -> {
-                        android.util.Log.d("QuickVoiceEntry", "Parse SUCCESS: ${result.data}")
+                        Timber.d("Parse SUCCESS: ${result.data}")
                         parsedVoiceData = result.data
                         _voiceState.value = VoiceRefillState.Parsed(result.data)
                     }
                     is VoiceParsingResult.LowConfidence -> {
-                        android.util.Log.d("QuickVoiceEntry", "Low confidence: ${result.data}")
+                        Timber.d("Low confidence: ${result.data}")
                         parsedVoiceData = result.data
                         _voiceState.value = VoiceRefillState.Parsed(result.data)
                     }
                     is VoiceParsingResult.Error -> {
-                        android.util.Log.e("QuickVoiceEntry", "Parse ERROR: ${result.message}")
+                        Timber.e("Parse ERROR: ${result.message}")
                         _voiceState.value = VoiceRefillState.Error(result.message)
                     }
                 }
             } catch (e: Exception) {
-                android.util.Log.e("QuickVoiceEntry", "Exception during parsing: ${e.message}", e)
+                Timber.e(e, "Exception during parsing")
                 _voiceState.value = VoiceRefillState.Error(e.message ?: "Unknown error")
             }
         }
@@ -299,7 +298,7 @@ class QuickEntryViewModel @Inject constructor(
      * Confirm parsed voice data
      */
     fun confirmVoiceParsedData() {
-        android.util.Log.d("QuickVoiceEntry", "Confirming parsed data")
+        Timber.d("Confirming parsed data")
         _voiceState.value = VoiceRefillState.Idle
     }
 

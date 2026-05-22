@@ -8,6 +8,8 @@ import com.agcoding.cartrackingapp.data.local.LocationProvider
 import com.agcoding.cartrackingapp.domain.model.Location
 import com.agcoding.cartrackingapp.domain.usecase.refill.GetRefillDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.UpdateRefillUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -172,7 +174,7 @@ class EditRefillViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true, errorMessage = null)
 
-            updateRefillUseCase(
+            when (val result = updateRefillUseCase(
                 refillId = refillId,
                 carId = state.carId,
                 amountPaid = amount,
@@ -181,14 +183,15 @@ class EditRefillViewModel @Inject constructor(
                 odometerReading = odometer,
                 timestamp = state.selectedDateMillis,
                 location = state.location,
-                notes = state.notes.takeIf { it.isNotBlank() }
-            ).onSuccess {
-                _uiState.value = state.copy(isSaving = false)
-                onSuccess()
-            }.onFailure { e ->
-                _uiState.value = state.copy(
+                notes = state.notes.takeIf { it.isNotBlank() },
+            )) {
+                is Result.Success -> {
+                    _uiState.value = state.copy(isSaving = false)
+                    onSuccess()
+                }
+                is Result.Error -> _uiState.value = state.copy(
                     isSaving = false,
-                    errorMessage = e.message ?: "Failed to update refill"
+                    errorMessage = result.error.simpleMessage,
                 )
             }
         }

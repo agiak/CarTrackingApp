@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.usecase.refill.DeleteRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.GetRefillDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.RefillDetails
+import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.util.GeocodingUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -88,11 +89,9 @@ class RefillDetailsViewModel @Inject constructor(
 
     fun deleteRefill(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            deleteRefillUseCase(refillId).onSuccess {
-                hideDeleteDialog()
-                onSuccess()
-            }.onFailure {
-                // Handle error - could add error state
+            when (deleteRefillUseCase(refillId)) {
+                is Result.Success -> { hideDeleteDialog(); onSuccess() }
+                is Result.Error -> hideDeleteDialog()
             }
         }
     }

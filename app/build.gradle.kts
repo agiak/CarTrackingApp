@@ -180,6 +180,9 @@ dependencies {
     implementation(libs.bundles.moshi.bundle)
     ksp(libs.moshi.kotlin.codegen)
 
+    // Timber
+    implementation(libs.timber)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

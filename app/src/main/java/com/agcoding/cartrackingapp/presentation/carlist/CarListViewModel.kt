@@ -1,13 +1,16 @@
 package com.agcoding.cartrackingapp.presentation.carlist
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.data.preferences.ReminderBannerPreferences
 import com.agcoding.cartrackingapp.domain.usecase.car.AddCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.GetAllCarsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.expense.GetTodayRemindersCountUseCase
+import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,12 +27,9 @@ class CarListViewModel @Inject constructor(
     private val getAllCarsUseCase: GetAllCarsUseCase,
     private val addCarUseCase: AddCarUseCase,
     getTodayRemindersCountUseCase: GetTodayRemindersCountUseCase,
-    private val reminderBannerPreferences: ReminderBannerPreferences
+    private val reminderBannerPreferences: ReminderBannerPreferences,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
-
-    companion object {
-        private const val TAG = "CarListViewModel"
-    }
 
     private val _showAddCarDialog = MutableStateFlow(false)
     val showAddCarDialog: StateFlow<Boolean> = _showAddCarDialog.asStateFlow()
@@ -38,15 +38,7 @@ class CarListViewModel @Inject constructor(
     private val remindersFlow = getTodayRemindersCountUseCase()
         .flatMapLatest { reminderInfo ->
             reminderBannerPreferences.isBannerDismissed(reminderInfo.totalCount).map { isDismissed ->
-                Log.d(TAG, "Banner state check: " +
-                        "totalCount=${reminderInfo.totalCount}, " +
-                        "dateCount=${reminderInfo.dateBasedCount}, " +
-                        "mileageCount=${reminderInfo.mileageBasedCount}, " +
-                        "isDismissed=$isDismissed")
-
-                val result = if (isDismissed || reminderInfo.totalCount == 0) null else reminderInfo
-                Log.d(TAG, "Banner will show: ${result != null}")
-                result
+                if (isDismissed || reminderInfo.totalCount == 0) null else reminderInfo
             }
         }
 
@@ -80,14 +72,12 @@ class CarListViewModel @Inject constructor(
     fun addCar(name: String, licensePlate: String, odometer: String) {
         viewModelScope.launch {
             val odometerValue = odometer.toDoubleOrNull() ?: 0.0
-            addCarUseCase(
-                name = name,
-                licensePlate = licensePlate,
-                currentOdometer = odometerValue
-            ).onSuccess {
-                hideAddCarDialog()
-            }.onFailure { e ->
-                // Handle error - could add a separate error state
+            when (addCarUseCase(name = name, licensePlate = licensePlate, currentOdometer = odometerValue)) {
+                is Result.Success -> {
+                    QuickAddWidgetReceiver.updateWidgets(context)
+                    hideAddCarDialog()
+                }
+                is Result.Error -> Unit
             }
         }
     }
@@ -95,7 +85,6 @@ class CarListViewModel @Inject constructor(
     fun dismissBannerForToday() {
         viewModelScope.launch {
             val currentCount = (uiState.value as? CarListUiState.Success)?.reminderInfo?.totalCount ?: 0
-            Log.d(TAG, "Dismissing banner with count: $currentCount")
             reminderBannerPreferences.dismissBannerForToday(currentCount)
         }
     }
