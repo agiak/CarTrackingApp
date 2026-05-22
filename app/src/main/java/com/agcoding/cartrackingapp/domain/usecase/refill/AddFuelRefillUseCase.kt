@@ -25,7 +25,9 @@ class AddFuelRefillUseCase @Inject constructor(
         val car = carRepository.getCarById(carId).first()
             ?: return Result.Error(AppError.NotFound)
 
-        val newOdometerReading = car.currentOdometer + tripDistance
+        // currentOdometer is now computed dynamically (initialOdometer + totalDistance),
+        // so we use it directly for the historical odometerReading of this refill.
+        val odometerReading = car.currentOdometer + tripDistance
         val fuelConsumption = if (tripDistance > 0) (litersAdded / tripDistance) * 100.0 else 0.0
         val pricePerLiter = amountPaid / litersAdded
 
@@ -34,7 +36,7 @@ class AddFuelRefillUseCase @Inject constructor(
             amountPaid = amountPaid,
             litersAdded = litersAdded,
             tripDistance = tripDistance,
-            odometerReading = newOdometerReading,
+            odometerReading = odometerReading,
             fuelConsumption = fuelConsumption,
             pricePerLiter = pricePerLiter,
             location = location,
@@ -42,9 +44,7 @@ class AddFuelRefillUseCase @Inject constructor(
             notes = notes?.trim(),
         )
 
-        val refillId = refillRepository.insertRefill(refill)
-        carRepository.updateCar(car.copy(currentOdometer = newOdometerReading, updatedAt = System.currentTimeMillis()))
-        Result.Success(refillId)
+        Result.Success(refillRepository.insertRefill(refill))
     } catch (e: Exception) {
         Result.Error(AppError.DatabaseError(e))
     }

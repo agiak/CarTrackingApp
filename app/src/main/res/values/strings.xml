@@ -372,6 +372,8 @@
     <string name="distance_graph_trip_date_format">MMM d, yyyy</string>
 
     <!-- Generic -->
+    <string name="action_retry">Retry</string>
+    <string name="cd_navigate_up">Navigate up</string>
     <string name="error_title">Error</string>
     <string name="retry">Retry</string>
 

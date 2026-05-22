@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.domain.usecase.car
 
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.shared.domain.error.AppError
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import kotlinx.coroutines.flow.first
@@ -8,6 +9,7 @@ import javax.inject.Inject
 
 class UpdateCarUseCase @Inject constructor(
     private val carRepository: CarRepository,
+    private val refillRepository: RefillRepository,
 ) {
     suspend operator fun invoke(
         carId: Long,
@@ -28,9 +30,13 @@ class UpdateCarUseCase @Inject constructor(
         val existingCar = carRepository.getCarById(carId).first()
             ?: return Result.Error(AppError.NotFound)
 
+        val totalDistance = refillRepository.getRefillsByCarId(carId).first().sumOf { it.tripDistance }
+        val newInitialOdometer = maxOf(0.0, currentOdometer - totalDistance)
+
         val updatedCar = existingCar.copy(
             name = name.trim(),
             licensePlate = licensePlate.trim(),
+            initialOdometer = newInitialOdometer,
             currentOdometer = currentOdometer,
             insuranceExpirationDate = insuranceExpirationDate,
             kteoExpirationDate = kteoExpirationDate,

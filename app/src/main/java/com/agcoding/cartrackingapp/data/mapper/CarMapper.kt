@@ -13,7 +13,7 @@ fun CarEntity.toDomain(
         id = id,
         name = name,
         licensePlate = licensePlate,
-        currentOdometer = currentOdometer,
+        currentOdometer = initialOdometer + totalDistance,
         initialOdometer = initialOdometer,
         isDefault = isDefault,
         // Insurance

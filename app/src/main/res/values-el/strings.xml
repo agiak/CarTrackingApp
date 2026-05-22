@@ -345,6 +345,8 @@
     <string name="distance_graph_trip_date_format">MMM d, yyyy</string>
 
     <!-- Generic -->
+    <string name="action_retry">Δοκιμή ξανά</string>
+    <string name="cd_navigate_up">Πλοήγηση προς τα πάνω</string>
     <string name="error_title">Σφάλμα</string>
     <string name="retry">Δοκιμή ξανά</string>
 
