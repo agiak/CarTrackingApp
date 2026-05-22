@@ -1,8 +1,18 @@
 package com.agcoding.cartrackingapp.presentation.cardetails
 
-import androidx.compose.foundation.BorderStroke
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,30 +39,43 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.components.CarHeaderCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.IncompleteInformationBanner
@@ -86,6 +109,12 @@ fun CarDetailsScreen(
     val recentTrips by viewModel.recentTrips.collectAsState()
     val refillTripNames by viewModel.refillTripNames.collectAsState()
 
+    var showOverflowMenu by remember { mutableStateOf(false) }
+    var fabExpanded by remember { mutableStateOf(false) }
+    val isDefault = (uiState as? CarDetailsUiState.Success)?.statistics?.car?.isDefault == true
+
+    BackHandler(enabled = fabExpanded) { fabExpanded = false }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -99,12 +128,68 @@ fun CarDetailsScreen(
                         )
                     }
                 },
+                actions = {
+                    Box {
+                        IconButton(onClick = { showOverflowMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More options"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showOverflowMenu,
+                            onDismissRequest = { showOverflowMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.edit_car)) },
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                                onClick = { showOverflowMenu = false; onEditCarClick() }
+                            )
+                            if (!isDefault) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.set_as_default)) },
+                                    leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
+                                    onClick = {
+                                        showOverflowMenu = false
+                                        viewModel.setDefaultCar()
+                                        onDefaultCarSet()
+                                    }
+                                )
+                            }
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.view_attachments)) },
+                                leadingIcon = { Icon(Icons.Default.AttachFile, contentDescription = null) },
+                                onClick = { showOverflowMenu = false; onViewAttachments() }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                },
+                                onClick = { showOverflowMenu = false; viewModel.showDeleteDialog() }
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
+        },
+        floatingActionButton = {
+            SpeedDialFab(
+                expanded = fabExpanded,
+                onToggle = { fabExpanded = !fabExpanded },
+                onAddRefill = { fabExpanded = false; onAddRefillClick() },
+                onAddExpense = { fabExpanded = false; onAddExpenseClick() }
+            )
         }
     ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
         when (val state = uiState) {
             is CarDetailsUiState.Loading -> {
                 Box(
@@ -141,110 +226,6 @@ fun CarDetailsScreen(
                         ) {
                             CarHeaderCard(state.statistics)
 
-                            // Action buttons
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = onEditCarClick,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.edit_car))
-                                    }
-
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = { viewModel.showDeleteDialog() },
-                                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                            contentColor = MaterialTheme.colorScheme.error
-                                        ),
-                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.delete))
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = onAddExpenseClick,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Receipt,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.add_expense))
-                                    }
-
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = onAddRefillClick,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.LocalGasStation,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.add_refill))
-                                    }
-                                }
-
-                                // Set as Default and View Attachments buttons
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = {
-                                            viewModel.setDefaultCar()
-                                            onDefaultCarSet()
-                                        },
-                                        enabled = !state.statistics.car.isDefault,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text(
-                                            if (state.statistics.car.isDefault)
-                                                stringResource(R.string.default_car)
-                                            else
-                                                stringResource(R.string.set_as_default)
-                                        )
-                                    }
-
-                                    androidx.compose.material3.OutlinedButton(
-                                        onClick = onViewAttachments,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AttachFile,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.view_attachments))
-                                    }
-                                }
-                            }
-
                             // Incomplete information banner
                             val car = state.statistics.car
                             val hasMissingInfo = car.insuranceExpirationDate == null ||
@@ -274,7 +255,7 @@ fun CarDetailsScreen(
                             modifier = Modifier
                                 .weight(0.55f)
                                 .fillMaxHeight(),
-                            contentPadding = PaddingValues(bottom = 16.dp),
+                            contentPadding = PaddingValues(bottom = 88.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             // Refills section
@@ -359,122 +340,13 @@ fun CarDetailsScreen(
                             start = 16.dp,
                             end = 16.dp,
                             top = 16.dp,
-                            bottom = 16.dp
+                            bottom = 88.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Car header with icon
                         item {
                             CarHeaderCard(state.statistics)
-                        }
-
-                        // Edit and Delete buttons
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = onEditCarClick,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.edit_car))
-                                }
-
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = { viewModel.showDeleteDialog() },
-                                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                        contentColor = MaterialTheme.colorScheme.error
-                                    ),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.delete))
-                                }
-                            }
-                        }
-
-                        // Expense and Refill action buttons
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = onAddExpenseClick,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Receipt,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.add_expense))
-                                }
-
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = onAddRefillClick,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.LocalGasStation,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.add_refill))
-                                }
-                            }
-                        }
-
-                        // Set as Default and View Attachments buttons
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = {
-                                        viewModel.setDefaultCar()
-                                        onDefaultCarSet()
-                                    },
-                                    enabled = !state.statistics.car.isDefault,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        if (state.statistics.car.isDefault)
-                                            stringResource(R.string.default_car)
-                                        else
-                                            stringResource(R.string.set_as_default)
-                                    )
-                                }
-
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = onViewAttachments,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.AttachFile,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.view_attachments))
-                                }
-                            }
                         }
 
                         // Incomplete information banner (show if any optional field is missing)
@@ -674,6 +546,24 @@ fun CarDetailsScreen(
                 }
             }
         }
+
+        // Scrim overlay — closes FAB when tapping outside
+        AnimatedVisibility(
+            visible = fabExpanded,
+            enter = fadeIn(tween(200)),
+            exit = fadeOut(tween(200))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.32f))
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { fabExpanded = false }
+            )
+        }
+        } // closes outer Box
     }
 
     if (showDeleteDialog) {
@@ -761,6 +651,103 @@ fun TripCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SpeedDialFab(
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    onAddRefill: () -> Unit,
+    onAddExpense: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Mini items — slide up from below with fade
+        AnimatedVisibility(
+            visible = expanded,
+            enter = slideInVertically(
+                initialOffsetY = { it / 2 },
+                animationSpec = tween(250)
+            ) + fadeIn(animationSpec = tween(200)),
+            exit = slideOutVertically(
+                targetOffsetY = { it / 2 },
+                animationSpec = tween(200)
+            ) + fadeOut(animationSpec = tween(150))
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MiniSpeedDialItem(
+                    label = "Add Expense",
+                    icon = Icons.Default.Receipt,
+                    onClick = onAddExpense
+                )
+                MiniSpeedDialItem(
+                    label = "Add Refill",
+                    icon = Icons.Default.LocalGasStation,
+                    onClick = onAddRefill
+                )
+            }
+        }
+
+        // Main FAB — "+" rotates to "×" when expanded
+        val rotation by animateFloatAsState(
+            targetValue = if (expanded) 45f else 0f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            ),
+            label = "fabRotation"
+        )
+        FloatingActionButton(
+            onClick = onToggle,
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = if (expanded) "Close" else "Add action",
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.rotate(rotation)
+            )
+        }
+    }
+}
+
+@Composable
+private fun MiniSpeedDialItem(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Label chip
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 3.dp,
+            tonalElevation = 3.dp
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
+        // Small FAB
+        SmallFloatingActionButton(
+            onClick = onClick,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        ) {
+            Icon(imageVector = icon, contentDescription = label)
         }
     }
 }

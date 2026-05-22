@@ -66,6 +66,7 @@ fun AddExpenseScreen(
     carId: Long,
     expenseType: String = "", // Kept for backward compatibility
     onNavigateBack: () -> Unit,
+    onExpenseSaved: () -> Unit = {},
     viewModel: AddExpenseViewModel = hiltViewModel()
 ) {
     val category by viewModel.category.collectAsState()
@@ -74,6 +75,7 @@ fun AddExpenseScreen(
     val availableCategories by viewModel.availableCategories.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val amountError by viewModel.amountError.collectAsState()
+    val categoryError by viewModel.categoryError.collectAsState()
     val notes by viewModel.notes.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
@@ -142,8 +144,16 @@ fun AddExpenseScreen(
                     Text(
                         text = stringResource(R.string.expense_category),
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = if (categoryError != null) MaterialTheme.colorScheme.error
+                                else MaterialTheme.colorScheme.onSurface
                     )
+                    if (categoryError != null) {
+                        Text(
+                            text = categoryError!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -361,6 +371,7 @@ fun AddExpenseScreen(
                         onClick = {
                             viewModel.saveExpense(
                                 onSuccess = {
+                                    onExpenseSaved()
                                     onNavigateBack()
                                 },
                                 onError = { error ->
@@ -401,8 +412,16 @@ fun AddExpenseScreen(
                 Text(
                     text = stringResource(R.string.expense_category),
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (categoryError != null) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.onSurface
                 )
+                if (categoryError != null) {
+                    Text(
+                        text = categoryError!!,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

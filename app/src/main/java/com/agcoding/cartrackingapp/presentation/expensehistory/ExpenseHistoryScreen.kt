@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,7 +21,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,12 +33,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensehistory.components.ExpenseHistoryContent
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,27 +53,34 @@ fun ExpenseHistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sortOption by viewModel.sortOption.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val startDate by viewModel.startDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
     var showSortMenu by remember { mutableStateOf(false) }
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
 
-    // Check if sort is non-default
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    val hasDateFilter = startDate != null || endDate != null
     val hasNonDefaultSort = sortOption != ExpenseSortOption.MOST_RECENT
+    val hasAnyFilter = hasNonDefaultSort || hasDateFilter
 
-    // Create active sort chip
-    val getActiveSortChip: @Composable () -> List<ActiveFilter> = {
-        if (hasNonDefaultSort) {
-            listOf(
-                ActiveFilter(
-                    id = "sort",
-                    label = stringResource(sortOption.displayNameResId),
-                    onRemove = { viewModel.setSortOption(ExpenseSortOption.MOST_RECENT) }
-                )
-            )
-        } else {
-            emptyList()
-        }
+    val activeFilters: List<ActiveFilter> = buildList {
+        if (hasNonDefaultSort) add(ActiveFilter(
+            id = "sort",
+            label = stringResource(sortOption.displayNameResId),
+            onRemove = { viewModel.setSortOption(ExpenseSortOption.MOST_RECENT) }
+        ))
+        if (startDate != null) add(ActiveFilter(
+            id = "start",
+            label = stringResource(R.string.date_filter_from_label, dateFormat.format(Date(startDate!!))),
+            onRemove = { viewModel.setStartDate(null) }
+        ))
+        if (endDate != null) add(ActiveFilter(
+            id = "end",
+            label = stringResource(R.string.date_filter_to_label, dateFormat.format(Date(endDate!!))),
+            onRemove = { viewModel.setEndDate(null) }
+        ))
     }
-
-    val activeSortChips = getActiveSortChip()
 
     Scaffold(
         topBar = {
@@ -80,6 +95,26 @@ fun ExpenseHistoryScreen(
                     }
                 },
                 actions = {
+                    // Date range filter button
+                    BadgedBox(
+                        badge = {
+                            if (hasDateFilter) {
+                                Badge(
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
+                        }
+                    ) {
+                        IconButton(onClick = { showStartDatePicker = true }) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "Filter by date",
+                                tint = if (hasDateFilter) MaterialTheme.colorScheme.secondary
+                                       else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                     // Sort button with badge indicator
                     BadgedBox(
                         badge = {
@@ -147,10 +182,15 @@ fun ExpenseHistoryScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    // Active sort chip
+                    // Active filter chips (sort + date range)
                     ActiveFiltersRow(
-                        activeFilters = activeSortChips,
-                        onClearAll = null // No clear all needed for single chip
+                        activeFilters = activeFilters,
+                        onClearAll = if (activeFilters.size > 1) {
+                            {
+                                viewModel.setSortOption(ExpenseSortOption.MOST_RECENT)
+                                viewModel.clearDateFilter()
+                            }
+                        } else null
                     )
 
                     // Expense list
@@ -181,6 +221,41 @@ fun ExpenseHistoryScreen(
                 }
             }
         }
+    }
+
+    // Start date picker
+    if (showStartDatePicker) {
+        val pickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
+        DatePickerDialog(
+            onDismissRequest = { showStartDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { viewModel.setStartDate(it) }
+                    showStartDatePicker = false
+                    showEndDatePicker = true
+                }) { Text(stringResource(R.string.date_filter_next_end_date)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartDatePicker = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        ) { DatePicker(state = pickerState) }
+    }
+
+    // End date picker
+    if (showEndDatePicker) {
+        val pickerState = rememberDatePickerState(initialSelectedDateMillis = endDate)
+        DatePickerDialog(
+            onDismissRequest = { showEndDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { viewModel.setEndDate(it) }
+                    showEndDatePicker = false
+                }) { Text(stringResource(R.string.apply)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndDatePicker = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        ) { DatePicker(state = pickerState) }
     }
 }
 

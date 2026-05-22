@@ -51,6 +51,8 @@ class AddRefillViewModel @Inject constructor(
     private val _voiceState = MutableStateFlow<VoiceRefillState>(VoiceRefillState.Idle)
     val voiceState: StateFlow<VoiceRefillState> = _voiceState.asStateFlow()
 
+    val isVoiceAvailable: Boolean get() = speechRecognitionService.isAvailable()
+
     fun setCarId(id: Long) {
         carId = id
 

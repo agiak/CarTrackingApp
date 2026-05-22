@@ -123,7 +123,8 @@ fun AddRefillBottomSheet(
                 onStopVoiceRecording = viewModel::stopVoiceRecording,
                 onConfirmParsedData = viewModel::confirmVoiceParsedData,
                 onCancelVoiceEntry = viewModel::cancelVoiceEntry,
-                onRetryVoiceEntry = viewModel::startVoiceEntry
+                onRetryVoiceEntry = viewModel::startVoiceEntry,
+                isVoiceAvailable = viewModel.isVoiceAvailable
             )
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -62,6 +62,7 @@ fun VoiceEntrySection(
     onConfirmParsedData: () -> Unit,
     onCancelVoiceEntry: () -> Unit,
     onRetryVoiceEntry: () -> Unit,
+    isVoiceAvailable: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -79,8 +80,8 @@ fun VoiceEntrySection(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        // Voice entry button
-        AnimatedVisibility(visible = voiceState is VoiceRefillState.Idle) {
+        // Voice entry button — only shown when device supports speech recognition
+        AnimatedVisibility(visible = isVoiceAvailable && voiceState is VoiceRefillState.Idle) {
             OutlinedButton(
                 onClick = {
                     // Check permission and request if needed

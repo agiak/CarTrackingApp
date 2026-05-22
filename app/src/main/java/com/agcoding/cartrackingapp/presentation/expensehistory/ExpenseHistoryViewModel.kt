@@ -41,47 +41,49 @@ class ExpenseHistoryViewModel @Inject constructor(
     private val _sortOption = MutableStateFlow(ExpenseSortOption.MOST_RECENT)
     val sortOption: StateFlow<ExpenseSortOption> = _sortOption.asStateFlow()
 
-    private val _selectedCategory = MutableStateFlow<String?>(null) // null means "All"
+    private val _selectedCategory = MutableStateFlow<String?>(null)
     val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
+
+    private val _startDate = MutableStateFlow<Long?>(null)
+    val startDate: StateFlow<Long?> = _startDate.asStateFlow()
+
+    private val _endDate = MutableStateFlow<Long?>(null)
+    val endDate: StateFlow<Long?> = _endDate.asStateFlow()
 
     val uiState: StateFlow<ExpenseHistoryUiState> = combine(
         expenseRepository.getExpensesByCarId(carId),
         _sortOption,
-        _selectedCategory
-    ) { expenses, sortOption, selectedCategory ->
-        // Get all unique categories from expenses
+        _selectedCategory,
+        _startDate,
+        _endDate
+    ) { expenses, sortOption, selectedCategory, startDate, endDate ->
         val availableCategories = expenses.map { it.category }.distinct().sorted()
 
-        // Filter by category if one is selected
-        val filteredExpenses = if (selectedCategory != null) {
-            expenses.filter { it.category == selectedCategory }
-        } else {
-            expenses
+        var filtered = expenses
+        if (selectedCategory != null) filtered = filtered.filter { it.category == selectedCategory }
+        if (startDate != null) filtered = filtered.filter { it.timestamp >= startDate }
+        if (endDate != null) {
+            // include the full end day (end of day = endDate + 24h - 1ms)
+            filtered = filtered.filter { it.timestamp <= endDate + 86_399_999L }
         }
 
-        // Sort the filtered expenses
-        val sortedExpenses = when (sortOption) {
-            ExpenseSortOption.MOST_RECENT -> filteredExpenses.sortedByDescending { it.timestamp }
-            ExpenseSortOption.OLDEST -> filteredExpenses.sortedBy { it.timestamp }
-            ExpenseSortOption.MOST_EXPENSIVE -> filteredExpenses.sortedByDescending { it.amount }
-            ExpenseSortOption.CHEAPEST -> filteredExpenses.sortedBy { it.amount }
+        val sorted = when (sortOption) {
+            ExpenseSortOption.MOST_RECENT -> filtered.sortedByDescending { it.timestamp }
+            ExpenseSortOption.OLDEST -> filtered.sortedBy { it.timestamp }
+            ExpenseSortOption.MOST_EXPENSIVE -> filtered.sortedByDescending { it.amount }
+            ExpenseSortOption.CHEAPEST -> filtered.sortedBy { it.amount }
         }
-        ExpenseHistoryUiState.Success(
-            expenses = sortedExpenses,
-            availableCategories = availableCategories
-        )
+        ExpenseHistoryUiState.Success(expenses = sorted, availableCategories = availableCategories)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ExpenseHistoryUiState.Loading
     )
 
-    fun setSortOption(option: ExpenseSortOption) {
-        _sortOption.value = option
-    }
-
-    fun setSelectedCategory(category: String?) {
-        _selectedCategory.value = category
-    }
+    fun setSortOption(option: ExpenseSortOption) { _sortOption.value = option }
+    fun setSelectedCategory(category: String?) { _selectedCategory.value = category }
+    fun setStartDate(date: Long?) { _startDate.value = date }
+    fun setEndDate(date: Long?) { _endDate.value = date }
+    fun clearDateFilter() { _startDate.value = null; _endDate.value = null }
 }
 

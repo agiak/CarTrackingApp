@@ -69,13 +69,14 @@ class CarListViewModel @Inject constructor(
         _showAddCarDialog.value = false
     }
 
-    fun addCar(name: String, licensePlate: String, odometer: String) {
+    fun addCar(name: String, licensePlate: String, odometer: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             val odometerValue = odometer.toDoubleOrNull() ?: 0.0
             when (addCarUseCase(name = name, licensePlate = licensePlate, currentOdometer = odometerValue)) {
                 is Result.Success -> {
                     QuickAddWidgetReceiver.updateWidgets(context)
                     hideAddCarDialog()
+                    onSuccess()
                 }
                 is Result.Error -> Unit
             }

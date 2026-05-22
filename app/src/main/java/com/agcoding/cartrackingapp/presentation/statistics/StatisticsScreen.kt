@@ -305,7 +305,7 @@ private fun SummarySection(
             if (statistics.tripAverageConsumption > 0) {
                 TripStatsCard(
                     title = "Trip Avg Consumption",
-                    value = "${String.format("%.2f", statistics.tripAverageConsumption)} L/100km",
+                    value = "${String.format("%.1f", statistics.tripAverageConsumption)} L/100km",
                     subtitle = "Average consumption during trips",
                     modifier = Modifier.fillMaxWidth()
                 )

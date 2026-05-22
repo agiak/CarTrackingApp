@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -173,7 +174,7 @@ fun CarCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
-                        icon = Icons.Default.Speed,
+                        icon = Icons.Default.Route,
                         label = stringResource(R.string.car_card_distance),
                         value = stringResource(
                             R.string.car_card_km_format,
@@ -184,7 +185,7 @@ fun CarCard(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     MetricItem(
-                        icon = Icons.Default.Speed,
+                        icon = Icons.Default.LocalGasStation,
                         label = stringResource(R.string.car_card_avg_consumption),
                         value = if (car.averageConsumption > 0) {
                             stringResource(

@@ -1111,4 +1111,40 @@
     <string name="auto_refill_row_title">Ανεφοδιασμός %1$s</string>
     <string name="auto_refill_row_detail">%1$s  •  %2$s</string>
 
+    <!-- Undo / delete feedback -->
+    <string name="undo">Αναίρεση</string>
+    <string name="refill_deleted">Ο ανεφοδιασμός διαγράφηκε</string>
+    <string name="expense_deleted">Το έξοδο διαγράφηκε</string>
+    <string name="car_added_successfully">Το αυτοκίνητο προστέθηκε</string>
+    <string name="expense_saved">Το έξοδο αποθηκεύτηκε</string>
+
+    <!-- Expense validation -->
+    <string name="error_category_required">Παρακαλώ επιλέξτε ή εισάγετε κατηγορία</string>
+
+    <!-- Trip Details Screen -->
+    <string name="trip_details_title">Λεπτομέρειες Ταξιδιού</string>
+    <string name="delete_trip">Διαγραφή Ταξιδιού</string>
+    <string name="delete_trip_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το ταξίδι; Τα ανεφοδιασμοί δεν θα διαγραφούν.</string>
+    <string name="refill_removed_from_trip">Ο ανεφοδιασμός αφαιρέθηκε από το ταξίδι</string>
+    <string name="refills_added_to_trip">Οι ανεφοδιασμοί προστέθηκαν στο ταξίδι</string>
+    <string name="add_refills_to_trip_title">Προσθήκη Ανεφοδιασμών στο Ταξίδι</string>
+    <string name="no_available_refills_message">Δεν υπάρχουν διαθέσιμοι ανεφοδιασμοί. Όλοι ανήκουν σε κάποιο ταξίδι.</string>
+    <string name="select_refills_to_add">Επιλέξτε ανεφοδιασμούς για προσθήκη σε αυτό το ταξίδι:</string>
+    <string name="add_count_format">Προσθήκη (%1$d)</string>
+    <string name="delete_trip_cd">Διαγραφή Ταξιδιού</string>
+
+    <!-- Create Trip Screen -->
+    <string name="create_trip_title">Δημιουργία Ταξιδιού</string>
+    <string name="trip_name_required_label">Όνομα Ταξιδιού *</string>
+    <string name="trip_name_placeholder">π.χ. Θερινές Διακοπές 2026</string>
+    <string name="trip_description_label">Περιγραφή (προαιρετικό)</string>
+    <string name="trip_description_placeholder">π.χ. Ετήσιο οδικό ταξίδι στα βουνά</string>
+    <string name="trip_sort_label">Ταξινόμηση ανεφοδιασμών</string>
+
+    <!-- Expense History Date Filter -->
+    <string name="date_filter_next_end_date">Επόμενο: Ημ/νία λήξης</string>
+    <string name="date_filter_apply">Εφαρμογή</string>
+    <string name="date_filter_from_label">Από: %1$s</string>
+    <string name="date_filter_to_label">Έως: %1$s</string>
+
 </resources>

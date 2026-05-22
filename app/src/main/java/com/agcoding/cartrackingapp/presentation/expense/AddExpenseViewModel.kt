@@ -93,6 +93,9 @@ class AddExpenseViewModel @Inject constructor(
     private val _amountError = MutableStateFlow<String?>(null)
     val amountError: StateFlow<String?> = _amountError.asStateFlow()
 
+    private val _categoryError = MutableStateFlow<String?>(null)
+    val categoryError: StateFlow<String?> = _categoryError.asStateFlow()
+
     // Service reminder fields
     private val _serviceReminderEnabled = MutableStateFlow(false)
     val serviceReminderEnabled: StateFlow<Boolean> = _serviceReminderEnabled.asStateFlow()
@@ -116,6 +119,7 @@ class AddExpenseViewModel @Inject constructor(
 
     fun selectCategory(value: String) {
         _category.value = value
+        _categoryError.value = null
         _showCustomCategoryField.value = false
         _customCategoryText.value = ""
     }
@@ -133,8 +137,8 @@ class AddExpenseViewModel @Inject constructor(
 
     fun updateCustomCategoryText(value: String) {
         _customCategoryText.value = value
-        // Update the category value with the custom text
         _category.value = value
+        if (value.isNotBlank()) _categoryError.value = null
     }
 
     fun toggleCategoryDropdown() {
@@ -213,9 +217,10 @@ class AddExpenseViewModel @Inject constructor(
         val categoryValue = category.value.trim()
 
         if (categoryValue.isBlank()) {
-            onError("Please select or enter a category")
+            _categoryError.value = application.getString(R.string.error_category_required)
             return
         }
+        _categoryError.value = null
 
         if (amountValue == null || amountValue <= 0) {
             onError("Please enter a valid amount")

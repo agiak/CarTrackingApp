@@ -8,6 +8,7 @@ import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
+import com.agcoding.cartrackingapp.domain.usecase.refill.DeleteRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
@@ -27,6 +28,7 @@ class RefillHistoryViewModel @Inject constructor(
     private val refillRepository: RefillRepository,
     private val tripRepository: TripRepository,
     private val addRefillsToTripUseCase: AddRefillsToTripUseCase,
+    private val deleteRefillUseCase: DeleteRefillUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -148,6 +150,28 @@ class RefillHistoryViewModel @Inject constructor(
     fun clearSelection() {
         _isSelectionMode.value = false
         _selectedRefillIds.value = emptySet()
+    }
+
+    fun deleteSelectedRefills(onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
+        val ids = _selectedRefillIds.value.toList()
+        if (ids.isEmpty()) return
+
+        viewModelScope.launch {
+            var deletedCount = 0
+            var lastError: String? = null
+            ids.forEach { id ->
+                when (val result = deleteRefillUseCase(id)) {
+                    is Result.Success -> deletedCount++
+                    is Result.Error -> lastError = result.error.simpleMessage
+                }
+            }
+            clearSelection()
+            if (lastError != null && deletedCount == 0) {
+                onError(lastError!!)
+            } else {
+                onSuccess(deletedCount)
+            }
+        }
     }
 
     fun addSelectedToTrip(tripId: Long, onSuccess: () -> Unit, onError: (String) -> Unit) {

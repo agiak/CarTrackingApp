@@ -38,12 +38,14 @@ class MainActivity : AppCompatActivity() {
 
     private var widgetAction: String? = null
     private var widgetCarId: Long? = null
+    private var notificationExpenseId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Handle widget deep links
+        // Handle widget and notification deep links
         handleWidgetIntent(intent)
+        handleNotificationIntent(intent)
 
         // Enable edge-to-edge display with proper system bar handling
         enableEdgeToEdge()
@@ -89,8 +91,9 @@ class MainActivity : AppCompatActivity() {
                     color    = MaterialTheme.colorScheme.background,
                 ) {
                     AppNavigation(
-                        widgetAction = this@MainActivity.widgetAction,
-                        widgetCarId  = this@MainActivity.widgetCarId,
+                        widgetAction           = this@MainActivity.widgetAction,
+                        widgetCarId            = this@MainActivity.widgetCarId,
+                        notificationExpenseId  = this@MainActivity.notificationExpenseId,
                     )
                 }
             }
@@ -101,10 +104,15 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleWidgetIntent(intent)
+        handleNotificationIntent(intent)
     }
 
     private fun handleWidgetIntent(intent: Intent) {
         widgetAction = intent.getStringExtra("widget_action")
         widgetCarId = intent.getLongExtra("car_id", -1L).takeIf { it != -1L }
+    }
+
+    private fun handleNotificationIntent(intent: Intent) {
+        notificationExpenseId = intent.getLongExtra("expense_id", -1L).takeIf { it != -1L }
     }
 }

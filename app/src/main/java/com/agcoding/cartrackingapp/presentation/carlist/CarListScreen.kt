@@ -20,11 +20,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -55,9 +60,13 @@ fun CarListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showAddCarDialog by viewModel.showAddCarDialog.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             StyledTopAppBar(
                 title = { Text(stringResource(R.string.car_list_title)) }
@@ -213,7 +222,14 @@ fun CarListScreen(
             AddCarDialog(
                 onDismiss = { viewModel.hideAddCarDialog() },
                 onConfirm = { name, plate, odometer ->
-                    viewModel.addCar(name, plate, odometer)
+                    viewModel.addCar(name, plate, odometer) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.car_added_successfully),
+                                duration = androidx.compose.material3.SnackbarDuration.Short
+                            )
+                        }
+                    }
                 }
             )
         }

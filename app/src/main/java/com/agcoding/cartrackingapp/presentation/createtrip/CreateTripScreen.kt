@@ -78,7 +78,7 @@ fun CreateTripScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             StyledTopAppBar(
-                title = { Text("Create Trip") },
+                title = { Text(stringResource(R.string.create_trip_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -105,7 +105,7 @@ fun CreateTripScreen(
                         modifier = Modifier.weight(1f),
                         enabled = !uiState.isCreating
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                     Button(
                         onClick = {
@@ -121,7 +121,7 @@ fun CreateTripScreen(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
-                            Text("Create Trip")
+                            Text(stringResource(R.string.create_trip_title))
                         }
                     }
                 }
@@ -150,8 +150,8 @@ fun CreateTripScreen(
                     OutlinedTextField(
                         value = uiState.tripName,
                         onValueChange = viewModel::onTripNameChanged,
-                        label = { Text("Trip Name *") },
-                        placeholder = { Text("e.g., Summer Vacation 2026") },
+                        label = { Text(stringResource(R.string.trip_name_required_label)) },
+                        placeholder = { Text(stringResource(R.string.trip_name_placeholder)) },
                         modifier = Modifier.fillMaxWidth(),
                         isError = uiState.nameError != null,
                         supportingText = uiState.nameError?.let { { Text(it) } },

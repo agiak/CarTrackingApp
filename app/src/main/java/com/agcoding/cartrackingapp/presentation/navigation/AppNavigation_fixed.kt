@@ -166,7 +166,8 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController(),
     navigationViewModel: NavigationViewModel = hiltViewModel(),
     widgetAction: String? = null,
-    widgetCarId: Long? = null
+    widgetCarId: Long? = null,
+    notificationExpenseId: Long? = null
 ) {
     var showAddRefillSheet by remember { mutableStateOf<Long?>(null) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -186,6 +187,15 @@ fun AppNavigation(
                 widgetCarId?.let { carId ->
                     navController.navigate(Screen.AddExpense.createRoute(carId))
                 }
+            }
+        }
+    }
+
+    // Handle notification deep links — navigate to the specific reminder
+    LaunchedEffect(notificationExpenseId) {
+        notificationExpenseId?.let { expenseId ->
+            navController.navigate(Screen.EditReminder.createRoute(expenseId)) {
+                launchSingleTop = true
             }
         }
     }
@@ -805,6 +815,14 @@ fun AppNavigation(
                     carId = carId,
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onExpenseSaved = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = navController.context.getString(R.string.expense_saved),
+                                duration = androidx.compose.material3.SnackbarDuration.Short
+                            )
+                        }
                     }
                 )
             }

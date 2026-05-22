@@ -80,9 +80,10 @@ class NotificationHelper @Inject constructor(
 
         val title = context.getString(R.string.notification_reminder_title, category)
 
-        // Create intent to open app when notification is tapped
+        // Create intent to open app and navigate to the specific expense reminder
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("expense_id", expenseId)
         }
 
         val pendingIntent = PendingIntent.getActivity(

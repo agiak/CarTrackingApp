@@ -131,7 +131,7 @@ fun StatisticsContent(
                 AnalysisButtonsGrid(
                     onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
-                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null
+                    onFuelForecastClick = onFuelForecastClick
                 )
             }
 
@@ -186,30 +186,6 @@ fun StatisticsContent(
                         monthlyTrendCards()
                     }
 
-                    if (statistics.monthlyTrends.size > 5) {
-                        item {
-                            OutlinedButton(
-                                onClick = onMonthlyTrendsClick,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                ),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                )
-                            ) {
-                                Text(
-                                    stringResource(
-                                        R.string.view_all_months_format,
-                                        statistics.monthlyTrends.size
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
 
 
@@ -254,7 +230,7 @@ fun StatisticsContent(
                 AnalysisButtonsGrid(
                     onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
-                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null
+                    onFuelForecastClick = onFuelForecastClick
                 )
             }
 

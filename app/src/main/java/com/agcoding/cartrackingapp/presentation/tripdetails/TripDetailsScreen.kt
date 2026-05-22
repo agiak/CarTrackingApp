@@ -72,12 +72,13 @@ fun TripDetailsScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             StyledTopAppBar(
-                title = { Text("Trip Details") },
+                title = { Text(stringResource(R.string.trip_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -90,7 +91,7 @@ fun TripDetailsScreen(
                     IconButton(onClick = { viewModel.showDeleteDialog() }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Trip",
+                            contentDescription = stringResource(R.string.delete_trip_cd),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -120,7 +121,7 @@ fun TripDetailsScreen(
                             refillId = refillId,
                             onSuccess = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Refill removed from trip")
+                                    snackbarHostState.showSnackbar(context.getString(R.string.refill_removed_from_trip))
                                 }
                             },
                             onError = { error ->
@@ -150,20 +151,20 @@ fun TripDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
-            title = { Text("Delete Trip") },
-            text = { Text("Are you sure you want to delete this trip? The refills will not be deleted.") },
+            title = { Text(stringResource(R.string.delete_trip)) },
+            text = { Text(stringResource(R.string.delete_trip_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteTrip(onSuccess = onNavigateBack)
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -173,15 +174,15 @@ fun TripDetailsScreen(
     if (showAddRefillsDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideAddRefillsDialog() },
-            title = { Text("Add Refills to Trip") },
+            title = { Text(stringResource(R.string.add_refills_to_trip_title)) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (availableRefills.isEmpty()) {
-                        Text("No available refills to add. All refills are already in trips.")
+                        Text(stringResource(R.string.no_available_refills_message))
                     } else {
-                        Text("Select refills to add to this trip:")
+                        Text(stringResource(R.string.select_refills_to_add))
 
                         LazyColumn(
                             modifier = Modifier
@@ -225,7 +226,7 @@ fun TripDetailsScreen(
                             viewModel.addSelectedRefills(
                                 onSuccess = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("Refills added to trip")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.refills_added_to_trip))
                                     }
                                 },
                                 onError = { error ->
@@ -237,13 +238,13 @@ fun TripDetailsScreen(
                         },
                         enabled = selectedRefillIds.isNotEmpty()
                     ) {
-                        Text("Add (${selectedRefillIds.size})")
+                        Text(stringResource(R.string.add_count_format, selectedRefillIds.size))
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideAddRefillsDialog() }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

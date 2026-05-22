@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,6 +75,7 @@ fun RefillHistoryScreen(
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showAddToTripDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -113,6 +116,28 @@ fun RefillHistoryScreen(
                         }
                     },
                     actions = {
+                        // Delete selected
+                        IconButton(
+                            onClick = { showDeleteConfirmDialog = true },
+                            enabled = selectedRefillIds.isNotEmpty()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete selected",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        // New trip from selection
+                        TextButton(
+                            onClick = {
+                                viewModel.clearSelection()
+                                onCreateTripClick()
+                            },
+                            enabled = selectedRefillIds.isNotEmpty()
+                        ) {
+                            Text("NEW TRIP")
+                        }
+                        // Add to existing trip
                         TextButton(
                             onClick = { showAddToTripDialog = true },
                             enabled = selectedRefillIds.isNotEmpty()
@@ -270,6 +295,39 @@ fun RefillHistoryScreen(
                 }
             }
         }
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            title = { Text("Delete ${selectedRefillIds.size} refill(s)?") },
+            text = { Text("This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        viewModel.deleteSelectedRefills(
+                            onSuccess = { count ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Deleted $count refill(s)")
+                                }
+                            },
+                            onError = { error ->
+                                scope.launch { snackbarHostState.showSnackbar(error) }
+                            }
+                        )
+                    }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     // Add to Trip Dialog

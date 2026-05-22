@@ -473,7 +473,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                     label = stringResource(R.string.average_price_per_liter),
                     value = stringResource(
                         R.string.currency_eur_format,
-                        String.format("%.3f", state.refillsCost / state.totalLiters)
+                        String.format("%.2f", state.refillsCost / state.totalLiters)
                     )
                 )
             }
