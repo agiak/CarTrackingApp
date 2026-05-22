@@ -47,15 +47,15 @@ serializationVersion = "1.7.3"
 
 # Apache POI
 apachePoiVersion = "5.2.3"
+# log4j-api: forced to 2.21.1+ for Android (POI 5.2.3 pulls old 2.17.2 which uses
+# deprecated Class.newInstance() that crashes on Android API 31+).
+log4jApiVersion = "2.21.1"
 
 # WorkManager
 workVersion = "2.10.0"
 
 # Glance (Widgets)
 glanceVersion = "1.1.1"
-
-# Android Auto / Car App Library
-carAppVersion = "1.7.0"
 
 # Retrofit & OkHttp
 retrofitVersion = "2.9.0"
@@ -121,6 +121,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Apache POI for Excel files
 apache-poi = { group = "org.apache.poi", name = "poi", version.ref = "apachePoiVersion" }
 apache-poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "apachePoiVersion" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4jApiVersion" }
 
 # WorkManager
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workVersion" }
@@ -128,9 +129,6 @@ androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx"
 # Glance (Widgets)
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceVersion" }
 androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glanceVersion" }
-
-# Android Auto / Car App Library
-androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "carAppVersion" }
 
 # Retrofit & OkHttp
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }

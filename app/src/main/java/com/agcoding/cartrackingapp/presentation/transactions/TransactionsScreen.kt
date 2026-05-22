@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -32,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -64,12 +66,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransactionsScreen(
     onTransactionClick: (Transaction) -> Unit,
+    onAddRefill: (carId: Long) -> Unit = {},
+    onAddExpense: (carId: Long) -> Unit = {},
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
     val transactions by viewModel.transactions.collectAsStateWithLifecycle()
     val filter by viewModel.filter.collectAsStateWithLifecycle()
     val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
     val cars by viewModel.cars.collectAsStateWithLifecycle()
+    val hasAnyTransactions by viewModel.hasAnyTransactions.collectAsStateWithLifecycle()
+    val defaultCarId by viewModel.defaultCarId.collectAsStateWithLifecycle()
 
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSortSheet by remember { mutableStateOf(false) }
@@ -195,7 +201,6 @@ fun TransactionsScreen(
     ) { paddingValues ->
 
         if (transactions.isEmpty()) {
-            // Empty state
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -203,19 +208,46 @@ fun TransactionsScreen(
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Receipt,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.no_transactions_found),
+                        text = stringResource(
+                            if (!hasAnyTransactions) R.string.no_transactions_yet
+                            else R.string.no_transactions_found
+                        ),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (!hasAnyTransactions && defaultCarId != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Button(onClick = { defaultCarId?.let { onAddRefill(it) } }) {
+                            Icon(
+                                imageVector = Icons.Default.LocalGasStation,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(stringResource(R.string.refill_widget_label))
+                        }
+                        OutlinedButton(onClick = { defaultCarId?.let { onAddExpense(it) } }) {
+                            Icon(
+                                imageVector = Icons.Default.Receipt,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(stringResource(R.string.expense_widget_label))
+                        }
+                    }
                 }
             }
         } else if (useSplitView) {

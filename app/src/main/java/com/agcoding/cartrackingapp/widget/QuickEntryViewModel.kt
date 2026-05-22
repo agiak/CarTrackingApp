@@ -43,6 +43,8 @@ class QuickEntryViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    val isVoiceAvailable: Boolean get() = speechRecognitionService.isAvailable()
+
     private var carId: Long = -1L
 
     private val _carName = MutableStateFlow<String?>(null)

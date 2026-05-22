@@ -341,7 +341,9 @@ fun AppNavigation(
                                 navController.navigate(Screen.ExpenseDetails.createRoute(transaction.id))
                             }
                         }
-                    }
+                    },
+                    onAddRefill = { carId -> showAddRefillSheet = carId },
+                    onAddExpense = { carId -> navController.navigate(Screen.AddExpense.createRoute(carId)) }
                 )
             }
 

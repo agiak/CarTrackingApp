@@ -22,9 +22,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -266,11 +265,9 @@ fun TripDetailsContent(
     ) {
         // Trip Header
         item {
-            Card(
+            StyledCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Column(
                     modifier = Modifier
@@ -410,11 +407,9 @@ fun StatCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    StyledCard(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier

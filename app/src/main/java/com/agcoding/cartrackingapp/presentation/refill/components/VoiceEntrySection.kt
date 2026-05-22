@@ -17,13 +17,12 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -113,11 +112,9 @@ fun VoiceEntrySection(
 
         // Listening state with manual Stop control
         AnimatedVisibility(visible = voiceState is VoiceRefillState.Listening) {
-            Card(
+            StyledCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
                 VoiceListeningIndicator(
                     partialText = (voiceState as? VoiceRefillState.Listening)?.partialText ?: ""
@@ -157,7 +154,7 @@ fun VoiceEntrySection(
 
         // Processing state
         AnimatedVisibility(visible = voiceState is VoiceRefillState.Processing) {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            StyledCard(modifier = Modifier.fillMaxWidth()) {
                 VoiceProcessingIndicator(
                     transcript = (voiceState as? VoiceRefillState.Processing)?.transcript ?: ""
                 )
@@ -166,7 +163,7 @@ fun VoiceEntrySection(
 
         // Error state
         AnimatedVisibility(visible = voiceState is VoiceRefillState.Error) {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            StyledCard(modifier = Modifier.fillMaxWidth()) {
                 val errorState = voiceState as? VoiceRefillState.Error
                 VoiceErrorState(
                     message = errorState?.message ?: "",

@@ -15,28 +15,103 @@
 # Preserve the line number information for debugging stack traces.
 -keepattributes SourceFile,LineNumberTable
 
+# Disable R8 optimization that rewrites lambdas using LambdaMetafactory —
+# LambdaMetafactory is a hidden Android API blocked on API 31+ (our targetSdk is 36).
+# Without this, R8 inlines lambdas in third-party libs (e.g. commons-compress) into
+# LambdaMetafactory calls which crash at runtime with "hiddenapi: ... denied".
+-optimizations !method/inlining/unique,!method/inlining/short
+
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
 # ================================================================================================
-# Apache POI (Excel library) - Missing classes warnings
+# Apache POI (Excel library)
 # ================================================================================================
+# Suppress warnings for desktop/JEE APIs that don't exist on Android
 -dontwarn java.awt.**
 -dontwarn javax.xml.stream.**
+-dontwarn javax.xml.namespace.**
 -dontwarn net.sf.saxon.**
 -dontwarn org.apache.batik.**
 -dontwarn org.osgi.framework.**
-
-# Keep Apache POI classes used in the app
--keep class org.apache.poi.ss.usermodel.** { *; }
--keep class org.apache.poi.xssf.usermodel.** { *; }
--keep class org.apache.poi.ss.util.** { *; }
--keep class org.apache.poi.util.** { *; }
 -dontwarn org.apache.poi.**
 -dontwarn org.apache.xmlbeans.**
 -dontwarn org.openxmlformats.**
 -dontwarn com.microsoft.schemas.**
+-dontwarn schemasMicrosoftComOfficeExcel.**
+-dontwarn schemasMicrosoftComOfficeWord.**
+-dontwarn schemasMicrosoftComOfficePowerpoint.**
+-dontwarn schemaorg_apache_xmlbeans.**
+
+# Keep all Apache POI classes — POI uses reflection internally
+-keep class org.apache.poi.** { *; }
+-keepclassmembers class org.apache.poi.** { *; }
+
+# Keep HSSF (XLS) and XSSF (XLSX) workbook implementations explicitly.
+# WorkbookFactory uses ServiceLoader — we avoid it in code, but keep these in
+# case any indirect reflection path still references them.
+-keep class org.apache.poi.hssf.usermodel.HSSFWorkbook { *; }
+-keep class org.apache.poi.hssf.usermodel.HSSFWorkbookFactory { *; }
+-keep class org.apache.poi.xssf.usermodel.XSSFWorkbook { *; }
+-keep class org.apache.poi.xssf.usermodel.XSSFWorkbookFactory { *; }
+-keep class * implements org.apache.poi.ss.usermodel.IWorkbookFactory { *; }
+
+# XMLBeans (used by POI for XLSX/OOXML parsing) — heavy reflection usage
+-keep class org.apache.xmlbeans.** { *; }
+-keepclassmembers class org.apache.xmlbeans.** { *; }
+
+# OpenXMLFormats schemas (bundled inside poi-ooxml-schemas / poi-ooxml)
+-keep class org.openxmlformats.schemas.** { *; }
+-keepclassmembers class org.openxmlformats.schemas.** { *; }
+
+# Microsoft compound document schemas
+-keep class com.microsoft.schemas.** { *; }
+-keepclassmembers class com.microsoft.schemas.** { *; }
+
+# SchemaOrg XMLBeans generated classes
+-keep class schemaorg_apache_xmlbeans.** { *; }
+-keepclassmembers class schemaorg_apache_xmlbeans.** { *; }
+
+# ================================================================================================
+# Log4j API (newer 2.21.1 — replaces POI's old 2.17.2 to fix Android Class.newInstance issue)
+# ================================================================================================
+# Missing annotation classes referenced by log4j-api 2.21+ that aren't on Android classpath
+-dontwarn aQute.bnd.annotation.spi.ServiceConsumer
+-dontwarn aQute.bnd.annotation.spi.ServiceProvider
+-dontwarn edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+-dontwarn org.osgi.annotation.bundle.**
+-dontwarn org.osgi.annotation.versioning.**
+-dontwarn org.osgi.framework.**
+
+# Keep log4j-api classes — POI uses them via reflection / ServiceLoader
+-keep class org.apache.logging.log4j.** { *; }
+-keepclassmembers class org.apache.logging.log4j.** { *; }
+# Critical: keep the factory classes that AbstractLogger instantiates via reflection
+-keep class org.apache.logging.log4j.message.DefaultFlowMessageFactory { *; }
+-keep class org.apache.logging.log4j.message.ParameterizedMessageFactory { *; }
+-keep class org.apache.logging.log4j.message.ReusableMessageFactory { *; }
+
+# ================================================================================================
+# Apache Commons Compress (used by poi-ooxml for XLSX/ZIP writing)
+# ================================================================================================
+-dontwarn org.apache.commons.compress.**
+
+# Keep ALL commons-compress classes and constructors.
+# ExtraFieldUtils.<clinit> calls register(AsiExtraField.class) and verifies the class
+# is concrete via reflection. R8 strips no-arg constructors it deems "unused", causing
+# "AsiExtraField is not a concrete class" at runtime.
+-keep class org.apache.commons.compress.** { *; }
+-keepclassmembers class org.apache.commons.compress.** {
+    public <init>(...);
+    public <init>();
+}
+
+# Prevent R8 from inlining lambdas inside commons-compress into LambdaMetafactory
+# calls — LambdaMetafactory is a hidden Android API blocked on API 31+ (targetSdk 36).
+-keepclassmembers,allowoptimization class org.apache.commons.compress.** {
+    *;
+}
 
 # ================================================================================================
 # Kotlin Serialization

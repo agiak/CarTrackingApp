@@ -612,6 +612,7 @@
     <string name="transaction_type">Τύπος Συναλλαγής</string>
     <string name="filter_transactions">Φιλτράρισμα Συναλλαγών</string>
     <string name="no_transactions_found">Δεν βρέθηκαν συναλλαγές</string>
+    <string name="no_transactions_yet">Δεν υπάρχουν συναλλαγές ακόμα</string>
     <string name="sort_by">Ταξινόμηση Κατά</string>
     <string name="sort_date_newest">Ημερομηνία: Νεότερα Πρώτα</string>
     <string name="sort_date_oldest">Ημερομηνία: Παλαιότερα Πρώτα</string>
@@ -1097,19 +1098,6 @@
     <string name="notification_history_months_ago">%d μήν. πριν</string>
     <string name="notification_history_view">Ιστορικό Ειδοποιήσεων</string>
     <string name="notification_history_view_desc">Δείτε όλες τις προηγούμενες ειδοποιήσεις</string>
-
-    <!-- Android Auto -->
-    <string name="auto_home_title">Cariboo – Τα Αυτοκίνητά μου</string>
-    <string name="auto_no_cars">Δεν έχουν προστεθεί αυτοκίνητα. Ανοίξτε την εφαρμογή για να προσθέσετε το πρώτο σας.</string>
-    <string name="auto_car_plate">Πινακίδα: %1$s</string>
-    <string name="auto_add_refill">Προσθήκη Ανεφοδιασμού</string>
-    <string name="auto_add_refill_subtitle">Καταγραφή νέου ανεφοδιασμού για αυτό το αυτοκίνητο</string>
-    <string name="auto_add_refill_message">Πώς θέλετε να καταγράψετε τον ανεφοδιασμό για %1$s;</string>
-    <string name="auto_voice_input">🎤 Φωνητική Εισαγωγή</string>
-    <string name="auto_manual_input">✏️ Χειροκίνητη Εισαγωγή</string>
-    <string name="auto_no_refills">Δεν έχουν καταγραφεί ανεφοδιασμοί ακόμα</string>
-    <string name="auto_refill_row_title">Ανεφοδιασμός %1$s</string>
-    <string name="auto_refill_row_detail">%1$s  •  %2$s</string>
 
     <!-- Undo / delete feedback -->
     <string name="undo">Αναίρεση</string>

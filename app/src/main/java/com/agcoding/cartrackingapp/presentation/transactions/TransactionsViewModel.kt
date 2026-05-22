@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -47,6 +48,14 @@ class TransactionsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    val defaultCarId: StateFlow<Long?> = carRepository.getAllCars()
+        .map { list -> (list.firstOrNull { it.isDefault } ?: list.firstOrNull())?.id }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val hasAnyTransactions: StateFlow<Boolean> = getAllTransactionsUseCase()
+        .map { it.isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // Get all transactions and apply filters and sorting
     val transactions: StateFlow<List<TransactionWithData>> = combine(

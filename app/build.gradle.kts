@@ -17,8 +17,8 @@ android {
         applicationId = "com.agcoding.cartrackingapp"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 11
-        versionName = "1.0.10"
+        versionCode = 13
+        versionName = "1.0.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -51,7 +51,7 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -128,6 +128,14 @@ android {
     }
 }
 
+// Force a consistent log4j-api version across all configurations so any transitive
+// dependency that pulls an older version (e.g. POI 5.2.3 → 2.17.2) is upgraded.
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.logging.log4j:log4j-api:${libs.versions.log4jApiVersion.get()}")
+    }
+}
+
 dependencies {
     // Core Android
     implementation(libs.androidx.core.ktx)
@@ -162,16 +170,22 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Apache POI for Excel files
-    implementation(libs.bundles.apache.poi.bundle)
+    // Exclude old log4j-api (2.17.2) bundled by POI — uses deprecated Class.newInstance()
+    // which crashes on Android API 31+ with InstantiationException for DefaultFlowMessageFactory.
+    implementation(libs.apache.poi) {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+    }
+    implementation(libs.apache.poi.ooxml) {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-api")
+    }
+    // Force newer log4j-api (2.21.1+) that uses getDeclaredConstructor().newInstance()
+    implementation(libs.log4j.api)
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
     // Glance (Widgets)
     implementation(libs.bundles.glance)
-
-    // Android Auto / Car App Library
-    implementation(libs.androidx.car.app)
 
     // Retrofit & OkHttp for API calls (Voice LLM integration)
     implementation(libs.bundles.networking)

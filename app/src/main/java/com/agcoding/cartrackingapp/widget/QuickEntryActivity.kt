@@ -373,6 +373,7 @@ private fun QuickRefillDialog(
 
     // Voice state
     val voiceState by viewModel.voiceState.collectAsState()
+    val isVoiceAvailable = viewModel.isVoiceAvailable
 
     // Handle voice parsed data - auto-fill form fields
     androidx.compose.runtime.LaunchedEffect(voiceState) {
@@ -454,7 +455,7 @@ private fun QuickRefillDialog(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Voice Entry Section
-                    when (voiceState) {
+                    if (isVoiceAvailable) when (voiceState) {
                         is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle -> {
                             // Show voice button
                             OutlinedButton(

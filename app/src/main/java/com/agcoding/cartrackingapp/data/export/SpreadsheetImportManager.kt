@@ -20,11 +20,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
-import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.BufferedReader
 import java.text.SimpleDateFormat
@@ -188,11 +188,16 @@ class SpreadsheetImportManager @Inject constructor(
 
             val fileName = getFileName(uri)
             val isCSV = fileName?.endsWith(".csv", ignoreCase = true) == true
+            val isLegacyXLS = fileName?.endsWith(".xls", ignoreCase = true) == true &&
+                    !fileName.endsWith(".xlsx", ignoreCase = true)
 
             if (isCSV) {
                 importFromCSV(inputStream.bufferedReader())
             } else {
-                val workbook = WorkbookFactory.create(inputStream)
+                // Instantiate directly — avoids WorkbookFactory's ServiceLoader which gets
+                // stripped by R8 in release builds (META-INF/services entries are removed).
+                val workbook: Workbook = if (isLegacyXLS) HSSFWorkbook(inputStream)
+                                         else XSSFWorkbook(inputStream)
                 importFromExcel(workbook).also {
                     workbook.close()
                 }
