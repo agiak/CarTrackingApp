@@ -25,9 +25,6 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:mimeType="image/*" />
         </intent>
-
-        <!-- Required: Android Auto host app package visibility -->
-        <package android:name="com.google.android.projection.gearhead" />
     </queries>
 
     <application
@@ -42,11 +39,6 @@
         android:theme="@style/Theme.CarTrackingApp"
         android:localeConfig="@xml/locales_config"
         tools:targetApi="31">
-
-        <!-- Declare Android Auto support -->
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
 
         <!-- Disable WorkManager's default initialization -->
         <provider
@@ -72,8 +64,6 @@
         </activity>
 
         <!-- Quick Entry Activity (Lightweight Overlay) -->
-        <!-- exported="true" is required so the Android Auto CarAppService (separate process)
-             can launch this activity on the phone when the user taps Add Refill on the car screen. -->
         <activity
             android:name=".widget.QuickEntryActivity"
             android:exported="true"
