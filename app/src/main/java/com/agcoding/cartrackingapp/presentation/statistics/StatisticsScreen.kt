@@ -291,13 +291,16 @@ private fun SummarySection(
                 TripStatsCard(
                     title = stringResource(R.string.total_trips_stat),
                     value = "${statistics.totalTrips}",
-                    subtitle = "${statistics.tripRefillCount} refills",
+                    subtitle = pluralStringResource(R.plurals.refills_count, statistics.tripRefillCount, statistics.tripRefillCount),
                     modifier = Modifier.weight(1f)
                 )
                 TripStatsCard(
                     title = stringResource(R.string.trip_distance_stat),
                     value = "${String.format("%.0f", statistics.tripDistance)} km",
-                    subtitle = "${String.format("%.1f%%", if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0)} of total",
+                    subtitle = stringResource(
+                        R.string.percentage_of_total,
+                        String.format("%.1f%%", if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0)
+                    ),
                     modifier = Modifier.weight(1f)
                 )
             }

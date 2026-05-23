@@ -1212,6 +1212,7 @@
     <!-- Statistics -->
     <string name="trip_avg_consumption_subtitle">Average consumption during trips</string>
     <string name="no_expenses_for_filter">No expenses match the selected date range</string>
+    <string name="percentage_of_total">%1$s of total</string>
 
     <!-- Car Details FAB -->
     <string name="add_refill_fab_label">Add Refill</string>
