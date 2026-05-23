@@ -17,7 +17,7 @@ import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -221,7 +221,7 @@ private fun OverallSummaryCard(result: MultiCarComparisonResult) {
             result.overallWorst?.let { worstCarId ->
                 val worstCar = result.cars.find { it.carId == worstCarId }
                 worstCar?.let { car ->
-                    Divider()
+                    HorizontalDivider()
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -382,7 +382,7 @@ private fun MetricRankingCard(
                     }
 
                     if (index < sortedCars.size - 1) {
-                        Divider(modifier = Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                     }
                 }
             }

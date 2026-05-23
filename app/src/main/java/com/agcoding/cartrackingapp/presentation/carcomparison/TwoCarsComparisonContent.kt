@@ -9,8 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -333,7 +333,7 @@ private fun ComparisonMetricCard(
 
             // Difference
             if (difference != null) {
-                Divider()
+                HorizontalDivider()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -380,14 +380,14 @@ private fun MetricRow(
             )
             if (isBest) {
                 Icon(
-                    imageVector = Icons.Default.TrendingDown,
+                    imageVector = Icons.AutoMirrored.Filled.TrendingDown,
                     contentDescription = "Best",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
             } else if (isWorst) {
                 Icon(
-                    imageVector = Icons.Default.TrendingUp,
+                    imageVector = Icons.AutoMirrored.Filled.TrendingUp,
                     contentDescription = "Worst",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(20.dp)

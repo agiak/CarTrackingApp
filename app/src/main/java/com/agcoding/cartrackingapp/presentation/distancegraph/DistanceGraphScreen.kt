@@ -692,6 +692,7 @@ private fun MonthlyDistanceBarChart(
     val pointColor = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onSurfaceVariant
     val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val dotInnerColor = MaterialTheme.colorScheme.surface
     val maxDistance = monthlyDistances.maxOfOrNull { it.distance } ?: 1.0
 
     // Calculate nice Y-axis values
@@ -765,7 +766,7 @@ private fun MonthlyDistanceBarChart(
                             center = Offset(x, y)
                         )
                         drawCircle(
-                            color = Color.White,
+                            color = dotInnerColor,
                             radius = 3.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -823,7 +824,7 @@ private fun MonthlyDistanceBarChart(
                             )
                             // Draw white inner circle for better visibility
                             drawCircle(
-                                color = Color.White,
+                                color = dotInnerColor,
                                 radius = 2.dp.toPx(),
                                 center = point
                             )

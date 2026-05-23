@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -87,6 +86,7 @@ fun InteractiveLineChart(
     val pointColor = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onSurfaceVariant
     val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val dotInnerColor = MaterialTheme.colorScheme.surface
     val maxValue = dataPoints.maxOfOrNull { it.value } ?: 1.0
 
     // Calculate nice Y-axis values
@@ -242,7 +242,7 @@ fun InteractiveLineChart(
                             center = Offset(x, y)
                         )
                         drawCircle(
-                            color = Color.White,
+                            color = dotInnerColor,
                             radius = if (selectedIndex == 0) 4.dp.toPx() else 3.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -302,7 +302,7 @@ fun InteractiveLineChart(
                                 center = point
                             )
                             drawCircle(
-                                color = Color.White,
+                                color = dotInnerColor,
                                 radius = if (isSelected) 3.dp.toPx() else 2.dp.toPx(),
                                 center = point
                             )
