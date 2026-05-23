@@ -34,5 +34,6 @@ data class ExpenseEntity(
     val reminderMileage: Int? = null, // Mileage value for service reminder
     val reminderEnabled: Boolean = true, // Whether notifications are enabled for this reminder
     val preExpiryNotificationSent: Boolean = false, // Whether pre-expiry notification was already sent
-    val reminderDismissed: Boolean = false // Whether user dismissed the reminder alert
+    val reminderDismissed: Boolean = false, // Whether user dismissed the reminder alert
+    val deletedAt: Long? = null
 )

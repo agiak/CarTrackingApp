@@ -10,5 +10,11 @@ interface RefillRepository {
     suspend fun insertRefill(refill: FuelRefill): Long
     suspend fun updateRefill(refill: FuelRefill)
     suspend fun deleteRefill(refillId: Long)
+
+    // Soft delete / trash methods
+    suspend fun softDeleteRefill(refillId: Long)
+    suspend fun restoreRefill(refillId: Long)
+    suspend fun getDeletedRefills(): List<FuelRefill>
+    suspend fun permanentlyDeleteRefill(refillId: Long)
 }
 

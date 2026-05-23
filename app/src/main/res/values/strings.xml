@@ -1133,5 +1133,88 @@
     <string name="date_filter_apply">Apply</string>
     <string name="date_filter_from_label">From: %1$s</string>
     <string name="date_filter_to_label">To: %1$s</string>
+    <string name="filter_by_date_cd">Filter by date</string>
+
+    <!-- Trips List Screen -->
+    <string name="trips_title">Trips</string>
+    <string name="create_trip">Create Trip</string>
+    <string name="no_trips_yet">No trips yet</string>
+    <string name="create_first_trip_desc">Create your first trip to organize your refills</string>
+
+    <!-- Refill History Selection Mode -->
+    <string name="selection_mode_count">%1$d selected</string>
+    <string name="new_trip">New Trip</string>
+    <string name="add_to_existing_trip">Add to Trip</string>
+    <string name="no_trips_available">No trips available.</string>
+    <string name="select_trip_for_refills">Select a trip to add %1$d refill(s):</string>
+    <string name="no_refills_for_filter">No refills match the selected date range</string>
+    <string name="adjust_or_clear_filter">Try adjusting or clearing the date filter</string>
+
+    <!-- CarDetails Section Headers -->
+    <string name="refills_section_header">Refills (%1$d)</string>
+    <string name="services_section_header">Services (%1$d)</string>
+    <string name="trips_section_header">Trips (%1$d)</string>
+
+    <!-- Statistics Screen -->
+    <string name="trips_overview">Trips Overview</string>
+    <string name="total_trips_stat">Total Trips</string>
+    <string name="trip_distance_stat">Trip Distance</string>
+    <string name="trip_avg_consumption_stat">Trip Avg Consumption</string>
+
+    <!-- Selection mode -->
+    <string name="clear_selection_cd">Clear selection</string>
+    <string name="delete_selected_cd">Delete selected</string>
+
+    <!-- TripCard -->
+    <string name="trip_created_format">Created: %1$s</string>
+
+    <!-- CreateTripScreen -->
+    <string name="trip_description_optional_label">Description (Optional)</string>
+    <string name="trip_notes_hint">Add notes about this trip…</string>
+    <string name="select_refills_header">Select Refills *</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_oldest">Oldest</string>
+    <string name="sort_newest_first">Newest First</string>
+    <string name="sort_oldest_first">Oldest First</string>
+    <string name="sort_cd">Sort</string>
+    <string name="selected_refills_count">%1$d selected</string>
+    <string name="no_available_refills_for_trip">No available refills to add to a trip</string>
+
+    <!-- Trash / Recently Deleted -->
+    <string name="recently_deleted">Recently Deleted</string>
+    <string name="recently_deleted_desc">View and restore deleted items</string>
+    <string name="trash_title">Recently Deleted</string>
+    <string name="trash_empty">No deleted items</string>
+    <string name="trash_empty_desc">Items you delete will appear here</string>
+    <string name="trash_restore">Restore</string>
+    <string name="trash_delete_permanently">Delete Permanently</string>
+    <string name="trash_cars_section">Cars</string>
+    <string name="trash_refills_section">Refills</string>
+    <string name="trash_expenses_section">Expenses</string>
+    <string name="trash_trips_section">Trips</string>
+    <string name="trash_deleted_on">Deleted on %1$s</string>
+    <string name="trash_empty_permanently_confirm">Permanently delete all items in trash? This cannot be undone.</string>
+    <string name="trash_empty_all">Empty Trash</string>
+    <string name="trash_permanent_delete_confirm">This action cannot be undone. The item will be permanently deleted.</string>
+
+    <!-- TripDetailsScreen -->
+    <string name="no_trips_yet_create">No trips yet. Create one!</string>
+    <string name="stat_refills">Refills</string>
+    <string name="stat_total_cost">Total Cost</string>
+    <string name="stat_distance">Distance</string>
+    <string name="stat_avg_consumption">Avg Consumption</string>
+    <string name="stat_total_fuel">Total Fuel</string>
+    <string name="add_refills_to_trip_cd">Add refills to trip</string>
+    <string name="remove_refill_from_trip_title">Remove Refill</string>
+    <string name="remove_refill_from_trip_confirm">Remove this refill from the trip? The refill record will not be deleted.</string>
+    <string name="remove">Remove</string>
+
+    <!-- Statistics -->
+    <string name="trip_avg_consumption_subtitle">Average consumption during trips</string>
+    <string name="no_expenses_for_filter">No expenses match the selected date range</string>
+
+    <!-- Car Details FAB -->
+    <string name="add_refill_fab_label">Add Refill</string>
+    <string name="fab_open_cd">Open actions</string>
 
 </resources>

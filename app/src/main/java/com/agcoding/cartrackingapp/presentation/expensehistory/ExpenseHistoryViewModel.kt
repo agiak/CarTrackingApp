@@ -20,6 +20,7 @@ sealed class ExpenseHistoryUiState {
         val expenses: List<Expense>,
         val availableCategories: List<String>
     ) : ExpenseHistoryUiState()
+    object EmptyFilter : ExpenseHistoryUiState()
     data class Error(val message: String) : ExpenseHistoryUiState()
 }
 
@@ -58,13 +59,17 @@ class ExpenseHistoryViewModel @Inject constructor(
         _endDate
     ) { expenses, sortOption, selectedCategory, startDate, endDate ->
         val availableCategories = expenses.map { it.category }.distinct().sorted()
+        val hasDateFilter = startDate != null || endDate != null
 
         var filtered = expenses
         if (selectedCategory != null) filtered = filtered.filter { it.category == selectedCategory }
         if (startDate != null) filtered = filtered.filter { it.timestamp >= startDate }
         if (endDate != null) {
-            // include the full end day (end of day = endDate + 24h - 1ms)
             filtered = filtered.filter { it.timestamp <= endDate + 86_399_999L }
+        }
+
+        if (filtered.isEmpty() && hasDateFilter && expenses.isNotEmpty()) {
+            return@combine ExpenseHistoryUiState.EmptyFilter
         }
 
         val sorted = when (sortOption) {

@@ -7,6 +7,7 @@ data class Trip(
     val description: String? = null,
     val createdAt: Long,
     val updatedAt: Long,
-    val refills: List<FuelRefill> = emptyList()
+    val refills: List<FuelRefill> = emptyList(),
+    val deletedAt: Long? = null
 )
 

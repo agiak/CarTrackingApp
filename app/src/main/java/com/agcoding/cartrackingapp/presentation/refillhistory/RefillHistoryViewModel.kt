@@ -40,6 +40,12 @@ class RefillHistoryViewModel @Inject constructor(
     private val _selectedSort = MutableStateFlow(RefillSortOption.MOST_RECENT)
     val selectedSort: StateFlow<RefillSortOption> = _selectedSort.asStateFlow()
 
+    private val _startDate = MutableStateFlow<Long?>(null)
+    val startDate: StateFlow<Long?> = _startDate.asStateFlow()
+
+    private val _endDate = MutableStateFlow<Long?>(null)
+    val endDate: StateFlow<Long?> = _endDate.asStateFlow()
+
     // Multi-select state
     private val _isSelectionMode = MutableStateFlow(false)
     val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
@@ -65,12 +71,11 @@ class RefillHistoryViewModel @Inject constructor(
                 carRepository.getCarById(carId),
                 refillRepository.getRefillsByCarId(carId),
                 tripRepository.getTripsByCarId(carId),
-                _selectedSort
-            ) { car, refills, trips, sortOption ->
-                // Update available trips (only trips that exist, user can add refills to existing trips)
+                _selectedSort,
+                combine(_startDate, _endDate) { s, e -> s to e }
+            ) { car, refills, trips, sortOption, (startDate, endDate) ->
                 _availableTrips.value = trips
 
-                // Build trip names map using the trips' refills
                 val tripMap = mutableMapOf<Long, String>()
                 trips.forEach { trip ->
                     trip.refills.forEach { refill ->
@@ -79,23 +84,38 @@ class RefillHistoryViewModel @Inject constructor(
                 }
                 _refillTripNames.value = tripMap
 
-                Triple(car, refills, sortOption)
+                val hasDateFilter = startDate != null || endDate != null
+                val filtered = refills.let {
+                    var f = it
+                    if (startDate != null) f = f.filter { r -> r.timestamp >= startDate }
+                    if (endDate != null) f = f.filter { r -> r.timestamp <= endDate + 86_399_999L }
+                    f
+                }
+                Triple(car, Pair(refills.isEmpty(), filtered), Pair(sortOption, hasDateFilter))
             }
                 .catch { e ->
                     _uiState.value = RefillHistoryUiState.Error(e.message ?: "Unknown error")
                 }
-                .collect { (car, refills, sortOption) ->
+                .collect { (car, refillsInfo, sortInfo) ->
+                    val (isOriginalEmpty, filtered) = refillsInfo
+                    val (sortOption, hasDateFilter) = sortInfo
+
                     if (car == null) {
                         _uiState.value = RefillHistoryUiState.Error("Car not found")
                         return@collect
                     }
 
-                    if (refills.isEmpty()) {
+                    if (isOriginalEmpty) {
                         _uiState.value = RefillHistoryUiState.Empty
                         return@collect
                     }
 
-                    val sortedRefills = sortRefills(refills, sortOption)
+                    if (filtered.isEmpty() && hasDateFilter) {
+                        _uiState.value = RefillHistoryUiState.EmptyFilter
+                        return@collect
+                    }
+
+                    val sortedRefills = sortRefills(filtered, sortOption)
                     _uiState.value = RefillHistoryUiState.Success(
                         carName = car.name,
                         refills = sortedRefills
@@ -104,9 +124,10 @@ class RefillHistoryViewModel @Inject constructor(
         }
     }
 
-    fun setSortOption(option: RefillSortOption) {
-        _selectedSort.value = option
-    }
+    fun setSortOption(option: RefillSortOption) { _selectedSort.value = option }
+    fun setStartDate(date: Long?) { _startDate.value = date }
+    fun setEndDate(date: Long?) { _endDate.value = date }
+    fun clearDateFilter() { _startDate.value = null; _endDate.value = null }
 
     // Multi-select functions
     fun onRefillLongPress(refillId: Long) {
@@ -204,6 +225,7 @@ class RefillHistoryViewModel @Inject constructor(
 sealed class RefillHistoryUiState {
     object Loading : RefillHistoryUiState()
     object Empty : RefillHistoryUiState()
+    object EmptyFilter : RefillHistoryUiState()
     data class Success(
         val carName: String,
         val refills: List<FuelRefill>

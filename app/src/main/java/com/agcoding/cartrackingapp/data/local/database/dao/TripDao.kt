@@ -14,32 +14,32 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TripDao {
 
-    @Query("SELECT * FROM trips WHERE carId = :carId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM trips WHERE carId = :carId AND deletedAt IS NULL ORDER BY createdAt DESC")
     fun getTripsByCarId(carId: Long): Flow<List<TripEntity>>
 
-    @Query("SELECT * FROM trips WHERE carId = :carId ORDER BY createdAt DESC LIMIT :limit")
+    @Query("SELECT * FROM trips WHERE carId = :carId AND deletedAt IS NULL ORDER BY createdAt DESC LIMIT :limit")
     fun getRecentTripsByCarId(carId: Long, limit: Int): Flow<List<TripEntity>>
 
-    @Query("SELECT * FROM trips WHERE id = :tripId")
+    @Query("SELECT * FROM trips WHERE id = :tripId AND deletedAt IS NULL")
     fun getTripById(tripId: Long): Flow<TripEntity?>
 
     @Transaction
-    @Query("SELECT * FROM trips ORDER BY createdAt DESC")
+    @Query("SELECT * FROM trips WHERE deletedAt IS NULL ORDER BY createdAt DESC")
     fun getAllTripsWithRefills(): Flow<List<TripWithRefills>>
 
     @Transaction
-    @Query("SELECT * FROM trips WHERE id = :tripId")
+    @Query("SELECT * FROM trips WHERE id = :tripId AND deletedAt IS NULL")
     fun getTripWithRefills(tripId: Long): Flow<TripWithRefills?>
 
     @Transaction
-    @Query("SELECT * FROM trips WHERE carId = :carId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM trips WHERE carId = :carId AND deletedAt IS NULL ORDER BY createdAt DESC")
     fun getTripsWithRefillsByCarId(carId: Long): Flow<List<TripWithRefills>>
 
     @Transaction
-    @Query("SELECT * FROM trips WHERE carId = :carId ORDER BY createdAt DESC LIMIT :limit")
+    @Query("SELECT * FROM trips WHERE carId = :carId AND deletedAt IS NULL ORDER BY createdAt DESC LIMIT :limit")
     fun getRecentTripsWithRefillsByCarId(carId: Long, limit: Int): Flow<List<TripWithRefills>>
 
-    @Query("SELECT COUNT(*) FROM trips WHERE carId = :carId")
+    @Query("SELECT COUNT(*) FROM trips WHERE carId = :carId AND deletedAt IS NULL")
     fun getTripCountByCarId(carId: Long): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -62,5 +62,18 @@ interface TripDao {
 
     @Query("UPDATE fuel_refills SET tripId = NULL WHERE tripId = :tripId")
     suspend fun removeAllRefillsFromTrip(tripId: Long)
+
+    // Soft delete / trash methods
+    @Query("UPDATE trips SET deletedAt = :timestamp WHERE id = :tripId")
+    suspend fun softDeleteTrip(tripId: Long, timestamp: Long)
+
+    @Query("UPDATE trips SET deletedAt = NULL WHERE id = :tripId")
+    suspend fun restoreTrip(tripId: Long)
+
+    @Query("SELECT * FROM trips WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC")
+    suspend fun getDeletedTrips(): List<TripEntity>
+
+    @Query("DELETE FROM trips WHERE id = :tripId AND deletedAt IS NOT NULL")
+    suspend fun permanentlyDeleteTrip(tripId: Long)
 }
 

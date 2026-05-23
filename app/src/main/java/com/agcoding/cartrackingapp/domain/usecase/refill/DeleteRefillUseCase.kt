@@ -9,7 +9,7 @@ class DeleteRefillUseCase @Inject constructor(
     private val refillRepository: RefillRepository,
 ) {
     suspend operator fun invoke(refillId: Long): Result<Unit> = try {
-        refillRepository.deleteRefill(refillId)
+        refillRepository.softDeleteRefill(refillId)
         Result.Success(Unit)
     } catch (e: Exception) {
         Result.Error(AppError.DatabaseError(e))

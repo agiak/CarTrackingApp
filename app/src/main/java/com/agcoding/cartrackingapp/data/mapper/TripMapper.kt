@@ -12,7 +12,8 @@ fun TripEntity.toDomain(): Trip {
         description = description,
         createdAt = createdAt,
         updatedAt = updatedAt,
-        refills = emptyList()
+        refills = emptyList(),
+        deletedAt = deletedAt
     )
 }
 

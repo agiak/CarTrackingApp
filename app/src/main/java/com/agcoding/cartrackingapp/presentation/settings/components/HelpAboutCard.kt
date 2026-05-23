@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,8 +41,8 @@ fun HelpAboutCard(
             // View App Guide
             SettingsRow(
                 icon = Icons.AutoMirrored.Filled.Help,
-                iconBackgroundColor = Color(0xFF4CAF50).copy(alpha = 0.1f),
-                iconTint = Color(0xFF4CAF50),
+                iconBackgroundColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
+                iconTint = MaterialTheme.colorScheme.tertiary,
                 title = stringResource(R.string.settings_view_app_guide),
                 subtitle = stringResource(R.string.settings_learn_how_to_use_the_app),
                 onClick = onViewGuide,

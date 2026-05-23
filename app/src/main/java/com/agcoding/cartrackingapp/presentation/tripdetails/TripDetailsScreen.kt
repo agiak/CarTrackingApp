@@ -37,8 +37,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,6 +74,7 @@ fun TripDetailsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = androidx.compose.ui.platform.LocalContext.current
+    var refillToRemoveId by remember { mutableStateOf<Long?>(null) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -116,19 +119,7 @@ fun TripDetailsScreen(
                     onRefillClick = onRefillClick,
                     onAddRefills = { viewModel.showAddRefillsDialog() },
                     onRemoveRefill = { refillId ->
-                        viewModel.removeRefill(
-                            refillId = refillId,
-                            onSuccess = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.refill_removed_from_trip))
-                                }
-                            },
-                            onError = { error ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(error)
-                                }
-                            }
-                        )
+                        refillToRemoveId = refillId
                     },
                     modifier = Modifier.padding(paddingValues)
                 )
@@ -163,6 +154,40 @@ fun TripDetailsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDeleteDialog() }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Remove Refill confirmation dialog
+    refillToRemoveId?.let { refillId ->
+        AlertDialog(
+            onDismissRequest = { refillToRemoveId = null },
+            title = { Text(stringResource(R.string.remove_refill_from_trip_title)) },
+            text = { Text(stringResource(R.string.remove_refill_from_trip_confirm)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    refillToRemoveId = null
+                    viewModel.removeRefill(
+                        refillId = refillId,
+                        onSuccess = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(context.getString(R.string.refill_removed_from_trip))
+                            }
+                        },
+                        onError = { error ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(error)
+                            }
+                        }
+                    )
+                }) {
+                    Text(stringResource(R.string.remove), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { refillToRemoveId = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -290,7 +315,10 @@ fun TripDetailsContent(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Created: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(tripStatistics.trip.createdAt))}",
+                        text = stringResource(
+                            R.string.trip_created_format,
+                            SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(tripStatistics.trip.createdAt))
+                        ),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
@@ -305,12 +333,12 @@ fun TripDetailsContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    title = "Refills",
+                    title = stringResource(R.string.stat_refills),
                     value = tripStatistics.refillCount.toString(),
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    title = "Total Cost",
+                    title = stringResource(R.string.stat_total_cost),
                     value = String.format("€%.2f", tripStatistics.totalCost),
                     modifier = Modifier.weight(1f)
                 )
@@ -323,12 +351,12 @@ fun TripDetailsContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    title = "Distance",
+                    title = stringResource(R.string.stat_distance),
                     value = String.format("%.1f km", tripStatistics.totalDistance),
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    title = "Avg Consumption",
+                    title = stringResource(R.string.stat_avg_consumption),
                     value = String.format("%.2f L/100km", tripStatistics.averageConsumption),
                     modifier = Modifier.weight(1f)
                 )
@@ -337,7 +365,7 @@ fun TripDetailsContent(
 
         item {
             StatCard(
-                title = "Total Fuel",
+                title = stringResource(R.string.stat_total_fuel),
                 value = String.format("%.2f L", tripStatistics.totalFuelConsumed),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -351,7 +379,7 @@ fun TripDetailsContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Refills (${tripStatistics.refillCount})",
+                    text = stringResource(R.string.refills_section_header, tripStatistics.refillCount),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -362,7 +390,7 @@ fun TripDetailsContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Refills",
+                        contentDescription = stringResource(R.string.add_refills_to_trip_cd),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }

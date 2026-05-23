@@ -69,7 +69,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -133,7 +132,7 @@ fun CarDetailsScreen(
                         IconButton(onClick = { showOverflowMenu = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "More options"
+                                contentDescription = stringResource(R.string.more_options)
                             )
                         }
                         DropdownMenu(
@@ -266,7 +265,7 @@ fun CarDetailsScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Refills (${state.statistics.totalRefills})",
+                                        text = stringResource(R.string.refills_section_header, state.statistics.totalRefills),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -304,7 +303,7 @@ fun CarDetailsScreen(
                                 ) {
                                     val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
                                     Text(
-                                        text = "Services ($totalExpenses)",
+                                        text = stringResource(R.string.services_section_header, totalExpenses),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -389,7 +388,7 @@ fun CarDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Refills (${state.statistics.totalRefills})",
+                                    text = stringResource(R.string.refills_section_header, state.statistics.totalRefills),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -427,7 +426,7 @@ fun CarDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Trips ($tripCount)",
+                                    text = stringResource(R.string.trips_section_header, tripCount),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -443,7 +442,7 @@ fun CarDetailsScreen(
                                     ) {
                                         Icon(
                                             imageVector = androidx.compose.material.icons.Icons.Default.Add,
-                                            contentDescription = "Create Trip",
+                                            contentDescription = stringResource(R.string.create_trip),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -485,7 +484,7 @@ fun CarDetailsScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = "No trips yet. Create one!",
+                                            text = stringResource(R.string.no_trips_yet_create),
                                             fontSize = 14.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -506,7 +505,7 @@ fun CarDetailsScreen(
                             ) {
                                 val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
                                 Text(
-                                    text = "Services ($totalExpenses)",
+                                    text = stringResource(R.string.services_section_header, totalExpenses),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -542,7 +541,7 @@ fun CarDetailsScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(state.message)
+                    Text(state.message, color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -556,7 +555,7 @@ fun CarDetailsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.32f))
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f))
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
@@ -646,7 +645,7 @@ fun TripCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${trip.refills.size} refills",
+                    text = stringResource(R.string.refills_count_format, trip.refills.size),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -683,12 +682,12 @@ private fun SpeedDialFab(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 MiniSpeedDialItem(
-                    label = "Add Expense",
+                    label = stringResource(R.string.add_expense_title),
                     icon = Icons.Default.Receipt,
                     onClick = onAddExpense
                 )
                 MiniSpeedDialItem(
-                    label = "Add Refill",
+                    label = stringResource(R.string.add_refill_fab_label),
                     icon = Icons.Default.LocalGasStation,
                     onClick = onAddRefill
                 )
@@ -710,7 +709,7 @@ private fun SpeedDialFab(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = if (expanded) "Close" else "Add action",
+                contentDescription = if (expanded) stringResource(R.string.close) else stringResource(R.string.fab_open_cd),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.rotate(rotation)
             )

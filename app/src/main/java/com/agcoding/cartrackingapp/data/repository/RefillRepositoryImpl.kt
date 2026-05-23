@@ -40,5 +40,21 @@ class RefillRepositoryImpl @Inject constructor(
     override suspend fun deleteRefill(refillId: Long) {
         refillDao.deleteRefillById(refillId)
     }
+
+    override suspend fun softDeleteRefill(refillId: Long) {
+        refillDao.softDeleteRefill(refillId, System.currentTimeMillis())
+    }
+
+    override suspend fun restoreRefill(refillId: Long) {
+        refillDao.restoreRefill(refillId)
+    }
+
+    override suspend fun getDeletedRefills(): List<FuelRefill> {
+        return refillDao.getDeletedRefills().map { it.toDomain() }
+    }
+
+    override suspend fun permanentlyDeleteRefill(refillId: Long) {
+        refillDao.permanentlyDeleteRefill(refillId)
+    }
 }
 

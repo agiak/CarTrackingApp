@@ -10,5 +10,11 @@ interface ExpenseRepository {
     suspend fun insertExpense(expense: Expense): Long
     suspend fun updateExpense(expense: Expense)
     suspend fun deleteExpense(expenseId: Long)
+
+    // Soft delete / trash methods
+    suspend fun softDeleteExpense(expenseId: Long)
+    suspend fun restoreExpense(expenseId: Long)
+    suspend fun getDeletedExpenses(): List<Expense>
+    suspend fun permanentlyDeleteExpense(expenseId: Long)
 }
 

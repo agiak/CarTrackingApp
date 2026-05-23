@@ -35,7 +35,7 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun CarHeaderCard(statistics: CarStatistics) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         border = null
     ) {
         Column(
@@ -55,7 +55,7 @@ fun CarHeaderCard(statistics: CarStatistics) {
                     contentAlignment = Alignment.Center
                 ) {
                     StyledCard(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         border = null
                     ) {
                         Icon(

@@ -5,18 +5,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +32,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +53,9 @@ import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refillhistory.components.RefillHistoryContent
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 enum class RefillSortOption(@StringRes val labelRes: Int) {
     MOST_RECENT(R.string.most_recent),
@@ -72,33 +80,38 @@ fun RefillHistoryScreen(
     val selectedRefillIds by viewModel.selectedRefillIds.collectAsState()
     val availableTrips by viewModel.availableTrips.collectAsState()
     val refillTripNames by viewModel.refillTripNames.collectAsState()
+    val startDate by viewModel.startDate.collectAsState()
+    val endDate by viewModel.endDate.collectAsState()
 
     var showSortMenu by remember { mutableStateOf(false) }
     var showAddToTripDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showDateRangePicker by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
 
-    // Check if sort is non-default
     val hasNonDefaultSort = selectedSort != RefillSortOption.MOST_RECENT
+    val hasDateFilter = startDate != null || endDate != null
 
-    // Create active sort chip
-    val getActiveSortChip: @Composable () -> List<ActiveFilter> = {
-        if (hasNonDefaultSort) {
-            listOf(
-                ActiveFilter(
-                    id = "sort",
-                    label = stringResource(selectedSort.labelRes),
-                    onRemove = { viewModel.setSortOption(RefillSortOption.MOST_RECENT) }
-                )
-            )
-        } else {
-            emptyList()
-        }
+    val activeFilters: List<ActiveFilter> = buildList {
+        if (hasNonDefaultSort) add(ActiveFilter(
+            id = "sort",
+            label = stringResource(selectedSort.labelRes),
+            onRemove = { viewModel.setSortOption(RefillSortOption.MOST_RECENT) }
+        ))
+        if (startDate != null) add(ActiveFilter(
+            id = "start",
+            label = stringResource(R.string.date_filter_from_label, dateFormat.format(Date(startDate!!))),
+            onRemove = { viewModel.setStartDate(null) }
+        ))
+        if (endDate != null) add(ActiveFilter(
+            id = "end",
+            label = stringResource(R.string.date_filter_to_label, dateFormat.format(Date(endDate!!))),
+            onRemove = { viewModel.setEndDate(null) }
+        ))
     }
-
-    val activeSortChips = getActiveSortChip()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -106,12 +119,12 @@ fun RefillHistoryScreen(
             if (isSelectionMode) {
                 // Selection mode top bar
                 StyledTopAppBar(
-                    title = { Text("${selectedRefillIds.size} selected") },
+                    title = { Text(stringResource(R.string.selection_mode_count, selectedRefillIds.size)) },
                     navigationIcon = {
                         IconButton(onClick = { viewModel.clearSelection() }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear selection"
+                                contentDescription = stringResource(R.string.clear_selection_cd)
                             )
                         }
                     },
@@ -123,7 +136,7 @@ fun RefillHistoryScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete selected",
+                                contentDescription = stringResource(R.string.delete_selected_cd),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -135,14 +148,14 @@ fun RefillHistoryScreen(
                             },
                             enabled = selectedRefillIds.isNotEmpty()
                         ) {
-                            Text("NEW TRIP")
+                            Text(stringResource(R.string.new_trip))
                         }
                         // Add to existing trip
                         TextButton(
                             onClick = { showAddToTripDialog = true },
                             enabled = selectedRefillIds.isNotEmpty()
                         ) {
-                            Text("ADD TO TRIP")
+                            Text(stringResource(R.string.add_to_existing_trip))
                         }
                     }
                 )
@@ -159,6 +172,26 @@ fun RefillHistoryScreen(
                         }
                     },
                     actions = {
+                        // Date range filter button
+                        BadgedBox(
+                            badge = {
+                                if (hasDateFilter) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.secondary,
+                                        contentColor = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
+                            }
+                        ) {
+                            IconButton(onClick = { showDateRangePicker = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = stringResource(R.string.filter_by_date_cd),
+                                    tint = if (hasDateFilter) MaterialTheme.colorScheme.secondary
+                                           else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                         Box {
                             // Sort button with badge indicator
                             BadgedBox(
@@ -230,10 +263,14 @@ fun RefillHistoryScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    // Active sort chip
                     ActiveFiltersRow(
-                        activeFilters = activeSortChips,
-                        onClearAll = null // No clear all needed for single chip
+                        activeFilters = activeFilters,
+                        onClearAll = if (activeFilters.size > 1) {
+                            {
+                                viewModel.setSortOption(RefillSortOption.MOST_RECENT)
+                                viewModel.clearDateFilter()
+                            }
+                        } else null
                     )
 
                     // Refills list
@@ -266,7 +303,7 @@ fun RefillHistoryScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(state.message)
+                    Text(state.message, color = MaterialTheme.colorScheme.error)
                 }
             }
 
@@ -294,6 +331,73 @@ fun RefillHistoryScreen(
                     }
                 }
             }
+
+            is RefillHistoryUiState.EmptyFilter -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    ActiveFiltersRow(
+                        activeFilters = activeFilters,
+                        onClearAll = if (activeFilters.size > 1) {
+                            {
+                                viewModel.setSortOption(RefillSortOption.MOST_RECENT)
+                                viewModel.clearDateFilter()
+                            }
+                        } else null
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_refills_for_filter),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = stringResource(R.string.adjust_or_clear_filter),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Date range picker
+    if (showDateRangePicker) {
+        val rangePickerState = rememberDateRangePickerState(
+            initialSelectedStartDateMillis = startDate,
+            initialSelectedEndDateMillis = endDate
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDateRangePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.setStartDate(rangePickerState.selectedStartDateMillis)
+                        viewModel.setEndDate(rangePickerState.selectedEndDateMillis)
+                        showDateRangePicker = false
+                    },
+                    enabled = rangePickerState.selectedStartDateMillis != null
+                ) { Text(stringResource(R.string.apply)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDateRangePicker = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        ) {
+            DateRangePicker(
+                state = rangePickerState,
+                modifier = Modifier.fillMaxHeight(0.85f)
+            )
         }
     }
 
@@ -301,8 +405,8 @@ fun RefillHistoryScreen(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            title = { Text("Delete ${selectedRefillIds.size} refill(s)?") },
-            text = { Text("This action cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_refill_title)) },
+            text = { Text(stringResource(R.string.delete_refill_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -319,12 +423,12 @@ fun RefillHistoryScreen(
                         )
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -334,16 +438,16 @@ fun RefillHistoryScreen(
     if (showAddToTripDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showAddToTripDialog = false },
-            title = { Text("Add to Trip") },
+            title = { Text(stringResource(R.string.add_to_existing_trip)) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Select a trip to add ${selectedRefillIds.size} refill(s):")
+                    Text(stringResource(R.string.select_trip_for_refills, selectedRefillIds.size))
 
                     if (availableTrips.isEmpty()) {
                         Text(
-                            text = "No trips available.",
+                            text = stringResource(R.string.no_trips_available),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -413,11 +517,11 @@ fun RefillHistoryScreen(
                             onCreateTripClick()
                         }
                     ) {
-                        Text("Create Trip")
+                        Text(stringResource(R.string.create_trip))
                     }
                     // Cancel button
                     TextButton(onClick = { showAddToTripDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             },

@@ -63,7 +63,7 @@ fun TripsListScreen(
     Scaffold(
         topBar = {
             StyledTopAppBar(
-                title = { Text("Trips") },
+                title = { Text(stringResource(R.string.trips_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -81,7 +81,7 @@ fun TripsListScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Create Trip"
+                    contentDescription = stringResource(R.string.create_trip)
                 )
             }
         }
@@ -111,13 +111,13 @@ fun TripsListScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "No trips yet",
+                            text = stringResource(R.string.no_trips_yet),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Create your first trip to organize your refills",
+                            text = stringResource(R.string.create_first_trip_desc),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -128,7 +128,7 @@ fun TripsListScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Create Trip")
+                            Text(stringResource(R.string.create_trip))
                         }
                     }
                 }
@@ -168,18 +168,18 @@ fun TripsListScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
-            title = { Text("Delete Trip") },
-            text = { Text("Are you sure you want to delete this trip? The refills will not be deleted.") },
+            title = { Text(stringResource(R.string.delete_trip)) },
+            text = { Text(stringResource(R.string.delete_trip_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.deleteTrip() }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -224,12 +224,12 @@ fun TripCard(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "${trip.refills.size} refills",
+                    text = stringResource(R.string.refills_count_format, trip.refills.size),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Created: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(trip.createdAt))}",
+                    text = stringResource(R.string.trip_created_format, SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(trip.createdAt))),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -240,7 +240,7 @@ fun TripCard(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Trip",
+                    contentDescription = stringResource(R.string.delete_trip),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

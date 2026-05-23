@@ -37,6 +37,7 @@ data class FuelRefillEntity(
     val longitude: Double?,
     val timestamp: Long,
     val notes: String? = null,
-    val tripId: Long? = null
+    val tripId: Long? = null,
+    val deletedAt: Long? = null
 )
 

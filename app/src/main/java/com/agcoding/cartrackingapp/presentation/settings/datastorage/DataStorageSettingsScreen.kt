@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,11 +39,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
 import com.agcoding.cartrackingapp.presentation.settings.components.ForecastCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
+import com.agcoding.cartrackingapp.presentation.settings.components.SettingsRow
 import com.agcoding.cartrackingapp.presentation.settings.components.SpreadsheetImportCard
 import com.agcoding.cartrackingapp.presentation.settings.components.StorageCard
 
@@ -49,6 +53,7 @@ import com.agcoding.cartrackingapp.presentation.settings.components.StorageCard
 @Composable
 fun DataStorageSettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToTrash: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -293,6 +298,29 @@ fun DataStorageSettingsScreen(
                 },
                 onGenerateSample = { viewModel.generateSampleSpreadsheet() }
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // RECENTLY DELETED Section
+            SectionHeader(title = stringResource(R.string.recently_deleted))
+
+            StyledCard(modifier = Modifier.fillMaxWidth()) {
+                SettingsRow(
+                    icon = Icons.Default.Delete,
+                    iconBackgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                    iconTint = MaterialTheme.colorScheme.error,
+                    title = stringResource(R.string.recently_deleted),
+                    subtitle = stringResource(R.string.recently_deleted_desc),
+                    onClick = onNavigateToTrash,
+                    trailing = {
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
             }

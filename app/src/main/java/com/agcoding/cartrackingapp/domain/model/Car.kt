@@ -39,7 +39,8 @@ data class Car(
     val totalCost: Double = 0.0,
     val totalDistance: Double = 0.0,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val deletedAt: Long? = null
 )
 
 

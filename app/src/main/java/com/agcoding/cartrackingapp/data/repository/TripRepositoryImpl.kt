@@ -64,4 +64,20 @@ class TripRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Result.Error(AppError.DatabaseError(e))
     }
+
+    override suspend fun softDeleteTrip(tripId: Long) {
+        tripDao.softDeleteTrip(tripId, System.currentTimeMillis())
+    }
+
+    override suspend fun restoreTrip(tripId: Long) {
+        tripDao.restoreTrip(tripId)
+    }
+
+    override suspend fun getDeletedTrips(): List<Trip> {
+        return tripDao.getDeletedTrips().map { it.toDomain() }
+    }
+
+    override suspend fun permanentlyDeleteTrip(tripId: Long) {
+        tripDao.permanentlyDeleteTrip(tripId)
+    }
 }

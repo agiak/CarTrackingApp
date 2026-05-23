@@ -15,5 +15,11 @@ interface TripRepository {
     suspend fun deleteTrip(tripId: Long): Result<Unit>
     suspend fun addRefillsToTrip(tripId: Long, refillIds: List<Long>): Result<Unit>
     suspend fun removeRefillsFromTrip(refillIds: List<Long>): Result<Unit>
+
+    // Soft delete / trash methods
+    suspend fun softDeleteTrip(tripId: Long)
+    suspend fun restoreTrip(tripId: Long)
+    suspend fun getDeletedTrips(): List<Trip>
+    suspend fun permanentlyDeleteTrip(tripId: Long)
 }
 

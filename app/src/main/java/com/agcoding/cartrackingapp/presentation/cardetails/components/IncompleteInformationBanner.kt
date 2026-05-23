@@ -38,8 +38,8 @@ fun IncompleteInformationBanner(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onAddInformationClick),
-        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier
@@ -56,7 +56,7 @@ fun IncompleteInformationBanner(
                     contentAlignment = Alignment.Center
                 ) {
                     StyledCard(
-                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
                         border = null
                     ) {
                         Icon(
@@ -110,7 +110,7 @@ fun IncompleteInformationBanner(
             Text(
                 text = missingFields.take(5).joinToString(", "),
                 fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 16.sp
             )
 
@@ -120,7 +120,7 @@ fun IncompleteInformationBanner(
                     text = stringResource(R.string.and_more_fields, missingFields.size - 5),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

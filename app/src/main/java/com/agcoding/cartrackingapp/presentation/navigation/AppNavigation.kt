@@ -66,6 +66,7 @@ import com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorage
 import com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
+import com.agcoding.cartrackingapp.presentation.trash.TrashScreen
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
@@ -159,6 +160,7 @@ sealed class Screen(val route: String) {
     object HelpAboutSettings : Screen("settings/help_about")
     object DeveloperSettings : Screen("settings/developer")
     object NotificationHistory : Screen("notification_history")
+    object Trash : Screen("trash")
 }
 
 @Composable
@@ -426,6 +428,20 @@ fun AppNavigation(
                 animationConfig = NavigationAnimations.HorizontalSlide
             ) {
                 DataStorageSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToTrash = {
+                        navController.navigate(Screen.Trash.route)
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.Trash.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                TrashScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

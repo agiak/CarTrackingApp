@@ -78,7 +78,7 @@ fun StatisticsScreen(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.back)
                             )
                         }
                     }
@@ -271,7 +271,7 @@ private fun SummarySection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Trips Overview",
+                    text = stringResource(R.string.trips_overview),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -289,13 +289,13 @@ private fun SummarySection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TripStatsCard(
-                    title = "Total Trips",
+                    title = stringResource(R.string.total_trips_stat),
                     value = "${statistics.totalTrips}",
                     subtitle = "${statistics.tripRefillCount} refills",
                     modifier = Modifier.weight(1f)
                 )
                 TripStatsCard(
-                    title = "Trip Distance",
+                    title = stringResource(R.string.trip_distance_stat),
                     value = "${String.format("%.0f", statistics.tripDistance)} km",
                     subtitle = "${String.format("%.1f%%", if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0)} of total",
                     modifier = Modifier.weight(1f)
@@ -304,9 +304,9 @@ private fun SummarySection(
 
             if (statistics.tripAverageConsumption > 0) {
                 TripStatsCard(
-                    title = "Trip Avg Consumption",
+                    title = stringResource(R.string.trip_avg_consumption_stat),
                     value = "${String.format("%.1f", statistics.tripAverageConsumption)} L/100km",
-                    subtitle = "Average consumption during trips",
+                    subtitle = stringResource(R.string.trip_avg_consumption_subtitle),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -571,75 +571,6 @@ private fun MonthlyTrendCard(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun InsightsSection(statistics: GlobalStatistics) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Calculate insights
-            val avgCostPerRefill = if (statistics.totalRefills > 0) {
-                statistics.totalCost / statistics.totalRefills
-            } else 0.0
-
-            val avgLitersPerRefill = if (statistics.totalRefills > 0) {
-                statistics.totalLiters / statistics.totalRefills
-            } else 0.0
-
-            val costPerKm = if (statistics.totalDistance > 0) {
-                statistics.totalCost / statistics.totalDistance
-            } else 0.0
-
-            InsightRow(
-                label = stringResource(R.string.average_cost_per_refill),
-                value = "€${String.format("%.2f", avgCostPerRefill)}"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            InsightRow(
-                label = stringResource(R.string.average_liters_per_refill),
-                value = "${String.format("%.1f", avgLitersPerRefill)} L"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            InsightRow(
-                label = stringResource(R.string.cost_per_km_label),
-                value = "€${String.format("%.3f", costPerKm)}"
-            )
-        }
-    }
-}
-
-@Composable
-private fun InsightRow(
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 

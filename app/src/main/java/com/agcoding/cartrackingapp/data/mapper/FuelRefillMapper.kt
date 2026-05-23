@@ -19,7 +19,8 @@ fun FuelRefillEntity.toDomain(): FuelRefill {
         } else null,
         timestamp = timestamp,
         notes = notes,
-        tripId = tripId
+        tripId = tripId,
+        deletedAt = deletedAt
     )
 }
 

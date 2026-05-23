@@ -164,8 +164,8 @@ fun CreateTripScreen(
                     OutlinedTextField(
                         value = uiState.tripDescription,
                         onValueChange = viewModel::onTripDescriptionChanged,
-                        label = { Text("Description (Optional)") },
-                        placeholder = { Text("Add notes about this trip...") },
+                        label = { Text(stringResource(R.string.trip_description_optional_label)) },
+                        placeholder = { Text(stringResource(R.string.trip_notes_hint)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         maxLines = 5
@@ -182,7 +182,7 @@ fun CreateTripScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Select Refills *",
+                                    text = stringResource(R.string.select_refills_header),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = if (uiState.selectionError != null) {
@@ -200,7 +200,7 @@ fun CreateTripScreen(
                                     )
                                 }
                                 Text(
-                                    text = "${uiState.selectedRefillIds.size} selected",
+                                    text = stringResource(R.string.selected_refills_count, uiState.selectedRefillIds.size),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 4.dp)
@@ -215,14 +215,14 @@ fun CreateTripScreen(
                                 ) {
                                     Text(
                                         text = when (uiState.sortOption) {
-                                            com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.MOST_RECENT -> "Newest"
-                                            com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.OLDEST -> "Oldest"
+                                            com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.MOST_RECENT -> stringResource(R.string.sort_newest)
+                                            com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.OLDEST -> stringResource(R.string.sort_oldest)
                                         },
                                         fontSize = 14.sp
                                     )
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = "Sort"
+                                        contentDescription = stringResource(R.string.sort_cd)
                                     )
                                 }
 
@@ -233,7 +233,7 @@ fun CreateTripScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Newest First",
+                                                stringResource(R.string.sort_newest_first),
                                                 fontWeight = if (uiState.sortOption == com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.MOST_RECENT)
                                                     FontWeight.Bold else FontWeight.Normal
                                             )
@@ -246,7 +246,7 @@ fun CreateTripScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                "Oldest First",
+                                                stringResource(R.string.sort_oldest_first),
                                                 fontWeight = if (uiState.sortOption == com.agcoding.cartrackingapp.presentation.createtrip.RefillSortOption.OLDEST)
                                                     FontWeight.Bold else FontWeight.Normal
                                             )
@@ -272,7 +272,7 @@ fun CreateTripScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No available refills to add to a trip",
+                                text = stringResource(R.string.no_available_refills_for_trip),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

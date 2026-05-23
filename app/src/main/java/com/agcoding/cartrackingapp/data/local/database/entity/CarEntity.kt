@@ -38,6 +38,7 @@ data class CarEntity(
     val tyreSize: String? = null,
     val licenseExpiration: String? = null,
 
+    val deletedAt: Long? = null,
     val createdAt: Long,
     val updatedAt: Long
 )

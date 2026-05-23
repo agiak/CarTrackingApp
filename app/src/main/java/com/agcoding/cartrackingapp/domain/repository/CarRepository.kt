@@ -14,5 +14,11 @@ interface CarRepository {
     // Default car methods
     fun getDefaultCar(): Flow<Car?>
     suspend fun setDefaultCar(carId: Long)
+
+    // Soft delete / trash methods
+    suspend fun softDeleteCar(carId: Long)
+    suspend fun restoreCar(carId: Long)
+    suspend fun getDeletedCars(): List<Car>
+    suspend fun permanentlyDeleteCar(carId: Long)
 }
 

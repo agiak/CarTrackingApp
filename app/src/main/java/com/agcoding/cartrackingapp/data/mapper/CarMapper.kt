@@ -39,7 +39,8 @@ fun CarEntity.toDomain(
         totalCost = totalCost,
         totalDistance = totalDistance,
         createdAt = createdAt,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
+        deletedAt = deletedAt
     )
 }
 

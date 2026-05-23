@@ -210,7 +210,7 @@ private fun getAnomalyIcon(type: AnomalyType): ImageVector {
 private fun getSeverityColor(severity: AnomalySeverity): Color {
     return when (severity) {
         AnomalySeverity.LOW -> MaterialTheme.colorScheme.tertiary
-        AnomalySeverity.MEDIUM -> Color(0xFFF57C00) // Orange
+        AnomalySeverity.MEDIUM -> MaterialTheme.colorScheme.secondary
         AnomalySeverity.HIGH -> MaterialTheme.colorScheme.error
     }
 }
@@ -219,7 +219,7 @@ private fun getSeverityColor(severity: AnomalySeverity): Color {
 private fun getSeverityBackgroundColor(severity: AnomalySeverity): Color {
     return when (severity) {
         AnomalySeverity.LOW -> MaterialTheme.colorScheme.surfaceVariant
-        AnomalySeverity.MEDIUM -> Color(0xFFF57C00).copy(alpha = 0.08f)
+        AnomalySeverity.MEDIUM -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
         AnomalySeverity.HIGH -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
     }
 }

@@ -1,18 +1,24 @@
 package com.agcoding.cartrackingapp.presentation.expensehistory
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,7 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,8 +62,7 @@ fun ExpenseHistoryScreen(
     val startDate by viewModel.startDate.collectAsState()
     val endDate by viewModel.endDate.collectAsState()
     var showSortMenu by remember { mutableStateOf(false) }
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showEndDatePicker by remember { mutableStateOf(false) }
+    var showDateRangePicker by remember { mutableStateOf(false) }
 
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     val hasDateFilter = startDate != null || endDate != null
@@ -106,10 +111,10 @@ fun ExpenseHistoryScreen(
                             }
                         }
                     ) {
-                        IconButton(onClick = { showStartDatePicker = true }) {
+                        IconButton(onClick = { showDateRangePicker = true }) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
-                                contentDescription = "Filter by date",
+                                contentDescription = stringResource(R.string.filter_by_date_cd),
                                 tint = if (hasDateFilter) MaterialTheme.colorScheme.secondary
                                        else MaterialTheme.colorScheme.onSurface
                             )
@@ -150,7 +155,7 @@ fun ExpenseHistoryScreen(
                                     showSortMenu = false
                                 },
                                 trailingIcon = if (sortOption == option) {
-                                    { Text("✓") }
+                                    { Icon(Icons.Default.Check, contentDescription = null) }
                                 } else null
                             )
                         }
@@ -207,6 +212,44 @@ fun ExpenseHistoryScreen(
                 }
             }
 
+            is ExpenseHistoryUiState.EmptyFilter -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    ActiveFiltersRow(
+                        activeFilters = activeFilters,
+                        onClearAll = if (activeFilters.size > 1) {
+                            {
+                                viewModel.setSortOption(ExpenseSortOption.MOST_RECENT)
+                                viewModel.clearDateFilter()
+                            }
+                        } else null
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_expenses_for_filter),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = stringResource(R.string.adjust_or_clear_filter),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
             is ExpenseHistoryUiState.Error -> {
                 Box(
                     modifier = Modifier
@@ -223,39 +266,33 @@ fun ExpenseHistoryScreen(
         }
     }
 
-    // Start date picker
-    if (showStartDatePicker) {
-        val pickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
+    // Date range picker
+    if (showDateRangePicker) {
+        val rangePickerState = rememberDateRangePickerState(
+            initialSelectedStartDateMillis = startDate,
+            initialSelectedEndDateMillis = endDate
+        )
         DatePickerDialog(
-            onDismissRequest = { showStartDatePicker = false },
+            onDismissRequest = { showDateRangePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    pickerState.selectedDateMillis?.let { viewModel.setStartDate(it) }
-                    showStartDatePicker = false
-                    showEndDatePicker = true
-                }) { Text(stringResource(R.string.date_filter_next_end_date)) }
+                TextButton(
+                    onClick = {
+                        viewModel.setStartDate(rangePickerState.selectedStartDateMillis)
+                        viewModel.setEndDate(rangePickerState.selectedEndDateMillis)
+                        showDateRangePicker = false
+                    },
+                    enabled = rangePickerState.selectedStartDateMillis != null
+                ) { Text(stringResource(R.string.apply)) }
             },
             dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) { Text(stringResource(R.string.cancel)) }
+                TextButton(onClick = { showDateRangePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
-        ) { DatePicker(state = pickerState) }
-    }
-
-    // End date picker
-    if (showEndDatePicker) {
-        val pickerState = rememberDatePickerState(initialSelectedDateMillis = endDate)
-        DatePickerDialog(
-            onDismissRequest = { showEndDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    pickerState.selectedDateMillis?.let { viewModel.setEndDate(it) }
-                    showEndDatePicker = false
-                }) { Text(stringResource(R.string.apply)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndDatePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        ) { DatePicker(state = pickerState) }
+        ) {
+            DateRangePicker(
+                state = rangePickerState,
+                modifier = Modifier.fillMaxHeight(0.85f)
+            )
+        }
     }
 }
 

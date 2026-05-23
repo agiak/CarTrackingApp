@@ -73,7 +73,7 @@ class ExpenseDetailsViewModel @Inject constructor(
     fun deleteExpense(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                expenseRepository.deleteExpense(expenseId)
+                expenseRepository.softDeleteExpense(expenseId)
                 onSuccess()
             } catch (e: Exception) {
                 // Handle error

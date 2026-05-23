@@ -9,7 +9,7 @@ class DeleteCarUseCase @Inject constructor(
     private val carRepository: CarRepository,
 ) {
     suspend operator fun invoke(carId: Long): Result<Unit> = try {
-        carRepository.deleteCar(carId)
+        carRepository.softDeleteCar(carId)
         Result.Success(Unit)
     } catch (e: Exception) {
         Result.Error(AppError.DatabaseError(e))

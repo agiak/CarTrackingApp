@@ -598,6 +598,7 @@ private fun InfoTooltip(
     message: String,
     onDismiss: () -> Unit
 ) {
+    val tooltipColor = MaterialTheme.colorScheme.surfaceContainerHigh
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -622,7 +623,7 @@ private fun InfoTooltip(
                 }
                 drawPath(
                     path = path,
-                    color = Color.White
+                    color = tooltipColor
                 )
             }
         }

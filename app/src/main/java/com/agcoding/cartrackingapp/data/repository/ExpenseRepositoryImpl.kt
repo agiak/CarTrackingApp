@@ -40,5 +40,21 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun deleteExpense(expenseId: Long) {
         expenseDao.deleteExpenseById(expenseId)
     }
+
+    override suspend fun softDeleteExpense(expenseId: Long) {
+        expenseDao.softDeleteExpense(expenseId, System.currentTimeMillis())
+    }
+
+    override suspend fun restoreExpense(expenseId: Long) {
+        expenseDao.restoreExpense(expenseId)
+    }
+
+    override suspend fun getDeletedExpenses(): List<Expense> {
+        return expenseDao.getDeletedExpenses().map { it.toDomain() }
+    }
+
+    override suspend fun permanentlyDeleteExpense(expenseId: Long) {
+        expenseDao.permanentlyDeleteExpense(expenseId)
+    }
 }
 

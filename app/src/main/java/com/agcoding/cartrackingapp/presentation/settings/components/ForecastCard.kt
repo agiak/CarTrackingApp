@@ -11,7 +11,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +47,6 @@ fun ForecastCard(
                         checked = forecastingEnabled,
                         onCheckedChange = onForecastingToggle,
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
                             checkedTrackColor = MaterialTheme.colorScheme.secondary
                         )
                     )
