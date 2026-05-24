@@ -156,7 +156,7 @@ fun AnomalyCard(
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
-                            text = "Add to Trip",
+                            text = stringResource(R.string.add_to_trip),
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }

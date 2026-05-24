@@ -338,7 +338,7 @@ private fun DistanceGraphContent(
                         R.string.distance_graph_km_format,
                         numberFormat.format(trendData.longestTrip.toLong())
                     ),
-                    indicatorColor = Color(0xFF34C759),
+                    indicatorColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
                 StatCard(
@@ -347,7 +347,7 @@ private fun DistanceGraphContent(
                         R.string.distance_graph_km_format,
                         numberFormat.format(trendData.shortestTrip.toLong())
                     ),
-                    indicatorColor = Color(0xFFFF9500),
+                    indicatorColor = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -536,7 +536,7 @@ private fun DistanceGraphContent(
                         R.string.distance_graph_km_format,
                         numberFormat.format(trendData.longestTrip.toLong())
                     ),
-                    indicatorColor = Color(0xFF34C759),
+                    indicatorColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -548,7 +548,7 @@ private fun DistanceGraphContent(
                     R.string.distance_graph_km_format,
                     numberFormat.format(trendData.shortestTrip.toLong())
                 ),
-                indicatorColor = Color(0xFFFF9500),
+                indicatorColor = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.fillMaxWidth()
             )
 

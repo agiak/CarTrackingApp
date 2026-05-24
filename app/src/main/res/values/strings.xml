@@ -1215,6 +1215,7 @@
     <string name="percentage_of_total">%1$s of total</string>
 
     <!-- Car Details FAB -->
+    <string name="add_to_trip">Add to Trip</string>
     <string name="add_refill_fab_label">Add Refill</string>
     <string name="fab_open_cd">Open actions</string>
 

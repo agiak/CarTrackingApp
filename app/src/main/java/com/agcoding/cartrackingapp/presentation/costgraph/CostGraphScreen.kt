@@ -50,7 +50,7 @@ fun CostGraphScreen(
     Scaffold(
         topBar = {
             StyledTopAppBar(
-                title = { },
+                title = { Text(stringResource(R.string.cost_graph_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(

@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.refillsgraph
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,7 +74,7 @@ fun RefillsGraphScreen(
     Scaffold(
         topBar = {
             StyledTopAppBar(
-                title = { },
+                title = { Text(stringResource(R.string.refills_graph_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -409,7 +409,7 @@ private fun RefillsGraphContent(
             StatCard(
                 label = stringResource(R.string.lowest_month),
                 value = "${trendData.lowestMonthRefills}",
-                valueColor = Color(0xFF34C759),
+                valueColor = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.weight(1f)
             )
             StatCard(

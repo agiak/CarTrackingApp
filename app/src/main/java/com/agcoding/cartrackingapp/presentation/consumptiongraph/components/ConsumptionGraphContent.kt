@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,14 +77,14 @@ fun ConsumptionGraphContent(
                 StatCard(
                     label = stringResource(R.string.best_label),
                     value = "%.1f L/100km".format(trendData.bestConsumption),
-                    valueColor = Color(0xFF34C759),
+                    valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 StatCard(
                     label = stringResource(R.string.worst_label),
                     value = "%.1f L/100km".format(trendData.worstConsumption),
-                    valueColor = Color(0xFFFF3B30),
+                    valueColor = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -181,13 +180,13 @@ fun ConsumptionGraphContent(
                 StatCard(
                     label = stringResource(R.string.best_label),
                     value = "%.1f L/100km".format(trendData.bestConsumption),
-                    valueColor = Color(0xFF34C759),
+                    valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = stringResource(R.string.worst_label),
                     value = "%.1f L/100km".format(trendData.worstConsumption),
-                    valueColor = Color(0xFFFF3B30),
+                    valueColor = MaterialTheme.colorScheme.error,
                     modifier = Modifier.weight(1f)
                 )
             }

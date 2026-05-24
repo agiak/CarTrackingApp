@@ -534,7 +534,7 @@ private fun PermissionCard(
         ),
         border = BorderStroke(
             1.dp,
-            if (isGranted) Color(0xFF4CAF50).copy(alpha = 0.5f)
+            if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
             else MaterialTheme.colorScheme.outlineVariant
         ),
         shape = RoundedCornerShape(12.dp)
@@ -551,7 +551,7 @@ private fun PermissionCard(
                     .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(
-                        if (isGranted) Color(0xFF4CAF50).copy(alpha = 0.1f)
+                        if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
                         else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                     ),
                 contentAlignment = Alignment.Center
@@ -560,7 +560,7 @@ private fun PermissionCard(
                     imageVector = permission.icon,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = if (isGranted) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                    tint = if (isGranted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -590,7 +590,7 @@ private fun PermissionCard(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF4CAF50)),
+                        .background(MaterialTheme.colorScheme.tertiary),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

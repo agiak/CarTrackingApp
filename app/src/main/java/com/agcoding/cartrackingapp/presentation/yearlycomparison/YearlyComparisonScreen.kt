@@ -40,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -521,10 +520,10 @@ private fun ChangeIndicator(
     unit: String
 ) {
     val color = when {
-        isImprovement && !isIncrease -> Color(0xFF34C759) // Green for improvement (decrease)
-        isImprovement && isIncrease -> Color(0xFF34C759) // Green for improvement (increase - not typical)
+        isImprovement && !isIncrease -> MaterialTheme.colorScheme.tertiary // Green for improvement (decrease)
+        isImprovement && isIncrease -> MaterialTheme.colorScheme.tertiary // Green for improvement (increase - not typical)
         isIncrease -> MaterialTheme.colorScheme.error.copy(alpha = 0.7f) // Subtle warning for cost increase
-        else -> Color(0xFF34C759) // Green for decrease
+        else -> MaterialTheme.colorScheme.tertiary // Green for decrease
     }
 
     Column(

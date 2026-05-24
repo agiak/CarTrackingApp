@@ -1135,4 +1135,81 @@
     <string name="date_filter_from_label">Από: %1$s</string>
     <string name="date_filter_to_label">Έως: %1$s</string>
 
+    <!-- Trips -->
+    <string name="trips_title">Ταξίδια</string>
+    <string name="trips_overview">Επισκόπηση Ταξιδιών</string>
+    <string name="trips_section_header">Ταξίδια (%1$d)</string>
+    <string name="new_trip">Νέο Ταξίδι</string>
+    <string name="create_trip">Δημιουργία Ταξιδιού</string>
+    <string name="create_first_trip_desc">Δημιουργήστε το πρώτο σας ταξίδι για να οργανώσετε τους ανεφοδιασμούς σας</string>
+    <string name="no_trips_yet">Δεν υπάρχουν ταξίδια ακόμα</string>
+    <string name="no_trips_yet_create">Δεν υπάρχουν ταξίδια. Δημιουργήστε ένα!</string>
+    <string name="no_trips_available">Δεν υπάρχουν διαθέσιμα ταξίδια.</string>
+    <string name="add_to_trip">Προσθήκη σε Ταξίδι</string>
+    <string name="add_to_existing_trip">Προσθήκη σε Ταξίδι</string>
+    <string name="add_refills_to_trip_cd">Προσθήκη ανεφοδιασμών στο ταξίδι</string>
+    <string name="select_trip_for_refills">Επιλέξτε ταξίδι για να προσθέσετε %1$d ανεφοδιασμό(ούς):</string>
+    <string name="no_available_refills_for_trip">Δεν υπάρχουν διαθέσιμοι ανεφοδιασμοί για προσθήκη σε ταξίδι</string>
+    <string name="select_refills_header">Επιλογή Ανεφοδιασμών *</string>
+    <string name="remove_refill_from_trip_title">Αφαίρεση Ανεφοδιασμού</string>
+    <string name="remove_refill_from_trip_confirm">Να αφαιρεθεί αυτός ο ανεφοδιασμός από το ταξίδι; Η εγγραφή δεν θα διαγραφεί.</string>
+    <string name="trip_created_format">Δημιουργήθηκε: %1$s</string>
+    <string name="trip_description_optional_label">Περιγραφή (Προαιρετικό)</string>
+    <string name="trip_notes_hint">Προσθέστε σημειώσεις για αυτό το ταξίδι…</string>
+    <string name="trip_distance_stat">Απόσταση Ταξιδιού</string>
+    <string name="trip_avg_consumption_stat">Μέση Κατανάλωση Ταξιδιού</string>
+    <string name="trip_avg_consumption_subtitle">Μέση κατανάλωση κατά τα ταξίδια</string>
+    <string name="total_trips_stat">Συνολικά Ταξίδια</string>
+
+    <!-- Trash / Recently Deleted -->
+    <string name="recently_deleted">Πρόσφατα Διαγραμμένα</string>
+    <string name="recently_deleted_desc">Προβολή και επαναφορά διαγραμμένων στοιχείων</string>
+    <string name="trash_title">Πρόσφατα Διαγραμμένα</string>
+    <string name="trash_empty">Δεν υπάρχουν διαγραμμένα στοιχεία</string>
+    <string name="trash_empty_desc">Τα στοιχεία που διαγράφετε θα εμφανίζονται εδώ</string>
+    <string name="trash_restore">Επαναφορά</string>
+    <string name="trash_delete_permanently">Οριστική Διαγραφή</string>
+    <string name="trash_empty_all">Άδειασμα Κάδου</string>
+    <string name="trash_cars_section">Αυτοκίνητα</string>
+    <string name="trash_refills_section">Ανεφοδιασμοί</string>
+    <string name="trash_expenses_section">Έξοδα</string>
+    <string name="trash_trips_section">Ταξίδια</string>
+    <string name="trash_deleted_on">Διαγράφηκε στις %1$s</string>
+    <string name="trash_empty_permanently_confirm">Οριστική διαγραφή όλων των στοιχείων στον κάδο; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+    <string name="trash_permanent_delete_confirm">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Το στοιχείο θα διαγραφεί οριστικά.</string>
+
+    <!-- Statistics / Stats Cards -->
+    <string name="stat_refills">Ανεφοδιασμοί</string>
+    <string name="stat_total_cost">Συνολικό Κόστος</string>
+    <string name="stat_distance">Χιλιόμετρα</string>
+    <string name="stat_avg_consumption">Μέση Κατανάλωση</string>
+    <string name="stat_total_fuel">Συνολικά Καύσιμα</string>
+    <string name="refills_section_header">Ανεφοδιασμοί (%1$d)</string>
+    <string name="services_section_header">Σέρβις (%1$d)</string>
+    <string name="percentage_of_total">%1$s του συνόλου</string>
+
+    <!-- Sorting -->
+    <string name="sort_cd">Ταξινόμηση</string>
+    <string name="sort_newest">Νεότερα</string>
+    <string name="sort_oldest">Παλαιότερα</string>
+    <string name="sort_newest_first">Νεότερα πρώτα</string>
+    <string name="sort_oldest_first">Παλαιότερα πρώτα</string>
+
+    <!-- Selection Mode -->
+    <string name="selection_mode_count">%1$d επιλεγμένα</string>
+    <string name="selected_refills_count">%1$d επιλεγμένα</string>
+    <string name="clear_selection_cd">Εκκαθάριση επιλογής</string>
+    <string name="delete_selected_cd">Διαγραφή επιλεγμένων</string>
+
+    <!-- Filters -->
+    <string name="filter_by_date_cd">Φιλτράρισμα κατά ημερομηνία</string>
+    <string name="no_refills_for_filter">Δεν υπάρχουν ανεφοδιασμοί για το επιλεγμένο εύρος ημερομηνιών</string>
+    <string name="no_expenses_for_filter">Δεν υπάρχουν έξοδα για το επιλεγμένο εύρος ημερομηνιών</string>
+    <string name="adjust_or_clear_filter">Δοκιμάστε να τροποποιήσετε ή να αφαιρέσετε το φίλτρο ημερομηνίας</string>
+
+    <!-- FAB / Actions -->
+    <string name="add_refill_fab_label">Προσθήκη Ανεφοδιασμού</string>
+    <string name="fab_open_cd">Άνοιγμα ενεργειών</string>
+    <string name="remove">Αφαίρεση</string>
+
 </resources>
