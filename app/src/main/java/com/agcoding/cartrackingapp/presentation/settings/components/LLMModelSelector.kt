@@ -52,7 +52,7 @@ fun LLMModelSelector(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 500.dp) // Limit max height to allow scrolling
+                    .heightIn(max = 280.dp) // Limit max height to work in landscape mode
                     .verticalScroll(rememberScrollState())
             ) {
                 LLMModel.getAllModels().forEach { model ->
