@@ -59,7 +59,7 @@ class GetDistanceTrendUseCase @Inject constructor(
             val dataPoints = aggregateRefills(filteredRefills, bucketSize, dateRange)
 
             // Calculate monthly distances for bar chart
-            val monthlyDistances = calculateMonthlyDistances(filteredRefills)
+            val monthlyDistances = calculateMonthlyDistances(filteredRefills, bucketSize)
 
             // Calculate overall statistics
             val totalDistance = filteredRefills.sumOf { it.tripDistance }
@@ -195,59 +195,53 @@ class GetDistanceTrendUseCase @Inject constructor(
         return dataPoints
     }
 
-    private fun calculateMonthlyDistances(refills: List<FuelRefill>): List<MonthlyDistance> {
+    private fun calculateMonthlyDistances(
+        refills: List<FuelRefill>,
+        bucketSize: AggregationBucket
+    ): List<MonthlyDistance> {
         if (refills.isEmpty()) return emptyList()
 
-        val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat(
+            when (bucketSize) {
+                AggregationBucket.DAILY -> "MMM d"
+                AggregationBucket.WEEKLY -> "'Week' w"
+                AggregationBucket.BI_WEEKLY -> "MMM d"
+                AggregationBucket.MONTHLY -> "MMM"
+                AggregationBucket.QUARTERLY -> "MMM"
+                AggregationBucket.YEARLY -> "yyyy"
+            },
+            Locale.getDefault()
+        )
 
-        // Find the earliest and latest refill timestamps
         val earliestTimestamp = refills.minOf { it.timestamp }
         val latestTimestamp = refills.maxOf { it.timestamp }
 
-        // Set calendar to the first day of the earliest month
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // Group refills by month for easy lookup
-        val monthlyGroups = refills.groupBy { refill ->
-            calendar.timeInMillis = refill.timestamp
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            Pair(year, month)
-        }
-
-        // Generate all months from earliest to latest
+        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val monthlyDistances = mutableListOf<MonthlyDistance>()
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
 
-        val endCalendar = Calendar.getInstance()
-        endCalendar.timeInMillis = latestTimestamp
+        var currentBucketStart = earliestTimestamp
+        val calendar = Calendar.getInstance()
 
-        while (calendar.timeInMillis <= endCalendar.timeInMillis) {
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val monthKey = Pair(year, month)
+        while (currentBucketStart <= latestTimestamp) {
+            val bucketEnd = currentBucketStart + bucketMillis
 
-            // Get distance for this month, or 0 if no refills
-            val distance = monthlyGroups[monthKey]?.sumOf { it.tripDistance } ?: 0.0
+            val bucketRefills = refills.filter { it.timestamp in currentBucketStart until bucketEnd }
 
-            monthlyDistances.add(
-                MonthlyDistance(
-                    month = monthFormat.format(calendar.time),
-                    year = year,
-                    distance = distance,
-                    timestamp = calendar.timeInMillis
+            if (bucketRefills.isNotEmpty()) {
+                val distance = bucketRefills.sumOf { it.tripDistance }
+
+                calendar.timeInMillis = currentBucketStart
+                monthlyDistances.add(
+                    MonthlyDistance(
+                        month = dateFormat.format(calendar.time),
+                        year = calendar.get(Calendar.YEAR),
+                        distance = distance,
+                        timestamp = currentBucketStart
+                    )
                 )
-            )
+            }
 
-            // Move to next month
-            calendar.add(Calendar.MONTH, 1)
+            currentBucketStart = bucketEnd
         }
 
         return monthlyDistances

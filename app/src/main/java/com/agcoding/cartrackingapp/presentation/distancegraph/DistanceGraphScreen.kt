@@ -65,7 +65,11 @@ import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.DistanceDataPoint
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -923,6 +927,73 @@ private fun TripItem(
     }
 }
 
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Distance Graph Content - Portrait", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewDistanceGraphContent() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DistanceGraphContent(
+            trendData = DistanceTrendData(
+                dataPoints = listOf(
+                    DistanceDataPoint(System.currentTimeMillis(), 450.0, 5, "Jan"),
+                    DistanceDataPoint(System.currentTimeMillis() + 2592000000L, 520.0, 6, "Feb"),
+                    DistanceDataPoint(System.currentTimeMillis() + 5184000000L, 480.0, 5, "Mar")
+                ),
+                totalDistance = 1450.0,
+                averageTripDistance = 85.0,
+                longestTrip = 450.0,
+                shortestTrip = 20.0,
+                totalTrips = 16,
+                recentTrips = listOf(
+                    TripInfo(1, 1, "Toyota Corolla", System.currentTimeMillis(), 450.0, 35.0, 0xFF4CAF50.toInt()),
+                    TripInfo(2, 1, "Toyota Corolla", System.currentTimeMillis() - 86400000, 120.0, 10.0, 0xFF4CAF50.toInt())
+                ),
+                dateRange = DateRange(System.currentTimeMillis() - 7776000000L, System.currentTimeMillis(), "Last 3 months"),
+                monthlyDistances = listOf(
+                    MonthlyDistance("Jan", 2026, 450.0, System.currentTimeMillis()),
+                    MonthlyDistance("Feb", 2026, 520.0, System.currentTimeMillis() + 2592000000L),
+                    MonthlyDistance("Mar", 2026, 480.0, System.currentTimeMillis() + 5184000000L)
+                )
+            )
+        )
+    }
+}
+
+@Preview(
+    name = "Distance Graph Content - Landscape",
+    showBackground = true,
+    device = "spec:width=800dp,height=480dp,dpi=240,orientation=landscape"
+)
+@Composable
+private fun PreviewDistanceGraphContentLandscape() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DistanceGraphContent(
+            trendData = DistanceTrendData(
+                dataPoints = listOf(
+                    DistanceDataPoint(System.currentTimeMillis(), 800.0, 8, "Q1"),
+                    DistanceDataPoint(System.currentTimeMillis() + 7776000000L, 1200.0, 12, "Q2")
+                ),
+                totalDistance = 2000.0,
+                averageTripDistance = 100.0,
+                longestTrip = 600.0,
+                shortestTrip = 30.0,
+                totalTrips = 20,
+                recentTrips = listOf(
+                    TripInfo(1, 2, "BMW 320i", System.currentTimeMillis(), 600.0, 50.0, 0xFF2196F3.toInt())
+                ),
+                dateRange = DateRange(System.currentTimeMillis() - 15552000000L, System.currentTimeMillis(), "Last 6 months"),
+                monthlyDistances = listOf(
+                    MonthlyDistance("Q1", 2026, 800.0, System.currentTimeMillis()),
+                    MonthlyDistance("Q2", 2026, 1200.0, System.currentTimeMillis() + 7776000000L)
+                )
+            )
+        )
+    }
+}
 
 @Composable
 private fun NoDataState(

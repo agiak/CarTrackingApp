@@ -54,7 +54,11 @@ import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.MonthlyRefills
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -490,6 +494,64 @@ private fun RefillsGraphContent(
 
         Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Refills Graph Content - Portrait", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewRefillsGraphContent() {
+    CarTrackingAppTheme(darkTheme = false) {
+        RefillsGraphContent(
+            trendData = RefillsTrendData(
+                monthlyRefills = listOf(
+                    MonthlyRefills("Jan", 2026, 4, 150.0, 250.0, System.currentTimeMillis()),
+                    MonthlyRefills("Feb", 2026, 5, 200.0, 320.0, System.currentTimeMillis() + 2592000000L)
+                ),
+                totalRefills = 9,
+                averageRefillsPerMonth = 4.5,
+                highestMonthRefills = 5,
+                lowestMonthRefills = 4,
+                totalLiters = 350.0,
+                averageLitersPerRefill = 38.8,
+                recentRefills = listOf(
+                    RefillItem(1, System.currentTimeMillis(), 40.0, 65.0, 1.625, "Toyota Corolla")
+                ),
+                dateRange = DateRange(System.currentTimeMillis() - 5184000000L, System.currentTimeMillis(), "Last 2 months")
+            )
+        )
+    }
+}
+
+@Preview(
+    name = "Refills Graph Content - Landscape",
+    showBackground = true,
+    device = "spec:width=800dp,height=480dp,dpi=240,orientation=landscape"
+)
+@Composable
+private fun PreviewRefillsGraphContentLandscape() {
+    CarTrackingAppTheme(darkTheme = false) {
+        RefillsGraphContent(
+            trendData = RefillsTrendData(
+                monthlyRefills = listOf(
+                    MonthlyRefills("2025", 2025, 48, 1800.0, 3000.0, System.currentTimeMillis() - 31536000000L),
+                    MonthlyRefills("2026", 2026, 10, 400.0, 650.0, System.currentTimeMillis())
+                ),
+                totalRefills = 58,
+                averageRefillsPerMonth = 4.1,
+                highestMonthRefills = 6,
+                lowestMonthRefills = 2,
+                totalLiters = 2200.0,
+                averageLitersPerRefill = 37.9,
+                recentRefills = listOf(
+                    RefillItem(1, System.currentTimeMillis(), 45.0, 75.0, 1.66, "BMW 320i")
+                ),
+                dateRange = DateRange(System.currentTimeMillis() - 63072000000L, System.currentTimeMillis(), "All Time")
+            )
+        )
     }
 }
 
