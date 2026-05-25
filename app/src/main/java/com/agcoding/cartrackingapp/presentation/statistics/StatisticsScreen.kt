@@ -694,6 +694,76 @@ private fun PerCarBreakdownCard(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Statistics Screen - Light", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewStatisticsScreen() {
+    val mockStats = GlobalStatistics(
+        totalCars = 2,
+        totalRefills = 25,
+        totalCost = 1250.50,
+        totalDistance = 12500.0,
+        totalLiters = 950.5,
+        averageConsumption = 7.6,
+        averagePricePerLiter = 1.58,
+        mostEfficientCar = Car(1, "Toyota Corolla", "ABC-1234", 0.0, 12500.0),
+        mostExpensiveCar = Car(2, "Honda Civic", "XYZ-5678", 0.0, 8000.0),
+        monthlyTrends = listOf(
+            MonthlyTrend(1, 2026, "January", 320.50, 200.0, 2500.0, 8.0, 6, 2, 80.0),
+            MonthlyTrend(12, 2025, "December", 280.00, 180.0, 2200.0, 8.2, 5, 1, 50.0)
+        ),
+        perCarStatistics = emptyList(),
+        totalServiceExpenses = 150.0,
+        totalOtherExpenses = 80.0,
+        costPerKilometer = 0.10,
+        totalExpensesCost = 230.0,
+        totalExpenseCount = 3,
+        serviceExpenseCount = 1,
+        otherExpenseCount = 2,
+        totalTrips = 5,
+        tripRefillCount = 3,
+        tripDistance = 1200.0,
+        tripAverageConsumption = 8.2
+    )
+
+    CarTrackingAppTheme(darkTheme = false) {
+        Scaffold(
+            topBar = {
+                StyledTopAppBar(
+                    title = { Text(stringResource(R.string.statistics)) }
+                )
+            }
+        ) { paddingValues ->
+            StatisticsContent(
+                statistics = mockStats,
+                onMonthlyTrendsClick = {},
+                forecastingEnabled = true,
+                summarySection = {
+                    SummarySection(
+                        statistics = mockStats,
+                        onConsumptionGraphClick = {},
+                        onDistanceGraphClick = {},
+                        onCostGraphClick = {},
+                        onRefillsGraphClick = {}
+                    )
+                },
+                perCarBreakdownCards = {},
+                monthlyTrendCards = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        mockStats.monthlyTrends.forEach { trend ->
+                            MonthlyTrendCard(trend = trend)
+                        }
+                    }
+                },
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
 @Composable
 private fun StatItem(label: String, value: String) {
     Column {

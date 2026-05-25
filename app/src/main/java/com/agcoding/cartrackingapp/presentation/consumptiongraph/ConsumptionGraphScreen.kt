@@ -23,12 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.domain.model.ConsumptionDataPoint
+import com.agcoding.cartrackingapp.domain.model.ConsumptionTrend
+import com.agcoding.cartrackingapp.domain.model.ConsumptionTrendData
+import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.ConsumptionGraphContent
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.components.NoDataState
 
@@ -140,6 +146,7 @@ fun ConsumptionGraphScreen(
             }
         }
 
+
         // Car Filter Bottom Sheet
         if (showCarFilter) {
             com.agcoding.cartrackingapp.presentation.components.CarFilterSheet(
@@ -150,6 +157,43 @@ fun ConsumptionGraphScreen(
                 },
                 onDismiss = { viewModel.hideCarFilter() },
                 onApply = { viewModel.applyCarFilter() }
+            )
+        }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Consumption Graph Screen - Light", showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewConsumptionGraphScreen() {
+    val mockTrendData = ConsumptionTrendData(
+        dataPoints = listOf(
+            ConsumptionDataPoint(System.currentTimeMillis() - 5184000000L, 6.5, 4, 800.0, "Jan"),
+            ConsumptionDataPoint(System.currentTimeMillis() - 2592000000L, 6.8, 5, 900.0, "Feb"),
+            ConsumptionDataPoint(System.currentTimeMillis(), 6.2, 4, 850.0, "Mar")
+        ),
+        overallAverage = 6.4,
+        bestConsumption = 6.1,
+        worstConsumption = 6.8,
+        trend = ConsumptionTrend.IMPROVING,
+        totalRefills = 24,
+        dateRange = DateRange(System.currentTimeMillis() - 7776000000L, System.currentTimeMillis(), "Last 3 months")
+    )
+
+    CarTrackingAppTheme(darkTheme = false) {
+        Scaffold(
+            topBar = {
+                StyledTopAppBar(
+                    title = { Text(stringResource(R.string.consumption_graph_title)) }
+                )
+            }
+        ) { paddingValues ->
+            ConsumptionGraphContent(
+                trendData = mockTrendData,
+                modifier = Modifier.padding(paddingValues)
             )
         }
     }
