@@ -129,7 +129,7 @@ fun ConsumptionGraphContent(
                                     ChartDataPoint(
                                         label = dataPoint.label,
                                         value = dataPoint.averageConsumption,
-                                        formattedValue = "${String.format("%.1f", dataPoint.averageConsumption)} L/100km"
+                                        formattedValue = "${String.format(java.util.Locale.getDefault(), "%.1f", dataPoint.averageConsumption)} L/100km"
                                     )
                                 },
                                 tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,
@@ -214,7 +214,7 @@ fun ConsumptionGraphContent(
                             ChartDataPoint(
                                 label = dataPoint.label,
                                 value = dataPoint.averageConsumption,
-                                formattedValue = "${String.format("%.1f", dataPoint.averageConsumption)} L/100km"
+                                formattedValue = "${String.format(java.util.Locale.getDefault(), "%.1f", dataPoint.averageConsumption)} L/100km"
                             )
                         },
                         tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,

@@ -50,6 +50,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.RefillItem
 import com.agcoding.cartrackingapp.domain.model.RefillsTrendData
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
+import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -283,11 +284,11 @@ private fun RefillsGraphContent(
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
 
-                            // The actual line graph
-                            InteractiveLineChart(
+                            // The actual bar graph
+                            InteractiveBarChart(
                                 dataPoints = trendData.monthlyRefills.map { monthData ->
                                     ChartDataPoint(
-                                        label = "${monthData.month} ${monthData.year}",
+                                        label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                         value = monthData.refillCount.toDouble(),
                                         formattedValue = stringResource(R.string.refills_format, monthData.refillCount)
                                     )
@@ -438,10 +439,10 @@ private fun RefillsGraphContent(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    InteractiveLineChart(
+                    InteractiveBarChart(
                         dataPoints = trendData.monthlyRefills.map { monthData ->
                             ChartDataPoint(
-                                label = "${monthData.month} ${monthData.year}",
+                                label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                 value = monthData.refillCount.toDouble(),
                                 formattedValue = stringResource(R.string.refills_format, monthData.refillCount)
                             )

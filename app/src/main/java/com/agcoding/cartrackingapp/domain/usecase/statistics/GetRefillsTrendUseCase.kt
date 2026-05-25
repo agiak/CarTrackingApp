@@ -48,13 +48,16 @@ class GetRefillsTrendUseCase @Inject constructor(
                 TrendPeriod.CUSTOM -> DateRange(earliest, now, "Custom Range")
             }
 
+            val totalDays = ((dateRange.endMillis - dateRange.startMillis) / (24 * 60 * 60 * 1000L)).toInt()
+            val bucketSize = com.agcoding.cartrackingapp.domain.model.AggregationBucket.forDateRange(totalDays)
+
             // Filter by date range
             val filteredRefills = refills.filter { it.timestamp in dateRange.startMillis..dateRange.endMillis }
 
             if (filteredRefills.isEmpty()) return@combine null
 
             // Calculate monthly refills
-            val monthlyRefills = calculateMonthlyRefills(filteredRefills)
+            val monthlyRefills = calculateMonthlyRefills(filteredRefills, bucketSize)
 
             // Calculate statistics
             val totalRefills = filteredRefills.size
@@ -98,65 +101,57 @@ class GetRefillsTrendUseCase @Inject constructor(
         }
     }
 
-    private fun calculateMonthlyRefills(refills: List<FuelRefill>): List<MonthlyRefills> {
+    private fun calculateMonthlyRefills(
+        refills: List<FuelRefill>,
+        bucketSize: com.agcoding.cartrackingapp.domain.model.AggregationBucket
+    ): List<MonthlyRefills> {
         if (refills.isEmpty()) return emptyList()
 
-        val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat(
+            when (bucketSize) {
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.DAILY -> "MMM d"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.WEEKLY -> "'Week' w"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.BI_WEEKLY -> "MMM d"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.MONTHLY -> "MMM"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.QUARTERLY -> "MMM"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.YEARLY -> "yyyy"
+            },
+            Locale.getDefault()
+        )
 
-        // Find earliest and latest timestamps
         val earliestTimestamp = refills.minOf { it.timestamp }
         val latestTimestamp = refills.maxOf { it.timestamp }
 
-        // Set calendar to first day of earliest month
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // Group by month
-        val monthlyData = mutableMapOf<Pair<Int, Int>, Triple<Int, Double, Double>>()
-
-        refills.forEach { refill ->
-            calendar.timeInMillis = refill.timestamp
-            val key = Pair(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH))
-            val current = monthlyData.getOrDefault(key, Triple(0, 0.0, 0.0))
-            monthlyData[key] = Triple(
-                current.first + 1,
-                current.second + refill.litersAdded,
-                current.third + refill.amountPaid
-            )
-        }
-
-        // Generate all months from earliest to latest
+        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val monthlyRefills = mutableListOf<MonthlyRefills>()
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
 
-        val endCalendar = Calendar.getInstance()
-        endCalendar.timeInMillis = latestTimestamp
+        var currentBucketStart = earliestTimestamp
+        val calendar = Calendar.getInstance()
 
-        while (calendar.timeInMillis <= endCalendar.timeInMillis) {
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val monthKey = Pair(year, month)
+        while (currentBucketStart <= latestTimestamp) {
+            val bucketEnd = currentBucketStart + bucketMillis
 
-            val data = monthlyData.getOrDefault(monthKey, Triple(0, 0.0, 0.0))
+            val bucketRefills = refills.filter { it.timestamp in currentBucketStart until bucketEnd }
 
-            monthlyRefills.add(
-                MonthlyRefills(
-                    month = monthFormat.format(calendar.time),
-                    year = year,
-                    refillCount = data.first,
-                    totalLiters = data.second,
-                    totalCost = data.third,
-                    timestamp = calendar.timeInMillis
+            if (bucketRefills.isNotEmpty()) {
+                val refillCount = bucketRefills.size
+                val totalLiters = bucketRefills.sumOf { it.litersAdded }
+                val totalCost = bucketRefills.sumOf { it.amountPaid }
+
+                calendar.timeInMillis = currentBucketStart
+                monthlyRefills.add(
+                    MonthlyRefills(
+                        month = dateFormat.format(calendar.time),
+                        year = calendar.get(Calendar.YEAR),
+                        refillCount = refillCount,
+                        totalLiters = totalLiters,
+                        totalCost = totalCost,
+                        timestamp = currentBucketStart
+                    )
                 )
-            )
+            }
 
-            calendar.add(Calendar.MONTH, 1)
+            currentBucketStart = bucketEnd
         }
 
         return monthlyRefills
