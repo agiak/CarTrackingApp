@@ -292,7 +292,7 @@ private fun RefillsGraphContent(
                             InteractiveBarChart(
                                 dataPoints = trendData.monthlyRefills.map { monthData ->
                                     ChartDataPoint(
-                                        label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                        label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                         value = monthData.refillCount.toDouble(),
                                         formattedValue = stringResource(R.string.refills_format, monthData.refillCount)
                                     )
@@ -446,7 +446,7 @@ private fun RefillsGraphContent(
                     InteractiveBarChart(
                         dataPoints = trendData.monthlyRefills.map { monthData ->
                             ChartDataPoint(
-                                label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                 value = monthData.refillCount.toDouble(),
                                 formattedValue = stringResource(R.string.refills_format, monthData.refillCount)
                             )

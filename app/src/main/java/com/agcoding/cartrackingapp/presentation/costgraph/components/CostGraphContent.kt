@@ -196,7 +196,7 @@ fun CostGraphContent(
                                 InteractiveBarChart(
                                     dataPoints = trendData.monthlyCosts.map { monthData ->
                                         ChartDataPoint(
-                                            label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                            label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.totalCost,
                                             formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
                                         )
@@ -410,7 +410,7 @@ fun CostGraphContent(
                         InteractiveBarChart(
                             dataPoints = trendData.monthlyCosts.map { monthData ->
                                 ChartDataPoint(
-                                    label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                    label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.totalCost,
                                     formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
                                 )

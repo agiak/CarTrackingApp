@@ -386,7 +386,7 @@ private fun DistanceGraphContent(
                                 InteractiveBarChart(
                                     dataPoints = trendData.monthlyDistances.map { monthData ->
                                         ChartDataPoint(
-                                            label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                            label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.distance,
                                             formattedValue = "${String.format("%.0f", monthData.distance)} km"
                                         )
@@ -579,7 +579,7 @@ private fun DistanceGraphContent(
                         InteractiveBarChart(
                             dataPoints = trendData.monthlyDistances.map { monthData ->
                                 ChartDataPoint(
-                                    label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
+                                    label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.distance,
                                     formattedValue = "${String.format("%.0f", monthData.distance)} km"
                                 )

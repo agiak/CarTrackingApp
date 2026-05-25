@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -107,17 +108,9 @@ class GetRefillsTrendUseCase @Inject constructor(
     ): List<MonthlyRefills> {
         if (refills.isEmpty()) return emptyList()
 
-        val dateFormat = SimpleDateFormat(
-            when (bucketSize) {
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.DAILY -> "MMM d"
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.WEEKLY -> "'Week' w"
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.BI_WEEKLY -> "MMM d"
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.MONTHLY -> "MMM"
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.QUARTERLY -> "MMM"
-                com.agcoding.cartrackingapp.domain.model.AggregationBucket.YEARLY -> "yyyy"
-            },
-            Locale.getDefault()
-        )
+        val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+        val monthOnlyFormat = SimpleDateFormat("MMM", Locale.getDefault())
+        val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
 
         val earliestTimestamp = refills.minOf { it.timestamp }
         val latestTimestamp = refills.maxOf { it.timestamp }
@@ -139,9 +132,23 @@ class GetRefillsTrendUseCase @Inject constructor(
                 val totalCost = bucketRefills.sumOf { it.amountPaid }
 
                 calendar.timeInMillis = currentBucketStart
+
+                val label = when (bucketSize) {
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.DAILY -> dateFormat.format(calendar.time)
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.WEEKLY,
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.BI_WEEKLY -> {
+                        val start = dateFormat.format(calendar.time)
+                        val end = dateFormat.format(Date(bucketEnd - 1000L))
+                        "$start - $end"
+                    }
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.MONTHLY -> monthOnlyFormat.format(calendar.time)
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.QUARTERLY -> monthOnlyFormat.format(calendar.time)
+                    com.agcoding.cartrackingapp.domain.model.AggregationBucket.YEARLY -> yearFormat.format(calendar.time)
+                }
+
                 monthlyRefills.add(
                     MonthlyRefills(
-                        month = dateFormat.format(calendar.time),
+                        month = label,
                         year = calendar.get(Calendar.YEAR),
                         refillCount = refillCount,
                         totalLiters = totalLiters,

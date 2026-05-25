@@ -153,17 +153,9 @@ class GetDistanceTrendUseCase @Inject constructor(
         val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val dataPoints = mutableListOf<DistanceDataPoint>()
 
-        val dateFormat = SimpleDateFormat(
-            when (bucketSize) {
-                AggregationBucket.DAILY -> "MMM d"
-                AggregationBucket.WEEKLY -> "'Week' w"
-                AggregationBucket.BI_WEEKLY -> "MMM d"
-                AggregationBucket.MONTHLY -> "MMM yyyy"
-                AggregationBucket.QUARTERLY -> "MMM yyyy"
-                AggregationBucket.YEARLY -> "yyyy"
-            },
-            Locale.getDefault()
-        )
+        val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+        val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+        val monthYearFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
         var currentBucketStart = dateRange.startMillis
 
@@ -177,7 +169,17 @@ class GetDistanceTrendUseCase @Inject constructor(
             if (bucketRefills.isNotEmpty()) {
                 val totalDistance = bucketRefills.sumOf { it.tripDistance }
                 val bucketMiddle = currentBucketStart + (bucketMillis / 2)
-                val label = dateFormat.format(Date(bucketMiddle))
+
+                val label = when (bucketSize) {
+                    AggregationBucket.DAILY -> dateFormat.format(Date(bucketMiddle))
+                    AggregationBucket.WEEKLY, AggregationBucket.BI_WEEKLY -> {
+                        val start = dateFormat.format(Date(currentBucketStart))
+                        val end = dateFormat.format(Date(bucketEnd - 1000L))
+                        "$start - $end"
+                    }
+                    AggregationBucket.MONTHLY, AggregationBucket.QUARTERLY -> monthYearFormat.format(Date(bucketMiddle))
+                    AggregationBucket.YEARLY -> yearFormat.format(Date(bucketMiddle))
+                }
 
                 dataPoints.add(
                     DistanceDataPoint(
@@ -201,17 +203,10 @@ class GetDistanceTrendUseCase @Inject constructor(
     ): List<MonthlyDistance> {
         if (refills.isEmpty()) return emptyList()
 
-        val dateFormat = SimpleDateFormat(
-            when (bucketSize) {
-                AggregationBucket.DAILY -> "MMM d"
-                AggregationBucket.WEEKLY -> "'Week' w"
-                AggregationBucket.BI_WEEKLY -> "MMM d"
-                AggregationBucket.MONTHLY -> "MMM"
-                AggregationBucket.QUARTERLY -> "MMM"
-                AggregationBucket.YEARLY -> "yyyy"
-            },
-            Locale.getDefault()
-        )
+        val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+        val monthOnlyFormat = SimpleDateFormat("MMM", Locale.getDefault())
+        val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+        val monthYearFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
         val earliestTimestamp = refills.minOf { it.timestamp }
         val latestTimestamp = refills.maxOf { it.timestamp }
@@ -231,9 +226,22 @@ class GetDistanceTrendUseCase @Inject constructor(
                 val distance = bucketRefills.sumOf { it.tripDistance }
 
                 calendar.timeInMillis = currentBucketStart
+
+                val label = when (bucketSize) {
+                    AggregationBucket.DAILY -> dateFormat.format(calendar.time)
+                    AggregationBucket.WEEKLY, AggregationBucket.BI_WEEKLY -> {
+                        val start = dateFormat.format(calendar.time)
+                        val end = dateFormat.format(Date(bucketEnd - 1000L))
+                        "$start - $end"
+                    }
+                    AggregationBucket.MONTHLY -> monthOnlyFormat.format(calendar.time)
+                    AggregationBucket.QUARTERLY -> monthYearFormat.format(calendar.time)
+                    AggregationBucket.YEARLY -> yearFormat.format(calendar.time)
+                }
+
                 monthlyDistances.add(
                     MonthlyDistance(
-                        month = dateFormat.format(calendar.time),
+                        month = label,
                         year = calendar.get(Calendar.YEAR),
                         distance = distance,
                         timestamp = currentBucketStart

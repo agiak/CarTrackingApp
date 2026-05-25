@@ -111,17 +111,9 @@ class GetConsumptionTrendUseCase @Inject constructor(
 
         // Create buckets
         var currentBucketStart = dateRange.startMillis
-        val dateFormat = SimpleDateFormat(
-            when (bucketSize) {
-                AggregationBucket.DAILY -> "MMM d"
-                AggregationBucket.WEEKLY -> "'Week' w"
-                AggregationBucket.BI_WEEKLY -> "MMM d"
-                AggregationBucket.MONTHLY -> "MMM yyyy"
-                AggregationBucket.QUARTERLY -> "MMM yyyy"
-                AggregationBucket.YEARLY -> "yyyy"
-            },
-            Locale.getDefault()
-        )
+        val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+        val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+        val monthYearFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
         while (currentBucketStart < dateRange.endMillis) {
             val bucketEnd = minOf(currentBucketStart + bucketMillis, dateRange.endMillis)
@@ -145,7 +137,17 @@ class GetConsumptionTrendUseCase @Inject constructor(
 
                 // Use middle of bucket as timestamp
                 val bucketMiddle = currentBucketStart + (bucketMillis / 2)
-                val label = dateFormat.format(Date(bucketMiddle))
+
+                val label = when (bucketSize) {
+                    AggregationBucket.DAILY -> dateFormat.format(Date(bucketMiddle))
+                    AggregationBucket.WEEKLY, AggregationBucket.BI_WEEKLY -> {
+                        val start = dateFormat.format(Date(currentBucketStart))
+                        val end = dateFormat.format(Date(bucketEnd - 1000L))
+                        "$start - $end"
+                    }
+                    AggregationBucket.MONTHLY, AggregationBucket.QUARTERLY -> monthYearFormat.format(Date(bucketMiddle))
+                    AggregationBucket.YEARLY -> yearFormat.format(Date(bucketMiddle))
+                }
 
                 dataPoints.add(
                     ConsumptionDataPoint(
