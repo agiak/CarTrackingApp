@@ -63,15 +63,19 @@ enum class AggregationBucket(val daysPerBucket: Int, val minDataPoints: Int) {
     DAILY(1, 7), // Min 7 days of data
     WEEKLY(7, 4), // Min 4 weeks of data
     BI_WEEKLY(14, 6), // Min ~3 months of data
-    MONTHLY(30, 3); // Min 3 months of data
+    MONTHLY(30, 3), // Min 3 months of data
+    QUARTERLY(90, 4), // Min 1 year of data
+    YEARLY(365, 2); // Min 2 years of data
 
     companion object {
         fun forDateRange(totalDays: Int): AggregationBucket {
             return when {
-                totalDays <= 30 -> DAILY
-                totalDays <= 90 -> WEEKLY
+                totalDays <= 45 -> DAILY
+                totalDays <= 120 -> WEEKLY
                 totalDays <= 365 -> BI_WEEKLY
-                else -> MONTHLY
+                totalDays <= 730 -> MONTHLY
+                totalDays <= 1825 -> QUARTERLY // Up to 5 years
+                else -> YEARLY
             }
         }
     }

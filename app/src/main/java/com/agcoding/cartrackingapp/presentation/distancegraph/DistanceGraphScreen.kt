@@ -61,6 +61,7 @@ import com.agcoding.cartrackingapp.domain.model.DistanceTrendData
 import com.agcoding.cartrackingapp.domain.model.MonthlyDistance
 import com.agcoding.cartrackingapp.domain.model.TripInfo
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
+import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -378,10 +379,10 @@ private fun DistanceGraphContent(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                InteractiveLineChart(
+                                InteractiveBarChart(
                                     dataPoints = trendData.monthlyDistances.map { monthData ->
                                         ChartDataPoint(
-                                            label = "${monthData.month} ${monthData.year}",
+                                            label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.distance,
                                             formattedValue = "${String.format("%.0f", monthData.distance)} km"
                                         )
@@ -571,10 +572,10 @@ private fun DistanceGraphContent(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        InteractiveLineChart(
+                        InteractiveBarChart(
                             dataPoints = trendData.monthlyDistances.map { monthData ->
                                 ChartDataPoint(
-                                    label = "${monthData.month} ${monthData.year}",
+                                    label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.distance,
                                     formattedValue = "${String.format("%.0f", monthData.distance)} km"
                                 )

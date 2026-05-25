@@ -93,7 +93,7 @@ class GetConsumptionTrendUseCase @Inject constructor(
             }
             else -> {
                 val daysAgo = period.days
-                val startMillis = now - (daysAgo * 24 * 60 * 60 * 1000L)
+                val startMillis = now - (daysAgo.toLong() * 24 * 60 * 60 * 1000L)
                 DateRange(startMillis, now, period.label)
             }
         }
@@ -117,6 +117,8 @@ class GetConsumptionTrendUseCase @Inject constructor(
                 AggregationBucket.WEEKLY -> "'Week' w"
                 AggregationBucket.BI_WEEKLY -> "MMM d"
                 AggregationBucket.MONTHLY -> "MMM yyyy"
+                AggregationBucket.QUARTERLY -> "MMM yyyy"
+                AggregationBucket.YEARLY -> "yyyy"
             },
             Locale.getDefault()
         )

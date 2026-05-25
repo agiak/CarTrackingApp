@@ -38,6 +38,7 @@ import com.agcoding.cartrackingapp.domain.model.CostTrendData
 import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.MonthlyCost
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
+import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -192,10 +193,10 @@ fun CostGraphContent(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                InteractiveLineChart(
+                                InteractiveBarChart(
                                     dataPoints = trendData.monthlyCosts.map { monthData ->
                                         ChartDataPoint(
-                                            label = "${monthData.month} ${monthData.year}",
+                                            label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.totalCost,
                                             formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
                                         )
@@ -406,10 +407,10 @@ fun CostGraphContent(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        InteractiveLineChart(
+                        InteractiveBarChart(
                             dataPoints = trendData.monthlyCosts.map { monthData ->
                                 ChartDataPoint(
-                                    label = "${monthData.month} ${monthData.year}",
+                                    label = if (monthData.month.toIntOrNull() != null) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.totalCost,
                                     formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
                                 )

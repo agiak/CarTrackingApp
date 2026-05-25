@@ -61,12 +61,15 @@ class GetCostTrendUseCase @Inject constructor(
                 TrendPeriod.CUSTOM -> DateRange(earliest, now, "Custom Range")
             }
 
+            val totalDays = ((dateRange.endMillis - dateRange.startMillis) / (24 * 60 * 60 * 1000L)).toInt()
+            val bucketSize = com.agcoding.cartrackingapp.domain.model.AggregationBucket.forDateRange(totalDays)
+
             // Filter by date range
             val filteredRefills = refills.filter { it.timestamp in dateRange.startMillis..dateRange.endMillis }
             val filteredExpenses = expenses.filter { it.timestamp in dateRange.startMillis..dateRange.endMillis }
 
             // Calculate monthly costs
-            val monthlyCosts = calculateMonthlyCosts(filteredRefills, filteredExpenses)
+            val monthlyCosts = calculateMonthlyCosts(filteredRefills, filteredExpenses, bucketSize)
 
             // Calculate totals
             val totalFuelCost = filteredRefills.sumOf { it.amountPaid }
@@ -134,75 +137,61 @@ class GetCostTrendUseCase @Inject constructor(
         }
     }
 
-    private fun calculateMonthlyCosts(refills: List<com.agcoding.cartrackingapp.domain.model.FuelRefill>,
-                                     expenses: List<com.agcoding.cartrackingapp.domain.model.Expense>): List<MonthlyCost> {
+    private fun calculateMonthlyCosts(
+        refills: List<com.agcoding.cartrackingapp.domain.model.FuelRefill>,
+        expenses: List<com.agcoding.cartrackingapp.domain.model.Expense>,
+        bucketSize: com.agcoding.cartrackingapp.domain.model.AggregationBucket
+    ): List<MonthlyCost> {
         if (refills.isEmpty() && expenses.isEmpty()) return emptyList()
 
-        val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat(
+            when (bucketSize) {
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.DAILY -> "MMM d"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.WEEKLY -> "'Week' w"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.BI_WEEKLY -> "MMM d"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.MONTHLY -> "MMM"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.QUARTERLY -> "MMM"
+                com.agcoding.cartrackingapp.domain.model.AggregationBucket.YEARLY -> "yyyy"
+            },
+            Locale.getDefault()
+        )
 
-        // Find earliest and latest timestamps
         val allTimestamps = (refills.map { it.timestamp } + expenses.map { it.timestamp })
         val earliestTimestamp = allTimestamps.minOrNull() ?: return emptyList()
         val latestTimestamp = allTimestamps.maxOrNull() ?: return emptyList()
 
-        // Set calendar to first day of earliest month
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // Group by month
-        val monthlyData = mutableMapOf<Pair<Int, Int>, Triple<Double, Double, Double>>()
-
-        refills.forEach { refill ->
-            calendar.timeInMillis = refill.timestamp
-            val key = Pair(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH))
-            val current = monthlyData.getOrDefault(key, Triple(0.0, 0.0, 0.0))
-            monthlyData[key] = Triple(current.first + refill.amountPaid, current.second, current.third)
-        }
-
-        expenses.forEach { expense ->
-            calendar.timeInMillis = expense.timestamp
-            val key = Pair(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH))
-            val current = monthlyData.getOrDefault(key, Triple(0.0, 0.0, 0.0))
-            if (expense.category.equals("Service", true)) {
-                monthlyData[key] = Triple(current.first, current.second + expense.amount, current.third)
-            } else {
-                monthlyData[key] = Triple(current.first, current.second, current.third + expense.amount)
-            }
-        }
-
-        // Generate all months from earliest to latest
+        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val monthlyCosts = mutableListOf<MonthlyCost>()
-        calendar.timeInMillis = earliestTimestamp
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
 
-        val endCalendar = Calendar.getInstance()
-        endCalendar.timeInMillis = latestTimestamp
+        var currentBucketStart = earliestTimestamp
+        val calendar = Calendar.getInstance()
 
-        while (calendar.timeInMillis <= endCalendar.timeInMillis) {
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val monthKey = Pair(year, month)
+        while (currentBucketStart <= latestTimestamp) {
+            val bucketEnd = currentBucketStart + bucketMillis
 
-            val costs = monthlyData.getOrDefault(monthKey, Triple(0.0, 0.0, 0.0))
+            val bucketRefills = refills.filter { it.timestamp in currentBucketStart until bucketEnd }
+            val bucketExpenses = expenses.filter { it.timestamp in currentBucketStart until bucketEnd }
 
-            monthlyCosts.add(
-                MonthlyCost(
-                    month = monthFormat.format(calendar.time),
-                    year = year,
-                    totalCost = costs.first + costs.second + costs.third,
-                    fuelCost = costs.first,
-                    serviceCost = costs.second,
-                    otherCost = costs.third,
-                    timestamp = calendar.timeInMillis
+            if (bucketRefills.isNotEmpty() || bucketExpenses.isNotEmpty()) {
+                val fuelCost = bucketRefills.sumOf { it.amountPaid }
+                val serviceCost = bucketExpenses.filter { it.category.equals("Service", true) }.sumOf { it.amount }
+                val otherCost = bucketExpenses.filter { !it.category.equals("Service", true) }.sumOf { it.amount }
+
+                calendar.timeInMillis = currentBucketStart
+                monthlyCosts.add(
+                    MonthlyCost(
+                        month = dateFormat.format(calendar.time),
+                        year = calendar.get(Calendar.YEAR),
+                        totalCost = fuelCost + serviceCost + otherCost,
+                        fuelCost = fuelCost,
+                        serviceCost = serviceCost,
+                        otherCost = otherCost,
+                        timestamp = currentBucketStart
+                    )
                 )
-            )
+            }
 
-            calendar.add(Calendar.MONTH, 1)
+            currentBucketStart = bucketEnd
         }
 
         return monthlyCosts

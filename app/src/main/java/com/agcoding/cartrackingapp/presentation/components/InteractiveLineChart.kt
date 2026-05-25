@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
@@ -184,7 +189,7 @@ fun InteractiveLineChart(
                             if (dataPoints.size > 1) {
                                 val xStep = chartWidth / (dataPoints.size - 1)
                                 val clickedIndex =
-                                    ((offset.x / xStep).toInt()).coerceIn(0, dataPoints.size - 1)
+                                    ((offset.x / xStep + 0.5f).toInt()).coerceIn(0, dataPoints.size - 1)
                                 selectedIndex = clickedIndex
                             } else if (dataPoints.size == 1) {
                                 selectedIndex = 0
@@ -201,7 +206,7 @@ fun InteractiveLineChart(
                             if (dataPoints.size > 1) {
                                 val xStep = chartWidth / (dataPoints.size - 1)
                                 val draggedIndex =
-                                    ((change.position.x / xStep).toInt()).coerceIn(
+                                    ((change.position.x / xStep + 0.5f).toInt()).coerceIn(
                                         0,
                                         dataPoints.size - 1
                                     )
@@ -240,7 +245,7 @@ fun InteractiveLineChart(
                         val x = chartWidth / 2f
 
                         drawCircle(
-                            color = if (selectedIndex == 0) pointColor else pointColor,
+                            color = pointColor,
                             radius = if (selectedIndex == 0) 8.dp.toPx() else 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -266,35 +271,52 @@ fun InteractiveLineChart(
                             Offset(x, y)
                         }
 
-                        // Draw area under the line with gradient effect
-                        if (animatedProgress > 0) {
-                            val pathPoints = points.toMutableList()
-                            pathPoints.add(Offset(points.last().x, chartHeight))
-                            pathPoints.add(Offset(points.first().x, chartHeight))
-
-                            val path = androidx.compose.ui.graphics.Path().apply {
-                                moveTo(pathPoints[0].x, pathPoints[0].y)
-                                for (i in 1 until pathPoints.size) {
-                                    lineTo(pathPoints[i].x, pathPoints[i].y)
+                        // Create a smooth cubic path
+                        val cubicPath = Path().apply {
+                            if (points.isNotEmpty()) {
+                                moveTo(points[0].x, points[0].y)
+                                for (i in 0 until points.size - 1) {
+                                    val current = points[i]
+                                    val next = points[i + 1]
+                                    val controlPoint1 = Offset(current.x + (next.x - current.x) / 2, current.y)
+                                    val controlPoint2 = Offset(current.x + (next.x - current.x) / 2, next.y)
+                                    cubicTo(
+                                        controlPoint1.x, controlPoint1.y,
+                                        controlPoint2.x, controlPoint2.y,
+                                        next.x, next.y
+                                    )
                                 }
+                            }
+                        }
+
+                        // Draw area under the curve with gradient
+                        if (animatedProgress > 0) {
+                            val fillPath = Path().apply {
+                                addPath(cubicPath)
+                                lineTo(points.last().x, chartHeight)
+                                lineTo(points.first().x, chartHeight)
                                 close()
                             }
 
                             drawPath(
-                                path = path,
-                                color = lineColor.copy(alpha = 0.1f)
+                                path = fillPath,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        lineColor.copy(alpha = 0.3f),
+                                        lineColor.copy(alpha = 0.0f)
+                                    ),
+                                    startY = points.minOf { it.y },
+                                    endY = chartHeight
+                                )
                             )
                         }
 
-                        // Draw the line connecting all points
-                        for (i in 0 until points.size - 1) {
-                            drawLine(
-                                color = lineColor,
-                                start = points[i],
-                                end = points[i + 1],
-                                strokeWidth = 3.dp.toPx()
-                            )
-                        }
+                        // Draw the smooth line
+                        drawPath(
+                            path = cubicPath,
+                            color = lineColor,
+                            style = Stroke(width = 3.dp.toPx())
+                        )
 
                         // Draw points (circles) at each data point
                         points.forEachIndexed { index, point ->
@@ -310,6 +332,41 @@ fun InteractiveLineChart(
                                 center = point
                             )
                         }
+                    }
+                }
+            }
+        }
+
+        // X-axis labels
+        if (dataPoints.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = if (showYAxisLabels) 45.dp else 0.dp, top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Show labels at start, middle, and end to avoid crowding
+                val indicesToShow = if (dataPoints.size <= 5) {
+                    dataPoints.indices.toList()
+                } else {
+                    listOf(0, dataPoints.size / 2, dataPoints.size - 1)
+                }
+
+                dataPoints.forEachIndexed { index, dataPoint ->
+                    if (index in indicesToShow) {
+                        Text(
+                            text = dataPoint.label,
+                            fontSize = 10.sp,
+                            color = textColor,
+                            textAlign = when(index) {
+                                0 -> androidx.compose.ui.text.style.TextAlign.Start
+                                dataPoints.size - 1 -> androidx.compose.ui.text.style.TextAlign.End
+                                else -> androidx.compose.ui.text.style.TextAlign.Center
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
