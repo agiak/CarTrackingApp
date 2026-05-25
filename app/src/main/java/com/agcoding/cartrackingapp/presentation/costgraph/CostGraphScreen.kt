@@ -24,13 +24,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
+import com.agcoding.cartrackingapp.domain.model.CostCategory
+import com.agcoding.cartrackingapp.domain.model.CostItem
+import com.agcoding.cartrackingapp.domain.model.CostTrendData
+import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.MonthlyCost
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.costgraph.components.CostGraphContent
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.costgraph.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.costgraph.components.NoDataState
 
@@ -158,6 +165,7 @@ fun CostGraphScreen(
             }
         }
 
+
         // Car Filter Bottom Sheet
         if (showCarFilter) {
             com.agcoding.cartrackingapp.presentation.components.CarFilterSheet(
@@ -168,6 +176,48 @@ fun CostGraphScreen(
                 },
                 onDismiss = { viewModel.hideCarFilter() },
                 onApply = { viewModel.applyCarFilter() }
+            )
+        }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Cost Graph Screen - Light", showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewCostGraphScreen() {
+    val mockTrendData = CostTrendData(
+        monthlyCosts = listOf(
+            MonthlyCost("Jan", 2026, 450.0, 300.0, 120.0, 30.0, System.currentTimeMillis() - 5184000000L),
+            MonthlyCost("Feb", 2026, 520.0, 350.0, 150.0, 20.0, System.currentTimeMillis() - 2592000000L)
+        ),
+        totalCost = 970.0,
+        averageMonthlyCost = 485.0,
+        highestMonthCost = 520.0,
+        lowestMonthCost = 450.0,
+        costByCategory = listOf(
+            CostCategory("Fuel", 650.0, 67.0, 0xFF4CAF50.toInt()),
+            CostCategory("Service", 270.0, 27.8, 0xFF2196F3.toInt())
+        ),
+        recentExpenses = listOf(
+            CostItem(1, System.currentTimeMillis(), "Fuel", "Gas", 65.0, "Toyota")
+        ),
+        dateRange = DateRange(System.currentTimeMillis() - 5184000000L, System.currentTimeMillis(), "Last 2 months")
+    )
+
+    CarTrackingAppTheme(darkTheme = false) {
+        Scaffold(
+            topBar = {
+                StyledTopAppBar(
+                    title = { Text(stringResource(R.string.cost_graph_title)) }
+                )
+            }
+        ) { paddingValues ->
+            CostGraphContent(
+                trendData = mockTrendData,
+                modifier = Modifier.padding(paddingValues)
             )
         }
     }
