@@ -18,8 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -53,11 +57,11 @@ fun StatisticsContent(
     onYearlyComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
+    onInsightsClick: () -> Unit = {},
     forecastingEnabled: Boolean = false,
     summarySection: @Composable () -> Unit,
     perCarBreakdownCards: @Composable () -> Unit,
     monthlyTrendCards: @Composable () -> Unit,
-    insightsSection: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -117,21 +121,26 @@ fun StatisticsContent(
                     .weight(0.35f)
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.overall_summary),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                SectionHeader(
+                    title = stringResource(R.string.overall_summary),
+                    icon = Icons.Default.QueryStats
                 )
 
                 summarySection()
+
+                SectionHeader(
+                    title = stringResource(R.string.cost_analysis),
+                    icon = Icons.Default.AutoGraph
+                )
 
                 // Analysis shortcuts – compact grid after summary
                 AnalysisButtonsGrid(
                     onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
-                    onFuelForecastClick = onFuelForecastClick
+                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
+                    onInsightsClick = onInsightsClick
                 )
             }
 
@@ -141,19 +150,16 @@ fun StatisticsContent(
                     .weight(0.65f)
                     .fillMaxHeight(),
                 contentPadding = PaddingValues(bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 // Per-Car Breakdown
                 if (statistics.perCarStatistics.isNotEmpty()) {
                     item {
-                        Text(
-                            text = stringResource(R.string.per_car_breakdown),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                        SectionHeader(
+                            title = stringResource(R.string.per_car_breakdown),
+                            icon = Icons.Default.DirectionsCar
                         )
-                    }
-
-                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
                         perCarBreakdownCards()
                     }
                 }
@@ -166,10 +172,9 @@ fun StatisticsContent(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = stringResource(R.string.monthly_trends),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
+                            SectionHeader(
+                                title = stringResource(R.string.monthly_trends),
+                                icon = Icons.Default.QueryStats
                             )
                             if (statistics.monthlyTrends.size > 5) {
                                 TextButton(onClick = onMonthlyTrendsClick) {
@@ -180,26 +185,9 @@ fun StatisticsContent(
                                 }
                             }
                         }
-                    }
-
-                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
                         monthlyTrendCards()
                     }
-
-                }
-
-
-                // Insights section
-                item {
-                    Text(
-                        text = stringResource(R.string.insights),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                item {
-                    insightsSection()
                 }
             }
         }
@@ -210,41 +198,41 @@ fun StatisticsContent(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Summary section
             item {
-                Text(
-                    text = stringResource(R.string.overall_summary),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                SectionHeader(
+                    title = stringResource(R.string.overall_summary),
+                    icon = Icons.Default.QueryStats
                 )
-            }
-
-            item {
+                Spacer(modifier = Modifier.height(12.dp))
                 summarySection()
             }
 
-            // Analysis shortcuts – compact grid after summary / expenses overview
+            // Analysis shortcuts
             item {
+                SectionHeader(
+                    title = stringResource(R.string.cost_analysis),
+                    icon = Icons.Default.AutoGraph
+                )
+                Spacer(modifier = Modifier.height(12.dp))
                 AnalysisButtonsGrid(
                     onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
-                    onFuelForecastClick = onFuelForecastClick
+                    onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
+                    onInsightsClick = onInsightsClick
                 )
             }
 
             // Per-Car Breakdown
             if (statistics.perCarStatistics.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.per_car_breakdown),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                    SectionHeader(
+                        title = stringResource(R.string.per_car_breakdown),
+                        icon = Icons.Default.DirectionsCar
                     )
-                }
-
-                item {
+                    Spacer(modifier = Modifier.height(12.dp))
                     perCarBreakdownCards()
                 }
             }
@@ -257,10 +245,9 @@ fun StatisticsContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = stringResource(R.string.monthly_trends),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                        SectionHeader(
+                            title = stringResource(R.string.monthly_trends),
+                            icon = Icons.Default.QueryStats
                         )
                         if (statistics.monthlyTrends.size > 5) {
                             TextButton(onClick = onMonthlyTrendsClick) {
@@ -271,14 +258,11 @@ fun StatisticsContent(
                             }
                         }
                     }
-                }
-
-                item {
+                    Spacer(modifier = Modifier.height(12.dp))
                     monthlyTrendCards()
-                }
 
-                if (statistics.monthlyTrends.size > 5) {
-                    item {
+                    if (statistics.monthlyTrends.size > 5) {
+                        Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
                             onClick = onMonthlyTrendsClick,
                             modifier = Modifier.fillMaxWidth(),
@@ -302,21 +286,39 @@ fun StatisticsContent(
                     }
                 }
             }
-
-
-            // Insights section
-            item {
-                Text(
-                    text = stringResource(R.string.insights),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            item {
-                insightsSection()
-            }
         }
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     }
 }
 
@@ -334,10 +336,11 @@ private fun AnalysisButtonsGrid(
     onYearlyComparisonClick: (() -> Unit)?,
     onCarComparisonClick: (() -> Unit)?,
     onFuelForecastClick: (() -> Unit)?,
+    onInsightsClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     // Nothing to show – return early
-    if (onYearlyComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null) return
+    if (onYearlyComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null && onInsightsClick == null) return
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -417,36 +420,74 @@ private fun AnalysisButtonsGrid(
             }
         }
 
-        // Fuel Forecast – full-width row below when enabled
-        if (onFuelForecastClick != null) {
-            OutlinedButton(
-                onClick = onFuelForecastClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                    contentColor = MaterialTheme.colorScheme.secondary
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.QueryStats,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.size(4.dp))
-                Text(
-                    text = stringResource(R.string.view_fuel_forecast),
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Fuel Forecast
+            if (onFuelForecastClick != null) {
+                OutlinedButton(
+                    onClick = onFuelForecastClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QueryStats,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        text = stringResource(R.string.view_fuel_forecast),
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            // Smart Insights
+            if (onInsightsClick != null) {
+                OutlinedButton(
+                    onClick = onInsightsClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Insights,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        text = stringResource(R.string.insights_title),
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -500,12 +541,6 @@ private fun PreviewStatisticsContentPhone() {
                     StyledCard(modifier = Modifier.fillMaxWidth()) {
                         Text("December 2025 - €280.00", modifier = Modifier.padding(16.dp))
                     }
-                }
-            },
-            insightsSection = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("• Most economical: Toyota Corolla")
-                    Text("• Total distance: 12,500 km")
                 }
             }
         )
@@ -575,12 +610,6 @@ private fun PreviewStatisticsContentTablet() {
                         }
                     }
                 }
-            },
-            insightsSection = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("• Most economical: BMW 320i")
-                    Text("• 8 months of data available")
-                }
             }
         )
     }
@@ -607,8 +636,7 @@ private fun PreviewStatisticsContentEmpty() {
             onMonthlyTrendsClick = {},
             summarySection = {},
             perCarBreakdownCards = {},
-            monthlyTrendCards = {},
-            insightsSection = {}
+            monthlyTrendCards = {}
         )
     }
 }
@@ -656,9 +684,6 @@ private fun PreviewStatisticsContentDark() {
                 StyledCard(modifier = Modifier.fillMaxWidth()) {
                     Text("January 2026 - €290.25", modifier = Modifier.padding(16.dp))
                 }
-            },
-            insightsSection = {
-                Text("• Single car tracked")
             }
         )
     }

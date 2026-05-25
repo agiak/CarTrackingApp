@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -43,7 +45,6 @@ import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
-import com.agcoding.cartrackingapp.presentation.statistics.components.InsightsPreviewCard
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
 
@@ -105,6 +106,7 @@ fun StatisticsScreen(
                     onYearlyComparisonClick = onYearlyComparisonClick,
                     onCarComparisonClick = onCarComparisonClick,
                     onFuelForecastClick = onFuelForecastClick,
+                    onInsightsClick = onInsightsClick,
                     forecastingEnabled = forecastingEnabled,
                     summarySection = {
                         SummarySection(
@@ -133,9 +135,6 @@ fun StatisticsScreen(
                                 )
                             }
                         }
-                    },
-                    insightsSection = {
-                        InsightsSection(onInsightsClick = onInsightsClick)
                     },
                     modifier = Modifier.padding(paddingValues)
                 )
@@ -327,32 +326,57 @@ private fun CostBreakdownCard(statistics: GlobalStatistics) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val fuelCost = statistics.totalCost - statistics.totalExpensesCost
-            val fuelPercentage =
-                if (statistics.totalCost > 0) (fuelCost / statistics.totalCost) * 100 else 0.0
-            val expensePercentage =
-                if (statistics.totalCost > 0) (statistics.totalExpensesCost / statistics.totalCost) * 100 else 0.0
+            val fuelCost = (statistics.totalCost - statistics.totalExpensesCost).coerceAtLeast(0.0)
 
-            CostBreakdownItem(
-                label = stringResource(R.string.fuel_cost),
-                amount = fuelCost,
-                percentage = fuelPercentage,
-                color = MaterialTheme.colorScheme.primary
-            )
-            CostBreakdownItem(
-                label = stringResource(R.string.service_expenses),
-                amount = statistics.totalServiceExpenses,
-                percentage = if (statistics.totalCost > 0) (statistics.totalServiceExpenses / statistics.totalCost) * 100 else 0.0,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-            CostBreakdownItem(
-                label = stringResource(R.string.other_expenses),
-                amount = statistics.totalOtherExpenses,
-                percentage = if (statistics.totalCost > 0) (statistics.totalOtherExpenses / statistics.totalCost) * 100 else 0.0,
-                color = MaterialTheme.colorScheme.secondary
-            )
+            // Visual breakdown bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                if (statistics.totalCost > 0) {
+                    val fuelWeight = (fuelCost / statistics.totalCost).toFloat()
+                    val serviceWeight = (statistics.totalServiceExpenses / statistics.totalCost).toFloat()
+                    val otherWeight = (statistics.totalOtherExpenses / statistics.totalCost).toFloat()
+
+                    if (fuelWeight > 0) {
+                        Box(modifier = Modifier.fillMaxHeight().weight(fuelWeight.coerceAtLeast(0.01f)).background(MaterialTheme.colorScheme.primary))
+                    }
+                    if (serviceWeight > 0) {
+                        Box(modifier = Modifier.fillMaxHeight().weight(serviceWeight.coerceAtLeast(0.01f)).background(MaterialTheme.colorScheme.tertiary))
+                    }
+                    if (otherWeight > 0) {
+                        Box(modifier = Modifier.fillMaxHeight().weight(otherWeight.coerceAtLeast(0.01f)).background(MaterialTheme.colorScheme.secondary))
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val fuelPercentage = if (statistics.totalCost > 0) (fuelCost / statistics.totalCost) * 100 else 0.0
+
+                CostBreakdownItem(
+                    label = stringResource(R.string.fuel_cost),
+                    amount = fuelCost,
+                    percentage = fuelPercentage,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                CostBreakdownItem(
+                    label = stringResource(R.string.service_expenses),
+                    amount = statistics.totalServiceExpenses,
+                    percentage = if (statistics.totalCost > 0) (statistics.totalServiceExpenses / statistics.totalCost) * 100 else 0.0,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                CostBreakdownItem(
+                    label = stringResource(R.string.other_expenses),
+                    amount = statistics.totalOtherExpenses,
+                    percentage = if (statistics.totalCost > 0) (statistics.totalOtherExpenses / statistics.totalCost) * 100 else 0.0,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
 }
@@ -577,13 +601,6 @@ private fun MonthlyTrendCard(
     }
 }
 
-@Composable
-private fun InsightsSection(onInsightsClick: () -> Unit) {
-    InsightsPreviewCard(
-        onNavigateToInsights = onInsightsClick,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
 
 @Composable
 private fun PerCarBreakdownCard(
