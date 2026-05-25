@@ -167,25 +167,11 @@ fun StatisticsContent(
                 // Monthly trends
                 if (statistics.monthlyTrends.isNotEmpty()) {
                     item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            SectionHeader(
-                                title = stringResource(R.string.monthly_trends),
-                                icon = Icons.Default.QueryStats
-                            )
-                            if (statistics.monthlyTrends.size > 5) {
-                                TextButton(onClick = onMonthlyTrendsClick) {
-                                    Text(
-                                        text = stringResource(R.string.see_all),
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        MonthlyTrendsSectionHeader(
+                            totalCount = statistics.monthlyTrends.size,
+                            onViewAllClick = onMonthlyTrendsClick
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         monthlyTrendCards()
                     }
                 }
@@ -240,53 +226,49 @@ fun StatisticsContent(
             // Monthly trends
             if (statistics.monthlyTrends.isNotEmpty()) {
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SectionHeader(
-                            title = stringResource(R.string.monthly_trends),
-                            icon = Icons.Default.QueryStats
-                        )
-                        if (statistics.monthlyTrends.size > 5) {
-                            TextButton(onClick = onMonthlyTrendsClick) {
-                                Text(
-                                    text = stringResource(R.string.see_all),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    MonthlyTrendsSectionHeader(
+                        totalCount = statistics.monthlyTrends.size,
+                        onViewAllClick = onMonthlyTrendsClick
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     monthlyTrendCards()
-
-                    if (statistics.monthlyTrends.size > 5) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedButton(
-                            onClick = onMonthlyTrendsClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                        ) {
-                            Text(
-                                stringResource(
-                                    R.string.view_all_months_format,
-                                    statistics.monthlyTrends.size
-                                )
-                            )
-                        }
-                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MonthlyTrendsSectionHeader(
+    totalCount: Int,
+    onViewAllClick: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.monthly_trends),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            if (totalCount > 5) {
+                TextButton(onClick = onViewAllClick) {
+                    Text(
+                        text = stringResource(R.string.view_all_months_format, totalCount),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        }
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     }
 }
 

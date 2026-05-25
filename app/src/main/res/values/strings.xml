@@ -23,6 +23,9 @@
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Monthly Trends</string>
     <string name="sort_by_label">Sort by</string>
+    <string name="sort_order_label">Order</string>
+    <string name="filter_label">Filters</string>
+    <string name="done">Done</string>
     <string name="sort_time">Time</string>
     <string name="sort_cost">Cost</string>
     <string name="sort_distance">Distance</string>

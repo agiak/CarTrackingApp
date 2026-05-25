@@ -24,6 +24,9 @@
     <!-- Monthly Trends -->
     <string name="monthly_trends_title">Μηνιαίες τάσεις</string>
     <string name="sort_by_label">Ταξινόμηση κατά</string>
+    <string name="sort_order_label">Σειρά</string>
+    <string name="filter_label">Φίλτρα</string>
+    <string name="done">Τέλος</string>
     <string name="sort_time">Χρόνος</string>
     <string name="sort_cost">Κόστος</string>
     <string name="sort_distance">Απόσταση</string>

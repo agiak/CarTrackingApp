@@ -14,24 +14,19 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-/**
- * Use case for yearly comparison analytics
- * Handles aggregation and calculation of year-over-year metrics
- */
 class YearlyComparisonUseCase @Inject constructor(
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository
 ) {
 
-    /**
-     * Get available years with data
-     */
-    suspend fun getAvailableYears(): Flow<List<AvailableYear>> {
+    suspend fun getAvailableYears(carIds: Set<Long> = emptySet()): Flow<List<AvailableYear>> {
         return combine(
             refillRepository.getAllRefills(),
             expenseRepository.getAllExpenses()
         ) { refills, expenses ->
-            val allTransactions = refills.map { it.timestamp } + expenses.map { it.timestamp }
+            val filteredRefills = if (carIds.isEmpty()) refills else refills.filter { it.carId in carIds }
+            val filteredExpenses = if (carIds.isEmpty()) expenses else expenses.filter { it.carId in carIds }
+            val allTransactions = filteredRefills.map { it.timestamp } + filteredExpenses.map { it.timestamp }
 
             if (allTransactions.isEmpty()) return@combine emptyList()
 
@@ -51,34 +46,20 @@ class YearlyComparisonUseCase @Inject constructor(
         }
     }
 
-    /**
-     * Get yearly comparison data
-     */
     fun getYearlyComparison(
         year1: Int,
         year2: Int,
-        carId: Long? = null
+        carIds: Set<Long> = emptySet()
     ): Flow<YearlyComparisonData?> {
-        val refillsFlow = if (carId != null) {
-            refillRepository.getRefillsByCarId(carId)
-        } else {
-            refillRepository.getAllRefills()
-        }
-
-        val expensesFlow = if (carId != null) {
-            expenseRepository.getExpensesByCarId(carId)
-        } else {
+        return combine(
+            refillRepository.getAllRefills(),
             expenseRepository.getAllExpenses()
-        }
+        ) { refills, expenses ->
+            val filteredRefills = if (carIds.isEmpty()) refills else refills.filter { it.carId in carIds }
+            val filteredExpenses = if (carIds.isEmpty()) expenses else expenses.filter { it.carId in carIds }
 
-        return combine(refillsFlow, expensesFlow) { refills, expenses ->
-            // Calculate data for year 1
-            val year1Data = calculateYearlyData(year1, refills, expenses)
-
-            // Calculate data for year 2
-            val year2Data = calculateYearlyData(year2, refills, expenses)
-
-            // Generate comparison metrics
+            val year1Data = calculateYearlyData(year1, filteredRefills, filteredExpenses)
+            val year2Data = calculateYearlyData(year2, filteredRefills, filteredExpenses)
             val metrics = generateComparisonMetrics(year1Data, year2Data)
 
             YearlyComparisonData(
@@ -96,7 +77,6 @@ class YearlyComparisonUseCase @Inject constructor(
     ): YearlyData {
         val calendar = Calendar.getInstance()
 
-        // Filter data for the specific year
         val yearRefills = refills.filter { refill ->
             calendar.timeInMillis = refill.timestamp
             calendar.get(Calendar.YEAR) == year
@@ -107,14 +87,11 @@ class YearlyComparisonUseCase @Inject constructor(
             calendar.get(Calendar.YEAR) == year
         }
 
-        // Calculate totals
         val totalFuelCost = yearRefills.sumOf { it.amountPaid }
         val totalExpenseCost = yearExpenses.sumOf { it.amount }
         val totalCost = totalFuelCost + totalExpenseCost
         val totalDistance = yearRefills.sumOf { it.tripDistance }
         val totalFuelLiters = yearRefills.sumOf { it.litersAdded }
-
-        // Calculate monthly data
         val monthlyCosts = calculateMonthlyData(year, yearRefills, yearExpenses)
 
         return YearlyData(
@@ -214,4 +191,3 @@ class YearlyComparisonUseCase @Inject constructor(
         )
     }
 }
-

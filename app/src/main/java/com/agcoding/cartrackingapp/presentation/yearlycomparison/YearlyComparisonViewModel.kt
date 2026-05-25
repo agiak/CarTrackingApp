@@ -3,9 +3,12 @@ package com.agcoding.cartrackingapp.presentation.yearlycomparison
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.AvailableYear
+import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.YearlyComparisonData
+import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.usecase.statistics.YearlyComparisonUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class YearlyComparisonViewModel @Inject constructor(
-    private val yearlyComparisonUseCase: YearlyComparisonUseCase
+    private val yearlyComparisonUseCase: YearlyComparisonUseCase,
+    private val carRepository: CarRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<YearlyComparisonUiState>(YearlyComparisonUiState.Loading)
@@ -37,14 +41,50 @@ class YearlyComparisonViewModel @Inject constructor(
     private val _showYear2Selector = MutableStateFlow(false)
     val showYear2Selector: StateFlow<Boolean> = _showYear2Selector.asStateFlow()
 
+    private val _availableCars = MutableStateFlow<List<Car>>(emptyList())
+    val availableCars: StateFlow<List<Car>> = _availableCars.asStateFlow()
+
+    // Empty set = all cars
+    private val _selectedCarIds = MutableStateFlow<Set<Long>>(emptySet())
+    val selectedCarIds: StateFlow<Set<Long>> = _selectedCarIds.asStateFlow()
+
+    private var comparisonJob: Job? = null
+    private var yearsJob: Job? = null
+
     init {
+        loadCars()
+        loadAvailableYears()
+    }
+
+    private fun loadCars() {
+        viewModelScope.launch {
+            carRepository.getAllCars()
+                .catch { }
+                .collect { cars -> _availableCars.value = cars }
+        }
+    }
+
+    fun toggleCar(carId: Long) {
+        val current = _selectedCarIds.value
+        _selectedCarIds.value = if (carId in current) current - carId else current + carId
+        _selectedYear1.value = null
+        _selectedYear2.value = null
+        loadAvailableYears()
+    }
+
+    fun clearCarFilter() {
+        if (_selectedCarIds.value.isEmpty()) return
+        _selectedCarIds.value = emptySet()
+        _selectedYear1.value = null
+        _selectedYear2.value = null
         loadAvailableYears()
     }
 
     private fun loadAvailableYears() {
-        viewModelScope.launch {
+        yearsJob?.cancel()
+        yearsJob = viewModelScope.launch {
             try {
-                yearlyComparisonUseCase.getAvailableYears()
+                yearlyComparisonUseCase.getAvailableYears(_selectedCarIds.value)
                     .catch { e ->
                         _uiState.value = YearlyComparisonUiState.Error(e.message ?: "Unknown error")
                     }
@@ -52,7 +92,6 @@ class YearlyComparisonViewModel @Inject constructor(
                         _availableYears.value = years
 
                         if (years.size >= 2) {
-                            // Auto-select current year and previous year
                             val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                             val availableYearsList = years.map { it.year }.sorted()
 
@@ -89,31 +128,24 @@ class YearlyComparisonViewModel @Inject constructor(
         }
     }
 
-    fun showYear1Selector() {
-        _showYear1Selector.value = true
-    }
-
-    fun hideYear1Selector() {
-        _showYear1Selector.value = false
-    }
-
-    fun showYear2Selector() {
-        _showYear2Selector.value = true
-    }
-
-    fun hideYear2Selector() {
-        _showYear2Selector.value = false
-    }
+    fun showYear1Selector() { _showYear1Selector.value = true }
+    fun hideYear1Selector() { _showYear1Selector.value = false }
+    fun showYear2Selector() { _showYear2Selector.value = true }
+    fun hideYear2Selector() { _showYear2Selector.value = false }
 
     private fun loadComparison() {
         val year1 = _selectedYear1.value ?: return
         val year2 = _selectedYear2.value ?: return
 
-        viewModelScope.launch {
-            _uiState.value = YearlyComparisonUiState.Loading
+        comparisonJob?.cancel()
+        comparisonJob = viewModelScope.launch {
+            // Only show loading spinner on initial load — keep existing data visible during refresh
+            if (_uiState.value !is YearlyComparisonUiState.Success) {
+                _uiState.value = YearlyComparisonUiState.Loading
+            }
 
             try {
-                yearlyComparisonUseCase.getYearlyComparison(year1, year2)
+                yearlyComparisonUseCase.getYearlyComparison(year1, year2, _selectedCarIds.value)
                     .catch { e ->
                         _uiState.value = YearlyComparisonUiState.Error(e.message ?: "Unknown error")
                     }
@@ -137,4 +169,3 @@ sealed class YearlyComparisonUiState {
     data class Success(val data: YearlyComparisonData) : YearlyComparisonUiState()
     data class Error(val message: String) : YearlyComparisonUiState()
 }
-

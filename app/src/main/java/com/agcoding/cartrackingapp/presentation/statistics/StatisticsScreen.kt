@@ -37,16 +37,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -705,5 +708,114 @@ private fun StatItem(label: String, value: String) {
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+private val previewStatistics = GlobalStatistics(
+    totalCars = 2,
+    totalRefills = 30,
+    totalCost = 1540.75,
+    totalDistance = 15200.0,
+    totalLiters = 1100.0,
+    averageConsumption = 7.2,
+    averagePricePerLiter = 1.60,
+    mostEfficientCar = Car(1, "Toyota Corolla", "ABC-1234", 0.0, 9000.0),
+    mostExpensiveCar = Car(2, "Honda Civic", "XYZ-5678", 0.0, 6200.0),
+    totalExpensesCost = 320.0,
+    totalServiceExpenses = 200.0,
+    totalOtherExpenses = 120.0,
+    totalExpenseCount = 8,
+    serviceExpenseCount = 5,
+    otherExpenseCount = 3,
+    costPerKilometer = 0.101,
+    monthlyTrends = listOf(
+        MonthlyTrend(5, 2026, "May", 310.50, 220.0, 3100.0, 7.1, 6, 1, 50.0),
+        MonthlyTrend(4, 2026, "April", 280.00, 190.0, 2800.0, 6.8, 5, 2, 60.0),
+        MonthlyTrend(3, 2026, "March", 295.25, 205.0, 2950.0, 7.0, 6, 1, 40.0),
+        MonthlyTrend(2, 2026, "February", 260.00, 180.0, 2600.0, 6.9, 5, 0, 0.0),
+        MonthlyTrend(1, 2026, "January", 395.00, 270.0, 3750.0, 7.2, 8, 3, 170.0),
+    ),
+    perCarStatistics = emptyList()
+)
+
+@Preview(name = "Statistics Screen - Light", showBackground = true, widthDp = 380, heightDp = 800)
+@Composable
+private fun PreviewStatisticsScreen() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                StyledTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                    title = { Text("Statistics") }
+                )
+            }
+        ) { paddingValues ->
+            StatisticsContent(
+                statistics = previewStatistics,
+                onMonthlyTrendsClick = {},
+                summarySection = {
+                    SummarySection(
+                        statistics = previewStatistics,
+                        onConsumptionGraphClick = {},
+                        onDistanceGraphClick = {},
+                        onCostGraphClick = {},
+                        onRefillsGraphClick = {}
+                    )
+                },
+                perCarBreakdownCards = {},
+                monthlyTrendCards = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        previewStatistics.monthlyTrends.take(5).forEach { trend ->
+                            MonthlyTrendCard(trend = trend)
+                        }
+                    }
+                },
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
+@Preview(name = "Statistics Screen - Dark", showBackground = true, widthDp = 380, heightDp = 800)
+@Composable
+private fun PreviewStatisticsScreenDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                StyledTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                    title = { Text("Statistics") }
+                )
+            }
+        ) { paddingValues ->
+            StatisticsContent(
+                statistics = previewStatistics,
+                onMonthlyTrendsClick = {},
+                summarySection = {
+                    SummarySection(
+                        statistics = previewStatistics,
+                        onConsumptionGraphClick = {},
+                        onDistanceGraphClick = {},
+                        onCostGraphClick = {},
+                        onRefillsGraphClick = {}
+                    )
+                },
+                perCarBreakdownCards = {},
+                monthlyTrendCards = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        previewStatistics.monthlyTrends.take(5).forEach { trend ->
+                            MonthlyTrendCard(trend = trend)
+                        }
+                    }
+                },
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
     }
 }
