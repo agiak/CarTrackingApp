@@ -67,7 +67,6 @@ class ParseVoiceRefillUseCase @Inject constructor() {
                 }
             } catch (e: Exception) {
                 android.util.Log.e("VoiceParser", "LLM parsing failed, falling back to regex", e)
-                e.printStackTrace()
                 // Fall through to regex parsing
             }
         }

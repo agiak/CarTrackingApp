@@ -45,7 +45,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -138,7 +139,7 @@ class QuickAddWidgetConfigActivity : AppCompatActivity() {
         val mappingPrefs = applicationContext.getSharedPreferences("widget_glance_mapping", Context.MODE_PRIVATE)
 
         // Update the widget with proper Glance state
-        runBlocking {
+        lifecycleScope.launch {
             val glanceAppWidgetManager = GlanceAppWidgetManager(this@QuickAddWidgetConfigActivity)
             val glanceIds = glanceAppWidgetManager.getGlanceIds(QuickAddWidget::class.java)
             android.util.Log.d("WidgetConfig", "Available Glance IDs: ${glanceIds.size}")
@@ -190,17 +191,17 @@ class QuickAddWidgetConfigActivity : AppCompatActivity() {
             } else {
                 android.util.Log.e("WidgetConfig", "✗ No Glance ID available for mapping")
             }
-        }
 
-        // Also trigger a broadcast update to ensure the widget refreshes
-        QuickAddWidgetReceiver.requestUpdate(this)
-        android.util.Log.d("WidgetConfig", "✓ Broadcast update requested")
+            // Also trigger a broadcast update to ensure the widget refreshes
+            QuickAddWidgetReceiver.requestUpdate(this@QuickAddWidgetConfigActivity)
+            android.util.Log.d("WidgetConfig", "✓ Broadcast update requested")
 
-        val resultValue = Intent().apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            val resultValue = Intent().apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            setResult(RESULT_OK, resultValue)
+            finish()
         }
-        setResult(RESULT_OK, resultValue)
-        finish()
     }
 
     companion object {

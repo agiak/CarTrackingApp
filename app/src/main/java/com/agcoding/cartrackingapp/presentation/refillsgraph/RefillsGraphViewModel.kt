@@ -58,7 +58,7 @@ class RefillsGraphViewModel @Inject constructor(
                     _selectedCarIds.value = setOf(carId)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("RefillsGraphVM", "Unexpected error", e)
             }
         }
     }

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.catch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -65,7 +66,9 @@ fun InsightsScreen(
 
     // Observe navigation events
     LaunchedEffect(Unit) {
-        viewModel.navigationEvent.collect { event ->
+        viewModel.navigationEvent
+            .catch { e -> android.util.Log.e("InsightsScreen", "Navigation event error", e) }
+            .collect { event ->
             when (event) {
                 is NavigationEvent.NavigateToRefillDetails -> {
                     onNavigateToRefillDetails(event.refillId)

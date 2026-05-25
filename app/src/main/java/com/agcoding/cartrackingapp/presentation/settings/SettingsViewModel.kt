@@ -315,7 +315,7 @@ class SettingsViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 // If storage check fails, log but continue (fail gracefully)
-                e.printStackTrace()
+                android.util.Log.e("SettingsVM", "Storage check failed", e)
             }
 
             // Proceed with actual export

@@ -58,7 +58,7 @@ class CostGraphViewModel @Inject constructor(
                     _selectedCarIds.value = setOf(carId)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("CostGraphVM", "Unexpected error", e)
             }
         }
     }

@@ -67,7 +67,7 @@ class AddRefillViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("AddRefillVM", "Unexpected error", e)
             }
         }
 

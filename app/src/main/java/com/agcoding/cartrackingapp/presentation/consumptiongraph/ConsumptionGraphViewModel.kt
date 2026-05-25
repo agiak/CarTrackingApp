@@ -58,7 +58,7 @@ class ConsumptionGraphViewModel @Inject constructor(
                     _selectedCarIds.value = setOf(carId)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("ConsumptionGraphVM", "Unexpected error", e)
             }
         }
     }

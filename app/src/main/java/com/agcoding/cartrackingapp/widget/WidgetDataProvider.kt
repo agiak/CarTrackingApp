@@ -159,7 +159,7 @@ class WidgetDataProvider @Inject constructor(
                     monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("WidgetDataProvider", "Error loading widget data", e)
                 WidgetData(noCarsAvailable = true)
             }
         }
@@ -247,8 +247,7 @@ class WidgetDataProvider @Inject constructor(
                     monthlyTotal = if (monthlyTotal > 0) monthlyTotal else null
                 )
             } catch (e: Exception) {
-                Log.e("WidgetDataProvider", "Error getting widget data for car $carId: ${e.message}")
-                e.printStackTrace()
+                Log.e("WidgetDataProvider", "Error getting widget data for car $carId: ${e.message}", e)
                 WidgetData(noCarsAvailable = true)
             }
         }

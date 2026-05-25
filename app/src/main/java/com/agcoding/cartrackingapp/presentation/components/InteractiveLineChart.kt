@@ -96,13 +96,16 @@ fun InteractiveLineChart(
 
     Column {
         // Tooltip display - outside the chart modifier to not affect chart height
+        val selectedData = selectedIndex
+            ?.takeIf { it < dataPoints.size }
+            ?.let { dataPoints[it] }
+
         AnimatedVisibility(
-            visible = selectedIndex != null && selectedIndex!! < dataPoints.size,
+            visible = selectedData != null,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically()
         ) {
-            if (selectedIndex != null && selectedIndex!! < dataPoints.size) {
-                val selectedData = dataPoints[selectedIndex!!]
+            if (selectedData != null) {
                 StyledCard(
                     modifier = Modifier
                         .fillMaxWidth()
