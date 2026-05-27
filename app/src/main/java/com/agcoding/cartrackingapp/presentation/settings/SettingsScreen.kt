@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,11 +42,10 @@ fun SettingsScreen(
     onNavigateToExpenseCategories: () -> Unit = {},
     onNavigateToHelpAbout: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
+    onNavigateToPermissions: () -> Unit = {},
     onNavigateToDeveloper: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -65,7 +64,6 @@ fun SettingsScreen(
     ) { paddingValues ->
         val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
 
-        // Use centered content with max width on tablets for better readability
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,63 +72,67 @@ fun SettingsScreen(
         ) {
             SettingsContent(
                 modifier = Modifier.then(
-                    if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
+                    if (isTablet) Modifier.fillMaxWidth(0.7f)
                     else Modifier.fillMaxWidth()
                 )
             ) {
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Appearance & Localization
-            SettingsGroupNavigationCard(
-                title = stringResource(R.string.settings_group_appearance_title),
-                subtitle = stringResource(R.string.settings_group_appearance_subtitle),
-                icon = Icons.Outlined.Palette,
-                onClick = onNavigateToAppearance
-            )
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_appearance_title),
+                    subtitle = stringResource(R.string.settings_group_appearance_subtitle),
+                    icon = Icons.Outlined.Palette,
+                    onClick = onNavigateToAppearance
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Data & Storage
-            SettingsGroupNavigationCard(
-                title = stringResource(R.string.settings_group_data_storage_title),
-                subtitle = stringResource(R.string.settings_group_data_storage_subtitle),
-                icon = Icons.Outlined.Storage,
-                onClick = onNavigateToDataStorage
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Expense Categories
-            SettingsGroupNavigationCard(
-                title = stringResource(R.string.settings_group_expense_categories_title),
-                subtitle = stringResource(R.string.settings_group_expense_categories_subtitle),
-                icon = Icons.Outlined.Category,
-                onClick = onNavigateToExpenseCategories
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Help & About
-            SettingsGroupNavigationCard(
-                title = stringResource(R.string.settings_group_help_about_title),
-                subtitle = stringResource(R.string.settings_group_help_about_subtitle),
-                icon = Icons.Outlined.Info,
-                onClick = onNavigateToHelpAbout
-            )
-
-            // Developer Options (only visible in debug builds)
-            if (uiState.isDebugMode) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 SettingsGroupNavigationCard(
-                    title = stringResource(R.string.settings_group_developer_title),
-                    subtitle = stringResource(R.string.settings_group_developer_subtitle),
-                    icon = Icons.Outlined.DeveloperMode,
-                    onClick = onNavigateToDeveloper
+                    title = stringResource(R.string.settings_group_data_storage_title),
+                    subtitle = stringResource(R.string.settings_group_data_storage_subtitle),
+                    icon = Icons.Outlined.Storage,
+                    onClick = onNavigateToDataStorage
                 )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_expense_categories_title),
+                    subtitle = stringResource(R.string.settings_group_expense_categories_subtitle),
+                    icon = Icons.Outlined.Category,
+                    onClick = onNavigateToExpenseCategories
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_permissions_title),
+                    subtitle = stringResource(R.string.settings_group_permissions_subtitle),
+                    icon = Icons.Outlined.Security,
+                    onClick = onNavigateToPermissions
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_help_about_title),
+                    subtitle = stringResource(R.string.settings_group_help_about_subtitle),
+                    icon = Icons.Outlined.Info,
+                    onClick = onNavigateToHelpAbout
+                )
+
+                if (uiState.isDebugMode) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    SettingsGroupNavigationCard(
+                        title = stringResource(R.string.settings_group_developer_title),
+                        subtitle = stringResource(R.string.settings_group_developer_subtitle),
+                        icon = Icons.Outlined.DeveloperMode,
+                        onClick = onNavigateToDeveloper
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

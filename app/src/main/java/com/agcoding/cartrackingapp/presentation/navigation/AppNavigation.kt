@@ -66,6 +66,7 @@ import com.agcoding.cartrackingapp.presentation.settings.datastorage.DataStorage
 import com.agcoding.cartrackingapp.presentation.settings.developer.DeveloperSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.expensecategories.ExpenseCategoriesSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
+import com.agcoding.cartrackingapp.presentation.settings.permissions.PermissionsSettingsScreen
 import com.agcoding.cartrackingapp.presentation.trash.TrashScreen
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
@@ -158,6 +159,7 @@ sealed class Screen(val route: String) {
     object DataStorageSettings : Screen("settings/data_storage")
     object ExpenseCategoriesSettings : Screen("settings/expense_categories")
     object HelpAboutSettings : Screen("settings/help_about")
+    object PermissionsSettings : Screen("settings/permissions")
     object DeveloperSettings : Screen("settings/developer")
     object NotificationHistory : Screen("notification_history")
     object Trash : Screen("trash")
@@ -328,6 +330,9 @@ fun AppNavigation(
                     },
                     onNavigateToReminders = {
                         navController.navigate(Screen.Notifications.route)
+                    },
+                    onNavigateToPermissionsSettings = {
+                        navController.navigate(Screen.PermissionsSettings.route)
                     }
                 )
             }
@@ -405,6 +410,9 @@ fun AppNavigation(
                     onNavigateToNotifications = {
                         navController.navigate(Screen.Notifications.route)
                     },
+                    onNavigateToPermissions = {
+                        navController.navigate(Screen.PermissionsSettings.route)
+                    },
                     onNavigateToDeveloper = {
                         navController.navigate(Screen.DeveloperSettings.route)
                     }
@@ -479,6 +487,17 @@ fun AppNavigation(
                     },
                     onOpenSettings = {
                         PermissionUtil.openAppSettings(context)
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.PermissionsSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                PermissionsSettingsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

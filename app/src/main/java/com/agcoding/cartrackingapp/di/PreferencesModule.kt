@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.di
 import android.content.Context
 import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.OnboardingPreferences
+import com.agcoding.cartrackingapp.data.preferences.PermissionBannerPreferences
 import com.agcoding.cartrackingapp.data.preferences.ReminderBannerPreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
@@ -47,6 +48,14 @@ object PreferencesModule {
         @ApplicationContext context: Context
     ): ReminderBannerPreferences {
         return ReminderBannerPreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePermissionBannerPreferences(
+        @ApplicationContext context: Context
+    ): PermissionBannerPreferences {
+        return PermissionBannerPreferences(context)
     }
 
     @Provides

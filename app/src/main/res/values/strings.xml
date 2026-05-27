@@ -253,6 +253,8 @@
     <string name="settings_group_expense_categories_subtitle">Manage expense types</string>
     <string name="settings_group_help_about_title">Notifications &amp; Help</string>
     <string name="settings_group_help_about_subtitle">Service reminders, guide, and version</string>
+    <string name="settings_group_permissions_title">Permissions</string>
+    <string name="settings_group_permissions_subtitle">Location, notifications &amp; microphone</string>
     <string name="settings_group_developer_title">Developer Options</string>
     <string name="settings_group_developer_subtitle">Debug tools and features</string>
 
@@ -842,6 +844,18 @@
     <string name="reminder_banner_mileage_single">1 service due (mileage reached)</string>
     <string name="reminder_banner_mileage_multiple">%d services due (mileage reached)</string>
     <string name="reminder_banner_mixed">%d service(s) due today • %d by mileage</string>
+
+    <!-- Permissions Banner -->
+    <string name="permissions_banner_title">Permissions Needed</string>
+    <string name="permissions_banner_message">Some app permissions are missing. Tap to review and enable them.</string>
+
+    <!-- Permissions Settings -->
+    <string name="permissions_settings_title">App Permissions</string>
+    <string name="permissions_settings_subtitle">Review and grant the permissions the app needs to work properly.</string>
+    <string name="permission_grant">Grant</string>
+    <string name="permission_open_system_settings">Open System Settings</string>
+    <string name="permission_permanently_denied_hint">Permission permanently denied. Enable it in system settings.</string>
+    <string name="all_permissions_granted">All permissions granted</string>
     <string name="delete_reminder_title">Delete Reminder?</string>
     <string name="delete_reminder_message">This will remove the reminder settings from this expense. The expense itself will not be deleted.</string>
 

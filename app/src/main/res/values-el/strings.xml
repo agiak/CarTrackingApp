@@ -226,6 +226,8 @@
     <string name="settings_group_expense_categories_subtitle">Διαχείριση τύπων εξόδων</string>
     <string name="settings_group_help_about_title">Ειδοποιήσεις &amp; Βοήθεια</string>
     <string name="settings_group_help_about_subtitle">Υπενθυμίσεις σέρβις, οδηγός και έκδοση</string>
+    <string name="settings_group_permissions_title">Άδειες Εφαρμογής</string>
+    <string name="settings_group_permissions_subtitle">Τοποθεσία, ειδοποιήσεις &amp; μικρόφωνο</string>
     <string name="settings_group_developer_title">Επιλογές Προγραμματιστή</string>
     <string name="settings_group_developer_subtitle">Εργαλεία εντοπισμού σφαλμάτων και λειτουργίες</string>
 
@@ -815,6 +817,19 @@
     <string name="reminder_banner_mileage_single">1 σέρβις λήγει (χιλιόμετρα επιτεύχθηκαν)</string>
     <string name="reminder_banner_mileage_multiple">%d σέρβις λήγουν (χιλιόμετρα επιτεύχθηκαν)</string>
     <string name="reminder_banner_mixed">%d σέρβις σήμερα • %d από χιλιόμετρα</string>
+
+    <!-- Permissions Banner -->
+    <string name="permissions_banner_title">Απαιτούνται Άδειες</string>
+    <string name="permissions_banner_message">Κάποιες άδειες εφαρμογής λείπουν. Πατήστε για να τις ελέγξετε.</string>
+
+    <!-- Permissions Settings -->
+    <string name="permissions_settings_title">Άδειες Εφαρμογής</string>
+    <string name="permissions_settings_subtitle">Ελέγξτε και παραχωρήστε τις άδειες που χρειάζεται η εφαρμογή.</string>
+    <string name="permission_grant">Παραχώρηση</string>
+    <string name="permission_open_system_settings">Άνοιγμα Ρυθμίσεων Συστήματος</string>
+    <string name="permission_permanently_denied_hint">Η άδεια έχει απαγορευτεί μόνιμα. Ενεργοποιήστε την στις ρυθμίσεις συστήματος.</string>
+    <string name="all_permissions_granted">Όλες οι άδειες παραχωρήθηκαν</string>
+
     <string name="delete_reminder_title">Διαγραφή Υπενθύμισης;</string>
     <string name="delete_reminder_message">Αυτό θα αφαιρέσει τις ρυθμίσεις υπενθύμισης από αυτό το έξοδο. Το ίδιο το έξοδο δεν θα διαγραφεί.</string>
 
