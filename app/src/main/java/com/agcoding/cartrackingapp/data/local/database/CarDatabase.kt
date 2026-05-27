@@ -23,7 +23,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -41,7 +41,7 @@ abstract class CarDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): CarDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     CarDatabase::class.java,
                     "car_tracking_database"
@@ -51,12 +51,11 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
                         MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
-                        MIGRATION_17_18
+                        MIGRATION_17_18, MIGRATION_18_19
                     )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
-                INSTANCE = instance
-                instance
+                    .also { INSTANCE = it }
             }
         }
     }
@@ -324,6 +323,12 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
         db.execSQL("ALTER TABLE fuel_refills ADD COLUMN deletedAt INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE expenses ADD COLUMN deletedAt INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE trips ADD COLUMN deletedAt INTEGER DEFAULT NULL")
+    }
+}
+
+val MIGRATION_18_19 = object : Migration(18, 19) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE expense_categories ADD COLUMN isQuickPick INTEGER NOT NULL DEFAULT 0")
     }
 }
 

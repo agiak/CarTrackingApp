@@ -100,9 +100,8 @@ fun ManageExpenseCategoriesScreen(
                 ManageExpenseCategoriesContent(
                     predefinedCategories = state.predefinedCategories,
                     customCategories = state.customCategories,
-                    onDeleteCategory = { category ->
-                        showDeleteDialog = category
-                    },
+                    onDeleteCategory = { category -> showDeleteDialog = category },
+                    onToggleQuickPick = { name, current -> viewModel.toggleQuickPick(name, current) },
                     isTablet = useCenteredLayout,
                     modifier = Modifier
                         .then(

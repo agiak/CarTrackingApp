@@ -12,7 +12,8 @@ data class ExpenseCategoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val isCustom: Boolean, // true for user-created, false for predefined
+    val isCustom: Boolean,
+    val isQuickPick: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
 

@@ -1,21 +1,30 @@
 package com.agcoding.cartrackingapp
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
+import com.agcoding.cartrackingapp.data.export.AutoBackupManager
+import com.agcoding.cartrackingapp.data.local.database.DatabaseHealthChecker
+import com.agcoding.cartrackingapp.data.local.database.DatabaseStatus
 import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
@@ -36,6 +45,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var colorPalettePreferences: ColorPalettePreferences
 
+    @Inject
+    lateinit var databaseHealthChecker: DatabaseHealthChecker
+
+    @Inject
+    lateinit var autoBackupManager: AutoBackupManager
+
     private var widgetAction: String? = null
     private var widgetCarId: Long? = null
     private var notificationExpenseId: Long? = null
@@ -47,6 +62,8 @@ class MainActivity : AppCompatActivity() {
         handleWidgetIntent(intent)
         handleNotificationIntent(intent)
 
+        autoBackupManager.start()
+
         // Enable edge-to-edge display with proper system bar handling
         enableEdgeToEdge()
 
@@ -54,23 +71,18 @@ class MainActivity : AppCompatActivity() {
             val systemInDarkTheme = isSystemInDarkTheme()
             val themeOverride by themePreferences.isDarkModeOverrideFlow.collectAsState(initial = null)
             val selectedPalette by colorPalettePreferences.selectedPaletteFlow.collectAsState(initial = com.agcoding.cartrackingapp.data.preferences.ColorPalette.SYSTEM)
+            val dbStatus by databaseHealthChecker.status.collectAsState()
 
-            // Determine if dark theme should be used:
-            // - If user has set a preference (themeOverride != null), use that
-            // - Otherwise, follow system theme
+            LaunchedEffect(Unit) {
+                databaseHealthChecker.check()
+            }
+
             val useDarkTheme = themeOverride ?: systemInDarkTheme
 
-            // Update system bars appearance when theme changes
             SideEffect {
                 val window = this@MainActivity.window
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
-
-                // Set status bar color to transparent for edge-to-edge
                 window.statusBarColor = Color.Transparent.toArgb()
-                // Don't set navigation bar to transparent - let the Scaffold handle it
-
-                // Set status bar content color (icons & text)
-                // Light theme = dark icons, Dark theme = light icons
                 insetsController.isAppearanceLightStatusBars = !useDarkTheme
                 insetsController.isAppearanceLightNavigationBars = !useDarkTheme
             }
@@ -79,7 +91,6 @@ class MainActivity : AppCompatActivity() {
                 colorPalette = selectedPalette,
                 isDark       = useDarkTheme,
             ) {
-                // Set navigation bar color to match theme background
                 val backgroundColor = MaterialTheme.colorScheme.background
                 SideEffect {
                     val window = this@MainActivity.window
@@ -90,11 +101,37 @@ class MainActivity : AppCompatActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color    = MaterialTheme.colorScheme.background,
                 ) {
-                    AppNavigation(
-                        widgetAction           = this@MainActivity.widgetAction,
-                        widgetCarId            = this@MainActivity.widgetCarId,
-                        notificationExpenseId  = this@MainActivity.notificationExpenseId,
-                    )
+                    if (dbStatus == DatabaseStatus.Healthy || dbStatus == DatabaseStatus.Checking) {
+                        AppNavigation(
+                            widgetAction           = this@MainActivity.widgetAction,
+                            widgetCarId            = this@MainActivity.widgetCarId,
+                            notificationExpenseId  = this@MainActivity.notificationExpenseId,
+                        )
+                    }
+
+                    if (dbStatus == DatabaseStatus.MigrationFailed) {
+                        AlertDialog(
+                            onDismissRequest = {},
+                            title = { Text(stringResource(R.string.db_error_title)) },
+                            text = { Text(stringResource(R.string.db_error_message)) },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                                        data = Uri.parse("market://details?id=com.agcoding.cartrackingapp")
+                                        setPackage("com.android.vending")
+                                    }
+                                    startActivity(intent)
+                                }) {
+                                    Text(stringResource(R.string.db_error_open_store))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { finishAffinity() }) {
+                                    Text(stringResource(R.string.db_error_close))
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

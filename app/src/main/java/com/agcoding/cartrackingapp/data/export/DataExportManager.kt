@@ -7,6 +7,9 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.agcoding.cartrackingapp.BuildConfig
+import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.domain.model.Expense
+import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -16,6 +19,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.apache.poi.ss.usermodel.FillPatternType
+import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.xssf.usermodel.XSSFCellStyle
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -172,6 +180,176 @@ class DataExportManager @Inject constructor(
     }
 
     /**
+     * Export all app data to an Excel (.xlsx) file in the Downloads folder.
+     * Creates three sheets: Cars, Fuel Refills, Expenses.
+     */
+    suspend fun exportToExcel(): ExportResult = withContext(Dispatchers.IO) {
+        try {
+            val cars = carRepository.getAllCars().first()
+            val allRefills = mutableListOf<FuelRefill>()
+            val allExpenses = mutableListOf<Expense>()
+            for (car in cars) {
+                allRefills.addAll(refillRepository.getRefillsByCarId(car.id).first())
+                allExpenses.addAll(expenseRepository.getExpensesByCarId(car.id).first())
+            }
+
+            val bytes = buildExcelBytes(cars, allRefills, allExpenses)
+            val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault()).format(Date())
+            val fileName = "car_expenses_$timestamp.xlsx"
+            val filePath = saveToDownloadsAsBytes(
+                fileName, bytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            ExportResult.Success(filePath)
+        } catch (e: Exception) {
+            ExportResult.Error(e.message ?: "Unknown error during Excel export")
+        }
+    }
+
+    internal fun buildExcelBytes(
+        cars: List<Car>,
+        refills: List<FuelRefill>,
+        expenses: List<Expense>,
+        customCategories: List<String> = emptyList()
+    ): ByteArray {
+        val carMap = cars.associateBy { it.id }
+        val workbook = XSSFWorkbook()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val headerStyle = (workbook.createCellStyle() as XSSFCellStyle).apply {
+            fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
+            fillPattern = FillPatternType.SOLID_FOREGROUND
+            setFont(workbook.createFont().apply { bold = true })
+        }
+        buildCarsSheet(workbook, cars, headerStyle, dateFormat)
+        buildRefillsSheet(workbook, refills, carMap, headerStyle, dateFormat)
+        buildExpensesSheet(workbook, expenses, carMap, headerStyle, dateFormat)
+        if (customCategories.isNotEmpty()) buildCategoriesSheet(workbook, customCategories, headerStyle)
+        return ByteArrayOutputStream().also { workbook.write(it) }.toByteArray()
+            .also { workbook.close() }
+    }
+
+    private fun buildCarsSheet(
+        workbook: XSSFWorkbook,
+        cars: List<Car>,
+        headerStyle: XSSFCellStyle,
+        dateFormat: SimpleDateFormat
+    ) {
+        val sheet = workbook.createSheet("Cars")
+        val headers = listOf(
+            "name", "license_plate", "current_odometer", "initial_odometer",
+            "insurance_expiration_date", "kteo_expiration_date", "notes"
+        )
+        val headerRow = sheet.createRow(0)
+        headers.forEachIndexed { i, title ->
+            headerRow.createCell(i).also {
+                it.setCellValue(title)
+                it.cellStyle = headerStyle
+            }
+        }
+        cars.forEachIndexed { rowIdx, car ->
+            val row = sheet.createRow(rowIdx + 1)
+            row.createCell(0).setCellValue(car.name)
+            row.createCell(1).setCellValue(car.licensePlate)
+            row.createCell(2).setCellValue(car.currentOdometer)
+            row.createCell(3).setCellValue(car.initialOdometer)
+            row.createCell(4).setCellValue(car.insuranceExpirationDate?.let { dateFormat.format(Date(it)) } ?: "")
+            row.createCell(5).setCellValue(car.kteoExpirationDate?.let { dateFormat.format(Date(it)) } ?: "")
+            row.createCell(6).setCellValue("")
+        }
+        listOf(20, 15, 18, 18, 24, 24, 20).map { it * 256 }
+            .forEachIndexed { i, w -> sheet.setColumnWidth(i, w) }
+    }
+
+    private fun buildRefillsSheet(
+        workbook: XSSFWorkbook,
+        refills: List<FuelRefill>,
+        carMap: Map<Long, Car>,
+        headerStyle: XSSFCellStyle,
+        dateFormat: SimpleDateFormat
+    ) {
+        val sheet = workbook.createSheet("Refills")
+        val headers = listOf(
+            "car_license_plate", "date", "amount_paid", "liters_added",
+            "trip_distance", "odometer_reading", "price_per_liter", "notes"
+        )
+        val headerRow = sheet.createRow(0)
+        headers.forEachIndexed { i, title ->
+            headerRow.createCell(i).also {
+                it.setCellValue(title)
+                it.cellStyle = headerStyle
+            }
+        }
+        refills.sortedBy { it.timestamp }.forEachIndexed { rowIdx, refill ->
+            val car = carMap[refill.carId]
+            val row = sheet.createRow(rowIdx + 1)
+            row.createCell(0).setCellValue(car?.licensePlate ?: "")
+            row.createCell(1).setCellValue(dateFormat.format(Date(refill.timestamp)))
+            row.createCell(2).setCellValue(refill.amountPaid)
+            row.createCell(3).setCellValue(refill.litersAdded)
+            row.createCell(4).setCellValue(refill.tripDistance)
+            row.createCell(5).setCellValue(refill.odometerReading)
+            row.createCell(6).setCellValue(refill.pricePerLiter)
+            row.createCell(7).setCellValue(refill.notes ?: "")
+        }
+        listOf(18, 12, 12, 12, 14, 18, 15, 20).map { it * 256 }
+            .forEachIndexed { i, w -> sheet.setColumnWidth(i, w) }
+    }
+
+    private fun buildExpensesSheet(
+        workbook: XSSFWorkbook,
+        expenses: List<Expense>,
+        carMap: Map<Long, Car>,
+        headerStyle: XSSFCellStyle,
+        dateFormat: SimpleDateFormat
+    ) {
+        val sheet = workbook.createSheet("Expenses")
+        val headers = listOf(
+            "car_license_plate", "date", "category", "amount", "notes",
+            "reminder_date", "reminder_mileage"
+        )
+        val headerRow = sheet.createRow(0)
+        headers.forEachIndexed { i, title ->
+            headerRow.createCell(i).also {
+                it.setCellValue(title)
+                it.cellStyle = headerStyle
+            }
+        }
+        expenses.sortedBy { it.timestamp }.forEachIndexed { rowIdx, expense ->
+            val car = carMap[expense.carId]
+            val row = sheet.createRow(rowIdx + 1)
+            row.createCell(0).setCellValue(car?.licensePlate ?: "")
+            row.createCell(1).setCellValue(dateFormat.format(Date(expense.timestamp)))
+            row.createCell(2).setCellValue(expense.category)
+            row.createCell(3).setCellValue(expense.amount)
+            row.createCell(4).setCellValue(expense.notes ?: "")
+            row.createCell(5).setCellValue(expense.reminderDate?.let { dateFormat.format(Date(it)) } ?: "")
+            if (expense.reminderMileage != null && expense.reminderMileage > 0) {
+                row.createCell(6).setCellValue(expense.reminderMileage.toDouble())
+            } else {
+                row.createCell(6).setCellValue("")
+            }
+        }
+        listOf(18, 12, 15, 10, 22, 14, 15).map { it * 256 }
+            .forEachIndexed { i, w -> sheet.setColumnWidth(i, w) }
+    }
+
+    private fun buildCategoriesSheet(
+        workbook: XSSFWorkbook,
+        categories: List<String>,
+        headerStyle: XSSFCellStyle
+    ) {
+        val sheet = workbook.createSheet("Categories")
+        sheet.createRow(0).createCell(0).also {
+            it.setCellValue("name")
+            it.cellStyle = headerStyle
+        }
+        categories.forEachIndexed { ri, name ->
+            sheet.createRow(ri + 1).createCell(0).setCellValue(name)
+        }
+        sheet.setColumnWidth(0, 20 * 256)
+    }
+
+    /**
      * Clear all existing data from the database
      */
     suspend fun clearAllData() {
@@ -179,6 +357,31 @@ class DataExportManager @Inject constructor(
         val cars = carRepository.getAllCars().first()
         for (car in cars) {
             carRepository.deleteCar(car.id)
+        }
+    }
+
+    private fun saveToDownloadsAsBytes(fileName: String, bytes: ByteArray, mimeType: String): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                put(MediaStore.Downloads.MIME_TYPE, mimeType)
+                put(MediaStore.Downloads.IS_PENDING, 1)
+            }
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                ?: throw Exception("Could not create file in Downloads")
+            resolver.openOutputStream(uri)?.use { it.write(bytes) }
+                ?: throw Exception("Could not write to file")
+            contentValues.clear()
+            contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+            resolver.update(uri, contentValues, null, null)
+            "Downloads/$fileName"
+        } else {
+            @Suppress("DEPRECATION")
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDir, fileName)
+            file.writeBytes(bytes)
+            file.absolutePath
         }
     }
 

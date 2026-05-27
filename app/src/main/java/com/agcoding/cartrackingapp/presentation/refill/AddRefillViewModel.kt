@@ -86,12 +86,6 @@ class AddRefillViewModel @Inject constructor(
         val randomLiters = Random.nextInt(25, 60).toString() + "." + Random.nextInt(0, 9).toString()
         val randomDistance = Random.nextInt(300, 700)
 
-        // Generate random date within last 30 days
-        val currentTimeMillis = System.currentTimeMillis()
-        val daysInMillis = 24 * 60 * 60 * 1000L
-        val randomDaysAgo = Random.nextInt(0, 300) // 0-300 days ago
-        val randomDateMillis = currentTimeMillis - (randomDaysAgo * daysInMillis)
-
         // Calculate new odometer reading from previous + random distance
         val newOdometer = (_uiState.value.previousOdometer + randomDistance).toInt()
 
@@ -99,7 +93,7 @@ class AddRefillViewModel @Inject constructor(
             amountPaid = randomAmountPaid,
             litersAdded = randomLiters,
             odometer = newOdometer.toString(),
-            selectedDateMillis = randomDateMillis
+            selectedDateMillis = System.currentTimeMillis()
         )
     }
 

@@ -15,12 +15,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,11 +42,61 @@ import com.agcoding.cartrackingapp.presentation.settings.StorageInfo
 fun StorageCard(
     storageInfo: StorageInfo,
     isExporting: Boolean = false,
+    isExportingExcel: Boolean = false,
     isImporting: Boolean = false,
+    isSpreadsheetImporting: Boolean = false,
+    isGeneratingSample: Boolean = false,
     onExport: () -> Unit = {},
-    onImport: () -> Unit = {},
+    onExportExcel: () -> Unit = {},
+    onImportJson: () -> Unit = {},
+    onImportExcel: () -> Unit = {},
+    onGenerateSample: () -> Unit = {},
     onClear: () -> Unit = {}
 ) {
+    var showImportFormatDialog by remember { mutableStateOf(false) }
+
+    if (showImportFormatDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportFormatDialog = false },
+            title = { Text(stringResource(R.string.import_choose_format_title)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.import_choose_format_message))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        StorageActionButton(
+                            icon = Icons.Default.Download,
+                            text = stringResource(R.string.import_format_json),
+                            onClick = {
+                                showImportFormatDialog = false
+                                onImportJson()
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                        StorageActionButton(
+                            icon = Icons.Default.GridOn,
+                            text = stringResource(R.string.import_format_excel),
+                            onClick = {
+                                showImportFormatDialog = false
+                                onImportExcel()
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showImportFormatDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
         tintAlpha = 0.3f
@@ -50,9 +106,8 @@ fun StorageCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            // Storage info header
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -60,7 +115,7 @@ fun StorageCard(
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
+                    androidx.compose.material3.Icon(
                         imageVector = Icons.Default.Storage,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
@@ -85,7 +140,6 @@ fun StorageCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // App Data row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -105,7 +159,6 @@ fun StorageCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Cache row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -125,7 +178,6 @@ fun StorageCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Export/Import explanation
             Text(
                 text = stringResource(R.string.settings_backup_transfer_title),
                 fontSize = 14.sp,
@@ -144,32 +196,55 @@ fun StorageCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action buttons row
+            val anyBusy = isExporting || isExportingExcel || isImporting || isSpreadsheetImporting || isGeneratingSample
+
+            // Export row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 StorageActionButton(
                     icon = Icons.Default.Upload,
-                    text = if (isExporting) stringResource(R.string.settings_exporting) else stringResource(R.string.export),
+                    text = if (isExporting) stringResource(R.string.settings_exporting) else stringResource(R.string.export_json),
                     onClick = onExport,
-                    enabled = !isExporting && !isImporting,
+                    enabled = !anyBusy,
                     isLoading = isExporting,
                     modifier = Modifier.weight(1f)
                 )
                 StorageActionButton(
+                    icon = Icons.Default.GridOn,
+                    text = if (isExportingExcel) stringResource(R.string.settings_exporting) else stringResource(R.string.export_excel),
+                    onClick = onExportExcel,
+                    enabled = !anyBusy,
+                    isLoading = isExportingExcel,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Import / Sample row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StorageActionButton(
                     icon = Icons.Default.Download,
-                    text = if (isImporting) stringResource(R.string.settings_importing) else stringResource(R.string.import_action),
-                    onClick = onImport,
-                    enabled = !isExporting && !isImporting,
-                    isLoading = isImporting,
+                    text = when {
+                        isImporting || isSpreadsheetImporting -> stringResource(R.string.settings_importing)
+                        else -> stringResource(R.string.import_action)
+                    },
+                    onClick = { showImportFormatDialog = true },
+                    enabled = !anyBusy,
+                    isLoading = isImporting || isSpreadsheetImporting,
                     modifier = Modifier.weight(1f)
                 )
                 StorageActionButton(
-                    icon = Icons.Default.Delete,
-                    text = stringResource(R.string.clear),
-                    onClick = onClear,
-                    enabled = !isExporting && !isImporting,
+                    icon = Icons.Default.GridOn,
+                    text = if (isGeneratingSample) stringResource(R.string.spreadsheet_generating) else stringResource(R.string.spreadsheet_generate_sample),
+                    onClick = onGenerateSample,
+                    enabled = !anyBusy,
+                    isLoading = isGeneratingSample,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -180,6 +255,16 @@ fun StorageCard(
                 text = stringResource(R.string.settings_import_replaces_data_warning),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            StorageActionButton(
+                icon = Icons.Default.Delete,
+                text = stringResource(R.string.clear),
+                onClick = onClear,
+                enabled = !anyBusy,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

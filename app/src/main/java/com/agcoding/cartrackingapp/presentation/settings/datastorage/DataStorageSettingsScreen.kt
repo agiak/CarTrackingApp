@@ -46,7 +46,7 @@ import com.agcoding.cartrackingapp.presentation.settings.components.ForecastCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsRow
-import com.agcoding.cartrackingapp.presentation.settings.components.SpreadsheetImportCard
+
 import com.agcoding.cartrackingapp.presentation.settings.components.StorageCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +62,7 @@ fun DataStorageSettingsScreen(
 
     // Capture string resources that will be used in LaunchedEffects
     val exportFailedTemplate = stringResource(R.string.export_failed)
+    val exportExcelFailedTemplate = stringResource(R.string.export_excel_failed)
     val importFailedTemplate = stringResource(R.string.import_failed)
     val spreadsheetImportFailedTemplate = stringResource(R.string.spreadsheet_import_failed)
     val spreadsheetSampleFailedTemplate = stringResource(R.string.spreadsheet_sample_failed)
@@ -107,6 +108,24 @@ fun DataStorageSettingsScreen(
         uiState.exportError?.let { error ->
             snackbarHostState.showSnackbar(
                 message = String.format(exportFailedTemplate, error)
+            )
+            viewModel.resetExportImportState()
+        }
+    }
+
+    LaunchedEffect(uiState.exportExcelSuccess) {
+        uiState.exportExcelSuccess?.let { path ->
+            snackbarHostState.showSnackbar(
+                message = String.format(dataExportedToTemplate, path)
+            )
+            viewModel.resetExportImportState()
+        }
+    }
+
+    LaunchedEffect(uiState.exportExcelError) {
+        uiState.exportExcelError?.let { error ->
+            snackbarHostState.showSnackbar(
+                message = String.format(exportExcelFailedTemplate, error)
             )
             viewModel.resetExportImportState()
         }
@@ -262,9 +281,24 @@ fun DataStorageSettingsScreen(
             StorageCard(
                 storageInfo = uiState.storageInfo,
                 isExporting = uiState.isExporting,
+                isExportingExcel = uiState.isExportingExcel,
                 isImporting = uiState.isImporting,
+                isSpreadsheetImporting = uiState.isSpreadsheetImporting,
+                isGeneratingSample = uiState.isGeneratingSampleFile,
                 onExport = { viewModel.exportData() },
-                onImport = { showImportConfirmDialog = true },
+                onExportExcel = { viewModel.exportToExcel() },
+                onImportJson = { showImportConfirmDialog = true },
+                onImportExcel = {
+                    spreadsheetPickerLauncher.launch(
+                        arrayOf(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "application/vnd.ms-excel",
+                            "text/csv",
+                            "text/comma-separated-values"
+                        )
+                    )
+                },
+                onGenerateSample = { viewModel.generateSampleSpreadsheet() },
                 onClear = { showClearConfirmDialog = true }
             )
 
@@ -276,27 +310,6 @@ fun DataStorageSettingsScreen(
             ForecastCard(
                 forecastingEnabled = uiState.appSettings.forecastingEnabled,
                 onForecastingToggle = { viewModel.updateForecastingEnabled(it) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // SPREADSHEET IMPORT Section
-            SectionHeader(title = stringResource(R.string.settings_section_spreadsheet_import))
-
-            SpreadsheetImportCard(
-                isImporting = uiState.isSpreadsheetImporting,
-                isGeneratingSample = uiState.isGeneratingSampleFile,
-                onImport = {
-                    spreadsheetPickerLauncher.launch(
-                        arrayOf(
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "application/vnd.ms-excel",
-                            "text/csv",
-                            "text/comma-separated-values"
-                        )
-                    )
-                },
-                onGenerateSample = { viewModel.generateSampleSpreadsheet() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

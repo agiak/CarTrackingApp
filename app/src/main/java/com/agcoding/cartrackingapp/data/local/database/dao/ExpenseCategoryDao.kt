@@ -17,6 +17,9 @@ interface ExpenseCategoryDao {
     @Query("SELECT * FROM expense_categories WHERE isCustom = 1 ORDER BY name ASC")
     fun getCustomCategories(): Flow<List<ExpenseCategoryEntity>>
 
+    @Query("SELECT * FROM expense_categories WHERE isQuickPick = 1 ORDER BY name ASC")
+    fun getQuickPickCategories(): Flow<List<ExpenseCategoryEntity>>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCategory(category: ExpenseCategoryEntity): Long
 
@@ -28,5 +31,8 @@ interface ExpenseCategoryDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM expense_categories WHERE name = :name LIMIT 1)")
     suspend fun categoryExists(name: String): Boolean
+
+    @Query("UPDATE expense_categories SET isQuickPick = :isQuickPick WHERE name = :name")
+    suspend fun setQuickPick(name: String, isQuickPick: Boolean)
 }
 

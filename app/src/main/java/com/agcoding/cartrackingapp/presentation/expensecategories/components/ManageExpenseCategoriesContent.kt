@@ -22,13 +22,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.expensecategories.CategoryWithQuickPick
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun ManageExpenseCategoriesContent(
-    predefinedCategories: List<String>,
-    customCategories: List<String>,
+    predefinedCategories: List<CategoryWithQuickPick>,
+    customCategories: List<CategoryWithQuickPick>,
     onDeleteCategory: (String) -> Unit,
+    onToggleQuickPick: (name: String, current: Boolean) -> Unit,
     isTablet: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -38,18 +40,14 @@ fun ManageExpenseCategoriesContent(
             start = if (isTablet) 24.dp else 16.dp,
             end = if (isTablet) 24.dp else 16.dp,
             top = 16.dp,
-            bottom = 88.dp // Space for FAB
+            bottom = 88.dp
         ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Info card
         item {
-            CategoriesInfoCard(
-                modifier = Modifier.fillMaxWidth()
-            )
+            CategoriesInfoCard(modifier = Modifier.fillMaxWidth())
         }
 
-        // Predefined categories header
         if (predefinedCategories.isNotEmpty()) {
             item {
                 Text(
@@ -62,15 +60,16 @@ fun ManageExpenseCategoriesContent(
 
             items(predefinedCategories) { category ->
                 CategoryItem(
-                    name = category,
+                    name = category.name,
                     isCustom = false,
+                    isQuickPick = category.isQuickPick,
                     onDelete = null,
+                    onToggleQuickPick = { onToggleQuickPick(category.name, category.isQuickPick) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
 
-        // Custom categories header
         if (customCategories.isNotEmpty()) {
             item {
                 Text(
@@ -83,15 +82,16 @@ fun ManageExpenseCategoriesContent(
 
             items(customCategories) { category ->
                 CategoryItem(
-                    name = category,
+                    name = category.name,
                     isCustom = true,
-                    onDelete = { onDeleteCategory(category) },
+                    isQuickPick = category.isQuickPick,
+                    onDelete = { onDeleteCategory(category.name) },
+                    onToggleQuickPick = { onToggleQuickPick(category.name, category.isQuickPick) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
 
-        // Empty state
         if (customCategories.isEmpty()) {
             item {
                 Box(
@@ -100,9 +100,7 @@ fun ManageExpenseCategoriesContent(
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = stringResource(R.string.no_custom_categories_yet),
                             fontSize = 16.sp,
@@ -131,70 +129,37 @@ private fun PreviewCategoriesContentPhoneNoCustom() {
     CarTrackingAppTheme(darkTheme = false) {
         ManageExpenseCategoriesContent(
             predefinedCategories = listOf(
-                "Fuel",
-                "Service & Maintenance",
-                "Insurance",
-                "Parking & Tolls",
-                "Other"
+                CategoryWithQuickPick("Fuel", false),
+                CategoryWithQuickPick("Insurance", true),
+                CategoryWithQuickPick("Service", false)
             ),
             customCategories = emptyList(),
             onDeleteCategory = {},
+            onToggleQuickPick = { _, _ -> },
             isTablet = false,
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
-@Preview(name = "Categories Content - Phone With Custom", showBackground = true, widthDp = 380, heightDp = 800)
+@Preview(name = "Categories Content - With Custom", showBackground = true, widthDp = 380, heightDp = 800)
 @Composable
-private fun PreviewCategoriesContentPhoneWithCustom() {
+private fun PreviewCategoriesContentWithCustom() {
     CarTrackingAppTheme(darkTheme = false) {
         ManageExpenseCategoriesContent(
             predefinedCategories = listOf(
-                "Fuel",
-                "Service & Maintenance",
-                "Insurance",
-                "Parking & Tolls"
+                CategoryWithQuickPick("Fuel", true),
+                CategoryWithQuickPick("Insurance", false)
             ),
             customCategories = listOf(
-                "Car Wash",
-                "Tire Replacement",
-                "Extended Warranty"
+                CategoryWithQuickPick("Car Wash", true),
+                CategoryWithQuickPick("Tire Replacement", false)
             ),
             onDeleteCategory = {},
+            onToggleQuickPick = { _, _ -> },
             isTablet = false,
             modifier = Modifier.fillMaxSize()
         )
-    }
-}
-
-@Preview(name = "Categories Content - Tablet", showBackground = true, widthDp = 800, heightDp = 600)
-@Composable
-private fun PreviewCategoriesContentTablet() {
-    CarTrackingAppTheme(darkTheme = false) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            ManageExpenseCategoriesContent(
-                predefinedCategories = listOf(
-                    "Fuel",
-                    "Service & Maintenance",
-                    "Insurance",
-                    "Parking & Tolls",
-                    "Other"
-                ),
-                customCategories = listOf(
-                    "Car Wash",
-                    "Tire Replacement",
-                    "Extended Warranty",
-                    "Detailing"
-                ),
-                onDeleteCategory = {},
-                isTablet = true,
-                modifier = Modifier.fillMaxWidth(0.7f)
-            )
-        }
     }
 }
 
@@ -204,45 +169,14 @@ private fun PreviewCategoriesContentDark() {
     CarTrackingAppTheme(darkTheme = true) {
         ManageExpenseCategoriesContent(
             predefinedCategories = listOf(
-                "Fuel",
-                "Service & Maintenance",
-                "Insurance"
+                CategoryWithQuickPick("Insurance", true),
+                CategoryWithQuickPick("Service", false)
             ),
             customCategories = listOf(
-                "Car Wash",
-                "Tire Replacement"
+                CategoryWithQuickPick("Car Wash", true)
             ),
             onDeleteCategory = {},
-            isTablet = false,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Preview(name = "Categories Content - Many Categories", showBackground = true, widthDp = 380, heightDp = 800)
-@Composable
-private fun PreviewCategoriesContentManyCat() {
-    CarTrackingAppTheme(darkTheme = false) {
-        ManageExpenseCategoriesContent(
-            predefinedCategories = listOf(
-                "Fuel",
-                "Service & Maintenance",
-                "Insurance",
-                "Parking & Tolls",
-                "Registration",
-                "Other"
-            ),
-            customCategories = listOf(
-                "Car Wash",
-                "Tire Replacement",
-                "Extended Warranty",
-                "Detailing",
-                "Window Tinting",
-                "Accessories",
-                "Audio System",
-                "GPS Navigation"
-            ),
-            onDeleteCategory = {},
+            onToggleQuickPick = { _, _ -> },
             isTablet = false,
             modifier = Modifier.fillMaxSize()
         )

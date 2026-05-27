@@ -746,6 +746,7 @@
     <string name="manage_expense_categories">Manage Expense Categories</string>
     <string name="add_category">Add Category</string>
     <string name="delete_category">Delete Category</string>
+    <string name="toggle_quick_pick">Toggle quick pick</string>
     <string name="delete_category_confirm">Delete "%s"? This will not affect existing expenses.</string>
     <string name="category_name">Category Name</string>
     <string name="category_name_placeholder">e.g., Windshield Replacement</string>
@@ -1221,5 +1222,20 @@
     <string name="add_to_trip">Add to Trip</string>
     <string name="add_refill_fab_label">Add Refill</string>
     <string name="fab_open_cd">Open actions</string>
+
+    <!-- Excel Export -->
+    <string name="export_json">Export JSON</string>
+    <string name="export_excel">Export Excel</string>
+    <string name="export_excel_failed">Excel export failed: %s</string>
+    <string name="import_choose_format_title">Choose Import Format</string>
+    <string name="import_choose_format_message">Select the format of the file you want to import:</string>
+    <string name="import_format_json">JSON Backup</string>
+    <string name="import_format_excel">Excel Spreadsheet</string>
+
+    <!-- Database Error -->
+    <string name="db_error_title">Update Required</string>
+    <string name="db_error_message">Your data cannot be loaded because the app needs to be updated. Please download the latest version from the Play Store.</string>
+    <string name="db_error_open_store">Open Play Store</string>
+    <string name="db_error_close">Close App</string>
 
 </resources>

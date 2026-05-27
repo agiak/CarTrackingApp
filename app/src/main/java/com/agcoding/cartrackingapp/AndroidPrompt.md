@@ -1,942 +1,1034 @@
-# 📊 Investment Assistant – Full Product Specification v3
+You are a senior Android engineer. Generate a complete, production-ready Android project following strict architectural and coding guidelines.
+
+## 🏗️ Architecture
+Use **NVI (Model-View-Intent)** architecture with clear separation of:
+- **Intent** — user actions (sealed class per feature)
+- **State** — immutable UI state (data class per feature)
+- **ViewModel** — state reducer, consumes UseCases, emits StateFlow
+
+## 🧱 Tech Stack
+- UI: Jetpack Compose
+- Dependency Injection: Hilt
+- Database: Room
+- Networking: Retrofit + OkHttp
+- Logging: Timber
 
 ---
 
-## Table of Contents
+## 📦 Project Structure
 
-1. [Overview & Philosophy](#1-overview--philosophy)
-2. [Core Concepts](#2-core-concepts)
-3. [Data Layer](#3-data-layer)
-4. [Indicator Engine](#4-indicator-engine)
-5. [Signal Engine](#5-signal-engine)
-6. [Scoring & Confidence Engine](#6-scoring--confidence-engine)
-7. [Risk Management Engine](#7-risk-management-engine)
-8. [Decision Engine (Advice Output)](#8-decision-engine-advice-output)
-9. [What-If Simulator](#9-what-if-simulator)
-10. [Portfolio Management](#10-portfolio-management)
-11. [Trade Execution Simulation](#11-trade-execution-simulation)
-12. [Watchlist Engine](#12-watchlist-engine)
-13. [Backtesting Module (Future)](#13-backtesting-module-future)
-14. [Rebalancing Engine (Future)](#14-rebalancing-engine-future)
-15. [Technical Architecture](#15-technical-architecture)
-16. [MVP Scope & Exclusions](#16-mvp-scope--exclusions)
-17. [Edge Cases & Failure Handling](#17-edge-cases--failure-handling)
-18. [Glossary](#18-glossary)
+Feature-based packaging. Each feature is an independent vertical slice:
+```
+feature_name/
+├── presentation/   ← Composables, ViewModel, UiState, Intent
+├── domain/         ← UseCases, Repository interfaces
+└── data/           ← Repository impls, DataSources, DTOs, Mappers
+```
+
+Shared cross-feature code lives in `shared/`:
+```
+shared/
+├── ui/
+│   ├── theme/
+│   │   ├── AppTheme.kt
+│   │   ├── LocalAppColorScheme.kt
+│   │   └── LocalAppDimens.kt
+│   ├── tokens/
+│   │   ├── brand/
+│   │   │   ├── BrandTokens.kt            ← interface
+│   │   │   ├── DefaultBrandTokens.kt
+│   │   │   └── OceanBrandTokens.kt       ← second palette example
+│   │   ├── AppColorScheme.kt
+│   │   ├── AppDimens.kt
+│   │   ├── AppShapes.kt
+│   │   ├── AppTypography.kt
+│   │   └── AppIcons.kt
+│   ├── components/                       ← App* composables
+│   └── utils/
+│       └── UiText.kt
+├── domain/
+├── data/
+├── utils/
+└── navigation/
+```
+
+**Shared rules:**
+- Reusable logic MUST go into `shared/` — no duplication across features
+- `shared/` must NOT depend on any feature
+- Features CAN depend on `shared/`
 
 ---
 
-## 1. Overview & Philosophy
+## ⚙️ Coding Rules (STRICT)
 
-This application is a **local-first investment assistant and portfolio simulator**.
+### Layer rules
+- **Presentation:** Composables, ViewModel, UiState, Intent — no business logic
+- **Domain:** UseCases and Repository interfaces only — NO Android imports
+- **Data:** Repository implementations, DataSources, DTOs, Mappers — no UI
 
-It does NOT predict the market. It:
-- Evaluates rule-based signals derived from technical indicators
-- Manages and simulates portfolio allocation decisions
-- Outputs structured, explainable advice with confidence scores
-- Provides "what-if" scenario analysis for portfolio changes
+### UseCase rules
+- One UseCase per repository function — named `Verb + Entity + UseCase` (e.g. `GetUserUseCase`)
+- ViewModels ONLY call UseCases — never repositories directly
+- UseCases MUST be `suspend` or return `Flow`
+- Both UseCase and Repository MUST have interface + implementation in separate files
 
-### Design Principles
+### File separation (strict)
+Every concept lives in its own file: UiState, ViewModel, Intent, UseCase, Repository, Mapper
 
-| Principle | Implementation |
-|---|---|
-| Deterministic | Same input → same output, always |
-| Explainable | Every decision includes full reasoning breakdown |
-| Portfolio-first | Focus on capital allocation, not individual stock picking |
-| Conservative by default | Prefers HOLD over forced action |
-| Offline-first | All computation runs locally, no cloud dependency |
+### Mappers
+- DTO → Domain: one mapper file
+- Domain → UI model: one mapper file
+- No mapping logic in repositories or composables
 
----
+### Dependency Injection
+- `@Binds` for interface → implementation binding
+- `@Provides` only when a constructor cannot be annotated
+- Inject `CoroutineDispatcher` via Hilt — no hardcoded `Dispatchers.*` in UseCases
+- No manual instantiation anywhere
 
-## 2. Core Concepts
-
-### 2.1 System States
-
-The application maintains the following persistent state:
-
-```
-AppState {
-  portfolios: Portfolio[]        // All user portfolios
-  watchlist: WatchlistItem[]     // Monitored assets (no position)
-  marketData: AssetData[]        // Cached price history per symbol
-  lastFetchTimestamp: DateTime   // Last successful data fetch
-  globalSettings: Settings       // API keys, fetch frequency, etc.
-}
-```
-
-### 2.2 Asset Types Supported (MVP)
-
-| Type | Examples | Source |
-|---|---|---|
-| US Stocks | AAPL, MSFT, NVDA | Finnhub / Alpha Vantage |
-| ETFs | SPY, QQQ, VTI | Finnhub / Alpha Vantage |
-| Commodity ETFs | GLD (Gold), SLV (Silver) | Finnhub / Alpha Vantage |
-
-> **Note:** Crypto, forex, and options are explicitly out of scope for MVP.
-
-### 2.3 Risk Profiles
-
-Risk profiles are not just labels — they define hard constraints on the engine.
-
-| Parameter | Low Risk | Medium Risk | High Risk |
-|---|---|---|---|
-| Asset universe | ETFs, Bonds (BND), Gold | ETFs + Large-cap stocks | Growth stocks, sector ETFs |
-| Max position size | 5% of portfolio | 10% of portfolio | 20% of portfolio |
-| Max open positions | 5 | 8 | 12 |
-| Stop loss | 3–5% | 5–10% | 10–15% |
-| Take profit | 8–12% | 12–20% | 20–35% |
-| Min cash reserve | 40% | 25% | 15% |
-| Min signal score to BUY | 3 (Strong) | 2 (Moderate) | 1 (Weak) |
-| Max single-sector exposure | 30% | 40% | 60% |
-
-> **Business Rule:** The engine NEVER issues a BUY signal that would breach any constraint from the active risk profile, even if the signal score is strong.
+### Code quality
+- SOLID principles throughout
+- No raw exceptions above the data layer — always map to `AppError`
+- Use Timber for all logging — `android.util.Log` is forbidden
+- `runBlocking` is forbidden outside tests
 
 ---
 
-## 3. Data Layer
-
-### 3.1 Required Fields per Asset
-
-```
-AssetData {
-  symbol: String              // e.g., "AAPL"
-  name: String
-  assetType: Enum(STOCK, ETF, COMMODITY_ETF)
-  priceHistory: PriceBar[]    // Ordered ascending by date
-  lastUpdated: DateTime
-  dataQuality: Enum(FULL, PARTIAL, STALE, MISSING)
-}
-
-PriceBar {
-  date: Date
-  open: Float
-  high: Float
-  low: Float
-  close: Float
-  volume: Long
-  adjustedClose: Float        // Adjusted for splits/dividends
-}
-```
-
-> **Critical:** All calculations MUST use `adjustedClose`, not `close`. Using unadjusted close prices will produce incorrect indicator values around stock splits and dividend events.
-
-### 3.2 Minimum Data Requirements
-
-| Indicator | Minimum Bars Required | Recommended |
-|---|---|---|
-| RSI(14) | 15 bars | 30 bars |
-| SMA50 | 50 bars | 60 bars |
-| SMA200 | 200 bars | 220 bars |
-| ATR(14) | 15 bars | 30 bars |
-| Volume MA(20) | 20 bars | 30 bars |
-
-> **Business Rule:** If an asset has fewer than 200 bars of history, the engine MUST flag `dataQuality: PARTIAL` and disable any indicator that cannot be computed. The decision engine must acknowledge this limitation in its reasoning output.
-
-### 3.3 Data Fetch Strategy
-
-**Default mode:** End-of-day fetch (once daily, after 16:30 ET)
-
-**Fetch priority order:**
-1. Assets in active portfolios with open positions
-2. Assets in active portfolio watchlists
-3. Global watchlist assets
-4. New assets being evaluated
-
-**Optimization rules:**
-- Maximum 50 unique symbols across all portfolios and watchlists
-- Batch API calls where the provider supports it
-- On partial failure: mark failed assets as `STALE`, do not block the full update
-
-**Stale data policy:**
-- Data older than 1 day → `STALE` (warn user)
-- Data older than 5 days → `MISSING` (block signals for this asset)
-- Engine must never produce signals on MISSING data
-
-### 3.4 API Fallback Strategy
-
-Primary: **Finnhub**
-Fallback: **Alpha Vantage**
-
-If both fail for a symbol:
-1. Retain last cached data
-2. Mark asset as `STALE` with timestamp
-3. Exclude asset from signal generation
-4. Surface error to user with last-known price and staleness age
-
----
-
-## 4. Indicator Engine
-
-All indicators are computed from `adjustedClose` prices unless otherwise specified. Indicators are recomputed on every data refresh.
-
-### 4.1 RSI (Relative Strength Index)
-
-**Period:** 14 days (configurable per portfolio: 7–21)
-
-**Algorithm (Wilder's Smoothing Method):**
-
-```
-Step 1: Calculate daily price changes
-  change[i] = close[i] - close[i-1]
-
-Step 2: Separate gains and losses
-  gain[i] = max(change[i], 0)
-  loss[i] = abs(min(change[i], 0))
-
-Step 3: Initial averages (first 14 bars)
-  avgGain = sum(gain[1..14]) / 14
-  avgLoss = sum(loss[1..14]) / 14
-
-Step 4: Subsequent bars (Wilder's Smoothing)
-  avgGain = (prevAvgGain * 13 + gain[i]) / 14
-  avgLoss = (prevAvgLoss * 13 + loss[i]) / 14
-
-Step 5: RS and RSI
-  RS = avgGain / avgLoss
-  RSI = 100 - (100 / (1 + RS))
-
-Edge case: if avgLoss == 0 → RSI = 100
-```
-
-**Interpretation thresholds:**
-
-| RSI Value | Signal | Strength |
-|---|---|---|
-| < 20 | Strongly Oversold | Very Strong BUY signal |
-| 20–30 | Oversold | BUY signal |
-| 30–45 | Neutral-Low | Weak or no signal |
-| 45–55 | Neutral | No signal |
-| 55–70 | Neutral-High | Weak or no signal |
-| 70–80 | Overbought | SELL signal |
-| > 80 | Strongly Overbought | Very Strong SELL signal |
-
-> **Note on RSI alone:** RSI is a momentum oscillator and is NOT sufficient as a standalone signal. It must always be combined with trend indicators (SMA) to avoid buying in a sustained downtrend. An asset can be RSI < 30 and still fall another 40%.
-
-### 4.2 SMA – Simple Moving Averages
-
-**Periods:** SMA50, SMA200
-
-**Algorithm:**
-```
-SMA(n)[i] = sum(adjustedClose[i-n+1 .. i]) / n
-```
-
-**Key derived signals:**
-
-| Condition | Name | Meaning |
-|---|---|---|
-| SMA50 crosses above SMA200 | Golden Cross | Long-term bullish shift |
-| SMA50 crosses below SMA200 | Death Cross | Long-term bearish shift |
-| Price > SMA200 | Above Long-Term Trend | Asset in uptrend |
-| Price < SMA200 | Below Long-Term Trend | Asset in downtrend |
-| Price > SMA50 | Short-term momentum | Positive |
-| Price > SMA50 > SMA200 | Full alignment | Strongest trend confirmation |
-
-**Cross detection logic:**
-```
-goldenCross = SMA50[today] > SMA200[today] AND SMA50[yesterday] <= SMA200[yesterday]
-deathCross  = SMA50[today] < SMA200[today] AND SMA50[yesterday] >= SMA200[yesterday]
-```
-
-> **Important:** A Golden Cross that occurred 60+ days ago is NOT a current signal. The engine must check cross recency. A cross is "recent" if it occurred within the last 20 trading days.
-
-### 4.3 ATR – Average True Range
-
-**Period:** 14 days
-
-**Algorithm:**
-```
-TrueRange[i] = max(
-  high[i] - low[i],
-  abs(high[i] - close[i-1]),
-  abs(low[i] - close[i-1])
-)
-
-ATR[i] = (ATR[i-1] * 13 + TrueRange[i]) / 14   // Wilder's Smoothing
-```
-
-**Usage:**
-- Dynamic stop loss calculation: `stopLoss = entryPrice - (ATR * multiplier)`
-- Position sizing: higher ATR → smaller position to maintain constant risk exposure
-- Signal quality filter: very low ATR (< 0.5% of price) → flat market, signals less reliable
-
-**ATR-based position sizing formula:**
-```
-riskPerTrade = portfolioValue * riskPercent  // e.g., 1% of portfolio
-positionSize = riskPerTrade / (ATR * atrMultiplier)  // atrMultiplier = 1.5–2.0
-```
-
-### 4.4 Volume Moving Average
-
-**Period:** 20 days (simple average of volume)
-
-**Usage:**
-- Volume confirmation: a BUY signal on volume > 1.5x VolumeMA is stronger
-- Volume < 0.5x VolumeMA on a breakout → signal is suspicious, reduce confidence
-
-### 4.5 Indicator Availability Matrix
-
-| Asset Data Available | Indicators Computable |
-|---|---|
-| < 15 bars | None — asset excluded from engine |
-| 15–49 bars | RSI only |
-| 50–199 bars | RSI + SMA50 + ATR + VolumeMA |
-| 200+ bars | All indicators (RSI + SMA50 + SMA200 + ATR + VolumeMA) |
-
----
-
-## 5. Signal Engine
-
-Signals are boolean conditions derived from indicators. Each signal has a direction (BUY/SELL) and a weight.
-
-### 5.1 BUY Signals
-
-| ID | Condition | Weight | Requires |
-|---|---|---|---|
-| B1 | RSI < 30 | 1.0 | RSI |
-| B2 | RSI < 20 (strongly oversold) | 2.0 | RSI |
-| B3 | Price > SMA200 (uptrend) | 1.0 | SMA200 |
-| B4 | SMA50 > SMA200 (bullish structure) | 1.0 | SMA50 + SMA200 |
-| B5 | Golden Cross (recent, ≤20 days) | 1.5 | SMA50 + SMA200 |
-| B6 | Volume > 1.5x VolumeMA (confirmation) | 0.5 | VolumeMA |
-| B7 | RSI rising for 3 consecutive days | 0.5 | RSI |
-
-### 5.2 SELL Signals
-
-| ID | Condition | Weight | Requires |
-|---|---|---|---|
-| S1 | RSI > 70 | 1.0 | RSI |
-| S2 | RSI > 80 (strongly overbought) | 2.0 | RSI |
-| S3 | Price < SMA200 (downtrend) | 1.0 | SMA200 |
-| S4 | SMA50 < SMA200 (bearish structure) | 1.0 | SMA50 + SMA200 |
-| S5 | Death Cross (recent, ≤20 days) | 1.5 | SMA50 + SMA200 |
-| S6 | Stop loss triggered | FORCED | position data |
-| S7 | Take profit triggered | FORCED | position data |
-
-### 5.3 Conflicting Signal Resolution
-
-When BUY and SELL signals coexist, the engine does NOT simply sum them. It follows this resolution hierarchy:
-
-```
-Priority 1 (FORCED): Stop loss / Take profit → always SELL, no override possible
-Priority 2 (BLOCK):  Price < SMA200 → blocks all BUY signals regardless of RSI
-Priority 3 (REDUCE): Death Cross active → reduce all BUY signal weights by 50%
-Priority 4 (NET):    Net score = sum(BUY weights) - sum(SELL weights)
-  if net > 0 → direction = BUY, score = net
-  if net < 0 → direction = SELL, score = abs(net)
-  if net == 0 → HOLD
-```
-
-**Example – Conflicting scenario:**
-```
-RSI = 28 (B1: +1.0, but Price < SMA200 → B1 BLOCKED)
-Price = $95, SMA200 = $100 (S3: -1.0)
-SMA50 = $92 < SMA200 = $100 (S4: -1.0)
-
-Result: Net = -2.0 → SELL signal score 2
-Reasoning: "Despite oversold RSI, asset is in a confirmed downtrend. 
-            Price below SMA200 and bearish SMA structure override oversold conditions."
-```
-
-> **Business Rule:** The engine MUST NEVER issue a BUY signal when `price < SMA200` AND `SMA50 < SMA200` simultaneously, regardless of RSI. This combination indicates a confirmed downtrend and buying is prohibited.
-
----
-
-## 6. Scoring & Confidence Engine
-
-### 6.1 Raw Score Calculation
-
-```
-buyScore  = sum of weights of all active BUY signals (after conflict resolution)
-sellScore = sum of weights of all active SELL signals (after conflict resolution)
-netScore  = buyScore - sellScore
-direction = BUY if netScore > 0, SELL if netScore < 0, HOLD if netScore == 0
-absScore  = abs(netScore)
-```
-
-### 6.2 Score Bucketing
-
-| absScore | Label | Action |
-|---|---|---|
-| 0 | Neutral | HOLD |
-| 0.1–0.9 | Very Weak | HOLD (unless High Risk profile) |
-| 1.0–1.9 | Weak | HOLD (Low), conditional (Medium), act (High) |
-| 2.0–2.9 | Moderate | HOLD (Low), act (Medium + High) |
-| 3.0–3.9 | Strong | Act (all profiles meeting threshold) |
-| 4.0+ | Very Strong | Act (all profiles) |
-
-### 6.3 Confidence Score Calculation
-
-Confidence is NOT a fixed mapping from score. It is calculated as:
-
-```
-baseConfidence = scoreBucketBase[bucket]
-  // Neutral: 0%, VeryWeak: 35%, Weak: 50%, Moderate: 62%, Strong: 75%, VeryStrong: 85%
-
-volumeBonus = (volume > 1.5x VolumeMA) ? +5% : 0%
-trendBonus  = (price > SMA200 AND SMA50 > SMA200) ? +5% : 0%
-dataQualityPenalty = (dataQuality == PARTIAL) ? -15% : 0%
-rsiExtremeBonus = (RSI < 20 OR RSI > 80) ? +5% : 0%
-
-finalConfidence = clamp(baseConfidence + volumeBonus + trendBonus + rsiExtremeBonus + dataQualityPenalty, 0, 90%)
-```
-
-> **Hard cap:** Confidence is capped at 90%. The system must NEVER display 100% confidence. No rule-based system can guarantee an outcome.
-
-> **Display Rule:** Confidence must always be shown with a label: "This score reflects historical signal reliability, not a guarantee of returns."
-
-### 6.4 Expected Move Calculation
-
-Expected move is a historically-derived range, NOT a price prediction.
-
-```
-For BUY signal:
-  Look back at last 50 instances where the same signal combination fired on this asset (or similar assets in same sector)
-  Calculate median forward return over next 10 and 20 trading days
-  Calculate 25th and 75th percentile as the range
-
-  Display: "Historically, this signal combination has been followed by a 
-            median return of +X.X% over 20 days (range: +Y.Y% to +Z.Z%)"
-```
-
-If there are fewer than 10 historical instances for this asset:
-- Fall back to sector-level historical data
-- Increase the displayed range width by 50%
-- Flag: "Limited historical data for this asset — range is wider than usual"
-
-**This field must NEVER be displayed as a price target.** It is a statistical range from historical patterns only.
-
----
-
-## 7. Risk Management Engine
-
-This engine runs AFTER signal scoring and acts as a hard filter. No action passes to execution simulation without clearing all risk checks.
-
-### 7.1 Pre-Trade Checks (BUY)
-
-Run in this exact order. First failure → reject BUY, output reason.
-
-```
-CHECK 1: Cash availability
-  availableCash = portfolio.cash - (portfolio.value * minCashReserve)
-  allocationAmount = portfolio.value * positionSizePct
-  if allocationAmount > availableCash → REJECT ("Insufficient cash reserve")
-
-CHECK 2: Position count
-  if openPositions.count >= maxPositions → REJECT ("Max positions reached")
-
-CHECK 3: Duplicate position
-  if symbol already in openPositions → REJECT ("Position already open — use ADD or HOLD")
-
-CHECK 4: Single-asset exposure
-  newExposure = (allocationAmount / portfolio.value)
-  if newExposure > maxSingleAssetExposure → REJECT ("Single asset limit exceeded")
-
-CHECK 5: Sector concentration
-  sectorExposure = sum of portfolio value in same sector + allocationAmount
-  if sectorExposure / portfolio.value > maxSectorExposure → REJECT ("Sector concentration limit")
-
-CHECK 6: Signal threshold
-  if signalScore < minScoreForProfile → REJECT ("Signal too weak for risk profile")
-
-CHECK 7: Data quality
-  if asset.dataQuality == MISSING → REJECT ("Insufficient data for this asset")
-
-All checks pass → APPROVE BUY
-```
-
-### 7.2 Stop Loss & Take Profit Logic
-
-Two modes supported per portfolio (user-selectable):
-
-**Mode A: Percentage-based (simple)**
-```
-stopLossPrice  = entryPrice * (1 - stopLossPct)
-takeProfitPrice = entryPrice * (1 + takeProfitPct)
-```
-
-**Mode B: ATR-based (dynamic)**
-```
-stopLossPrice  = entryPrice - (ATR_at_entry * atrMultiplier)   // default multiplier: 1.5
-takeProfitPrice = entryPrice + (ATR_at_entry * atrMultiplier * rewardRatio)  // default rewardRatio: 2.0
-```
-
-> **Recommendation:** Default new portfolios to ATR-based. ATR adapts to each asset's volatility, producing more sensible stop distances than fixed percentages.
-
-**Trailing Stop (optional, future MVP+):**
-```
-trailingStop = currentPrice * (1 - trailingStopPct)
-// Update daily: only move UP, never down
-```
-
-### 7.3 Position Sizing Summary
-
-```
-positionSize = min(
-  portfolio.value * maxPositionSizePct,         // profile cap
-  availableCash,                                  // cash cap
-  riskPerTrade / (entryPrice - stopLossPrice)   // ATR-derived (if ATR mode)
+## 📋 UiState Contract (MANDATORY)
+
+Every feature `UiState` MUST follow this exact structure:
+
+```kotlin
+// feature/example/presentation/ExampleUiState.kt
+data class ExampleUiState(
+    val isLoading: Boolean = false,
+    val error: UiText? = null,       // null = no error
+    val data: ExampleData? = null,   // null = not yet loaded
 )
 ```
 
----
+**Field rules:**
 
-## 8. Decision Engine (Advice Output)
+`isLoading` — `true` during initial fetch and explicit refresh. `false` as soon as data or error arrives. NEVER nullable.
 
-This is the final output layer. It assembles all previous engine outputs into a structured, human-readable advice object.
+`error` — `UiText` on failure, `null` on success or user dismiss. `data` and `error` may coexist — composable shows stale data + error banner simultaneously.
 
-### 8.1 Advice Object Schema
+`data` — `null` until first successful load. Retained on refresh failure (stale data pattern).
 
-```
-Advice {
-  symbol: String
-  timestamp: DateTime
-  action: Enum(BUY, SELL, HOLD)
-  signalScore: Float
-  confidence: Float (0–90%)
-  positionSuggestion: {
-    allocationAmount: Float
-    allocationPct: Float
-    stopLossPrice: Float
-    takeProfitPrice: Float
-    stopLossMode: Enum(PERCENTAGE, ATR)
-  }
-  expectedMove: {
-    median10d: Float (%)
-    median20d: Float (%)
-    rangeLow: Float (%)
-    rangeHigh: Float (%)
-    dataSource: Enum(ASSET_HISTORY, SECTOR_HISTORY)
-    historicalInstances: Int
-  }
-  reasoning: ReasoningBreakdown
-  blockers: String[]   // Risk checks that blocked action, if any
-  dataQuality: Enum(FULL, PARTIAL, STALE, MISSING)
-}
+**Standard ViewModel transitions:**
+```kotlin
+// Start load
+_state.update { it.copy(isLoading = true, error = null) }
 
-ReasoningBreakdown {
-  activeSignals: Signal[]        // All signals that fired, with weights
-  conflictResolution: String     // Human-readable explanation of how conflicts resolved
-  riskChecks: CheckResult[]      // Each check, pass/fail, reason
-  indicatorsUsed: String[]       // Which indicators were available and used
-  indicatorValues: {             // Actual computed values shown to user
-    rsi: Float
-    sma50: Float
-    sma200: Float
-    atr: Float
-    volumeRatio: Float           // current volume / VolumeMA
-  }
+_state.update { current ->
+    when (val result = useCase.execute()) {
+        is Result.Success -> current.copy(isLoading = false, data = result.data, error = null)
+        is Result.Error   -> current.copy(isLoading = false, error = result.error.toUiText())
+        // data intentionally retained on error — preserve stale content
+    }
 }
 ```
 
-### 8.2 Human-Readable Reasoning Template
+**Forbidden UiState patterns:**
+```kotlin
+// ❌ Raw String for error
+data class BadState(val errorMessage: String? = null)
 
-The engine generates a narrative explanation for every advice object.
+// ❌ Nullable Boolean for loading
+data class BadState(val isLoading: Boolean? = null)
 
-**Example BUY output:**
-```
-Action: BUY AAPL
-Confidence: 72%
-Signal Score: 2.5 (Strong)
-
-Why:
-- RSI at 27.4 → asset is oversold (signal weight: 1.0)
-- Price ($171.20) is above SMA200 ($165.40) → uptrend confirmed (+1.0)
-- SMA50 ($168.90) is above SMA200 → bullish structure (+1.0)
-- Volume today is 1.8x the 20-day average → strong participation (+0.5)
-
-Expected move (next 20 days): median +3.2% | range: +1.1% to +6.4%
-Based on 34 historical instances of this signal combination.
-
-Suggested position: $1,840 (9.2% of portfolio)
-Stop loss: $162.90 (ATR-based, -4.9%)
-Take profit: $187.60 (+9.6%)
-
-⚠️ Confidence reflects historical signal reliability. Past performance does not guarantee future results.
-```
-
-**Example HOLD output (blocked BUY):**
-```
-Action: HOLD TSLA
-Signal Score: 1.0 (Weak BUY) — blocked by risk rules
-
-Why score exists:
-- RSI at 29.1 → oversold (+1.0)
-
-Why action is HOLD:
-- BLOCKED: Price ($185.40) is below SMA200 ($220.10) — downtrend confirmed
-- BLOCKED: SMA50 ($192.00) is below SMA200 — bearish structure
-- Rule: BUY signals are suppressed when price is below SMA200 in a bearish SMA structure
-
-Recommendation: Monitor. Wait for price to reclaim SMA200 before considering entry.
+// ❌ Sealed loading/success/error — prevents stale data + error coexistence
+sealed class BadState { object Loading; data class Success(...); data class Error(...) }
 ```
 
 ---
 
-## 9. What-If Simulator
+## 🔤 UiText (MANDATORY)
 
-The What-If Simulator allows users to model hypothetical portfolio changes without executing them. This is a core feature and must be included in MVP.
+ViewModels NEVER call `stringResource()` or `context.getString()`. They emit `UiText`. Composables resolve it.
 
-### 9.1 Supported Scenarios
+```kotlin
+// shared/ui/utils/UiText.kt
+sealed class UiText {
+    data class StringResource(
+        @StringRes val id: Int,
+        val args: Array<Any> = emptyArray(),
+    ) : UiText() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is StringResource) return false
+            return id == other.id && args.contentEquals(other.args)
+        }
+        override fun hashCode() = 31 * id + args.contentHashCode()
+    }
 
-**Scenario A: "What if I sell X?"**
-```
-Input: symbol to sell, quantity or full position
-Output:
-  - New cash position
-  - New portfolio allocation breakdown
-  - Realized PnL (simulated)
-  - Signals that would now be actionable with freed cash
-  - New portfolio risk metrics (sector exposure, concentration)
-```
-
-**Scenario B: "What if I buy Y?"**
-```
-Input: symbol, allocation amount or percentage
-Output:
-  - New cash position
-  - New portfolio allocation breakdown
-  - Risk check results (would this pass all checks?)
-  - Contribution to portfolio volatility (ATR-based estimate)
-  - New sector exposure
-  - Signal for Y at current market data
-```
-
-**Scenario C: "What if I swap X for Y?"**
-```
-Input: sell symbol X, buy symbol Y
-Output:
-  - All outputs from Scenario A (sell X) +
-  - All outputs from Scenario B (buy Y) +
-  - Portfolio-level comparison: before vs. after
-    - Total expected volatility change
-    - Sector exposure change
-    - Signal quality comparison (was X signaling? Is Y signaling?)
-```
-
-### 9.2 Simulator Rules
-
-- Simulator uses live cached market data (not real-time)
-- All simulator outputs are clearly labeled "SIMULATION — NOT EXECUTED"
-- Simulator results do NOT modify actual portfolio state
-- Risk checks run in full during simulation and results are shown
-
----
-
-## 10. Portfolio Management
-
-### 10.1 Portfolio Schema
-
-```
-Portfolio {
-  id: UUID
-  name: String
-  createdAt: DateTime
-  currency: String (default: "USD")
-  initialCapital: Float
-  cash: Float
-  strategy: StrategyConfig
-  positions: Position[]
-  tradeHistory: Trade[]
-  performanceHistory: DailySnapshot[]
+    data class DynamicString(val value: String) : UiText()
 }
 
-StrategyConfig {
-  riskProfile: Enum(LOW, MEDIUM, HIGH)
-  assetUniverse: AssetType[]
-  maxPositions: Int
-  positionSizePct: Float
-  stopLossMode: Enum(PERCENTAGE, ATR)
-  stopLossPct: Float (if PERCENTAGE mode)
-  takeProfitPct: Float (if PERCENTAGE mode)
-  atrMultiplier: Float (if ATR mode)
-  fetchFrequency: Enum(DAILY, EVERY_6H)
-  minSignalScore: Float
-}
-
-Position {
-  symbol: String
-  openDate: Date
-  entryPrice: Float
-  quantity: Float
-  allocationAmount: Float
-  stopLossPrice: Float
-  takeProfitPrice: Float
-  currentPrice: Float
-  unrealizedPnL: Float
-  unrealizedPnLPct: Float
-  daysHeld: Int
+fun UiText.asString(context: Context): String = when (this) {
+    is UiText.StringResource -> context.getString(id, *args)
+    is UiText.DynamicString  -> value
 }
 ```
 
-### 10.2 Portfolio Performance Metrics
+**Rules:**
+- `StringResource` for all static labels, error messages, and status text
+- `DynamicString` ONLY for server-sourced or user-inputted text that cannot be known at compile time
+- All `UiState.error` fields use `UiText`
+- All `UiEvent` snackbar/toast payloads use `UiText`
+- Resolve via `LocalContext.current` in composables only
 
-Computed daily and stored as snapshots:
+---
 
-```
-DailySnapshot {
-  date: Date
-  totalValue: Float               // cash + positions market value
-  dailyReturn: Float (%)
-  totalReturn: Float (%)          // since inception
-  positionsValue: Float
-  cashValue: Float
-  openPositionsCount: Int
-  drawdown: Float (%)             // from peak
-  peakValue: Float                // all-time high of portfolio value
+## ⚠️ Error Handling (MANDATORY)
+
+```kotlin
+// shared/domain/error/AppError.kt
+sealed class AppError {
+    data object NoInternetConnection : AppError()
+    data object RequestTimeout       : AppError()
+    data class  HttpError(val code: Int) : AppError()
+    data object ServerError          : AppError()   // 5xx
+    data object Unauthorized         : AppError()   // 401
+    data object SessionExpired       : AppError()
+    data object NotFound             : AppError()   // 404 or empty body
+    data class  DatabaseError(val cause: Throwable) : AppError()
+    data class  ValidationError(val field: String, val message: UiText) : AppError()
+    data class  Unknown(val cause: Throwable) : AppError()
+}
+
+// shared/ui/utils/AppErrorExt.kt
+fun AppError.toUiText(): UiText = when (this) {
+    is AppError.NoInternetConnection -> UiText.StringResource(R.string.error_no_internet)
+    is AppError.RequestTimeout       -> UiText.StringResource(R.string.error_timeout)
+    is AppError.Unauthorized         -> UiText.StringResource(R.string.error_unauthorized)
+    is AppError.NotFound             -> UiText.StringResource(R.string.error_not_found)
+    is AppError.HttpError            -> UiText.StringResource(R.string.error_http, arrayOf(code))
+    else                             -> UiText.StringResource(R.string.error_unknown)
 }
 ```
 
-**Key metrics displayed:**
-
-| Metric | Formula |
-|---|---|
-| Total Return | (currentValue - initialCapital) / initialCapital |
-| Drawdown | (peakValue - currentValue) / peakValue |
-| Win Rate | closedPositions with profit / total closed positions |
-| Avg Win | mean of positive closed trades (%) |
-| Avg Loss | mean of negative closed trades (%) |
-| Profit Factor | totalGains / abs(totalLosses) |
-
----
-
-## 11. Trade Execution Simulation
-
-### 11.1 BUY Execution
-
-```
-1. Run all Pre-Trade Checks (Section 7.1)
-2. If all pass:
-   a. Deduct allocationAmount from portfolio.cash
-   b. Create Position object with:
-      - entryPrice = last close price (NOT current price — simulated EOD)
-      - quantity = allocationAmount / entryPrice
-      - stopLossPrice and takeProfitPrice computed per active mode
-   c. Append to portfolio.positions
-   d. Record Trade in tradeHistory (type: BUY)
-3. Recalculate portfolio metrics
-```
-
-### 11.2 SELL Execution
-
-**Trigger sources:** User-initiated | Stop loss hit | Take profit hit | Signal-driven
-
-```
-1. Locate position by symbol
-2. Calculate realized PnL:
-   realizedPnL = (exitPrice - entryPrice) * quantity
-   realizedPnLPct = (exitPrice - entryPrice) / entryPrice
-3. Add proceeds to portfolio.cash:
-   portfolio.cash += exitPrice * quantity
-4. Remove from portfolio.positions
-5. Record Trade in tradeHistory:
-   Trade {
-     type: SELL
-     exitReason: Enum(SIGNAL, STOP_LOSS, TAKE_PROFIT, USER_MANUAL)
-     realizedPnL: Float
-     realizedPnLPct: Float
-     daysHeld: Int
-   }
-6. Recalculate portfolio metrics
-```
-
-### 11.3 Price Used for Simulation
-
-The engine ALWAYS uses the **last available closing price** for trade simulation. It NEVER uses intraday prices, bid/ask spreads, or live quotes. This must be clearly labeled in the UI as "simulated at last close."
-
----
-
-## 12. Watchlist Engine
-
-### 12.1 Purpose
-
-The watchlist allows users to monitor assets without holding a position. Assets on the watchlist:
-- Receive full signal analysis
-- Appear in "Opportunities" section with their current signal
-- Can be quickly added to a portfolio via the What-If Simulator first
-
-### 12.2 Watchlist Item Schema
-
-```
-WatchlistItem {
-  symbol: String
-  addedDate: Date
-  notes: String (user-defined)
-  alertConfig: AlertConfig
-  lastSignal: Advice
-}
-
-AlertConfig {
-  notifyOnScore: Float   // alert when signal score >= this value
-  notifyOnRSI: Float     // alert when RSI drops below this value
-  notifyOnPriceBelow: Float
-  notifyOnPriceAbove: Float
+**Result wrapper:**
+```kotlin
+// shared/domain/result/Result.kt
+sealed class Result<out T> {
+    data class Success<T>(val data: T) : Result<T>()
+    data class Error(val error: AppError) : Result<Nothing>()
 }
 ```
 
+**Rules:**
+- All UseCases return `Result<T>` or `Flow<Result<T>>` — never raw `T?`
+- Data layer catches ALL exceptions and maps them to `AppError` subtypes
+- `Unknown` is the fallback — never the default
+- `IOException` / `SocketTimeoutException` → `NoInternetConnection` / `RequestTimeout`
+- `HttpException` → `HttpError`, `Unauthorized`, `ServerError` by code
+- No raw `try/catch` above the data layer
+
 ---
 
-## 13. Backtesting Module (Future Phase)
+## 📡 Networking
 
-> Planned for post-MVP. Implementation notes included for forward compatibility.
+### Retrofit
+- DTOs in data layer only — mapped to domain models via Mappers
+- Use `@Serializable` data classes for DTOs (kotlinx.serialization)
 
-### 13.1 What Backtesting Does
+### Network resilience (MANDATORY)
 
-Runs the full signal engine (Sections 4–7) on historical data as if operating in the past, to measure strategy effectiveness.
+**Connectivity:**
+- `NetworkMonitor` interface in `shared/data/` — injected via Hilt
+- Repository checks connectivity before every request
+- Returns `AppError.NoInternetConnection` immediately if offline
 
-### 13.2 Backtesting Pipeline
+**OkHttp timeouts:**
+- `connectTimeout`: 15s
+- `readTimeout`: 30s
+- `writeTimeout`: 15s
+
+**Retry policy:**
+- Retry transient errors only: timeout, 503, IO failures — max 3 attempts with exponential backoff
+- Never retry 4xx — client errors are not transient
+- Implement in OkHttp Interceptor — NEVER in ViewModel or UseCase
+
+**Response validation:**
+- Empty 200 body where one is required → `AppError.NotFound`
+- JSON parse failure → `AppError.Unknown`
+- Never silently swallow any response failure
+
+---
+
+## 🧭 Navigation (MANDATORY)
+
+**Library:** Navigation Compose with typed routes.
+
+**Structure:**
+- Each feature defines its graph as an extension on `NavGraphBuilder`
+- All graphs registered in `shared/navigation/`
+- Features NEVER reference each other's routes directly
+
+**Routes:**
+```kotlin
+// Typed route — never raw strings
+@Serializable
+data class UserDetailRoute(val userId: String)
+```
+
+**Navigation events:**
+- ViewModel emits navigation as one-shot `SharedFlow<UiEvent>` — NEVER stored in `UiState`
+- Composables collect via `LaunchedEffect` and call `NavController`
+- Back navigation: ViewModel emits `UiEvent.NavigateUp` — composable calls `navController.navigateUp()`
+- Composables NEVER call `popBackStack()` based on their own logic
+
+**Deep links:** Declared at `NavGraph` level. URI patterns as constants in `shared/navigation/`.
+
+---
+
+## 🎨 Design Token System (MANDATORY)
+
+Three strictly separated layers. Violating the boundary between layers is forbidden.
+
+### Layer 1 — Brand Tokens (raw palette)
+
+One file per palette. Adding a new palette = one new file, zero other changes.
+
+```kotlin
+// shared/ui/tokens/brand/BrandTokens.kt
+interface BrandTokens {
+    val primary50: Color;  val primary100: Color; val primary200: Color
+    val primary400: Color; val primary600: Color; val primary800: Color
+    val neutral50: Color;  val neutral100: Color; val neutral200: Color
+    val neutral400: Color; val neutral600: Color; val neutral900: Color
+    val success300: Color; val success400: Color
+    val error300: Color;   val error400: Color
+    val warning300: Color; val warning400: Color
+}
+```
+
+```kotlin
+// shared/ui/tokens/brand/DefaultBrandTokens.kt
+object DefaultBrandTokens : BrandTokens {
+    override val primary50  = Color(0xFFEEEDFE)
+    override val primary100 = Color(0xFFCECBF6)
+    override val primary200 = Color(0xFFAFA9EC)
+    override val primary400 = Color(0xFF7F77DD)
+    override val primary600 = Color(0xFF534AB7)
+    override val primary800 = Color(0xFF3C3489)
+    override val neutral50  = Color(0xFFF9F9FB)
+    override val neutral100 = Color(0xFFF0EFF3)
+    override val neutral200 = Color(0xFFD3D1C7)
+    override val neutral400 = Color(0xFF888780)
+    override val neutral600 = Color(0xFF5F5E5A)
+    override val neutral900 = Color(0xFF1A1A2E)
+    override val success300 = Color(0xFF5DCAA5); override val success400 = Color(0xFF1D9E75)
+    override val error300   = Color(0xFFF09595); override val error400   = Color(0xFFE24B4A)
+    override val warning300 = Color(0xFFFAC775); override val warning400 = Color(0xFFEF9F27)
+}
+```
+
+**RULE:** No composable, ViewModel, UseCase, or Repository imports a `BrandTokens` object directly. Only `buildColorScheme` consumes brand tokens.
+
+### Layer 2 — Semantic Tokens (role mapping)
+
+All dark/light logic lives here and ONLY here.
+
+```kotlin
+// shared/ui/tokens/AppColorScheme.kt
+data class AppColorScheme(
+    val backgroundPrimary: Color;   val backgroundSecondary: Color
+    val backgroundCard: Color;      val backgroundOverlay: Color
+    val contentPrimary: Color;      val contentSecondary: Color;    val contentDisabled: Color
+    val actionPrimary: Color;       val actionPrimaryHover: Color
+    val actionContent: Color;       val actionSecondary: Color;     val actionSecondaryContent: Color
+    val borderDefault: Color;       val borderFocused: Color;       val borderStrong: Color
+    val statusSuccess: Color;       val statusSuccessSubtle: Color
+    val statusError: Color;         val statusErrorSubtle: Color
+    val statusWarning: Color;       val statusWarningSubtle: Color
+)
+
+fun buildColorScheme(brand: BrandTokens, isDark: Boolean): AppColorScheme =
+    if (isDark) darkScheme(brand) else lightScheme(brand)
+
+private fun lightScheme(b: BrandTokens) = AppColorScheme(
+    backgroundPrimary      = b.neutral50,
+    backgroundSecondary    = b.neutral100,
+    backgroundCard         = Color.White,
+    backgroundOverlay      = Color.Black.copy(alpha = 0.4f),
+    contentPrimary         = b.neutral900,
+    contentSecondary       = b.neutral600,
+    contentDisabled        = b.neutral400,
+    actionPrimary          = b.primary400,
+    actionPrimaryHover     = b.primary600,
+    actionContent          = Color.White,
+    actionSecondary        = b.primary50,
+    actionSecondaryContent = b.primary600,
+    borderDefault          = b.neutral200,
+    borderFocused          = b.primary400,
+    borderStrong           = b.neutral600,
+    statusSuccess          = b.success400,
+    statusSuccessSubtle    = b.success400.copy(alpha = 0.12f),
+    statusError            = b.error400,
+    statusErrorSubtle      = b.error400.copy(alpha = 0.12f),
+    statusWarning          = b.warning400,
+    statusWarningSubtle    = b.warning400.copy(alpha = 0.12f),
+)
+
+private fun darkScheme(b: BrandTokens) = AppColorScheme(
+    backgroundPrimary      = b.neutral900,
+    backgroundSecondary    = b.neutral600.copy(alpha = 0.25f),
+    backgroundCard         = b.neutral100.copy(alpha = 0.08f),
+    backgroundOverlay      = Color.Black.copy(alpha = 0.6f),
+    contentPrimary         = b.neutral50,
+    contentSecondary       = b.neutral200,
+    contentDisabled        = b.neutral400,
+    actionPrimary          = b.primary400,
+    actionPrimaryHover     = b.primary200,
+    actionContent          = Color.White,
+    actionSecondary        = b.primary800,
+    actionSecondaryContent = b.primary200,
+    borderDefault          = b.neutral600.copy(alpha = 0.4f),
+    borderFocused          = b.primary400,
+    borderStrong           = b.neutral400,
+    statusSuccess          = b.success300,
+    statusSuccessSubtle    = b.success300.copy(alpha = 0.15f),
+    statusError            = b.error300,
+    statusErrorSubtle      = b.error300.copy(alpha = 0.15f),
+    statusWarning          = b.warning300,
+    statusWarningSubtle    = b.warning300.copy(alpha = 0.15f),
+)
+```
+
+**RULE:** `buildColorScheme` is the only function that reads `isDark`. `isSystemInDarkTheme()` is called once in `MainActivity` and passed down. Forbidden everywhere else.
+
+### Layer 3 — Component Tokens (scoped per component)
+
+Each shared component defines its own colors data class sourced from `AppColorScheme`.
+
+```kotlin
+// shared/ui/components/button/AppButtonColors.kt
+data class AppButtonColors(
+    val containerColor: Color;         val contentColor: Color
+    val containerHoverColor: Color;    val disabledContainerColor: Color
+    val disabledContentColor: Color
+)
+
+fun AppColorScheme.primaryButtonColors() = AppButtonColors(
+    containerColor         = actionPrimary,
+    contentColor           = actionContent,
+    containerHoverColor    = actionPrimaryHover,
+    disabledContainerColor = actionPrimary.copy(alpha = 0.38f),
+    disabledContentColor   = actionContent.copy(alpha = 0.38f),
+)
+
+fun AppColorScheme.secondaryButtonColors() = AppButtonColors(
+    containerColor         = actionSecondary,
+    contentColor           = actionSecondaryContent,
+    containerHoverColor    = actionSecondary,
+    disabledContainerColor = actionSecondary.copy(alpha = 0.38f),
+    disabledContentColor   = actionSecondaryContent.copy(alpha = 0.38f),
+)
+
+// shared/ui/components/card/AppCardColors.kt
+data class AppCardColors(val containerColor: Color, val borderColor: Color, val contentColor: Color)
+
+fun AppColorScheme.defaultCardColors() = AppCardColors(
+    containerColor = backgroundCard,
+    borderColor    = borderDefault,
+    contentColor   = contentPrimary,
+)
+```
+
+### Theme wiring
+
+```kotlin
+// shared/ui/theme/AppThemeVariant.kt
+enum class AppThemeVariant {
+    Default, Ocean, Sunset;
+    fun toBrandTokens(): BrandTokens = when (this) {
+        Default -> DefaultBrandTokens
+        Ocean   -> OceanBrandTokens
+        Sunset  -> SunsetBrandTokens
+    }
+}
+
+// shared/ui/theme/LocalAppColorScheme.kt
+val LocalAppColorScheme = staticCompositionLocalOf<AppColorScheme> {
+    error("Wrap root with AppTheme")
+}
+val LocalAppDimens = staticCompositionLocalOf<AppDimens> {
+    error("Wrap root with AppTheme")
+}
+
+// shared/ui/theme/AppTheme.kt
+@Composable
+fun AppTheme(
+    variant: AppThemeVariant = AppThemeVariant.Default,
+    isDark: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    val colorScheme = remember(variant, isDark) {
+        buildColorScheme(variant.toBrandTokens(), isDark)
+    }
+    CompositionLocalProvider(
+        LocalAppColorScheme provides colorScheme,
+        LocalAppDimens      provides AppDimens(),
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme.toMaterial3ColorScheme(),
+            typography  = AppTypography,
+            shapes      = AppShapes,
+            content     = content,
+        )
+    }
+}
+
+fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
+    val dark = backgroundPrimary.luminance() < 0.5f
+    val factory = if (dark) ::darkColorScheme else ::lightColorScheme
+    return factory(
+        primary      = actionPrimary,
+        onPrimary    = actionContent,
+        background   = backgroundPrimary,
+        surface      = backgroundCard,
+        onBackground = contentPrimary,
+        onSurface    = contentPrimary,
+        error        = statusError,
+    )
+}
+```
+
+```kotlin
+// app/MainActivity.kt
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    @Inject lateinit var themeRepository: ThemePreferencesRepository
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            val variant by themeRepository.observeTheme()
+                .collectAsStateWithLifecycle(AppThemeVariant.Default)
+            val darkPref by themeRepository.observeDarkMode()
+                .collectAsStateWithLifecycle(DarkModePreference.System)
+
+            // isSystemInDarkTheme() is called HERE and only here
+            val isDark = when (darkPref) {
+                DarkModePreference.System -> isSystemInDarkTheme()
+                DarkModePreference.Light  -> false
+                DarkModePreference.Dark   -> true
+            }
+            AppTheme(variant = variant, isDark = isDark) { AppNavHost() }
+        }
+    }
+}
+```
+
+### Theme preference persistence
+
+```kotlin
+// shared/domain/preferences/ThemePreferencesRepository.kt
+interface ThemePreferencesRepository {
+    fun observeTheme(): Flow<AppThemeVariant>
+    fun observeDarkMode(): Flow<DarkModePreference>
+    suspend fun setTheme(variant: AppThemeVariant)
+    suspend fun setDarkMode(preference: DarkModePreference)
+}
+enum class DarkModePreference { System, Light, Dark }
+
+// shared/data/preferences/ThemePreferencesRepositoryImpl.kt
+class ThemePreferencesRepositoryImpl @Inject constructor(
+    private val dataStore: DataStore<Preferences>,
+) : ThemePreferencesRepository {
+    private object Keys {
+        val THEME     = stringPreferencesKey("theme_variant")
+        val DARK_MODE = stringPreferencesKey("dark_mode")
+    }
+    override fun observeTheme() = dataStore.data
+        .map { AppThemeVariant.valueOf(it[Keys.THEME] ?: AppThemeVariant.Default.name) }
+        .catch { emit(AppThemeVariant.Default) }
+
+    override fun observeDarkMode() = dataStore.data
+        .map { DarkModePreference.valueOf(it[Keys.DARK_MODE] ?: DarkModePreference.System.name) }
+        .catch { emit(DarkModePreference.System) }
+
+    override suspend fun setTheme(variant: AppThemeVariant) =
+        dataStore.edit { it[Keys.THEME] = variant.name }
+
+    override suspend fun setDarkMode(preference: DarkModePreference) =
+        dataStore.edit { it[Keys.DARK_MODE] = preference.name }
+}
+```
+
+### Supporting token files
+
+```kotlin
+// shared/ui/tokens/AppDimens.kt
+data class AppDimens(
+    val spacing: Spacing = Spacing(),
+    val elevation: Elevation = Elevation(),
+) {
+    data class Spacing(
+        val xs: Dp = 4.dp, val sm: Dp = 8.dp,  val md: Dp = 16.dp,
+        val lg: Dp = 24.dp, val xl: Dp = 32.dp, val xxl: Dp = 48.dp,
+    )
+    data class Elevation(val card: Dp = 2.dp, val dialog: Dp = 8.dp, val sheet: Dp = 16.dp)
+}
+
+// shared/ui/tokens/AppShapes.kt
+val AppShapes = Shapes(
+    extraSmall = RoundedCornerShape(4.dp),   // chips, badges
+    small      = RoundedCornerShape(8.dp),   // inputs
+    medium     = RoundedCornerShape(12.dp),  // cards, dialogs
+    large      = RoundedCornerShape(16.dp),  // bottom sheets
+    extraLarge = RoundedCornerShape(24.dp),  // full-bleed cards
+)
+
+// shared/ui/tokens/AppIcons.kt
+object AppIcons {
+    val ArrowBack     = Icons.AutoMirrored.Outlined.ArrowBack
+    val Check         = Icons.Outlined.Check
+    val Close         = Icons.Outlined.Close
+    val Error         = Icons.Outlined.ErrorOutline
+    val Home          = Icons.Outlined.Home
+    val Search        = Icons.Outlined.Search
+    val Settings      = Icons.Outlined.Settings
+    val Visibility    = Icons.Outlined.Visibility
+    val VisibilityOff = Icons.Outlined.VisibilityOff
+    // Add new icons here only — never inline in a composable
+}
+```
+
+### Adding a new palette (follow in order)
+
+1. Create `shared/ui/tokens/brand/NewPaletteBrandTokens.kt` implementing `BrandTokens`
+2. Add entry to `AppThemeVariant` enum
+3. Add mapping in `AppThemeVariant.toBrandTokens()`
+4. Add preview variants for the new palette to every shared component
+5. Run snapshot tests
+
+No other files change — zero composables, zero semantic tokens, zero component tokens.
+
+---
+
+## 🧩 Shared Component Library (MANDATORY)
+
+These components MUST be implemented in `shared/ui/components/` before any feature composable is written. Features NEVER build their own versions. No exceptions.
 
 ```
-For each day in backtest window:
-  1. Provide only data available up to that day (no lookahead)
-  2. Run Indicator Engine
-  3. Run Signal Engine
-  4. Run Risk Management Engine
-  5. Simulate trade if action approved
-  6. Update simulated portfolio state
-  7. Record daily snapshot
-
-Output metrics:
-  - Total return
-  - Max drawdown
-  - Win rate
-  - Profit factor
-  - Sharpe ratio (if risk-free rate provided)
-  - Trade count
-  - Average holding period
+shared/ui/components/
+├── button/     AppButton.kt, AppButtonColors.kt
+├── card/       AppCard.kt, AppCardColors.kt
+├── textfield/  AppTextField.kt, AppTextFieldColors.kt
+├── topbar/     AppTopBar.kt
+└── state/      AppLoadingIndicator.kt, AppErrorState.kt, AppEmptyState.kt
 ```
 
-> **Critical:** The backtesting engine MUST enforce strict data isolation — it cannot use any price data from after the simulated "current" day. This is the look-ahead bias problem and corrupts all results if violated.
+### AppButton
+
+```kotlin
+enum class AppButtonStyle { Primary, Secondary, Text }
+
+@Composable
+fun AppButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: AppButtonStyle = AppButtonStyle.Primary,
+    enabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: ImageVector? = null,
+) {
+    val buttonColors = when (style) {
+        AppButtonStyle.Primary   -> LocalAppColorScheme.current.primaryButtonColors()
+        AppButtonStyle.Secondary -> LocalAppColorScheme.current.secondaryButtonColors()
+        AppButtonStyle.Text      -> LocalAppColorScheme.current.textButtonColors()
+    }
+    Button(
+        onClick  = onClick,
+        enabled  = enabled && !isLoading,
+        modifier = modifier.defaultMinSize(minHeight = 48.dp),
+        colors   = ButtonDefaults.buttonColors(
+            containerColor         = buttonColors.containerColor,
+            contentColor           = buttonColors.contentColor,
+            disabledContainerColor = buttonColors.disabledContainerColor,
+            disabledContentColor   = buttonColors.disabledContentColor,
+        ),
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier    = Modifier.size(18.dp),
+                color       = buttonColors.contentColor,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            leadingIcon?.let {
+                Icon(it, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(LocalAppDimens.current.spacing.xs))
+            }
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+```
+
+### AppTextField
+
+```kotlin
+@Composable
+fun AppTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    error: UiText? = null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    trailingIcon: ImageVector? = null,
+    onTrailingIconClick: (() -> Unit)? = null,
+) {
+    val context = LocalContext.current
+    val colors  = LocalAppColorScheme.current
+
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value           = value,
+            onValueChange   = onValueChange,
+            label           = { Text(label) },
+            placeholder     = placeholder?.let { { Text(it) } },
+            isError         = error != null,
+            enabled         = enabled,
+            readOnly        = readOnly,
+            singleLine      = singleLine,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            trailingIcon    = trailingIcon?.let {
+                { IconButton(onClick = { onTrailingIconClick?.invoke() }) { Icon(it, null) } }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor   = colors.borderFocused,
+                unfocusedBorderColor = colors.borderDefault,
+                errorBorderColor     = colors.statusError,
+                focusedLabelColor    = colors.actionPrimary,
+                unfocusedLabelColor  = colors.contentSecondary,
+                errorLabelColor      = colors.statusError,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        // Always reserves height — prevents layout jump when error appears
+        Text(
+            text     = error?.asString(context) ?: "",
+            color    = if (error != null) colors.statusError else Color.Transparent,
+            style    = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(
+                start = LocalAppDimens.current.spacing.sm,
+                top   = LocalAppDimens.current.spacing.xs,
+            ),
+        )
+    }
+}
+```
+
+### AppCard
+
+```kotlin
+@Composable
+fun AppCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val cardColors = LocalAppColorScheme.current.defaultCardColors()
+    Surface(
+        color    = cardColors.containerColor,
+        border   = BorderStroke(0.5.dp, cardColors.borderColor),
+        shape    = MaterialTheme.shapes.medium,
+        modifier = modifier.fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+    ) {
+        Column(modifier = Modifier.padding(LocalAppDimens.current.spacing.md), content = content)
+    }
+}
+```
+
+### AppTopBar
+
+```kotlin
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppTopBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    onNavigateUp: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+) {
+    val colors = LocalAppColorScheme.current
+    TopAppBar(
+        title           = { Text(title, style = MaterialTheme.typography.titleLarge, color = colors.contentPrimary) },
+        navigationIcon  = {
+            onNavigateUp?.let {
+                IconButton(onClick = it) {
+                    Icon(AppIcons.ArrowBack, stringResource(R.string.cd_navigate_up), tint = colors.contentPrimary)
+                }
+            }
+        },
+        actions = actions,
+        colors  = TopAppBarDefaults.topAppBarColors(containerColor = colors.backgroundPrimary),
+        modifier = modifier,
+    )
+}
+```
+
+### AppLoadingIndicator
+
+```kotlin
+@Composable
+fun AppLoadingIndicator(modifier: Modifier = Modifier, fullscreen: Boolean = false) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = if (fullscreen) modifier.fillMaxSize()
+                   else modifier.fillMaxWidth().padding(LocalAppDimens.current.spacing.xl),
+    ) {
+        CircularProgressIndicator(color = LocalAppColorScheme.current.actionPrimary)
+    }
+}
+```
+
+### AppErrorState
+
+```kotlin
+@Composable
+fun AppErrorState(
+    message: UiText,
+    modifier: Modifier = Modifier,
+    onRetry: (() -> Unit)? = null,
+) {
+    val context = LocalContext.current
+    val colors  = LocalAppColorScheme.current
+    val dimens  = LocalAppDimens.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.fillMaxWidth().padding(dimens.spacing.xl),
+    ) {
+        Icon(AppIcons.Error, contentDescription = null, tint = colors.statusError, modifier = Modifier.size(48.dp))
+        Spacer(Modifier.height(dimens.spacing.md))
+        Text(message.asString(context), color = colors.contentSecondary, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+        onRetry?.let {
+            Spacer(Modifier.height(dimens.spacing.lg))
+            AppButton(stringResource(R.string.action_retry), it, style = AppButtonStyle.Secondary)
+        }
+    }
+}
+```
+
+### AppEmptyState
+
+```kotlin
+@Composable
+fun AppEmptyState(
+    title: UiText,
+    modifier: Modifier = Modifier,
+    subtitle: UiText? = null,
+    icon: ImageVector = AppIcons.EmptyBox,
+    action: Pair<UiText, () -> Unit>? = null,
+) {
+    val context = LocalContext.current
+    val colors  = LocalAppColorScheme.current
+    val dimens  = LocalAppDimens.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.fillMaxWidth().padding(dimens.spacing.xl),
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.contentDisabled, modifier = Modifier.size(56.dp))
+        Spacer(Modifier.height(dimens.spacing.md))
+        Text(title.asString(context), color = colors.contentPrimary, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+        subtitle?.let {
+            Spacer(Modifier.height(dimens.spacing.sm))
+            Text(it.asString(context), color = colors.contentSecondary, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+        }
+        action?.let { (label, onClick) ->
+            Spacer(Modifier.height(dimens.spacing.lg))
+            AppButton(label.asString(context), onClick)
+        }
+    }
+}
+```
+
+### Shared component rules
+- Shared components source colors from component tokens (Layer 3) — never raw `AppColorScheme`
+- Every shared component MUST have previews in all four variants: Default·Light, Default·Dark, Ocean·Light, Ocean·Dark
+- `AppButton` with `isLoading = true` shows a spinner and disables interaction — never replicate this at feature level
+- `AppTextField` error row always reserves height — prevents layout jump on error appearance
+
+### Standard screen scaffold
+
+Every feature screen uses this structure:
+
+```kotlin
+@Composable
+fun ExampleScreen(state: ExampleUiState, onIntent: (ExampleIntent) -> Unit) {
+    Scaffold(
+        topBar = { AppTopBar(stringResource(R.string.example_title), onNavigateUp = { onIntent(ExampleIntent.NavigateUp) }) }
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            when {
+                state.isLoading && state.data == null ->
+                    AppLoadingIndicator(fullscreen = true)
+                state.error != null && state.data == null ->
+                    AppErrorState(state.error, onRetry = { onIntent(ExampleIntent.Retry) })
+                state.data != null ->
+                    ExampleContent(state.data, onIntent)
+            }
+            // Refresh indicator overlays existing content
+            if (state.isLoading && state.data != null) {
+                AppLoadingIndicator(modifier = Modifier.align(Alignment.TopCenter))
+            }
+        }
+    }
+}
+```
 
 ---
 
-## 14. Rebalancing Engine (Future Phase)
+## 🎨 UI Rules (STRICT)
 
-> Planned for post-MVP.
+- Each composable in its own file — never group multiple composables in one file
+- Stateless UI — driven only by `UiState`, never by internal composable state
+- Every composable MUST have all four `@Preview` variants: Default·Light, Default·Dark, Ocean·Light, Ocean·Dark
+- Every preview wraps with `AppTheme { }` and uses mock data
 
-**Purpose:** Periodically adjust portfolio to maintain target allocation percentages.
+**Token access (the only correct patterns):**
+```kotlin
+val colors = LocalAppColorScheme.current        // semantic colors
+val dimens = LocalAppDimens.current             // spacing and elevation
+MaterialTheme.shapes.medium                     // corner radius
+AppIcons.Home                                   // icons
+MaterialTheme.typography.bodyMedium             // text styles
+```
 
-**Trigger conditions:**
-- Asset weight drifts more than ±5% from target
-- User-initiated manual rebalance
-- Periodic (monthly/quarterly, user-defined)
-
-**Output:** List of suggested BUY/SELL actions to restore target weights, run through full risk engine before surfacing.
-
----
-
-## 15. Technical Architecture
-
-### 15.1 Local-First Stack (Android)
-
-| Layer | Technology |
-|---|---|
-| Database | Room (SQLite) |
-| Background jobs | WorkManager |
-| Networking | Retrofit + OkHttp |
-| Data serialization | Gson / Moshi |
-| Computation | Pure Kotlin — no ML libraries |
-
-### 15.2 Database Schema Overview
-
-**Tables:**
-- `portfolios` — portfolio metadata and strategy config
-- `positions` — open positions per portfolio
-- `trade_history` — all closed trades
-- `portfolio_snapshots` — daily performance snapshots
-- `asset_data` — cached OHLCV price history per symbol
-- `watchlist` — watchlist items
-- `indicator_cache` — cached computed indicator values with timestamp
-
-> **Optimization:** Computed indicator values are cached with a `computedAt` timestamp. On data refresh, only recompute indicators for assets whose `lastUpdated` is newer than `indicatorCache.computedAt`. This avoids redundant computation on every app open.
-
-### 15.3 Background Job Schedule
-
-| Job | Trigger | Conditions |
-|---|---|---|
-| DataFetchJob | Daily at 17:00 ET | Network available |
-| IndicatorComputeJob | After DataFetchJob | New data available |
-| SignalEngineJob | After IndicatorComputeJob | Indicators fresh |
-| StopLossScanJob | Daily at 17:30 ET | Open positions exist |
-| PortfolioSnapshotJob | Daily at 18:00 ET | After all above |
-
-### 15.4 Computation Performance Targets
-
-| Operation | Target Time |
-|---|---|
-| Full indicator compute (50 assets, 200 bars) | < 500ms |
-| Signal engine for all portfolios | < 200ms |
-| Portfolio metrics recalculation | < 100ms |
-| What-If Simulator scenario | < 300ms |
-| Full daily pipeline (fetch excluded) | < 2s |
+**Forbidden — treat as build errors:**
+```kotlin
+Color(0xFF...)                          // hardcoded color
+isSystemInDarkTheme()                   // in any composable
+MaterialTheme.colorScheme.*             // in feature composables
+Icons.Outlined.*                        // direct icon import
+Modifier.padding(13.dp)                 // arbitrary spacing
+RoundedCornerShape(10.dp)               // arbitrary corner radius
+Button(...)                             // raw Material — use AppButton
+OutlinedTextField(...)                  // raw Material — use AppTextField
+```
 
 ---
 
-## 16. MVP Scope & Exclusions
+## 🧪 Testing (MANDATORY)
 
-### 16.1 MVP Include
+**Coverage goal:** 100% line and method coverage.
 
-- Up to 3 portfolios
-- Up to 10 assets per portfolio (30 total including watchlist)
-- Indicators: RSI, SMA50, SMA200, ATR, Volume MA
-- Full signal engine with conflict resolution
-- Full risk management engine with all 7 checks
-- What-If Simulator (Scenarios A, B, C)
-- Watchlist with signal monitoring
-- Daily data fetch (EOD)
-- Portfolio performance metrics
-- Full reasoning output per advice
+**Must test:** Repositories, UseCases, Mappers, ViewModels, Shared components.
 
-### 16.2 MVP Exclude
+**ViewModel state transition tests** — assert each sequence explicitly:
+- `initial → loading → success`
+- `initial → loading → error` (data remains null)
+- `success → refresh loading` (data retained) `→ success`
+- `success → refresh loading → error` (data retained from previous success)
 
-| Feature | Reason |
-|---|---|
-| Backtesting | Requires significant historical data, post-MVP |
-| Rebalancing engine | Post-MVP |
-| Real-time / intraday data | API cost, battery, complexity |
-| Machine learning models | Out of scope, rule-based only |
-| Real trade execution | Explicitly not a trading platform |
-| Crypto / Forex | Data quality and volatility make indicators unreliable |
-| Trailing stop | Post-MVP |
-| Multi-currency portfolios | All portfolios USD only in MVP |
+**Token system tests:**
+- `buildColorScheme` tested for light and dark for every palette
+- Assert roles that must differ between modes actually differ (`backgroundPrimary`, `contentPrimary`)
+- Snapshot tests for all shared components across all four preview variants
 
----
+**Shared component tests:**
+- Snapshot/screenshot for each visual state: enabled, disabled, loading, error
+- Semantics test verifying content descriptions and interactive roles
 
-## 17. Edge Cases & Failure Handling
+**UiText tests:**
+- `StringResource.asString()` and `DynamicString.asString()` tested via a real `Context`
+- `StringResource` equals/hashCode correctness with array args
 
-| Scenario | Handling |
-|---|---|
-| API rate limit hit | Exponential backoff, retry after 60s, max 3 retries |
-| Asset delisted | Mark as INACTIVE, close position at last known price, notify user |
-| Stock split not reflected | Flag data anomaly if close drops >40% in one day — pause signals |
-| Portfolio value = $0 | Lock portfolio, prevent further trades, show warning |
-| All signals HOLD for 30+ days | Surface "no opportunity" message, suggest watchlist review |
-| Historical data gap (missing days) | Fill using prior bar close. Flag if gap > 5 consecutive days |
-| ATR = 0 (no price movement) | Use percentage-based stop as fallback |
-| Volume = 0 reported by API | Mark volume as missing, skip volume-based signal adjustments |
-| Conflicting signal: all BUY blocked by price < SMA200 | Output HOLD with full explanation — never force a BUY |
+**Rules:** Every class has tests. Cover success, error, and edge cases. Fix broken tests before any PR — never leave failing tests.
 
 ---
 
-## 18. Glossary
+## ⚙️ Gradle & Build (STRICT)
 
-| Term | Definition |
-|---|---|
-| ATR | Average True Range — measures volatility over N days |
-| RSI | Relative Strength Index — momentum oscillator, 0–100 scale |
-| SMA | Simple Moving Average — average closing price over N days |
-| Golden Cross | SMA50 crosses above SMA200 — bullish long-term signal |
-| Death Cross | SMA50 crosses below SMA200 — bearish long-term signal |
-| Adjusted Close | Close price adjusted for splits and dividends |
-| Drawdown | Peak-to-trough decline in portfolio value |
-| Position Size | Amount of capital allocated to a single asset |
-| Stop Loss | Price at which a position is automatically exited to limit loss |
-| Take Profit | Price at which a position is automatically exited to lock in gain |
-| Signal Score | Weighted sum of active signals after conflict resolution |
-| Confidence | Probability-like measure of signal reliability (0–90%) |
-| Look-ahead bias | Using future data in historical simulation — invalidates results |
-| PnL | Profit and Loss |
-| EOD | End of Day |
+**Version catalog:** ALL dependencies in `libs.versions.toml`. No version literals in `build.gradle.kts`. Reference via catalog accessors only (e.g. `libs.retrofit`).
+
+**Dependency ordering:** Alphabetical in all blocks across `libs.versions.toml`, `build.gradle.kts`, `settings.gradle.kts`. Enforced on every add/remove.
+
+**No unused dependencies.** Verify after generation, remove any that are unused, re-sort.
+
+**Build types:**
+- `debug`: `debuggable = true`, minification off, `applicationIdSuffix = ".debug"`
+- `release`: `minifyEnabled = true`, `shrinkResources = true`, ProGuard rules required (never `-keep class * { *; }`), signing via environment variables
+
+**Product flavors** (if multi-environment): `dev`, `staging`, `prod`. Base URLs and feature flags via `BuildConfig` per flavor. Never `if (BuildConfig.DEBUG)` in feature code — use an injected flag interface.
+
+**Baseline profiles:** Generate for the main user journey at `app/src/main/baseline-prof.txt`. Regenerate after major UI or navigation changes.
 
 ---
 
-*Specification Version: 3.0 | Status: Ready for Development Review*
+## 🎯 Output Requirements
+
+Generate the full project structure and one complete feature including:
+- API, Room, Repository, UseCases, ViewModel (NVI), UI, Tests
+- All shared components fully implemented (`AppButton`, `AppTextField`, `AppCard`, `AppTopBar`, `AppLoadingIndicator`, `AppErrorState`, `AppEmptyState`)
+- `UiText` in `shared/ui/utils/`
+- `AppError` and `Result<T>` in `shared/domain/`
+- `AppTheme` wiring in `MainActivity`
+- At least two `BrandTokens` palettes
+- `ThemePreferencesRepository` implemented and wired
+
+---
+
+## 🚫 Hard Rules — treat every violation as a build error
+
+- Do NOT duplicate shared logic
+- Do NOT bypass UseCases in ViewModels
+- Do NOT put Android imports in the domain layer
+- Do NOT group multiple composables in one file
+- Do NOT leave unused Gradle dependencies
+- Do NOT leave Gradle dependencies unsorted
+- Do NOT hardcode base URLs, API keys, or environment config
+- Do NOT use raw string routes for navigation
+- Do NOT store navigation events in `UiState`
+- Do NOT use `Color()` literals in composables
+- Do NOT call `isSystemInDarkTheme()` outside `MainActivity`
+- Do NOT use `MaterialTheme.colorScheme` in feature composables
+- Do NOT import `Icons.*` directly in feature composables
+- Do NOT use arbitrary `dp` values — use `AppDimens` tokens
+- Do NOT use arbitrary corner radius values — use `AppShapes` / `MaterialTheme.shapes`
+- Do NOT use a raw `String` for error in `UiState` — always `UiText`
+- Do NOT use `Boolean?` for loading state — always non-null `Boolean`
+- Do NOT call `stringResource()` or `context.getString()` in a ViewModel
+- Do NOT use `Button`, `OutlinedTextField`, `Card`, or `TopAppBar` directly in feature composables
+- Do NOT implement loading, error, or empty states locally in a feature
+- Do NOT use `android.util.Log` — use Timber
+- Do NOT use `runBlocking` outside tests
+- Do NOT hardcode any user-visible string in Kotlin — every string must live in `res/values/strings.xml` and be referenced via `R.string.*` or `stringResource()`
+- Do NOT add a string to `values/strings.xml` without also adding it to every supported locale folder (`values-el/strings.xml`, etc.) — both files must stay in sync at all times
+- Do NOT implement per-app language switching with context wrapping or manual locale hacks — use `AppCompatDelegate.setApplicationLocales()` exclusively, triggered from the presentation layer (NavGraph composable), never from a ViewModel or UseCase
+- `MainActivity` MUST extend `AppCompatActivity` (not `ComponentActivity`) so that `AppCompatDelegate` can apply stored locale on all API levels via `attachBaseContext2()`
+
+---
+
+## ✅ Definition of Done (MANDATORY)
+
+After **every** implementation session — no exceptions:
+
+1. Run the build and confirm it passes:
+```bash
+./gradlew :app:assembleDebug
+```
+
+2. Stage the changed files (specific files only — never `git add -A`):
+```bash
+git add <specific files>
+```
+
+Do not run `git commit` — the developer commits manually after reviewing.
+Do not report a task as complete until `BUILD SUCCESSFUL` and `git add` are confirmed. Never stage `.DS_Store`, `.env`, or generated build artifacts.

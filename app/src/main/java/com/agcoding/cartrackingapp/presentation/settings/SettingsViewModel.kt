@@ -79,10 +79,13 @@ data class SettingsUiState(
     val dataGenerationSuccess: Boolean = false,
     // Export/Import state
     val isExporting: Boolean = false,
+    val isExportingExcel: Boolean = false,
     val isImporting: Boolean = false,
     val exportSuccess: String? = null,
+    val exportExcelSuccess: String? = null,
     val importSuccess: String? = null,
     val exportError: String? = null,
+    val exportExcelError: String? = null,
     val importError: String? = null,
     // Spreadsheet import state
     val isSpreadsheetImporting: Boolean = false,
@@ -340,6 +343,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun exportToExcel() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isExportingExcel = true,
+                exportExcelSuccess = null,
+                exportExcelError = null
+            )
+            when (val result = dataExportManager.exportToExcel()) {
+                is ExportResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isExportingExcel = false,
+                        exportExcelSuccess = result.filePath
+                    )
+                }
+                is ExportResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isExportingExcel = false,
+                        exportExcelError = result.message
+                    )
+                }
+            }
+        }
+    }
+
     fun importData(uri: Uri) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -388,7 +415,9 @@ class SettingsViewModel @Inject constructor(
     fun resetExportImportState() {
         _uiState.value = _uiState.value.copy(
             exportSuccess = null,
+            exportExcelSuccess = null,
             exportError = null,
+            exportExcelError = null,
             importSuccess = null,
             importError = null,
             spreadsheetImportSuccess = null,

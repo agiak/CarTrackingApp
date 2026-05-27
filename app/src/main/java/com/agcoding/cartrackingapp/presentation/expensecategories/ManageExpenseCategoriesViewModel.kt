@@ -14,11 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class CategoryWithQuickPick(val name: String, val isQuickPick: Boolean)
+
 sealed class ManageExpenseCategoriesUiState {
     object Loading : ManageExpenseCategoriesUiState()
     data class Success(
-        val predefinedCategories: List<String>,
-        val customCategories: List<String>
+        val predefinedCategories: List<CategoryWithQuickPick>,
+        val customCategories: List<CategoryWithQuickPick>
     ) : ManageExpenseCategoriesUiState()
     data class Error(val message: String) : ManageExpenseCategoriesUiState()
 }
@@ -80,15 +82,17 @@ class ManageExpenseCategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 expenseCategoryDao.getAllCategories().collect { categories ->
-                    // Always get predefined categories from string resources for current locale
+                    val categoryMap = categories.associateBy { it.name }
+
                     val predefined = predefinedCategoriesResIds.map { resId ->
-                        context.getString(resId)
-                    }.sorted()
+                        val name = context.getString(resId)
+                        CategoryWithQuickPick(name, categoryMap[name]?.isQuickPick ?: false)
+                    }.sortedBy { it.name }
 
                     val custom = categories
                         .filter { it.isCustom }
-                        .map { it.name }
-                        .sorted()
+                        .map { CategoryWithQuickPick(it.name, it.isQuickPick) }
+                        .sortedBy { it.name }
 
                     _uiState.value = ManageExpenseCategoriesUiState.Success(
                         predefinedCategories = predefined,
@@ -130,6 +134,16 @@ class ManageExpenseCategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 expenseCategoryDao.deleteCategoryByName(name)
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun toggleQuickPick(name: String, currentValue: Boolean) {
+        viewModelScope.launch {
+            try {
+                expenseCategoryDao.setQuickPick(name, !currentValue)
             } catch (e: Exception) {
                 // Handle error
             }

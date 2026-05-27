@@ -4,9 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,14 +28,16 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun CategoryItem(
     name: String,
     isCustom: Boolean,
+    isQuickPick: Boolean,
     onDelete: (() -> Unit)?,
+    onToggleQuickPick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     StyledCard(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -44,6 +47,15 @@ fun CategoryItem(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
+
+            IconButton(onClick = onToggleQuickPick) {
+                Icon(
+                    imageVector = if (isQuickPick) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                    contentDescription = stringResource(R.string.toggle_quick_pick),
+                    tint = if (isQuickPick) MaterialTheme.colorScheme.primary
+                           else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             if (isCustom && onDelete != null) {
                 IconButton(onClick = onDelete) {
@@ -62,47 +74,47 @@ fun CategoryItem(
 // Preview Composables
 // ============================================
 
-@Preview(name = "Category Item - Predefined", showBackground = true, widthDp = 380)
+@Preview(name = "Category Item - Predefined Not Quick Pick", showBackground = true, widthDp = 380)
 @Composable
 private fun PreviewCategoryItemPredefined() {
     CarTrackingAppTheme(darkTheme = false) {
         CategoryItem(
             name = "Fuel",
             isCustom = false,
+            isQuickPick = false,
             onDelete = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            onToggleQuickPick = {},
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         )
     }
 }
 
-@Preview(name = "Category Item - Custom", showBackground = true, widthDp = 380)
+@Preview(name = "Category Item - Quick Pick Active", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCategoryItemQuickPick() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CategoryItem(
+            name = "Insurance",
+            isCustom = false,
+            isQuickPick = true,
+            onDelete = null,
+            onToggleQuickPick = {},
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Category Item - Custom With Delete", showBackground = true, widthDp = 380)
 @Composable
 private fun PreviewCategoryItemCustom() {
     CarTrackingAppTheme(darkTheme = false) {
         CategoryItem(
             name = "Car Wash",
             isCustom = true,
+            isQuickPick = false,
             onDelete = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        )
-    }
-}
-
-@Preview(name = "Category Item - Long Name", showBackground = true, widthDp = 380)
-@Composable
-private fun PreviewCategoryItemLongName() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CategoryItem(
-            name = "Extended Warranty & Service Plan",
-            isCustom = true,
-            onDelete = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            onToggleQuickPick = {},
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         )
     }
 }
@@ -114,10 +126,10 @@ private fun PreviewCategoryItemDark() {
         CategoryItem(
             name = "Tire Replacement",
             isCustom = true,
+            isQuickPick = true,
             onDelete = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            onToggleQuickPick = {},
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         )
     }
 }

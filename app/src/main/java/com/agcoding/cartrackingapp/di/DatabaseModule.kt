@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.data.local.database.MIGRATION_13_14
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_14_15
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_15_16
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_16_17
+import com.agcoding.cartrackingapp.data.local.database.MIGRATION_17_18
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_1_2
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_2_3
 import com.agcoding.cartrackingapp.data.local.database.MIGRATION_3_4
@@ -47,8 +48,8 @@ object DatabaseModule {
             CarDatabase::class.java,
             "car_tracking_database"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
-            .fallbackToDestructiveMigration()
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
+            .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
 
