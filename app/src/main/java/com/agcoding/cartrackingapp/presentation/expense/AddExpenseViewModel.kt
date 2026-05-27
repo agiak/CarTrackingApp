@@ -2,15 +2,14 @@ package com.agcoding.cartrackingapp.presentation.expense
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
+import com.agcoding.cartrackingapp.data.local.database.entity.ExpenseCategoryEntity
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
-import com.agcoding.cartrackingapp.domain.usecase.expense.AddExpenseUseCase
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +24,6 @@ class AddExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val carRepository: CarRepository,
     private val expenseCategoryDao: ExpenseCategoryDao,
-    private val addExpenseUseCase: AddExpenseUseCase,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -40,17 +38,20 @@ class AddExpenseViewModel @Inject constructor(
     private val _customCategoryText = MutableStateFlow("")
     val customCategoryText: StateFlow<String> = _customCategoryText.asStateFlow()
 
-    private val _categoryExpanded = MutableStateFlow(false)
-    val categoryExpanded: StateFlow<Boolean> = _categoryExpanded.asStateFlow()
-
-    // Get translated predefined categories
     private val translatedCategories = ExpenseCategories.predefinedResIds.map { resId ->
-        application.getString(resId)
+        getApplication<Application>().getString(resId)
     }
 
-    // Get predefined categories plus custom categories from database
-    private val _availableCategories = MutableStateFlow(translatedCategories)
-    val availableCategories: StateFlow<List<String>> = _availableCategories.asStateFlow()
+    // Quick-pick categories (starred by user in Manage Categories)
+    private val _quickPickCategories = MutableStateFlow<List<String>>(emptyList())
+    val quickPickCategories: StateFlow<List<String>> = _quickPickCategories.asStateFlow()
+
+    // Non-quick-pick categories for the dropdown
+    private val _otherCategories = MutableStateFlow<List<String>>(emptyList())
+    val otherCategories: StateFlow<List<String>> = _otherCategories.asStateFlow()
+
+    private val _dropdownExpanded = MutableStateFlow(false)
+    val dropdownExpanded: StateFlow<Boolean> = _dropdownExpanded.asStateFlow()
 
     init {
         loadAllCategories()
@@ -59,18 +60,19 @@ class AddExpenseViewModel @Inject constructor(
     private fun loadAllCategories() {
         viewModelScope.launch {
             expenseCategoryDao.getAllCategories().collect { categoryEntities ->
-                // Always use translated predefined categories (from string resources)
-                // Plus custom categories from database
-                val customCategories = categoryEntities
+                val quickPickNames = categoryEntities
+                    .filter { it.isQuickPick }
+                    .map { it.name }
+                    .toSet()
+
+                val customNames = categoryEntities
                     .filter { it.isCustom }
                     .map { it.name }
 
-                // Combine translated predefined + custom categories
-                val allCategories = (translatedCategories + customCategories)
-                    .distinct()
-                    .sorted()
+                val allNames = (translatedCategories + customNames).distinct().sorted()
 
-                _availableCategories.value = allCategories
+                _quickPickCategories.value = allNames.filter { it in quickPickNames }
+                _otherCategories.value = allNames.filter { it !in quickPickNames }
             }
         }
     }
@@ -96,7 +98,6 @@ class AddExpenseViewModel @Inject constructor(
     private val _categoryError = MutableStateFlow<String?>(null)
     val categoryError: StateFlow<String?> = _categoryError.asStateFlow()
 
-    // Service reminder fields
     private val _serviceReminderEnabled = MutableStateFlow(false)
     val serviceReminderEnabled: StateFlow<Boolean> = _serviceReminderEnabled.asStateFlow()
 
@@ -113,26 +114,23 @@ class AddExpenseViewModel @Inject constructor(
         _carId.value = carId
     }
 
-    fun updateCategory(value: String) {
-        _category.value = value
-    }
-
     fun selectCategory(value: String) {
         _category.value = value
         _categoryError.value = null
         _showCustomCategoryField.value = false
         _customCategoryText.value = ""
+        _dropdownExpanded.value = false
     }
 
-    fun toggleCustomCategoryField() {
-        _showCustomCategoryField.value = !_showCustomCategoryField.value
-        if (_showCustomCategoryField.value) {
-            // Clear the selected category when showing custom field
-            _category.value = ""
-        } else {
-            // Clear custom text when hiding field
-            _customCategoryText.value = ""
-        }
+    fun showCustomCategoryField() {
+        _showCustomCategoryField.value = true
+        _category.value = ""
+        _customCategoryText.value = ""
+    }
+
+    fun hideCustomCategoryField() {
+        _showCustomCategoryField.value = false
+        _customCategoryText.value = ""
     }
 
     fun updateCustomCategoryText(value: String) {
@@ -141,24 +139,22 @@ class AddExpenseViewModel @Inject constructor(
         if (value.isNotBlank()) _categoryError.value = null
     }
 
-    fun toggleCategoryDropdown() {
-        _categoryExpanded.value = !_categoryExpanded.value
+    fun toggleDropdown() {
+        _dropdownExpanded.value = !_dropdownExpanded.value
     }
 
-    fun dismissCategoryDropdown() {
-        _categoryExpanded.value = false
+    fun dismissDropdown() {
+        _dropdownExpanded.value = false
     }
 
     fun updateAmount(value: String) {
         _amount.value = value
-
-        // Validate amount in real-time
         val amountValue = value.toDoubleOrNull()
         _amountError.value = when {
-            value.isBlank() -> null // Don't show error for empty field
-            amountValue == null -> application.getString(R.string.error_cost_invalid)
-            amountValue < 0 -> application.getString(R.string.error_amount_negative)
-            amountValue == 0.0 -> application.getString(R.string.error_cost_positive)
+            value.isBlank() -> null
+            amountValue == null -> getApplication<Application>().getString(R.string.error_cost_invalid)
+            amountValue < 0 -> getApplication<Application>().getString(R.string.error_amount_negative)
+            amountValue == 0.0 -> getApplication<Application>().getString(R.string.error_cost_positive)
             else -> null
         }
     }
@@ -182,14 +178,12 @@ class AddExpenseViewModel @Inject constructor(
     fun toggleServiceReminder(enabled: Boolean) {
         _serviceReminderEnabled.value = enabled
         if (!enabled) {
-            // Clear reminder fields when disabled
             _reminderDate.value = null
             _reminderMileage.value = ""
         }
     }
 
     fun updateReminderMileage(value: String) {
-        // Only allow digits
         if (value.isEmpty() || value.all { it.isDigit() }) {
             _reminderMileage.value = value
         }
@@ -217,7 +211,7 @@ class AddExpenseViewModel @Inject constructor(
         val categoryValue = category.value.trim()
 
         if (categoryValue.isBlank()) {
-            _categoryError.value = application.getString(R.string.error_category_required)
+            _categoryError.value = getApplication<Application>().getString(R.string.error_category_required)
             return
         }
         _categoryError.value = null
@@ -231,15 +225,19 @@ class AddExpenseViewModel @Inject constructor(
             try {
                 _isSaving.value = true
 
-                // Calculate target mileage if mileage reminder is set
+                // Auto-save as custom category if it's not already known
+                val allKnown = (_quickPickCategories.value + _otherCategories.value).toSet()
+                if (categoryValue !in allKnown) {
+                    expenseCategoryDao.insertCategory(
+                        ExpenseCategoryEntity(name = categoryValue, isCustom = true)
+                    )
+                }
+
                 val targetMileage = if (_serviceReminderEnabled.value && _reminderMileage.value.isNotBlank()) {
                     val additionalKm = _reminderMileage.value.toIntOrNull()
                     if (additionalKm != null && additionalKm > 0) {
-                        // Get current car odometer
                         val car = carRepository.getCarById(_carId.value).first()
                         val currentOdometer = car?.currentOdometer?.toInt() ?: 0
-
-                        // Calculate target: current odometer + additional km
                         currentOdometer + additionalKm
                     } else null
                 } else null
@@ -254,14 +252,8 @@ class AddExpenseViewModel @Inject constructor(
                     reminderMileage = targetMileage
                 )
 
-                // Use AddExpenseUseCase for validation and widget updates
-                // But insert directly here because we need to handle reminders
-                // which are not part of the basic UseCase
                 expenseRepository.insertExpense(expense)
-
-                // Update widgets to show latest transaction
                 QuickAddWidgetReceiver.updateWidgets(getApplication())
-
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.message ?: "Failed to save expense")
@@ -279,16 +271,14 @@ class AddExpenseViewModel @Inject constructor(
         _amountError.value = null
         _notes.value = ""
         _selectedDate.value = System.currentTimeMillis()
-        _categoryExpanded.value = false
+        _dropdownExpanded.value = false
         _serviceReminderEnabled.value = false
         _reminderDate.value = null
         _reminderMileage.value = ""
     }
 
-    // Legacy method for backward compatibility during transition
     fun setCarIdAndType(carId: Long, expenseType: String) {
         _carId.value = carId
-        // Convert old type to category for backward compatibility
         _category.value = when (expenseType) {
             "SERVICE" -> "Service"
             "OTHER" -> ""
@@ -296,4 +286,3 @@ class AddExpenseViewModel @Inject constructor(
         }
     }
 }
-

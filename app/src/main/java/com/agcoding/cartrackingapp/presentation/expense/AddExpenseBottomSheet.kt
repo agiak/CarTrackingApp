@@ -19,11 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,14 +51,18 @@ import java.util.Locale
 @Composable
 fun AddExpenseBottomSheet(
     carId: Long,
-    expenseType: String = "", // Kept for backward compatibility, ignored if empty
+    expenseType: String = "",
     onDismiss: () -> Unit,
     onSuccess: () -> Unit = {},
     viewModel: AddExpenseViewModel = hiltViewModel()
 ) {
     val category by viewModel.category.collectAsState()
-    val categoryExpanded by viewModel.categoryExpanded.collectAsState()
-    val availableCategories by viewModel.availableCategories.collectAsState()
+    val quickPickCategories by viewModel.quickPickCategories.collectAsState()
+    val otherCategories by viewModel.otherCategories.collectAsState()
+    val dropdownExpanded by viewModel.dropdownExpanded.collectAsState()
+    val showCustomCategoryField by viewModel.showCustomCategoryField.collectAsState()
+    val customCategoryText by viewModel.customCategoryText.collectAsState()
+    val categoryError by viewModel.categoryError.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val amountError by viewModel.amountError.collectAsState()
     val notes by viewModel.notes.collectAsState()
@@ -70,22 +70,9 @@ fun AddExpenseBottomSheet(
     val showDatePicker by viewModel.showDatePicker.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Filter categories based on user input
-    val filteredCategories = remember(category, availableCategories) {
-        if (category.isBlank()) {
-            availableCategories
-        } else {
-            availableCategories.filter {
-                it.contains(category, ignoreCase = true)
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.clearFields()
@@ -145,55 +132,23 @@ fun AddExpenseBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Category field with autocomplete dropdown using ExposedDropdownMenuBox
-            ExposedDropdownMenuBox(
-                expanded = categoryExpanded,
-                onExpandedChange = {
-                    // Only toggle when clicking the icon, not when typing
-                }
-            ) {
-                OutlinedTextField(
-                    value = category,
-                    onValueChange = {
-                        viewModel.updateCategory(it)
-                        if (!categoryExpanded && it.isNotEmpty()) {
-                            viewModel.toggleCategoryDropdown()
-                        }
-                    },
-                    label = { Text(stringResource(R.string.expense_category)) },
-                    placeholder = { Text(stringResource(R.string.expense_category_hint)) },
-                    trailingIcon = {
-                        IconButton(onClick = { viewModel.toggleCategoryDropdown() }) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded)
-                        }
-                    },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true)
-                )
-
-                // Dropdown menu with categories
-                ExposedDropdownMenu(
-                    expanded = categoryExpanded && availableCategories.isNotEmpty(),
-                    onDismissRequest = { viewModel.dismissCategoryDropdown() }
-                ) {
-                    // Show filtered categories or all if filter is empty
-                    val categoriesToShow = if (category.isBlank()) {
-                        availableCategories
-                    } else {
-                        filteredCategories
-                    }
-
-                    categoriesToShow.forEach { categoryOption ->
-                        DropdownMenuItem(
-                            text = { Text(categoryOption) },
-                            onClick = { viewModel.selectCategory(categoryOption) },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                        )
-                    }
-                }
-            }
+            // Category selector
+            CategorySelector(
+                selectedCategory = category,
+                quickPickCategories = quickPickCategories,
+                otherCategories = otherCategories,
+                dropdownExpanded = dropdownExpanded,
+                showCustomField = showCustomCategoryField,
+                customText = customCategoryText,
+                categoryError = categoryError,
+                onSelectCategory = viewModel::selectCategory,
+                onToggleDropdown = viewModel::toggleDropdown,
+                onDismissDropdown = viewModel::dismissDropdown,
+                onShowCustomField = viewModel::showCustomCategoryField,
+                onHideCustomField = viewModel::hideCustomCategoryField,
+                onCustomTextChange = viewModel::updateCustomCategoryText,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

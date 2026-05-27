@@ -2,8 +2,6 @@ package com.agcoding.cartrackingapp.presentation.expense
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -25,8 +22,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,19 +55,21 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
     carId: Long,
-    expenseType: String = "", // Kept for backward compatibility
+    expenseType: String = "",
     onNavigateBack: () -> Unit,
     onExpenseSaved: () -> Unit = {},
     viewModel: AddExpenseViewModel = hiltViewModel()
 ) {
     val category by viewModel.category.collectAsState()
+    val quickPickCategories by viewModel.quickPickCategories.collectAsState()
+    val otherCategories by viewModel.otherCategories.collectAsState()
+    val dropdownExpanded by viewModel.dropdownExpanded.collectAsState()
     val showCustomCategoryField by viewModel.showCustomCategoryField.collectAsState()
     val customCategoryText by viewModel.customCategoryText.collectAsState()
-    val availableCategories by viewModel.availableCategories.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val amountError by viewModel.amountError.collectAsState()
     val categoryError by viewModel.categoryError.collectAsState()
@@ -81,7 +78,6 @@ fun AddExpenseScreen(
     val showDatePicker by viewModel.showDatePicker.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
 
-    // Service reminder states
     val serviceReminderEnabled by viewModel.serviceReminderEnabled.collectAsState()
     val reminderDate by viewModel.reminderDate.collectAsState()
     val reminderMileage by viewModel.reminderMileage.collectAsState()
@@ -125,7 +121,6 @@ fun AddExpenseScreen(
         val useSplitView = screenWidthDp >= 600 || isLandscape
 
         if (useSplitView) {
-            // Split view for tablets and landscape
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -140,74 +135,22 @@ fun AddExpenseScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Category selection label
-                    Text(
-                        text = stringResource(R.string.expense_category),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (categoryError != null) MaterialTheme.colorScheme.error
-                                else MaterialTheme.colorScheme.onSurface
+                    CategorySelector(
+                        selectedCategory = category,
+                        quickPickCategories = quickPickCategories,
+                        otherCategories = otherCategories,
+                        dropdownExpanded = dropdownExpanded,
+                        showCustomField = showCustomCategoryField,
+                        customText = customCategoryText,
+                        categoryError = categoryError,
+                        onSelectCategory = viewModel::selectCategory,
+                        onToggleDropdown = viewModel::toggleDropdown,
+                        onDismissDropdown = viewModel::dismissDropdown,
+                        onShowCustomField = viewModel::showCustomCategoryField,
+                        onHideCustomField = viewModel::hideCustomCategoryField,
+                        onCustomTextChange = viewModel::updateCustomCategoryText,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    if (categoryError != null) {
-                        Text(
-                            text = categoryError!!,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // FlowRow for categories (wraps to multiple lines)
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        // Display predefined and custom categories
-                        availableCategories.forEach { categoryOption ->
-                            FilterChip(
-                                selected = category == categoryOption && !showCustomCategoryField,
-                                onClick = { viewModel.selectCategory(categoryOption) },
-                                label = { Text(categoryOption) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-
-                        // "Custom" chip to show text field
-                        FilterChip(
-                            selected = showCustomCategoryField,
-                            onClick = { viewModel.toggleCustomCategoryField() },
-                            label = { Text(stringResource(R.string.custom_category)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        )
-                    }
-
-                    // Custom category text field (shown when "Custom" is selected)
-                    if (showCustomCategoryField) {
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        StyledOutlinedTextField(
-                            value = customCategoryText,
-                            onValueChange = viewModel::updateCustomCategoryText,
-                            label = { Text(stringResource(R.string.custom_category_hint)) },
-                            placeholder = { Text(stringResource(R.string.custom_category_placeholder)) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
                 }
 
                 // Right side: Form fields (65%)
@@ -217,7 +160,6 @@ fun AddExpenseScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Amount field
                     StyledOutlinedTextField(
                         value = amount,
                         onValueChange = viewModel::updateAmount,
@@ -234,7 +176,6 @@ fun AddExpenseScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Date field
                     StyledOutlinedTextField(
                         value = SimpleDateFormat(
                             stringResource(R.string.date_format_dd_mmm_yyyy),
@@ -256,7 +197,6 @@ fun AddExpenseScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Notes field
                     StyledOutlinedTextField(
                         value = notes,
                         onValueChange = viewModel::updateNotes,
@@ -269,104 +209,15 @@ fun AddExpenseScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Service Reminder Section
-                    StyledCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        border = null
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            // Toggle row
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(R.string.service_reminder),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.service_reminder_description),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Switch(
-                                    checked = serviceReminderEnabled,
-                                    onCheckedChange = viewModel::toggleServiceReminder
-                                )
-                            }
-
-                            // Show reminder fields when enabled
-                            if (serviceReminderEnabled) {
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text(
-                                    text = stringResource(R.string.reminder_optional_note),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                // Reminder date field
-                                StyledOutlinedTextField(
-                                    value = reminderDate?.let {
-                                        SimpleDateFormat(
-                                            stringResource(R.string.date_format_dd_mmm_yyyy),
-                                            Locale.getDefault()
-                                        ).format(Date(it))
-                                    } ?: "",
-                                    onValueChange = {},
-                                    label = { Text(stringResource(R.string.reminder_date)) },
-                                    placeholder = { Text(stringResource(R.string.reminder_date_hint)) },
-                                    trailingIcon = {
-                                        Row {
-                                            if (reminderDate != null) {
-                                                IconButton(onClick = { viewModel.clearReminderDate() }) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Close,
-                                                        contentDescription = stringResource(R.string.close)
-                                                    )
-                                                }
-                                            }
-                                            IconButton(onClick = { viewModel.showReminderDatePicker() }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.CalendarToday,
-                                                    contentDescription = stringResource(R.string.pick_date)
-                                                )
-                                            }
-                                        }
-                                    },
-                                    readOnly = true,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                // Reminder mileage field
-                                StyledOutlinedTextField(
-                                    value = reminderMileage,
-                                    onValueChange = viewModel::updateReminderMileage,
-                                    label = { Text(stringResource(R.string.reminder_mileage)) },
-                                    placeholder = { Text(stringResource(R.string.reminder_mileage_hint)) },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
+                    ServiceReminderSection(
+                        serviceReminderEnabled = serviceReminderEnabled,
+                        reminderDate = reminderDate,
+                        reminderMileage = reminderMileage,
+                        viewModel = viewModel
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Save button
                     Button(
                         onClick = {
                             viewModel.saveExpense(
@@ -397,7 +248,7 @@ fun AddExpenseScreen(
                 }
             }
         } else {
-            // Portrait mode - single column layout
+            // Portrait mode
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -408,78 +259,25 @@ fun AddExpenseScreen(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Category selection label
-                Text(
-                    text = stringResource(R.string.expense_category),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = if (categoryError != null) MaterialTheme.colorScheme.error
-                            else MaterialTheme.colorScheme.onSurface
+                CategorySelector(
+                    selectedCategory = category,
+                    quickPickCategories = quickPickCategories,
+                    otherCategories = otherCategories,
+                    dropdownExpanded = dropdownExpanded,
+                    showCustomField = showCustomCategoryField,
+                    customText = customCategoryText,
+                    categoryError = categoryError,
+                    onSelectCategory = viewModel::selectCategory,
+                    onToggleDropdown = viewModel::toggleDropdown,
+                    onDismissDropdown = viewModel::dismissDropdown,
+                    onShowCustomField = viewModel::showCustomCategoryField,
+                    onHideCustomField = viewModel::hideCustomCategoryField,
+                    onCustomTextChange = viewModel::updateCustomCategoryText,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                if (categoryError != null) {
-                    Text(
-                        text = categoryError!!,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // FlowRow for categories (wraps to multiple lines)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    // Display predefined and custom categories
-                    availableCategories.forEach { categoryOption ->
-                        FilterChip(
-                            selected = category == categoryOption && !showCustomCategoryField,
-                            onClick = { viewModel.selectCategory(categoryOption) },
-                            label = { Text(categoryOption) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        )
-                    }
-
-                    // "Custom" chip to show text field
-                    FilterChip(
-                        selected = showCustomCategoryField,
-                        onClick = { viewModel.toggleCustomCategoryField() },
-                        label = { Text(stringResource(R.string.custom_category)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    )
-                }
-
-                // Custom category text field (shown when "Custom" is selected)
-                if (showCustomCategoryField) {
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    StyledOutlinedTextField(
-                        value = customCategoryText,
-                        onValueChange = viewModel::updateCustomCategoryText,
-                        label = { Text(stringResource(R.string.custom_category_hint)) },
-                        placeholder = { Text(stringResource(R.string.custom_category_placeholder)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Amount field
                 StyledOutlinedTextField(
                     value = amount,
                     onValueChange = viewModel::updateAmount,
@@ -496,7 +294,6 @@ fun AddExpenseScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Date field
                 StyledOutlinedTextField(
                     value = SimpleDateFormat(
                         stringResource(R.string.date_format_dd_mmm_yyyy),
@@ -518,7 +315,6 @@ fun AddExpenseScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Notes field
                 StyledOutlinedTextField(
                     value = notes,
                     onValueChange = viewModel::updateNotes,
@@ -531,104 +327,15 @@ fun AddExpenseScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Service Reminder Section
-                StyledCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    border = null
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        // Toggle row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.service_reminder),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = stringResource(R.string.service_reminder_description),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Switch(
-                                checked = serviceReminderEnabled,
-                                onCheckedChange = viewModel::toggleServiceReminder
-                            )
-                        }
-
-                        // Show reminder fields when enabled
-                        if (serviceReminderEnabled) {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                text = stringResource(R.string.reminder_optional_note),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Reminder date field
-                            StyledOutlinedTextField(
-                                value = reminderDate?.let {
-                                    SimpleDateFormat(
-                                        stringResource(R.string.date_format_dd_mmm_yyyy),
-                                        Locale.getDefault()
-                                    ).format(Date(it))
-                                } ?: "",
-                                onValueChange = {},
-                                label = { Text(stringResource(R.string.reminder_date)) },
-                                placeholder = { Text(stringResource(R.string.reminder_date_hint)) },
-                                trailingIcon = {
-                                    Row {
-                                        if (reminderDate != null) {
-                                            IconButton(onClick = { viewModel.clearReminderDate() }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Close,
-                                                    contentDescription = stringResource(R.string.close)
-                                                )
-                                            }
-                                        }
-                                        IconButton(onClick = { viewModel.showReminderDatePicker() }) {
-                                            Icon(
-                                                imageVector = Icons.Default.CalendarToday,
-                                                contentDescription = stringResource(R.string.pick_date)
-                                            )
-                                        }
-                                    }
-                                },
-                                readOnly = true,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // Reminder mileage field
-                            StyledOutlinedTextField(
-                                value = reminderMileage,
-                                onValueChange = viewModel::updateReminderMileage,
-                                label = { Text(stringResource(R.string.reminder_mileage)) },
-                                placeholder = { Text(stringResource(R.string.reminder_mileage_hint)) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
+                ServiceReminderSection(
+                    serviceReminderEnabled = serviceReminderEnabled,
+                    reminderDate = reminderDate,
+                    reminderMileage = reminderMileage,
+                    viewModel = viewModel
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Save button
                 Button(
                     onClick = {
                         viewModel.saveExpense(
@@ -714,6 +421,105 @@ fun AddExpenseScreen(
                 }
             ) {
                 DatePicker(state = reminderDatePickerState)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ServiceReminderSection(
+    serviceReminderEnabled: Boolean,
+    reminderDate: Long?,
+    reminderMileage: String,
+    viewModel: AddExpenseViewModel
+) {
+    StyledCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        border = null
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.service_reminder),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.service_reminder_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = serviceReminderEnabled,
+                    onCheckedChange = viewModel::toggleServiceReminder
+                )
+            }
+
+            if (serviceReminderEnabled) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(R.string.reminder_optional_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                StyledOutlinedTextField(
+                    value = reminderDate?.let {
+                        SimpleDateFormat(
+                            stringResource(R.string.date_format_dd_mmm_yyyy),
+                            Locale.getDefault()
+                        ).format(Date(it))
+                    } ?: "",
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.reminder_date)) },
+                    placeholder = { Text(stringResource(R.string.reminder_date_hint)) },
+                    trailingIcon = {
+                        Row {
+                            if (reminderDate != null) {
+                                IconButton(onClick = { viewModel.clearReminderDate() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.close)
+                                    )
+                                }
+                            }
+                            IconButton(onClick = { viewModel.showReminderDatePicker() }) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarToday,
+                                    contentDescription = stringResource(R.string.pick_date)
+                                )
+                            }
+                        }
+                    },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                StyledOutlinedTextField(
+                    value = reminderMileage,
+                    onValueChange = viewModel::updateReminderMileage,
+                    label = { Text(stringResource(R.string.reminder_mileage)) },
+                    placeholder = { Text(stringResource(R.string.reminder_mileage_hint)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
