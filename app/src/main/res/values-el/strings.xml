@@ -130,6 +130,14 @@
     <string name="permission_microphone_title">Μικρόφωνο</string>
     <string name="permission_microphone_desc">Απαιτείται για τη φωνητική εισαγωγή. Σας επιτρέπει να προσθέτετε ανεφοδιασμούς μιλώντας φυσιολογικά αντί να πληκτρολογείτε.</string>
     <string name="granted">Επιτράπηκε</string>
+    <string name="not_granted">Δεν επιτράπηκε</string>
+    <string name="permission_used_in">Χρησιμοποιείται σε</string>
+    <!-- Λειτουργίες που χρησιμοποιούν κάθε άδεια -->
+    <string name="permission_location_feature_refill_location">Αποθήκευση της τοποθεσίας του πρατηρίου κατά την καταχώρηση ανεφοδιασμού</string>
+    <string name="permission_location_feature_widget">Γρήγορη προσθήκη ανεφοδιασμού από το widget της αρχικής οθόνης</string>
+    <string name="permission_notifications_feature_service">Υπενθυμίσεις σέρβις &amp; συντήρησης</string>
+    <string name="permission_notifications_feature_renewals">Ειδοποιήσεις ανανέωσης ασφάλειας &amp; εγγράφων</string>
+    <string name="permission_microphone_feature_voice_entry">Φωνητική εισαγωγή — προσθήκη ανεφοδιασμού με ομιλία</string>
 
     <!-- Settings Section Headers -->
     <string name="settings_appearance">ΕΜΦΑΝΙΣΗ</string>

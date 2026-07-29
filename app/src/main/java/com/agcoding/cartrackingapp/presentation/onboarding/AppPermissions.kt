@@ -18,7 +18,9 @@ data class PermissionItem(
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
     val icon: ImageVector,
-    val isRequired: Boolean = false // true = app won't work properly without it
+    val isRequired: Boolean = false, // true = app won't work properly without it
+    /** Concrete app features that rely on this permission (shown in the settings screen). */
+    val featureRes: List<Int> = emptyList()
 )
 
 /**
@@ -32,21 +34,32 @@ object AppPermissions {
             titleRes = R.string.permission_location_title,
             descriptionRes = R.string.permission_location_desc,
             icon = Icons.Default.LocationOn,
-            isRequired = false
+            isRequired = false,
+            featureRes = listOf(
+                R.string.permission_location_feature_refill_location,
+                R.string.permission_location_feature_widget
+            )
         ),
         PermissionItem(
             permission = Manifest.permission.POST_NOTIFICATIONS,
             titleRes = R.string.permission_notifications_title,
             descriptionRes = R.string.permission_notifications_desc,
             icon = Icons.Default.Notifications,
-            isRequired = false
+            isRequired = false,
+            featureRes = listOf(
+                R.string.permission_notifications_feature_service,
+                R.string.permission_notifications_feature_renewals
+            )
         ),
         PermissionItem(
             permission = Manifest.permission.RECORD_AUDIO,
             titleRes = R.string.permission_microphone_title,
             descriptionRes = R.string.permission_microphone_desc,
             icon = Icons.Default.Mic,
-            isRequired = false
+            isRequired = false,
+            featureRes = listOf(
+                R.string.permission_microphone_feature_voice_entry
+            )
         )
     )
 

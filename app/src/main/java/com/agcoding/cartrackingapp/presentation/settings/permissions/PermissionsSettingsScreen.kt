@@ -252,7 +252,7 @@ private fun PermissionRow(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // Title + description
+                // Title + status
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(item.titleRes),
@@ -260,12 +260,8 @@ private fun PermissionRow(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(
-                        text = stringResource(item.descriptionRes),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    PermissionStatusBadge(isGranted = isGranted)
                 }
 
                 // Granted check mark
@@ -283,6 +279,51 @@ private fun PermissionRow(
                             contentDescription = stringResource(R.string.granted),
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            // Why the app needs this permission
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(item.descriptionRes),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 18.sp
+            )
+
+            // Features that rely on this permission
+            if (item.featureRes.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.permission_used_in),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                item.featureRes.forEach { featureRes ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(top = 6.dp)
+                                .size(5.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(featureRes),
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            lineHeight = 18.sp
                         )
                     }
                 }
@@ -332,5 +373,34 @@ private fun PermissionRow(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PermissionStatusBadge(isGranted: Boolean) {
+    val color = if (isGranted) MaterialTheme.colorScheme.tertiary
+    else MaterialTheme.colorScheme.error
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(color.copy(alpha = 0.12f))
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(RoundedCornerShape(50))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = stringResource(
+                if (isGranted) R.string.granted else R.string.not_granted
+            ),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = color
+        )
     }
 }

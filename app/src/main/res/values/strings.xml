@@ -155,6 +155,14 @@
     <string name="permission_microphone_title">Microphone</string>
     <string name="permission_microphone_desc">Required for voice entry feature. Allows you to add refills by speaking naturally instead of typing.</string>
     <string name="granted">Granted</string>
+    <string name="not_granted">Not granted</string>
+    <string name="permission_used_in">Used in</string>
+    <!-- Features that use each permission -->
+    <string name="permission_location_feature_refill_location">Saving the gas station location when you log a refill</string>
+    <string name="permission_location_feature_widget">Quick-add refills from the home screen widget</string>
+    <string name="permission_notifications_feature_service">Service &amp; maintenance reminders</string>
+    <string name="permission_notifications_feature_renewals">Insurance &amp; document renewal alerts</string>
+    <string name="permission_microphone_feature_voice_entry">Voice entry — add refills by speaking</string>
 
     <!-- Settings Section Headers -->
     <string name="settings_appearance">APPEARANCE</string>
