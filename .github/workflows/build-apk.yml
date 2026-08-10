@@ -1,0 +1,144 @@
+name: Build APK
+
+# Manually triggered APK builds for Caribou.
+#
+# Pick a build type when you run it:
+#   * development -> bumps versionName + developmentVersionCode, builds a debug APK.
+#   * production  -> bumps versionName + productionVersionCode, builds a signed release APK.
+#
+# The updated version.properties is committed back to the triggering branch so
+# the next build always continues from the correct version and no version code
+# is ever reused.
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Build type"
+        required: true
+        default: development
+        type: choice
+        options:
+          - development
+          - production
+
+# Serialize runs so two concurrent builds can never read the same version
+# numbers or race on committing version.properties. Queued runs wait instead
+# of being cancelled, so every requested build still happens.
+concurrency:
+  group: caribou-build-apk
+  cancel-in-progress: false
+
+# Needed to commit the bumped version.properties back to the branch.
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Bump version
+        id: version
+        run: |
+          chmod +x scripts/bump-version.sh
+          ./scripts/bump-version.sh "${{ inputs.build_type }}"
+
+      - name: Decode signing keystore (production only)
+        if: ${{ inputs.build_type == 'production' }}
+        run: |
+          if [ -z "${{ secrets.CARIBOU_KEYSTORE_BASE64 }}" ]; then
+            echo "::error::CARIBOU_KEYSTORE_BASE64 secret is not set — required for production builds." >&2
+            exit 1
+          fi
+          echo "${{ secrets.CARIBOU_KEYSTORE_BASE64 }}" | base64 -d > "${{ runner.temp }}/caribou-release.jks"
+
+      - name: Build development (debug) APK
+        if: ${{ inputs.build_type == 'development' }}
+        run: ./gradlew assembleDebug -Pcaribou.profile=development --no-daemon --stacktrace
+
+      - name: Build production (release) APK
+        if: ${{ inputs.build_type == 'production' }}
+        env:
+          CARIBOU_KEYSTORE_FILE: ${{ runner.temp }}/caribou-release.jks
+          CARIBOU_KEYSTORE_PASSWORD: ${{ secrets.CARIBOU_KEYSTORE_PASSWORD }}
+          CARIBOU_KEY_ALIAS: ${{ secrets.CARIBOU_KEY_ALIAS }}
+          CARIBOU_KEY_PASSWORD: ${{ secrets.CARIBOU_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease -Pcaribou.profile=production --no-daemon --stacktrace
+
+      - name: Assemble named APK
+        id: apk
+        run: |
+          VERSION_NAME="${{ steps.version.outputs.versionName }}"
+          VERSION_CODE="${{ steps.version.outputs.versionCode }}"
+          BUILD_TYPE="${{ steps.version.outputs.buildType }}"
+
+          if [ "$BUILD_TYPE" = "production" ]; then
+            SRC_DIR="app/build/outputs/apk/release"
+          else
+            SRC_DIR="app/build/outputs/apk/debug"
+          fi
+
+          SRC_APK="$(find "$SRC_DIR" -maxdepth 1 -name '*.apk' | head -n1)"
+          if [ -z "$SRC_APK" ]; then
+            echo "::error::No APK produced in $SRC_DIR" >&2
+            exit 1
+          fi
+
+          ARTIFACT_NAME="Caribou_APK_${VERSION_NAME}_${VERSION_CODE}_${BUILD_TYPE}"
+          APK_NAME="${ARTIFACT_NAME}.apk"
+
+          mkdir -p build-artifacts
+          cp "$SRC_APK" "build-artifacts/${APK_NAME}"
+
+          echo "artifactName=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "apkName=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Built ${APK_NAME}"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.artifactName }}
+          path: build-artifacts/${{ steps.apk.outputs.apkName }}
+          if-no-files-found: error
+
+      - name: Persist version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.properties
+          if git diff --cached --quiet; then
+            echo "No version change to commit."
+            exit 0
+          fi
+          git commit -m "chore(version): ${{ steps.version.outputs.buildType }} build ${{ steps.version.outputs.versionName }} (code ${{ steps.version.outputs.versionCode }}) [skip ci]"
+          # Retry push with rebase in case the branch moved (belt-and-suspenders;
+          # the concurrency group already serializes runs).
+          for attempt in 1 2 3 4; do
+            if git push origin "HEAD:${{ github.ref_name }}"; then
+              echo "Pushed version bump."
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), rebasing and retrying..."
+            git pull --rebase origin "${{ github.ref_name }}"
+            sleep $((attempt * 2))
+          done
+          echo "::error::Failed to push version bump after retries." >&2
+          exit 1
