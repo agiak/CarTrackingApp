@@ -30,6 +30,7 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @Composable
 fun CarHeaderCard(statistics: CarStatistics) {
@@ -119,7 +120,7 @@ fun CarHeaderCard(statistics: CarStatistics) {
                     )
                 }
                 Text(
-                    text = "${String.format("%,d", statistics.car.currentOdometer.toInt())} km",
+                    text = "${statistics.car.currentOdometer.toInt().formatNumber()} km",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface

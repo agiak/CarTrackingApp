@@ -26,7 +26,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ForecastResult
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastUiState
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * Displays fuel forecast section with predictions per car.
@@ -167,7 +167,7 @@ private fun ForecastMetricRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = String.format(Locale.US, "%.3f", forecast.predictedNextValue),
+                        text = forecast.predictedNextValue.formatNumber(3),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface

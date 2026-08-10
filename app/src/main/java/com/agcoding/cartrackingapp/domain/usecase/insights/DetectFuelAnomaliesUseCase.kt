@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.Anomaly
 import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
@@ -83,9 +84,9 @@ class DetectFuelAnomaliesUseCase @Inject constructor() {
                         type = AnomalyType.FUEL_PRICE_SPIKE,
                         severity = severity,
                         title = "Fuel Price Spike Detected",
-                        description = "Fuel price increased by ${String.format("%.1f", percentageIncrease)}% " +
-                                "compared to 6-month average (€${String.format("%.3f", avgHistoricalPrice)}/L). " +
-                                "Current: €${String.format("%.3f", currentPrice)}/L",
+                        description = "Fuel price increased by ${percentageIncrease.formatNumber(1)}% " +
+                                "compared to 6-month average (€${avgHistoricalPrice.formatNumber(3)}/L). " +
+                                "Current: €${currentPrice.formatNumber(3)}/L",
                         detectedAt = currentDate,
                         relatedTransactionId = currentRefill.id,
                         value = currentPrice,

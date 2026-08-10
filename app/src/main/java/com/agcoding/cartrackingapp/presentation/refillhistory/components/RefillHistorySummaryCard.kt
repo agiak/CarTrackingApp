@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @Composable
 fun RefillHistorySummaryCard(
@@ -88,25 +90,25 @@ fun RefillHistorySummaryCard(
                     SummaryItem(
                         icon = Icons.Default.AttachMoney,
                         label = stringResource(R.string.total_cost),
-                        value = "€%.2f".format(totalCost)
+                        value = totalCost.formatMoney()
                     )
 
                     SummaryItem(
                         icon = Icons.Default.LocalGasStation,
                         label = stringResource(R.string.total_liters_label),
-                        value = "%.1f L".format(totalLiters)
+                        value = "${totalLiters.formatNumber(1)} L"
                     )
 
                     SummaryItem(
                         icon = Icons.Default.Route,
                         label = stringResource(R.string.total_distance),
-                        value = "%.0f km".format(totalDistance)
+                        value = "${totalDistance.formatNumber(0)} km"
                     )
 
                     SummaryItem(
                         icon = Icons.AutoMirrored.Filled.TrendingUp,
                         label = stringResource(R.string.avg_consumption),
-                        value = if (avgConsumption > 0) "%.1f L/100km".format(avgConsumption) else "-"
+                        value = if (avgConsumption > 0) "${avgConsumption.formatNumber(1)} L/100km" else "-"
                     )
                 }
             }

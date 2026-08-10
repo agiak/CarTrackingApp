@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TripStatistics
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -233,7 +235,7 @@ fun TripDetailsScreen(
                                             fontSize = 14.sp
                                         )
                                         Text(
-                                            text = String.format("%.1f L • %.0f km", refill.litersAdded, refill.tripDistance),
+                                            text = "${refill.litersAdded.formatNumber(1)} L • ${refill.tripDistance.formatNumber(0)} km",
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -340,7 +342,7 @@ fun TripDetailsContent(
                 )
                 StatCard(
                     title = stringResource(R.string.stat_total_cost),
-                    value = String.format("€%.2f", tripStatistics.totalCost),
+                    value = tripStatistics.totalCost.formatMoney(),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -353,12 +355,12 @@ fun TripDetailsContent(
             ) {
                 StatCard(
                     title = stringResource(R.string.stat_distance),
-                    value = String.format("%.1f km", tripStatistics.totalDistance),
+                    value = "${tripStatistics.totalDistance.formatNumber(1)} km",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = stringResource(R.string.stat_avg_consumption),
-                    value = String.format("%.2f L/100km", tripStatistics.averageConsumption),
+                    value = "${tripStatistics.averageConsumption.formatNumber(2)} L/100km",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -367,7 +369,7 @@ fun TripDetailsContent(
         item {
             StatCard(
                 title = stringResource(R.string.stat_total_fuel),
-                value = String.format("%.2f L", tripStatistics.totalFuelConsumed),
+                value = "${tripStatistics.totalFuelConsumed.formatNumber(2)} L",
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -328,10 +330,7 @@ fun SelectableRefillCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = String.format("%.2f L • %.2f km • €%.2f",
-                        refill.litersAdded,
-                        refill.tripDistance,
-                        refill.amountPaid),
+                    text = "${refill.litersAdded.formatNumber(2)} L • ${refill.tripDistance.formatNumber(2)} km • ${refill.amountPaid.formatMoney()}",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

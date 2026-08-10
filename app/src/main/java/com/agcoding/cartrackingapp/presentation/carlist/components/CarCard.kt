@@ -35,7 +35,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @Composable
 fun CarCard(
@@ -148,7 +148,7 @@ fun CarCard(
                         label = stringResource(R.string.car_card_odometer),
                         value = stringResource(
                             R.string.car_card_km_format,
-                            String.format(Locale.getDefault(), "%.0f", car.currentOdometer)
+                            car.currentOdometer.formatNumber(0)
                         ),
                         isCompact = isCompactLayout
                     )
@@ -159,7 +159,7 @@ fun CarCard(
                         label = stringResource(R.string.car_card_total_cost),
                         value = stringResource(
                             R.string.car_card_currency_eur_format,
-                            String.format(Locale.getDefault(), "%.2f", car.totalCost)
+                            car.totalCost.formatNumber(2)
                         ),
                         isCompact = isCompactLayout
                     )
@@ -178,7 +178,7 @@ fun CarCard(
                         label = stringResource(R.string.car_card_distance),
                         value = stringResource(
                             R.string.car_card_km_format,
-                            String.format(Locale.getDefault(), "%.0f", car.totalDistance)
+                            car.totalDistance.formatNumber(0)
                         ),
                         isCompact = isCompactLayout
                     )
@@ -190,7 +190,7 @@ fun CarCard(
                         value = if (car.averageConsumption > 0) {
                             stringResource(
                                 R.string.car_card_consumption_format,
-                                String.format(Locale.getDefault(), "%.1f", car.averageConsumption)
+                                car.averageConsumption.formatNumber(1)
                             )
                         } else {
                             stringResource(R.string.not_available)

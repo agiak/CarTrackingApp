@@ -57,6 +57,8 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 enum class MonthlyTrendsFilter(val labelRes: Int, val months: Int?) {
     LAST_3_MONTHS(R.string.filter_last_3_months, 3),
@@ -525,21 +527,21 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.total_spending), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(text = "€${String.format("%.2f", totalCombinedCost)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)
+                Text(text = totalCombinedCost.formatMoney(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.secondary)
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                SummaryItem(label = stringResource(R.string.fuel_cost), value = "€${String.format("%.2f", totalRefillCost)}")
-                SummaryItem(label = stringResource(R.string.expenses_cost), value = "€${String.format("%.2f", totalExpenseCost)}")
+                SummaryItem(label = stringResource(R.string.fuel_cost), value = totalRefillCost.formatMoney())
+                SummaryItem(label = stringResource(R.string.expenses_cost), value = totalExpenseCost.formatMoney())
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                SummaryItem(label = stringResource(R.string.total_fuel), value = "${String.format("%.1f", totalLiters)} L")
-                SummaryItem(label = stringResource(R.string.distance_label), value = "${String.format("%.0f", totalDistance)} km")
+                SummaryItem(label = stringResource(R.string.total_fuel), value = "${totalLiters.formatNumber(1)} L")
+                SummaryItem(label = stringResource(R.string.distance_label), value = "${totalDistance.formatNumber(0)} km")
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                SummaryItem(label = stringResource(R.string.avg_consumption), value = "${String.format("%.1f", avgConsumption)} L/100km")
+                SummaryItem(label = stringResource(R.string.avg_consumption), value = "${avgConsumption.formatNumber(1)} L/100km")
                 SummaryItem(label = stringResource(R.string.transactions_label), value = "${totalRefills + totalExpenses}")
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -578,25 +580,25 @@ private fun MonthlyTrendItem(
             ) {
                 Text(text = "${trend.monthName} ${trend.year}", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "€${String.format("%.2f", trend.totalCombinedCost)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(text = trend.totalCombinedCost.formatMoney(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = "${stringResource(R.string.fuel)}: €${String.format("%.2f", trend.totalCost)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                Text(text = "${stringResource(R.string.fuel)}: ${trend.totalCost.formatMoney()}", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 if (trend.expenseCost > 0) {
-                    Text(text = "${stringResource(R.string.expenses)}: €${String.format("%.2f", trend.expenseCost)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.secondary)
+                    Text(text = "${stringResource(R.string.expenses)}: ${trend.expenseCost.formatMoney()}", fontSize = 13.sp, color = MaterialTheme.colorScheme.secondary)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.refills_count_format, trend.refillCount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(text = "${String.format("%.1f", trend.totalLiters)} L", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(text = "${String.format("%.0f", trend.totalDistance)} km", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = "${trend.totalLiters.formatNumber(1)} L", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = "${trend.totalDistance.formatNumber(0)} km", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (trend.averageConsumption > 0) {
-                    Text(text = "${String.format("%.1f", trend.averageConsumption)} L/100km", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = "${trend.averageConsumption.formatNumber(1)} L/100km", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             if (trend.expenseCount > 0) {

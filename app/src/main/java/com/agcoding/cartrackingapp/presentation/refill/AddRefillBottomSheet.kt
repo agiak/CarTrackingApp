@@ -41,7 +41,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.refill.components.VoiceEntrySection
+import com.agcoding.cartrackingapp.util.formatNumber
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -136,6 +139,7 @@ fun AddRefillBottomSheet(
                 label = { Text(stringResource(R.string.amount_paid_eur)) },
                 placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 isError = uiState.fieldErrors.containsKey("cost"),
                 supportingText = uiState.fieldErrors["cost"]?.let { error ->
@@ -153,6 +157,7 @@ fun AddRefillBottomSheet(
                 label = { Text(stringResource(R.string.liters_added)) },
                 placeholder = { Text(stringResource(R.string.liters_added_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 isError = uiState.fieldErrors.containsKey("liters"),
                 supportingText = uiState.fieldErrors["liters"]?.let { error ->
@@ -173,13 +178,14 @@ fun AddRefillBottomSheet(
                     { Text(error) }
                 } ?: { Text(stringResource(R.string.trip_distance_supporting)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 isError = uiState.fieldErrors.containsKey("distance"),
                 modifier = Modifier.fillMaxWidth()
             )
 
             // Calculated odometer display (shown when trip distance is entered)
-            val tripDistanceValue = uiState.tripDistance.toDoubleOrNull()
+            val tripDistanceValue = uiState.tripDistance.parseLocalizedDouble()
             if (tripDistanceValue != null && tripDistanceValue > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -193,7 +199,7 @@ fun AddRefillBottomSheet(
                     Text(
                         text = stringResource(
                             R.string.calculated_odometer,
-                            String.format("%,d", calculatedOdometer.toInt())
+                            calculatedOdometer.toInt().formatNumber()
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
@@ -277,9 +283,9 @@ fun AddRefillBottomSheet(
             }
 
             // Calculated values preview
-            val amount = uiState.amountPaid.toDoubleOrNull()
-            val liters = uiState.litersAdded.toDoubleOrNull()
-            val distance = uiState.tripDistance.toDoubleOrNull()
+            val amount = uiState.amountPaid.parseLocalizedDouble()
+            val liters = uiState.litersAdded.parseLocalizedDouble()
+            val distance = uiState.tripDistance.parseLocalizedDouble()
 
             if (amount != null && liters != null && liters > 0) {
                 val pricePerLiter = amount / liters
@@ -306,7 +312,7 @@ fun AddRefillBottomSheet(
                         Text(
                             text = stringResource(
                                 R.string.price_per_liter_format,
-                                String.format("%.3f", pricePerLiter)
+                                pricePerLiter.formatNumber(3)
                             ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -315,7 +321,7 @@ fun AddRefillBottomSheet(
                             Text(
                                 text = stringResource(
                                     R.string.fuel_consumption_format,
-                                    String.format("%.2f", consumption)
+                                    consumption.formatNumber(2)
                                 ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer

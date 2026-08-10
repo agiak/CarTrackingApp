@@ -69,8 +69,8 @@ import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.DistanceDataPoint
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatNumber
 import androidx.compose.ui.tooling.preview.Preview
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -223,7 +223,6 @@ private fun DistanceGraphContent(
     trendData: DistanceTrendData,
     modifier: Modifier = Modifier
 ) {
-    val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
     val tripDatePattern = stringResource(R.string.distance_graph_trip_date_format)
     val tripDateFormat = remember(tripDatePattern) {
         SimpleDateFormat(tripDatePattern, Locale.getDefault())
@@ -318,7 +317,7 @@ private fun DistanceGraphContent(
                         Text(
                             text = stringResource(
                                 R.string.distance_graph_km_format,
-                                numberFormat.format(trendData.totalDistance.toLong())
+                                trendData.totalDistance.toLong().formatNumber()
                             ),
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
@@ -332,7 +331,7 @@ private fun DistanceGraphContent(
                     label = stringResource(R.string.distance_graph_average_label),
                     value = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trendData.averageTripDistance.toLong())
+                        trendData.averageTripDistance.toLong().formatNumber()
                     ),
                     indicatorColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth()
@@ -341,7 +340,7 @@ private fun DistanceGraphContent(
                     label = stringResource(R.string.distance_graph_longest_trip_label),
                     value = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trendData.longestTrip.toLong())
+                        trendData.longestTrip.toLong().formatNumber()
                     ),
                     indicatorColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
@@ -350,7 +349,7 @@ private fun DistanceGraphContent(
                     label = stringResource(R.string.distance_graph_shortest_trip_label),
                     value = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trendData.shortestTrip.toLong())
+                        trendData.shortestTrip.toLong().formatNumber()
                     ),
                     indicatorColor = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.fillMaxWidth()
@@ -388,7 +387,7 @@ private fun DistanceGraphContent(
                                         ChartDataPoint(
                                             label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.distance,
-                                            formattedValue = "${String.format("%.0f", monthData.distance)} km"
+                                            formattedValue = "${monthData.distance.formatNumber(0)} km"
                                         )
                                     },
                                     tooltipIcon = Icons.Default.Navigation,
@@ -512,7 +511,7 @@ private fun DistanceGraphContent(
                     Text(
                         text = stringResource(
                             R.string.distance_graph_km_format,
-                            numberFormat.format(trendData.totalDistance.toLong())
+                            trendData.totalDistance.toLong().formatNumber()
                         ),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
@@ -530,7 +529,7 @@ private fun DistanceGraphContent(
                     label = stringResource(R.string.distance_graph_average_label),
                     value = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trendData.averageTripDistance.toLong())
+                        trendData.averageTripDistance.toLong().formatNumber()
                     ),
                     indicatorColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f)
@@ -539,7 +538,7 @@ private fun DistanceGraphContent(
                     label = stringResource(R.string.distance_graph_longest_trip_label),
                     value = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trendData.longestTrip.toLong())
+                        trendData.longestTrip.toLong().formatNumber()
                     ),
                     indicatorColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.weight(1f)
@@ -551,7 +550,7 @@ private fun DistanceGraphContent(
                 label = stringResource(R.string.distance_graph_shortest_trip_label),
                 value = stringResource(
                     R.string.distance_graph_km_format,
-                    numberFormat.format(trendData.shortestTrip.toLong())
+                    trendData.shortestTrip.toLong().formatNumber()
                 ),
                 indicatorColor = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.fillMaxWidth()
@@ -581,7 +580,7 @@ private fun DistanceGraphContent(
                                 ChartDataPoint(
                                     label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.distance,
-                                    formattedValue = "${String.format("%.0f", monthData.distance)} km"
+                                    formattedValue = "${monthData.distance.formatNumber(0)} km"
                                 )
                             },
                             tooltipIcon = Icons.Default.Navigation,
@@ -721,9 +720,9 @@ private fun MonthlyDistanceBarChart(
                 yAxisValues.reversed().forEach { value ->
                     Text(
                         text = if (value >= 1000) {
-                            String.format("%.0fk", value / 1000)
+                            "${(value / 1000).formatNumber(0)}k"
                         } else {
-                            String.format("%.0f", value)
+                            value.formatNumber(0)
                         },
                         fontSize = 11.sp,
                         color = textColor,
@@ -866,7 +865,6 @@ private fun TripItem(
     trip: TripInfo,
     dateFormat: SimpleDateFormat
 ) {
-    val numberFormat = remember { NumberFormat.getNumberInstance(Locale.getDefault()) }
 
     StyledCard(
         modifier = Modifier.fillMaxWidth()
@@ -911,14 +909,14 @@ private fun TripItem(
                 Text(
                     text = stringResource(
                         R.string.distance_graph_km_format,
-                        numberFormat.format(trip.distance.toLong())
+                        trip.distance.toLong().formatNumber()
                     ),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = stringResource(R.string.distance_graph_liters_format, trip.liters),
+                    text = stringResource(R.string.distance_graph_liters_format, trip.liters.toDouble().formatNumber(1)),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

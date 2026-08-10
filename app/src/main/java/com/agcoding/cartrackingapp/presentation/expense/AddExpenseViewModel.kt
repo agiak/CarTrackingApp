@@ -10,6 +10,10 @@ import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.parseLocalizedInt
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -148,8 +152,9 @@ class AddExpenseViewModel @Inject constructor(
     }
 
     fun updateAmount(value: String) {
-        _amount.value = value
-        val amountValue = value.toDoubleOrNull()
+        val clean = sanitizeDecimalInput(value)
+        _amount.value = clean
+        val amountValue = clean.parseLocalizedDouble()
         _amountError.value = when {
             value.isBlank() -> null
             amountValue == null -> getApplication<Application>().getString(R.string.error_cost_invalid)
@@ -184,9 +189,7 @@ class AddExpenseViewModel @Inject constructor(
     }
 
     fun updateReminderMileage(value: String) {
-        if (value.isEmpty() || value.all { it.isDigit() }) {
-            _reminderMileage.value = value
-        }
+        _reminderMileage.value = sanitizeIntInput(value)
     }
 
     fun showReminderDatePicker() {
@@ -207,7 +210,7 @@ class AddExpenseViewModel @Inject constructor(
     }
 
     fun saveExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val amountValue = amount.value.toDoubleOrNull()
+        val amountValue = amount.value.parseLocalizedDouble()
         val categoryValue = category.value.trim()
 
         if (categoryValue.isBlank()) {
@@ -234,7 +237,7 @@ class AddExpenseViewModel @Inject constructor(
                 }
 
                 val targetMileage = if (_serviceReminderEnabled.value && _reminderMileage.value.isNotBlank()) {
-                    val additionalKm = _reminderMileage.value.toIntOrNull()
+                    val additionalKm = _reminderMileage.value.parseLocalizedInt()
                     if (additionalKm != null && additionalKm > 0) {
                         val car = carRepository.getCarById(_carId.value).first()
                         val currentOdometer = car?.currentOdometer?.toInt() ?: 0

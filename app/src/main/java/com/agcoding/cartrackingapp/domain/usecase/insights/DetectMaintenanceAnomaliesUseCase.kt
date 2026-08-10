@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.Anomaly
 import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.Expense
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
@@ -99,9 +100,9 @@ class DetectMaintenanceAnomaliesUseCase @Inject constructor() {
                         type = AnomalyType.MAINTENANCE_OUTLIER,
                         severity = AnomalySeverity.HIGH,
                         title = "Unusually High Maintenance Cost",
-                        description = "${currentExpense.category} expense (€${String.format("%.2f", currentCost)}) " +
-                                "is ${String.format("%.1f", percentageIncrease)}% higher than " +
-                                "historical average (€${String.format("%.2f", avgHistoricalCost)}). " +
+                        description = "${currentExpense.category} expense (€${currentCost.formatNumber(2)}) " +
+                                "is ${percentageIncrease.formatNumber(1)}% higher than " +
+                                "historical average (€${avgHistoricalCost.formatNumber(2)}). " +
                                 "This may indicate a significant repair or service.",
                         detectedAt = currentDate,
                         relatedTransactionId = currentExpense.id,

@@ -62,6 +62,7 @@ import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -336,7 +337,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", state.totalCost)),
+                    text = stringResource(R.string.currency_eur_format, state.totalCost.formatNumber(2)),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
@@ -352,13 +353,13 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
             ) {
                 StatItem(
                     label = stringResource(R.string.fuel),
-                    value = stringResource(R.string.currency_eur_format, String.format("%.2f", state.refillsCost)),
+                    value = stringResource(R.string.currency_eur_format, state.refillsCost.formatNumber(2)),
                     icon = Icons.Default.LocalGasStation,
                     iconTint = MaterialTheme.colorScheme.primary
                 )
                 StatItem(
                     label = stringResource(R.string.expenses),
-                    value = stringResource(R.string.currency_eur_format, String.format("%.2f", state.expensesCost)),
+                    value = stringResource(R.string.currency_eur_format, state.expensesCost.formatNumber(2)),
                     icon = Icons.Default.Receipt,
                     iconTint = MaterialTheme.colorScheme.secondary
                 )
@@ -377,7 +378,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = stringResource(R.string.liters_format, String.format("%.1f", state.totalLiters)),
+                        text = stringResource(R.string.liters_format, state.totalLiters.formatNumber(1)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -389,7 +390,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = stringResource(R.string.kilometers_format, String.format("%.0f", state.totalDistance)),
+                        text = stringResource(R.string.kilometers_format, state.totalDistance.formatNumber(0)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -404,7 +405,7 @@ private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
                         text = if (state.averageConsumption > 0)
                             stringResource(
                                 R.string.consumption_l_per_100km_format,
-                                String.format("%.1f", state.averageConsumption)
+                                state.averageConsumption.formatNumber(1)
                             )
                         else stringResource(R.string.not_available),
                         fontSize = 14.sp,
@@ -473,7 +474,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                     label = stringResource(R.string.average_price_per_liter),
                     value = stringResource(
                         R.string.currency_eur_format,
-                        String.format("%.2f", state.refillsCost / state.totalLiters)
+                        (state.refillsCost / state.totalLiters).formatNumber(2)
                     )
                 )
             }
@@ -484,7 +485,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                     label = stringResource(R.string.cost_per_km),
                     value = stringResource(
                         R.string.cost_per_km_format,
-                        String.format("%.3f", state.totalCost / state.totalDistance)
+                        (state.totalCost / state.totalDistance).formatNumber(3)
                     )
                 )
             }
@@ -497,7 +498,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                 ) {
                     InsightRow(
                         label = stringResource(R.string.fuel_percentage_of_spending),
-                        value = stringResource(R.string.km_per_l_format, String.format("%.1f", fuelPercentage)),
+                        value = stringResource(R.string.km_per_l_format, fuelPercentage.formatNumber(1)),
                         showInfoIcon = true,
                         onInfoClick = { showFuelPercentageTooltip = !showFuelPercentageTooltip } // Toggle behavior
                     )
@@ -526,7 +527,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                     label = stringResource(R.string.biggest_refill),
                     value = stringResource(
                         R.string.currency_eur_format,
-                        String.format("%.2f", biggestRefill.amountPaid)
+                        biggestRefill.amountPaid.formatNumber(2)
                     )
                 )
             }
@@ -537,7 +538,7 @@ private fun MonthInsightsCard(state: MonthDetailsUiState.Success) {
                     label = stringResource(R.string.biggest_expense),
                     value = stringResource(
                         R.string.currency_eur_format,
-                        String.format("%.2f", biggestExpense.amount)
+                        biggestExpense.amount.formatNumber(2)
                     )
                 )
             }

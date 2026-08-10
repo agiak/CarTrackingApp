@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,7 +55,7 @@ fun EditCarDialog(
 ) {
     var name by remember { mutableStateOf(car.name) }
     var licensePlate by remember { mutableStateOf(car.licensePlate) }
-    var odometer by remember { mutableStateOf(car.currentOdometer.toString()) }
+    var odometer by remember { mutableStateOf(car.currentOdometer.toInt().toString()) }
     var tyreSize by remember { mutableStateOf(car.tyreSize ?: "") }
     var licenseExpiration by remember { mutableStateOf(car.licenseExpiration ?: "") }
 
@@ -109,10 +111,11 @@ fun EditCarDialog(
 
                 OutlinedTextField(
                     value = odometer,
-                    onValueChange = { odometer = it },
+                    onValueChange = { odometer = sanitizeIntInput(it) },
                     label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
                     placeholder = { Text(stringResource(R.string.edit_car_placeholder_odometer)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

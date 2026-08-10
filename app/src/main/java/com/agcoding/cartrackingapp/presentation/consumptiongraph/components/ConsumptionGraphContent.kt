@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.ConsumptionDataPoint
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrend
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrendData
@@ -64,7 +65,7 @@ fun ConsumptionGraphContent(
                 // Statistics Cards - vertical layout for left panel
                 StatCard(
                     label = stringResource(R.string.average_label),
-                    value = "%.1f L/100km".format(trendData.overallAverage),
+                    value = "${trendData.overallAverage.formatNumber(1)} L/100km",
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -76,14 +77,14 @@ fun ConsumptionGraphContent(
 
                 StatCard(
                     label = stringResource(R.string.best_label),
-                    value = "%.1f L/100km".format(trendData.bestConsumption),
+                    value = "${trendData.bestConsumption.formatNumber(1)} L/100km",
                     valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 StatCard(
                     label = stringResource(R.string.worst_label),
-                    value = "%.1f L/100km".format(trendData.worstConsumption),
+                    value = "${trendData.worstConsumption.formatNumber(1)} L/100km",
                     valueColor = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -129,7 +130,7 @@ fun ConsumptionGraphContent(
                                     ChartDataPoint(
                                         label = dataPoint.label,
                                         value = dataPoint.averageConsumption,
-                                        formattedValue = "${String.format(java.util.Locale.getDefault(), "%.1f", dataPoint.averageConsumption)} L/100km"
+                                        formattedValue = "${dataPoint.averageConsumption.formatNumber(1)} L/100km"
                                     )
                                 },
                                 tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,
@@ -162,7 +163,7 @@ fun ConsumptionGraphContent(
             ) {
                 StatCard(
                     label = stringResource(R.string.average_label),
-                    value = "%.1f L/100km".format(trendData.overallAverage),
+                    value = "${trendData.overallAverage.formatNumber(1)} L/100km",
                     modifier = Modifier.weight(1f)
                 )
 
@@ -179,13 +180,13 @@ fun ConsumptionGraphContent(
             ) {
                 StatCard(
                     label = stringResource(R.string.best_label),
-                    value = "%.1f L/100km".format(trendData.bestConsumption),
+                    value = "${trendData.bestConsumption.formatNumber(1)} L/100km",
                     valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = stringResource(R.string.worst_label),
-                    value = "%.1f L/100km".format(trendData.worstConsumption),
+                    value = "${trendData.worstConsumption.formatNumber(1)} L/100km",
                     valueColor = MaterialTheme.colorScheme.error,
                     modifier = Modifier.weight(1f)
                 )
@@ -214,7 +215,7 @@ fun ConsumptionGraphContent(
                             ChartDataPoint(
                                 label = dataPoint.label,
                                 value = dataPoint.averageConsumption,
-                                formattedValue = "${String.format(java.util.Locale.getDefault(), "%.1f", dataPoint.averageConsumption)} L/100km"
+                                formattedValue = "${dataPoint.averageConsumption.formatNumber(1)} L/100km"
                             )
                         },
                         tooltipIcon = Icons.AutoMirrored.Filled.TrendingUp,
