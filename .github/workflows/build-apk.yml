@@ -128,6 +128,35 @@ jobs:
           path: build-artifacts/${{ steps.apk.outputs.apkName }}
           if-no-files-found: error
 
+      - name: Publish GitHub Release (direct APK download)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION_NAME="${{ steps.version.outputs.versionName }}"
+          VERSION_CODE="${{ steps.version.outputs.versionCode }}"
+          BUILD_TYPE="${{ steps.version.outputs.buildType }}"
+          APK="build-artifacts/${{ steps.apk.outputs.apkName }}"
+          TAG="v${VERSION_NAME}-${BUILD_TYPE}"
+
+          # Development builds are marked as pre-releases; production as full releases.
+          PRERELEASE_FLAG=""
+          if [ "$BUILD_TYPE" != "production" ]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
+          # Idempotent: reuse the release if the tag already exists (e.g. on re-run).
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" \
+              --target "${{ github.sha }}" \
+              --title "Caribou ${VERSION_NAME} (${BUILD_TYPE}, code ${VERSION_CODE})" \
+              --notes "Automated ${BUILD_TYPE} build. versionName ${VERSION_NAME}, versionCode ${VERSION_CODE}." \
+              $PRERELEASE_FLAG
+          fi
+
+          echo "Release: $(gh release view "$TAG" --json url --jq .url)"
+
       - name: Persist version bump
         run: |
           git config user.name "github-actions[bot]"
