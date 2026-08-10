@@ -349,7 +349,7 @@
     <string name="distance_graph_select_period_title">Επιλογή περιόδου</string>
 
     <string name="distance_graph_km_format">%1$s km</string>
-    <string name="distance_graph_liters_format">%.1f L</string>
+    <string name="distance_graph_liters_format">%1$s L</string>
     <string name="distance_graph_total_trips_format">%1$d σύνολο</string>
 
     <string name="distance_graph_no_trips_title">Δεν έχουν καταγραφεί διαδρομές ακόμα</string>
@@ -390,7 +390,7 @@
     <string name="car_card_distance">Απόσταση</string>
     <string name="car_card_avg_consumption">Μ.Ο. κατανάλωση</string>
     <string name="car_card_km_format">%1$s km</string>
-    <string name="car_card_currency_eur_format">€%1$s</string>
+    <string name="car_card_currency_eur_format">%1$s €</string>
     <string name="car_card_consumption_format">%1$s L/100km</string>
 
     <!-- Expandable FAB Menu -->
@@ -446,7 +446,7 @@
     <string name="no_location">Χωρίς τοποθεσία</string>
     <string name="update">Ενημέρωση</string>
     <string name="calculated">Υπολογισμένο</string>
-    <string name="price_per_liter_format">Τιμή ανά λίτρο: €%1$s</string>
+    <string name="price_per_liter_format">Τιμή ανά λίτρο: %1$s €</string>
     <string name="fuel_consumption_format">Κατανάλωση: %1$s L/100km</string>
 
     <!-- Edit Car Dialog (legacy) -->
@@ -553,23 +553,23 @@
     <string name="date_format_dd_mm_yyyy">dd/MM/yyyy</string>
 
     <!-- Value formats -->
-    <string name="currency_eur_format">€%1$s</string>
+    <string name="currency_eur_format">%1$s €</string>
     <string name="liters_format">%1$s L</string>
     <string name="kilometers_format">%1$s km</string>
     <string name="consumption_l_per_100km_format">%1$s L/100km</string>
-    <string name="cost_per_km_format">€%1$s/km</string>
+    <string name="cost_per_km_format">%1$s €/km</string>
     <string name="km_per_l_format">%1$s km/L</string>
 
     <!-- Refill History formatting -->
-    <string name="refill_history_details_format">%1$s L • €%2$s/L • %3$s km • %4$s L/100km</string>
+    <string name="refill_history_details_format">%1$s L • %2$s €/L • %3$s km • %4$s L/100km</string>
 
     <!-- Month Details formatting -->
     <string name="refills_with_count_format">Ανεφοδιασμοί (%1$d)</string>
     <string name="expenses_with_count_format">Έξοδα (%1$d)</string>
     <string name="refill_item_subtitle_format">%1$s L • %2$s km</string>
     <string name="percent_format">%1$s%%</string>
-    <string name="biggest_refill_value_format">€%1$s • %2$s L</string>
-    <string name="biggest_expense_value_format">€%1$s • %2$s</string>
+    <string name="biggest_refill_value_format">%1$s € • %2$s L</string>
+    <string name="biggest_expense_value_format">%1$s € • %2$s</string>
 
     <!-- Date formats (UI) -->
     <string name="date_format_mmm_d_yyyy">MMM d, yyyy</string>
@@ -600,8 +600,8 @@
     <string name="total_cost_divide_distance">Συνολικό κόστος ÷ Απόσταση</string>
     <string name="service_expenses">Έξοδα Σέρβις</string>
     <string name="other_expenses">Άλλα Έξοδα</string>
-    <string name="fuel_label_format">Καύσιμα: €%1$s</string>
-    <string name="expenses_label_format">Έξοδα: €%1$s</string>
+    <string name="fuel_label_format">Καύσιμα: %1$s €</string>
+    <string name="expenses_label_format">Έξοδα: %1$s €</string>
     <string name="refill_count_format">%1$d ανεφοδιασμός</string>
     <string name="average_cost_per_refill">Μέσο κόστος ανά ανεφοδιασμό:</string>
     <string name="average_liters_per_refill">Μέσος όγκος ανά ανεφοδιασμό:</string>
@@ -770,8 +770,8 @@
     <string name="error_distance_positive">Η απόσταση πρέπει να είναι μεγαλύτερη από 0</string>
     <string name="error_distance_zero">Η απόσταση πρέπει να είναι μεγαλύτερη από 0. Παρακαλώ εισάγετε υψηλότερη ένδειξη οδομέτρου.</string>
     <string name="error_distance_too_high">Απόσταση %d km φαίνεται πολύ υψηλή. Παρακαλώ επαληθεύστε την ένδειξη του οδομέτρου.</string>
-    <string name="error_consumption_too_low">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα χαμηλή. Παρακαλώ επαληθεύστε.</string>
-    <string name="error_consumption_too_high">Κατανάλωση %.1f L/100km φαίνεται ασυνήθιστα υψηλή. Παρακαλώ επαληθεύστε.</string>
+    <string name="error_consumption_too_low">Κατανάλωση %1$s L/100km φαίνεται ασυνήθιστα χαμηλή. Παρακαλώ επαληθεύστε.</string>
+    <string name="error_consumption_too_high">Κατανάλωση %1$s L/100km φαίνεται ασυνήθιστα υψηλή. Παρακαλώ επαληθεύστε.</string>
 
     <!-- Spreadsheet Import Feature -->
     <string name="settings_section_spreadsheet_import">Εισαγωγή Υπολογιστικού Φύλλου</string>
@@ -929,7 +929,7 @@
     <string name="car_comparison_least_economical">Λιγότερο Οικονομικό: %1$s</string>
     <string name="car_comparison_best_performer">Αυτό το αυτοκίνητο έχει τις καλύτερες επιδόσεις στη συνολική αποδοτικότητα κόστους.</string>
     <string name="car_comparison_needs_attention">Αυτό το αυτοκίνητο μπορεί να χρειάζεται προσοχή για μείωση του κόστους.</string>
-    <string name="car_comparison_cost_detail">στα €%.2f ανά km</string>
+    <string name="car_comparison_cost_detail">στα %1$s €/χλμ</string>
     <string name="car_comparison_no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα για αυτό το μέτρο</string>
 
     <!-- Yearly Comparison -->
@@ -988,12 +988,12 @@
     <string name="anomaly_title_cost_per_km">Απόκλιση Κόστους ανά Χλμ</string>
 
     <!-- Anomaly Descriptions -->
-    <string name="anomaly_desc_fuel_price_spike">Η τιμή καυσίμου αυξήθηκε κατά %1$s%% σε σχέση με τον μέσο όρο 6 μηνών (€%2$s/L). Τρέχουσα: €%3$s/L</string>
+    <string name="anomaly_desc_fuel_price_spike">Η τιμή καυσίμου αυξήθηκε κατά %1$s%% σε σχέση με τον μέσο όρο 6 μηνών (%2$s €/L). Τρέχουσα: %3$s €/L</string>
     <string name="anomaly_desc_consumption_spike">Η κατανάλωση καυσίμου %1$s κατά %2$s%% σε σχέση με τον μέσο όρο 6 μηνών (%3$s L/100km). Τρέχουσα: %4$s L/100km</string>
-    <string name="anomaly_desc_maintenance_outlier">Το κόστος για %1$s (€%2$s) είναι %3$s%% υψηλότερο από τον ιστορικό μέσο όρο (€%4$s).</string>
-    <string name="anomaly_desc_monthly_spending">Τα συνολικά έξοδα τον %1$s %2$s (€%3$s) είναι %4$s%% υψηλότερα από τον μέσο όρο 3 μηνών (€%5$s).</string>
-    <string name="anomaly_desc_cost_per_km">Το κόστος ανά χλμ %1$s κατά %2$s%% σε σχέση με τον μέσο όρο. Τρέχον: €%3$s/χλμ (μ.ό.: €%4$s/χλμ) με βάση %5$s χλμ διαδρομής.</string>
-    <string name="anomaly_desc_cost_per_km_with_month">Το κόστος ανά χλμ τον %1$s %2$s %3$s κατά %4$s%% σε σχέση με τον μέσο όρο. Τρέχον: €%5$s/χλμ (μ.ό.: €%6$s/χλμ) με βάση %7$s χλμ διαδρομής.</string>
+    <string name="anomaly_desc_maintenance_outlier">Το κόστος για %1$s (%2$s €) είναι %3$s%% υψηλότερο από τον ιστορικό μέσο όρο (%4$s €).</string>
+    <string name="anomaly_desc_monthly_spending">Τα συνολικά έξοδα τον %1$s %2$s (%3$s €) είναι %4$s%% υψηλότερα από τον μέσο όρο 3 μηνών (%5$s €).</string>
+    <string name="anomaly_desc_cost_per_km">Το κόστος ανά χλμ %1$s κατά %2$s%% σε σχέση με τον μέσο όρο. Τρέχον: %3$s €/χλμ (μ.ό.: %4$s €/χλμ) με βάση %5$s χλμ διαδρομής.</string>
+    <string name="anomaly_desc_cost_per_km_with_month">Το κόστος ανά χλμ τον %1$s %2$s %3$s κατά %4$s%% σε σχέση με τον μέσο όρο. Τρέχον: %5$s €/χλμ (μ.ό.: %6$s €/χλμ) με βάση %7$s χλμ διαδρομής.</string>
 
     <!-- Direction words -->
     <string name="increased">αυξήθηκε</string>
