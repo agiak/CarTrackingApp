@@ -42,7 +42,7 @@ import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatMoney
 
 @Composable
 fun CostGraphContent(
@@ -135,7 +135,7 @@ fun CostGraphContent(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "€${String.format(Locale.getDefault(), "%.2f", trendData.totalCost)}",
+                            text = trendData.totalCost.formatMoney(),
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -146,17 +146,17 @@ fun CostGraphContent(
                 // Statistics Cards
                 StatCard(
                     label = stringResource(R.string.average_monthly_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.averageMonthlyCost)}",
+                    value = trendData.averageMonthlyCost.formatMoney(),
                     modifier = Modifier.fillMaxWidth()
                 )
                 StatCard(
                     label = stringResource(R.string.highest_month_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.highestMonthCost)}",
+                    value = trendData.highestMonthCost.formatMoney(),
                     modifier = Modifier.fillMaxWidth()
                 )
                 StatCard(
                     label = stringResource(R.string.lowest_month_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.lowestMonthCost)}",
+                    value = trendData.lowestMonthCost.formatMoney(),
                     valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -198,7 +198,7 @@ fun CostGraphContent(
                                         ChartDataPoint(
                                             label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                             value = monthData.totalCost,
-                                            formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
+                                            formattedValue = monthData.totalCost.formatMoney()
                                         )
                                     },
                                     tooltipIcon = Icons.Default.AttachMoney,
@@ -346,7 +346,7 @@ fun CostGraphContent(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "€${String.format(Locale.getDefault(), "%.2f", trendData.totalCost)}",
+                        text = trendData.totalCost.formatMoney(),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -361,12 +361,12 @@ fun CostGraphContent(
             ) {
                 StatCard(
                     label = stringResource(R.string.average_monthly_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.averageMonthlyCost)}",
+                    value = trendData.averageMonthlyCost.formatMoney(),
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = stringResource(R.string.highest_month_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.highestMonthCost)}",
+                    value = trendData.highestMonthCost.formatMoney(),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -377,7 +377,7 @@ fun CostGraphContent(
             ) {
                 StatCard(
                     label = stringResource(R.string.lowest_month_cost),
-                    value = "€${String.format(Locale.getDefault(), "%.2f", trendData.lowestMonthCost)}",
+                    value = trendData.lowestMonthCost.formatMoney(),
                     valueColor = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.weight(1f)
                 )
@@ -412,7 +412,7 @@ fun CostGraphContent(
                                 ChartDataPoint(
                                     label = if (monthData.month.contains(monthData.year.toString())) monthData.month else "${monthData.month} ${monthData.year}",
                                     value = monthData.totalCost,
-                                    formattedValue = "€${String.format(Locale.getDefault(), "%.2f", monthData.totalCost)}"
+                                    formattedValue = monthData.totalCost.formatMoney()
                                 )
                             },
                             tooltipIcon = Icons.Default.AttachMoney,

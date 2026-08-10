@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.RefillItem
 import com.agcoding.cartrackingapp.domain.model.RefillsTrendData
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
@@ -245,13 +247,13 @@ private fun RefillsGraphContent(
 
                 StatCard(
                     label = stringResource(R.string.average_per_month),
-                    value = String.format("%.1f", trendData.averageRefillsPerMonth),
+                    value = trendData.averageRefillsPerMonth.formatNumber(1),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 StatCard(
                     label = stringResource(R.string.avg_liters_per_refill),
-                    value = "${String.format("%.1f", trendData.averageLitersPerRefill)} L",
+                    value = "${trendData.averageLitersPerRefill.formatNumber(1)} L",
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -397,7 +399,7 @@ private fun RefillsGraphContent(
         ) {
             StatCard(
                 label = stringResource(R.string.average_per_month),
-                value = String.format("%.1f", trendData.averageRefillsPerMonth),
+                value = trendData.averageRefillsPerMonth.formatNumber(1),
                 modifier = Modifier.weight(1f)
             )
             StatCard(
@@ -419,7 +421,7 @@ private fun RefillsGraphContent(
             )
             StatCard(
                 label = stringResource(R.string.avg_liters_per_refill),
-                value = "${String.format("%.1f", trendData.averageLitersPerRefill)} L",
+                value = "${trendData.averageLitersPerRefill.formatNumber(1)} L",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -602,7 +604,7 @@ private fun RefillItemCard(refill: RefillItem) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${String.format("%.1f", refill.liters)} L",
+                    text = "${refill.liters.formatNumber(1)} L",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -614,7 +616,7 @@ private fun RefillItemCard(refill: RefillItem) {
                 )
             }
             Text(
-                text = "€${String.format("%.2f", refill.cost)}",
+                text = refill.cost.formatMoney(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

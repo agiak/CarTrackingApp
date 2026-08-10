@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.util.parseLocalizedInt
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,10 +75,7 @@ class EditReminderViewModel @Inject constructor(
     }
 
     fun updateReminderMileage(value: String) {
-        // Only allow digits
-        if (value.isEmpty() || value.all { it.isDigit() }) {
-            _reminderMileage.value = value
-        }
+        _reminderMileage.value = sanitizeIntInput(value)
     }
 
     fun showDatePicker() {
@@ -104,7 +103,7 @@ class EditReminderViewModel @Inject constructor(
                 expenseRepository.getExpenseById(_expenseId.value).first()?.let { expense ->
                     // Calculate new target mileage from remaining km input
                     val newTargetMileage = if (_reminderMileage.value.isNotBlank()) {
-                        val additionalKm = _reminderMileage.value.toIntOrNull()
+                        val additionalKm = _reminderMileage.value.parseLocalizedInt()
                         if (additionalKm != null && additionalKm > 0) {
                             _currentOdometer.value + additionalKm
                         } else null

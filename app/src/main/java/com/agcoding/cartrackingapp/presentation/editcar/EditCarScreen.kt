@@ -97,7 +97,7 @@ fun EditCarScreen(
 
     var name by remember { mutableStateOf(car.name) }
     var licensePlate by remember { mutableStateOf(car.licensePlate) }
-    var odometer by remember { mutableStateOf(car.currentOdometer.toString()) }
+    var odometer by remember { mutableStateOf(car.currentOdometer.toInt().toString()) }
 
     // Insurance fields
     var insuranceExpirationDate by remember { mutableStateOf(car.insuranceExpirationDate) }
@@ -105,7 +105,7 @@ fun EditCarScreen(
     // Legal & Compliance fields
     var kteoExpirationDate by remember { mutableStateOf(car.kteoExpirationDate) }
     var emissionsCardExpirationDate by remember { mutableStateOf(car.emissionsCardExpirationDate) }
-    var roadTaxAmount by remember { mutableStateOf(car.roadTaxAmount?.toString() ?: "") }
+    var roadTaxAmount by remember { mutableStateOf(car.roadTaxAmount?.toString()?.replace('.', ',') ?: "") }
     var roadTaxDueDate by remember { mutableStateOf(car.roadTaxDueDate) }
 
     // Maintenance fields
@@ -142,7 +142,7 @@ fun EditCarScreen(
                                     insuranceExpirationDate = insuranceExpirationDate,
                                     kteoExpirationDate = kteoExpirationDate,
                                     emissionsCardExpirationDate = emissionsCardExpirationDate,
-                                    roadTaxAmount = roadTaxAmount.toDoubleOrNull(),
+                                    roadTaxAmount = roadTaxAmount.parseLocalizedDouble(),
                                     roadTaxDueDate = roadTaxDueDate,
                                     lastServiceDate = lastServiceDate,
                                     lastTireChangeDate = lastTireChangeDate,
@@ -192,7 +192,7 @@ fun EditCarScreen(
                     licensePlate = licensePlate,
                     onLicensePlateChange = { licensePlate = it },
                     odometer = odometer,
-                    onOdometerChange = { odometer = it },
+                    onOdometerChange = { odometer = sanitizeIntInput(it) },
                     isTablet = isTablet,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -209,7 +209,7 @@ fun EditCarScreen(
                     emissionsCardExpirationDate = emissionsCardExpirationDate,
                     onEmissionsCardExpirationDateChange = { emissionsCardExpirationDate = it },
                     roadTaxAmount = roadTaxAmount,
-                    onRoadTaxAmountChange = { roadTaxAmount = it },
+                    onRoadTaxAmountChange = { roadTaxAmount = sanitizeDecimalInput(it) },
                     roadTaxDueDate = roadTaxDueDate,
                     onRoadTaxDueDateChange = { roadTaxDueDate = it },
                     isTablet = isTablet,
