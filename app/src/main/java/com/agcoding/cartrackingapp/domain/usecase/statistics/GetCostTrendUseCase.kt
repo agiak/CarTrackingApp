@@ -9,6 +9,7 @@ import com.agcoding.cartrackingapp.domain.model.TrendPeriod
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.util.safeDivide
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -95,7 +96,7 @@ class GetCostTrendUseCase @Inject constructor(
                         id = refill.id,
                         date = refill.timestamp,
                         category = "Fuel",
-                        description = "${String.format("%.1f", refill.litersAdded)} L",
+                        description = "${refill.litersAdded.formatNumber(1)} L",
                         amount = refill.amountPaid,
                         carName = carMap[refill.carId]?.name
                     )
