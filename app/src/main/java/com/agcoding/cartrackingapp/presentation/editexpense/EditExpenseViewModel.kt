@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,7 +54,7 @@ class EditExpenseViewModel @Inject constructor(
                 EditExpenseUiState.Error("Expense not found")
             } else {
                 currentExpense = expense
-                _amount.value = expense.amount.toString()
+                _amount.value = expense.amount.toString().replace('.', ',')
                 _notes.value = expense.notes ?: ""
                 _selectedDate.value = expense.timestamp
                 EditExpenseUiState.Success(category = expense.category)
@@ -65,10 +67,8 @@ class EditExpenseViewModel @Inject constructor(
         )
 
     fun updateAmount(newAmount: String) {
-        // Only allow digits and one decimal point
-        if (newAmount.isEmpty() || newAmount.matches(Regex("^\\d*\\.?\\d*$"))) {
-            _amount.value = newAmount
-        }
+        // Keep only digits and a single ',' decimal separator (grouping is visual only).
+        _amount.value = sanitizeDecimalInput(newAmount)
     }
 
     fun updateNotes(newNotes: String) {
@@ -88,7 +88,7 @@ class EditExpenseViewModel @Inject constructor(
     }
 
     fun updateExpense(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val amountValue = amount.value.toDoubleOrNull()
+        val amountValue = amount.value.parseLocalizedDouble()
 
         if (amountValue == null || amountValue <= 0) {
             onError("Please enter a valid amount")

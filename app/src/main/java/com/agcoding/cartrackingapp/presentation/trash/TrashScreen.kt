@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TrashItem
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import java.text.SimpleDateFormat
@@ -131,12 +133,12 @@ private fun TrashItemCard(
     val (title, subtitle, sectionLabel) = when (item) {
         is TrashItem.CarItem -> Triple(item.car.name, item.car.licensePlate, stringResource(R.string.trash_cars_section))
         is TrashItem.RefillItem -> Triple(
-            "€%.2f · %.1fL".format(item.refill.amountPaid, item.refill.litersAdded),
+            "${item.refill.amountPaid.formatMoney()} · ${item.refill.litersAdded.formatNumber(1)}L",
             item.carName,
             stringResource(R.string.trash_refills_section)
         )
         is TrashItem.ExpenseItem -> Triple(
-            "${item.expense.category} · €%.2f".format(item.expense.amount),
+            "${item.expense.category} · ${item.expense.amount.formatMoney()}",
             item.carName,
             stringResource(R.string.trash_expenses_section)
         )

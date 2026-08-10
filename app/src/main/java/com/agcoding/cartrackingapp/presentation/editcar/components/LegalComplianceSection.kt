@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledDatePickerField
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
@@ -85,6 +86,7 @@ fun LegalComplianceSection(
                     label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
                     placeholder = { Text(stringResource(R.string.edit_car_placeholder_road_tax_amount)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
