@@ -111,7 +111,7 @@ jobs:
             exit 1
           fi
 
-          ARTIFACT_NAME="Caribou_APK_${VERSION_NAME}_${VERSION_CODE}_${BUILD_TYPE}"
+          ARTIFACT_NAME="Caribou_${VERSION_NAME}_${VERSION_CODE}_${BUILD_TYPE}"
           APK_NAME="${ARTIFACT_NAME}.apk"
 
           mkdir -p build-artifacts
