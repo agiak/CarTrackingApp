@@ -42,6 +42,9 @@ import com.agcoding.cartrackingapp.presentation.editcar.components.InsuranceSect
 import com.agcoding.cartrackingapp.presentation.editcar.components.LegalComplianceSection
 import com.agcoding.cartrackingapp.presentation.editcar.components.MaintenanceSection
 import com.agcoding.cartrackingapp.presentation.editcar.components.TiresSection
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * Car selector for two-car comparison mode
@@ -116,7 +116,7 @@ private fun CarDropdown(
  */
 fun formatMetricValue(value: Double?, suffix: String): String {
     return if (value != null) {
-        String.format(Locale.getDefault(), "%.2f %s", value, suffix)
+        "${value.formatNumber(2)} $suffix"
     } else {
         "N/A"
     }
@@ -126,6 +126,6 @@ fun formatMetricValue(value: Double?, suffix: String): String {
  * Format percentage
  */
 fun formatPercentage(value: Double): String {
-    return String.format(Locale.getDefault(), "%.1f%%", value)
+    return "${value.formatNumber(1)}%"
 }
 

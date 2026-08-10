@@ -15,6 +15,8 @@ import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -82,8 +84,8 @@ class AddRefillViewModel @Inject constructor(
     }
 
     private fun populateRandomValues() {
-        val randomAmountPaid = Random.nextInt(30, 100).toString() + "." + Random.nextInt(0, 99).toString().padStart(2, '0')
-        val randomLiters = Random.nextInt(25, 60).toString() + "." + Random.nextInt(0, 9).toString()
+        val randomAmountPaid = Random.nextInt(30, 100).toString() + "," + Random.nextInt(0, 99).toString().padStart(2, '0')
+        val randomLiters = Random.nextInt(25, 60).toString() + "," + Random.nextInt(0, 9).toString()
         val randomDistance = Random.nextInt(300, 700)
 
         // Calculate new odometer reading from previous + random distance
@@ -98,9 +100,10 @@ class AddRefillViewModel @Inject constructor(
     }
 
     fun updateAmountPaid(value: String) {
-        val costError = RefillValidator.validateCost(context, value)
+        val clean = sanitizeDecimalInput(value)
+        val costError = RefillValidator.validateCost(context, clean)
         _uiState.value = _uiState.value.copy(
-            amountPaid = value,
+            amountPaid = clean,
             errorMessage = null,
             fieldErrors = if (costError != null) {
                 _uiState.value.fieldErrors + ("cost" to costError)
@@ -111,9 +114,10 @@ class AddRefillViewModel @Inject constructor(
     }
 
     fun updateLitersAdded(value: String) {
-        val litersError = RefillValidator.validateLiters(context, value)
+        val clean = sanitizeDecimalInput(value)
+        val litersError = RefillValidator.validateLiters(context, clean)
         _uiState.value = _uiState.value.copy(
-            litersAdded = value,
+            litersAdded = clean,
             errorMessage = null,
             fieldErrors = if (litersError != null) {
                 _uiState.value.fieldErrors + ("liters" to litersError)
@@ -124,9 +128,10 @@ class AddRefillViewModel @Inject constructor(
     }
 
     fun updateTripDistance(value: String) {
-        val distanceError = RefillValidator.validateDistance(context, value)
+        val clean = sanitizeDecimalInput(value)
+        val distanceError = RefillValidator.validateDistance(context, clean)
         _uiState.value = _uiState.value.copy(
-            tripDistance = value,
+            tripDistance = clean,
             errorMessage = null,
             fieldErrors = if (distanceError != null) {
                 _uiState.value.fieldErrors + ("distance" to distanceError)
@@ -201,9 +206,9 @@ class AddRefillViewModel @Inject constructor(
         }
 
         // Parse validated values
-        val amount = state.amountPaid.toDouble()
-        val liters = state.litersAdded.toDouble()
-        val distance = state.tripDistance.toDouble()
+        val amount = state.amountPaid.parseLocalizedDouble() ?: 0.0
+        val liters = state.litersAdded.parseLocalizedDouble() ?: 0.0
+        val distance = state.tripDistance.parseLocalizedDouble() ?: 0.0
 
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true, errorMessage = null, fieldErrors = emptyMap())
@@ -353,19 +358,19 @@ class AddRefillViewModel @Inject constructor(
             Timber.d( "Applying parsed data to form:")
             Timber.d( "  cost=${data.cost}, liters=${data.liters}, distance=${data.distance}")
 
-            // Apply parsed data to form fields with period (.) separator
+            // Apply parsed data to form fields as raw comma-decimal values
             if (data.cost != null && data.cost > 0) {
-                val formatted = String.format(java.util.Locale.US, "%.2f", data.cost)
+                val formatted = data.cost.toString().replace('.', ',')
                 Timber.d( "  Applying cost: $formatted")
                 updateAmountPaid(formatted)
             }
             if (data.liters != null && data.liters > 0) {
-                val formatted = String.format(java.util.Locale.US, "%.2f", data.liters)
+                val formatted = data.liters.toString().replace('.', ',')
                 Timber.d( "  Applying liters: $formatted")
                 updateLitersAdded(formatted)
             }
             if (data.distance != null && data.distance > 0) {
-                val formatted = String.format(java.util.Locale.US, "%.0f", data.distance)
+                val formatted = data.distance.toInt().toString()
                 Timber.d( "  Applying distance: $formatted")
                 updateTripDistance(formatted)
             }

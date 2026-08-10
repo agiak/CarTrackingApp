@@ -62,7 +62,8 @@ import com.agcoding.cartrackingapp.domain.model.ComparisonMetric
 import com.agcoding.cartrackingapp.domain.model.YearlyComparisonData
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -554,14 +555,14 @@ private fun ChangeIndicator(
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${if (isIncrease) "+" else ""}${String.format("%.1f", percentageChange)}%",
+                text = "${if (isIncrease) "+" else ""}${percentageChange.formatNumber(1)}%",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
             )
         }
         Text(
-            text = "${if (absoluteDifference > 0) "+" else ""}${String.format("%.2f", absoluteDifference)} $unit",
+            text = "${if (absoluteDifference > 0) "+" else ""}${absoluteDifference.formatNumber(2)} $unit",
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -619,12 +620,12 @@ private fun MonthlyComparisonChart(data: YearlyComparisonData) {
                 ) {
                     Text(text = quarterName, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                     Text(
-                        text = "€${String.format(Locale.getDefault(), "%.0f", year1Total)}",
+                        text = year1Total.formatMoney(0),
                         fontSize = 13.sp, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f), textAlign = TextAlign.End
                     )
                     Text(
-                        text = "€${String.format(Locale.getDefault(), "%.0f", year2Total)}",
+                        text = year2Total.formatMoney(0),
                         fontSize = 13.sp, color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.weight(1f), textAlign = TextAlign.End
                     )

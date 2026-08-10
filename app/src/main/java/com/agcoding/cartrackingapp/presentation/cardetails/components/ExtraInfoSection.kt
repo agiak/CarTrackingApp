@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -151,7 +152,7 @@ fun ExtraInfoSection(
                     car.roadTaxAmount?.let { amount ->
                         ExtraInfoItem(
                             label = stringResource(R.string.road_tax_amount),
-                            value = "€${String.format("%.2f", amount)}"
+                            value = amount.formatMoney()
                         )
                     }
 

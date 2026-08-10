@@ -27,6 +27,7 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
 
 @Composable
 fun TotalSpendingCard(statistics: CarStatistics) {
@@ -57,7 +58,7 @@ fun TotalSpendingCard(statistics: CarStatistics) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "€${String.format("%.2f", totalSpending)}",
+                    text = totalSpending.formatMoney(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -96,7 +97,7 @@ fun SpendingBreakdown(label: String, amount: Double) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "€${String.format("%.2f", amount)}",
+            text = amount.formatMoney(),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface

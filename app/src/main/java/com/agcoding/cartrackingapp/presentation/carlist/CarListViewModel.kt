@@ -13,6 +13,7 @@ import com.agcoding.cartrackingapp.domain.usecase.car.AddCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.GetAllCarsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.expense.GetTodayRemindersCountUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -89,7 +90,7 @@ class CarListViewModel @Inject constructor(
 
     fun addCar(name: String, licensePlate: String, odometer: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
-            val odometerValue = odometer.toDoubleOrNull() ?: 0.0
+            val odometerValue = odometer.parseLocalizedDouble() ?: 0.0
             when (addCarUseCase(name = name, licensePlate = licensePlate, currentOdometer = odometerValue)) {
                 is Result.Success -> {
                     QuickAddWidgetReceiver.updateWidgets(context)

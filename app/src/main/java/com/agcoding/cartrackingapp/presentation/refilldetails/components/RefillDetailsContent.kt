@@ -40,6 +40,9 @@ import com.agcoding.cartrackingapp.domain.model.Location
 import com.agcoding.cartrackingapp.domain.usecase.refill.RefillDetails
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatMoneyPer
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,13 +96,13 @@ fun RefillDetailsContent(
                     MetricCard(
                         icon = Icons.Default.LocalGasStation,
                         label = stringResource(R.string.metric_fuel_volume),
-                        value = "%.1f L".format(refill.litersAdded),
+                        value = "${refill.litersAdded.formatNumber(1)} L",
                         modifier = Modifier.weight(1f)
                     )
                     MetricCard(
                         icon = Icons.Default.AttachMoney,
                         label = stringResource(R.string.metric_price_per_liter),
-                        value = "€%.2f".format(refill.pricePerLiter),
+                        value = refill.pricePerLiter.formatMoney(),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -112,13 +115,13 @@ fun RefillDetailsContent(
                     MetricCard(
                         icon = Icons.Default.Route,
                         label = stringResource(R.string.metric_trip_distance),
-                        value = "%.0f km".format(refill.tripDistance),
+                        value = "${refill.tripDistance.formatNumber(0)} km",
                         modifier = Modifier.weight(1f)
                     )
                     MetricCard(
                         icon = Icons.AutoMirrored.Filled.TrendingUp,
                         label = stringResource(R.string.metric_consumption),
-                        value = "%.1f L/100km".format(refill.fuelConsumption),
+                        value = "${refill.fuelConsumption.formatNumber(1)} L/100km",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -222,7 +225,7 @@ fun RefillDetailsContent(
                         // Cost per kilometer
                         AnalysisRow(
                             label = stringResource(R.string.cost_per_kilometer_label),
-                            value = "€%.3f/km".format(costPerKm)
+                            value = costPerKm.formatMoneyPer("km", 3)
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -230,7 +233,7 @@ fun RefillDetailsContent(
                         // Fuel efficiency
                         AnalysisRow(
                             label = stringResource(R.string.fuel_efficiency_label),
-                            value = "%.1f km/L".format(fuelEfficiency)
+                            value = "${fuelEfficiency.formatNumber(1)} km/L"
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -238,7 +241,7 @@ fun RefillDetailsContent(
                         // Total liters
                         AnalysisRow(
                             label = stringResource(R.string.total_liters_label),
-                            value = "%.2f L".format(refill.litersAdded)
+                            value = "${refill.litersAdded.formatNumber(2)} L"
                         )
                     }
                 }
@@ -277,13 +280,13 @@ fun RefillDetailsContent(
                 MetricCard(
                     icon = Icons.Default.LocalGasStation,
                     label = stringResource(R.string.metric_fuel_volume),
-                    value = "%.1f L".format(refill.litersAdded),
+                    value = "${refill.litersAdded.formatNumber(1)} L",
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     icon = Icons.Default.AttachMoney,
                     label = stringResource(R.string.metric_price_per_liter),
-                    value = "€%.2f".format(refill.pricePerLiter),
+                    value = refill.pricePerLiter.formatMoney(),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -298,13 +301,13 @@ fun RefillDetailsContent(
                 MetricCard(
                     icon = Icons.Default.Route,
                     label = stringResource(R.string.metric_trip_distance),
-                    value = "%.0f km".format(refill.tripDistance),
+                    value = "${refill.tripDistance.formatNumber(0)} km",
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     icon = Icons.AutoMirrored.Filled.TrendingUp,
                     label = stringResource(R.string.metric_consumption),
-                    value = "%.1f L/100km".format(refill.fuelConsumption),
+                    value = "${refill.fuelConsumption.formatNumber(1)} L/100km",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -400,7 +403,7 @@ fun RefillDetailsContent(
                     // Cost per kilometer
                     AnalysisRow(
                         label = stringResource(R.string.cost_per_kilometer_label),
-                        value = "€%.3f/km".format(costPerKm)
+                        value = costPerKm.formatMoneyPer("km", 3)
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -408,7 +411,7 @@ fun RefillDetailsContent(
                     // Fuel efficiency
                     AnalysisRow(
                         label = stringResource(R.string.fuel_efficiency_label),
-                        value = "%.1f km/L".format(fuelEfficiency)
+                        value = "${fuelEfficiency.formatNumber(1)} km/L"
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -416,7 +419,7 @@ fun RefillDetailsContent(
                     // Total liters
                     AnalysisRow(
                         label = stringResource(R.string.total_liters_label),
-                        value = "%.2f L".format(refill.litersAdded)
+                        value = "${refill.litersAdded.formatNumber(2)} L"
                     )
                 }
             }
