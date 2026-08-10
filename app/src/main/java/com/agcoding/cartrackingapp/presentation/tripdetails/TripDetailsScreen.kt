@@ -340,7 +340,7 @@ fun TripDetailsContent(
                 )
                 StatCard(
                     title = stringResource(R.string.stat_total_cost),
-                    value = String.format("€%.2f", tripStatistics.totalCost),
+                    value = tripStatistics.totalCost.formatMoney(),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -353,12 +353,12 @@ fun TripDetailsContent(
             ) {
                 StatCard(
                     title = stringResource(R.string.stat_distance),
-                    value = String.format("%.1f km", tripStatistics.totalDistance),
+                    value = "${tripStatistics.totalDistance.formatNumber(1)} km",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = stringResource(R.string.stat_avg_consumption),
-                    value = String.format("%.2f L/100km", tripStatistics.averageConsumption),
+                    value = "${tripStatistics.averageConsumption.formatNumber(2)} L/100km",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -367,7 +367,7 @@ fun TripDetailsContent(
         item {
             StatCard(
                 title = stringResource(R.string.stat_total_fuel),
-                value = String.format("%.2f L", tripStatistics.totalFuelConsumed),
+                value = "${tripStatistics.totalFuelConsumed.formatNumber(2)} L",
                 modifier = Modifier.fillMaxWidth()
             )
         }

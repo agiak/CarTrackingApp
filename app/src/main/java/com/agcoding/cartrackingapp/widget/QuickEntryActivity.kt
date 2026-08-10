@@ -741,12 +741,13 @@ private fun QuickRefillDialog(
                     OutlinedTextField(
                         value = distance,
                         onValueChange = {
-                            distance = it
+                            distance = sanitizeDecimalInput(it)
                             distanceError = null
                             errorMessage = null
                         },
                         label = { Text(stringResource(id = R.string.distance_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = ThousandsSeparatorTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isLoading,
                         isError = distanceError != null,
@@ -791,7 +792,7 @@ private fun QuickRefillDialog(
                                 pricePerLiter?.let { price ->
                                     InfoRow(
                                         label = stringResource(id = R.string.price_per_liter_label),
-                                        value = String.format(Locale.getDefault(), "€%.3f", price)
+                                        value = price.formatMoney(3)
                                     )
                                 }
 
@@ -801,11 +802,7 @@ private fun QuickRefillDialog(
                                     }
                                     InfoRow(
                                         label = stringResource(id = R.string.fuel_consumption_label),
-                                        value = String.format(
-                                            Locale.getDefault(),
-                                            "%.2f L/100km",
-                                            cons
-                                        )
+                                        value = "${cons.formatNumber(2)} L/100km"
                                     )
                                 }
                             }
