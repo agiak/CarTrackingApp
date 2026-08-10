@@ -376,7 +376,7 @@
     <string name="distance_graph_select_period_title">Select Period</string>
 
     <string name="distance_graph_km_format">%1$s km</string>
-    <string name="distance_graph_liters_format">%.1f L</string>
+    <string name="distance_graph_liters_format">%1$s L</string>
     <string name="distance_graph_total_trips_format">%1$d total</string>
 
     <string name="distance_graph_no_trips_title">No trips recorded yet</string>
@@ -417,7 +417,7 @@
     <string name="car_card_distance">Distance</string>
     <string name="car_card_avg_consumption">Avg. Consumption</string>
     <string name="car_card_km_format">%1$s km</string>
-    <string name="car_card_currency_eur_format">€%1$s</string>
+    <string name="car_card_currency_eur_format">%1$s €</string>
     <string name="car_card_consumption_format">%1$s L/100km</string>
 
     <!-- Expandable FAB Menu -->
@@ -473,7 +473,7 @@
     <string name="no_location">No location</string>
     <string name="update">Update</string>
     <string name="calculated">Calculated</string>
-    <string name="price_per_liter_format">Price per liter: €%1$s</string>
+    <string name="price_per_liter_format">Price per liter: %1$s €</string>
     <string name="fuel_consumption_format">Fuel consumption: %1$s L/100km</string>
 
     <!-- Edit Car Dialog (legacy) -->
@@ -580,23 +580,23 @@
     <string name="date_format_dd_mm_yyyy">dd/MM/yyyy</string>
 
     <!-- Value formats -->
-    <string name="currency_eur_format">€%1$s</string>
+    <string name="currency_eur_format">%1$s €</string>
     <string name="liters_format">%1$s L</string>
     <string name="kilometers_format">%1$s km</string>
     <string name="consumption_l_per_100km_format">%1$s L/100km</string>
-    <string name="cost_per_km_format">€%1$s/km</string>
+    <string name="cost_per_km_format">%1$s €/km</string>
     <string name="km_per_l_format">%1$s km/L</string>
 
     <!-- Refill History formatting -->
-    <string name="refill_history_details_format">%1$s L • €%2$s/L • %3$s km • %4$s L/100km</string>
+    <string name="refill_history_details_format">%1$s L • %2$s €/L • %3$s km • %4$s L/100km</string>
 
     <!-- Month Details formatting -->
     <string name="refills_with_count_format">Refills (%1$d)</string>
     <string name="expenses_with_count_format">Expenses (%1$d)</string>
     <string name="refill_item_subtitle_format">%1$s L • %2$s km</string>
     <string name="percent_format">%1$s%%</string>
-    <string name="biggest_refill_value_format">€%1$s • %2$s L</string>
-    <string name="biggest_expense_value_format">€%1$s • %2$s</string>
+    <string name="biggest_refill_value_format">%1$s € • %2$s L</string>
+    <string name="biggest_expense_value_format">%1$s € • %2$s</string>
 
     <!-- Date formats (UI) -->
     <string name="date_format_mmm_d_yyyy">MMM d, yyyy</string>
@@ -625,8 +625,8 @@
     <string name="total_cost_divide_distance">Total cost ÷ Distance</string>
     <string name="service_expenses">Service Expenses</string>
     <string name="other_expenses">Other Expenses</string>
-    <string name="fuel_label_format">Fuel: €%1$s</string>
-    <string name="expenses_label_format">Expenses: €%1$s</string>
+    <string name="fuel_label_format">Fuel: %1$s €</string>
+    <string name="expenses_label_format">Expenses: %1$s €</string>
     <string name="refill_count_format">%1$d refill</string>
     <string name="average_cost_per_refill">Average cost per refill:</string>
     <string name="average_liters_per_refill">Average liters per refill:</string>
@@ -797,8 +797,8 @@
     <string name="error_distance_positive">Distance must be greater than 0</string>
     <string name="error_distance_zero">Distance must be greater than 0. Please enter a higher odometer reading.</string>
     <string name="error_distance_too_high">Distance of %d km seems very high. Please verify odometer reading.</string>
-    <string name="error_consumption_too_low">Consumption of %.1f L/100km seems unusually low. Please verify.</string>
-    <string name="error_consumption_too_high">Consumption of %.1f L/100km seems unusually high. Please verify.</string>
+    <string name="error_consumption_too_low">Consumption of %1$s L/100km seems unusually low. Please verify.</string>
+    <string name="error_consumption_too_high">Consumption of %1$s L/100km seems unusually high. Please verify.</string>
 
     <!-- Spreadsheet Import Feature -->
     <string name="settings_section_spreadsheet_import">Spreadsheet Import</string>
@@ -928,7 +928,7 @@
     <string name="car_comparison_least_economical">Least Economical: %1$s</string>
     <string name="car_comparison_best_performer">This car performs best in overall cost efficiency.</string>
     <string name="car_comparison_needs_attention">This car may need attention to reduce costs.</string>
-    <string name="car_comparison_cost_detail">at €%.2f per km</string>
+    <string name="car_comparison_cost_detail">at %1$s €/km</string>
     <string name="car_comparison_no_data_available">No data available for this metric</string>
 
     <!-- Yearly Comparison -->
@@ -987,12 +987,12 @@
     <string name="anomaly_title_cost_per_km">Cost Per Km Deviation</string>
 
     <!-- Anomaly Descriptions -->
-    <string name="anomaly_desc_fuel_price_spike">Fuel price increased by %1$s%% compared to 6-month average (€%2$s/L). Current: €%3$s/L</string>
+    <string name="anomaly_desc_fuel_price_spike">Fuel price increased by %1$s%% compared to 6-month average (%2$s €/L). Current: %3$s €/L</string>
     <string name="anomaly_desc_consumption_spike">Fuel consumption %1$s by %2$s%% compared to 6-month average (%3$s L/100km). Current: %4$s L/100km</string>
-    <string name="anomaly_desc_maintenance_outlier">%1$s expense (€%2$s) is %3$s%% higher than historical average (€%4$s).</string>
-    <string name="anomaly_desc_monthly_spending">Total spending in %1$s %2$s (€%3$s) is %4$s%% higher than 3-month average (€%5$s).</string>
-    <string name="anomaly_desc_cost_per_km">Cost per km %1$s by %2$s%% compared to average. Current: €%3$s/km (avg: €%4$s/km) based on %5$s km driven.</string>
-    <string name="anomaly_desc_cost_per_km_with_month">Cost per km in %1$s %2$s %3$s by %4$s%% compared to average. Current: €%5$s/km (avg: €%6$s/km) based on %7$s km driven.</string>
+    <string name="anomaly_desc_maintenance_outlier">%1$s expense (%2$s €) is %3$s%% higher than historical average (%4$s €).</string>
+    <string name="anomaly_desc_monthly_spending">Total spending in %1$s %2$s (%3$s €) is %4$s%% higher than 3-month average (%5$s €).</string>
+    <string name="anomaly_desc_cost_per_km">Cost per km %1$s by %2$s%% compared to average. Current: %3$s €/km (avg: %4$s €/km) based on %5$s km driven.</string>
+    <string name="anomaly_desc_cost_per_km_with_month">Cost per km in %1$s %2$s %3$s by %4$s%% compared to average. Current: %5$s €/km (avg: %6$s €/km) based on %7$s km driven.</string>
 
     <!-- Direction words -->
     <string name="increased">increased</string>
