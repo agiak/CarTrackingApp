@@ -50,6 +50,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -166,6 +167,7 @@ fun AddExpenseScreen(
                         label = { Text(stringResource(R.string.expense_amount_eur)) },
                         placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = ThousandsSeparatorTransformation(),
                         singleLine = true,
                         isError = amountError != null,
                         supportingText = amountError?.let { error ->
@@ -284,6 +286,7 @@ fun AddExpenseScreen(
                     label = { Text(stringResource(R.string.expense_amount_eur)) },
                     placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     isError = amountError != null,
                     supportingText = amountError?.let { error ->
@@ -517,6 +520,7 @@ private fun ServiceReminderSection(
                     label = { Text(stringResource(R.string.reminder_mileage)) },
                     placeholder = { Text(stringResource(R.string.reminder_mileage_hint)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
