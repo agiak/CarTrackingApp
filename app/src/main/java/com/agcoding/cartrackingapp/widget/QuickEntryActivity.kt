@@ -895,9 +895,9 @@ private fun QuickRefillDialog(
                                     return@Button
                                 }
 
-                                val litersValue = liters.toDoubleOrNull()
-                                val costValue = cost.toDoubleOrNull()
-                                val distanceValue = distance.toDoubleOrNull() ?: 0.0
+                                val litersValue = liters.parseLocalizedDouble()
+                                val costValue = cost.parseLocalizedDouble()
+                                val distanceValue = distance.parseLocalizedDouble() ?: 0.0
 
                                 if (litersValue != null && costValue != null) {
                                     isLoading = true
@@ -1196,7 +1196,7 @@ private fun QuickExpenseDialog(
                                     return@Button
                                 }
 
-                                val costValue = cost.toDoubleOrNull()
+                                val costValue = cost.parseLocalizedDouble()
 
                                 // Validate cost
                                 if (costValue == null) {
@@ -1404,13 +1404,13 @@ private fun QuickVoiceDialog(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 parsedData.cost?.let {
-                                    Text("Cost: €%.2f".format(it))
+                                    Text("Cost: ${it.formatMoney()}")
                                 }
                                 parsedData.liters?.let {
-                                    Text("Liters: %.2f L".format(it))
+                                    Text("Liters: ${it.formatNumber(1)} L")
                                 }
                                 parsedData.distance?.let {
-                                    Text("Distance: %.0f km".format(it))
+                                    Text("Distance: ${it.formatNumber(0)} km")
                                 }
                             }
 

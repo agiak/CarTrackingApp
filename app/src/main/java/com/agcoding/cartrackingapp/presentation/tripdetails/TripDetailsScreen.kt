@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TripStatistics
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -233,7 +235,7 @@ fun TripDetailsScreen(
                                             fontSize = 14.sp
                                         )
                                         Text(
-                                            text = String.format("%.1f L • %.0f km", refill.litersAdded, refill.tripDistance),
+                                            text = "${refill.litersAdded.formatNumber(1)} L • ${refill.tripDistance.formatNumber(0)} km",
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
