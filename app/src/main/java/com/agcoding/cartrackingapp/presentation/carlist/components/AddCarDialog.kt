@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 
 @Composable
 fun AddCarDialog(
@@ -56,10 +58,11 @@ fun AddCarDialog(
 
                 OutlinedTextField(
                     value = odometer,
-                    onValueChange = { odometer = it },
+                    onValueChange = { odometer = sanitizeIntInput(it) },
                     label = { Text(stringResource(R.string.add_car_field_odometer)) },
                     placeholder = { Text(stringResource(R.string.add_car_placeholder_odometer)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

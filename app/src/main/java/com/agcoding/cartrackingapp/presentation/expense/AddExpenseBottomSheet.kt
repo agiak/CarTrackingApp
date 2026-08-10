@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -159,6 +160,7 @@ fun AddExpenseBottomSheet(
                 label = { Text(stringResource(R.string.expense_amount_eur)) },
                 placeholder = { Text(stringResource(R.string.amount_placeholder)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 isError = amountError != null,
                 supportingText = amountError?.let { error ->
