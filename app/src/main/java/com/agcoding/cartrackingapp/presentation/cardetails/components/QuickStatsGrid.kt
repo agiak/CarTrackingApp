@@ -31,6 +31,8 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @Composable
 fun QuickStatsGrid(statistics: CarStatistics) {
@@ -42,7 +44,7 @@ fun QuickStatsGrid(statistics: CarStatistics) {
             icon = Icons.AutoMirrored.Filled.TrendingUp,
             label = stringResource(R.string.avg_consumption_short),
             value = if (statistics.averageConsumption > 0) {
-                String.format("%.1f", statistics.averageConsumption)
+                statistics.averageConsumption.formatNumber(1)
             } else "-",
             unit = "L/100km",
             modifier = Modifier.weight(1f)
@@ -51,7 +53,7 @@ fun QuickStatsGrid(statistics: CarStatistics) {
         QuickStatCard(
             icon = Icons.Default.Route,
             label = stringResource(R.string.distance),
-            value = String.format("%,d", statistics.totalDistance.toInt()),
+            value = statistics.totalDistance.toInt().formatNumber(),
             unit = "km",
             modifier = Modifier.weight(1f)
         )
@@ -60,8 +62,8 @@ fun QuickStatsGrid(statistics: CarStatistics) {
             icon = Icons.Default.AttachMoney,
             label = "Cost/km",
             value = if (statistics.costPerKilometer > 0) {
-                String.format("€%.2f", statistics.costPerKilometer)
-            } else "€0.00",
+                statistics.costPerKilometer.formatMoney()
+            } else 0.0.formatMoney(),
             unit = "",
             modifier = Modifier.weight(1f)
         )

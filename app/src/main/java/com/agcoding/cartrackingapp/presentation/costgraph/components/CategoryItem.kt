@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.domain.model.CostCategory
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @Composable
 fun CategoryItem(category: CostCategory) {
@@ -51,14 +52,14 @@ fun CategoryItem(category: CostCategory) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${String.format(Locale.getDefault(), "%.1f", category.percentage)}%",
+                    text = "${category.percentage.formatNumber(1)}%",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
         Text(
-            text = "€${String.format(Locale.getDefault(), "%.2f", category.amount)}",
+            text = category.amount.formatMoney(),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface

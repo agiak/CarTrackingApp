@@ -18,6 +18,7 @@ import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetRecentTripsByCarUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -135,7 +136,7 @@ class CarDetailsViewModel @Inject constructor(
         tireInstallationDate: Long?
     ) {
         viewModelScope.launch {
-            val odometerValue = odometer.toDoubleOrNull() ?: 0.0
+            val odometerValue = odometer.parseLocalizedDouble() ?: 0.0
             when (updateCarUseCase(
                 carId = carId,
                 name = name,

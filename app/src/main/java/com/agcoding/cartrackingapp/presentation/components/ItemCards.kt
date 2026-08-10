@@ -38,6 +38,7 @@ import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.Location
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -176,7 +177,7 @@ fun RefillItemCard(
                     ) {
                         // Liters
                         Text(
-                            text = stringResource(R.string.liters_format, String.format("%.1f", refill.litersAdded)),
+                            text = stringResource(R.string.liters_format, refill.litersAdded.formatNumber(1)),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -189,7 +190,7 @@ fun RefillItemCard(
 
                         // Distance
                         Text(
-                            text = stringResource(R.string.kilometers_format, String.format("%.0f", refill.tripDistance)),
+                            text = stringResource(R.string.kilometers_format, refill.tripDistance.formatNumber(0)),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -206,7 +207,7 @@ fun RefillItemCard(
                             Text(
                                 text = stringResource(
                                     R.string.consumption_l_per_100km_format,
-                                    String.format("%.1f", consumption)
+                                    consumption.formatNumber(1)
                                 ),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -217,7 +218,7 @@ fun RefillItemCard(
 
                 // Price
                 Text(
-                    text = stringResource(R.string.currency_eur_format, String.format("%.2f", refill.amountPaid)),
+                    text = stringResource(R.string.currency_eur_format, refill.amountPaid.formatNumber(2)),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
@@ -296,7 +297,7 @@ fun ExpenseItemCard(
 
             // Amount
             Text(
-                text = stringResource(R.string.currency_eur_format, String.format("%.2f", expense.amount)),
+                text = stringResource(R.string.currency_eur_format, expense.amount.formatNumber(2)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary

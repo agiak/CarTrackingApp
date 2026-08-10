@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatMoney
 
 @Composable
 fun ExpenseSummaryCard(
@@ -60,7 +60,7 @@ fun ExpenseSummaryCard(
             ExpenseSummaryItem(
                 icon = Icons.Default.AttachMoney,
                 label = stringResource(R.string.total_cost),
-                value = "€%.2f".format(Locale.getDefault(), totalCost)
+                value = totalCost.formatMoney()
             )
 
             ExpenseSummaryItem(

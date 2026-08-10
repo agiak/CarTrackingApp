@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.MultiCarComparisonResult
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * All-cars comparison content with tablet landscape support
@@ -207,7 +208,7 @@ private fun OverallSummaryCard(result: MultiCarComparisonResult) {
                                 append(" ")
                                 append(stringResource(
                                     R.string.car_comparison_cost_detail,
-                                    cost // Pass Double directly, not String
+                                    cost.toDouble().formatNumber(2)
                                 ))
                             }
                         },
@@ -248,7 +249,7 @@ private fun OverallSummaryCard(result: MultiCarComparisonResult) {
                                 append(" ")
                                 append(stringResource(
                                     R.string.car_comparison_cost_detail,
-                                    cost // Pass Double directly, not String
+                                    cost.toDouble().formatNumber(2)
                                 ))
                             }
                         },

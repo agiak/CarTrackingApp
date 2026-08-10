@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.util.formatMoney
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,7 +83,7 @@ internal fun ExpenseDetailsContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "€${String.format("%.2f", expense.amount)}",
+                    text = expense.amount.formatMoney(),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondary

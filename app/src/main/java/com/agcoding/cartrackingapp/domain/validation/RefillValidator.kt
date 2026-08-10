@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.domain.validation
 
 import android.content.Context
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * Validator for Fuel Refill input data
@@ -55,9 +56,9 @@ object RefillValidator {
         if (litersValue != null && litersValue > 0 && distanceValue != null && distanceValue > 0) {
             val consumption = (litersValue / distanceValue) * 100
             if (consumption < MIN_CONSUMPTION) {
-                errors["consumption"] = context.getString(R.string.error_consumption_too_low, consumption)
+                errors["consumption"] = context.getString(R.string.error_consumption_too_low, consumption.formatNumber(1))
             } else if (consumption > MAX_CONSUMPTION) {
-                errors["consumption"] = context.getString(R.string.error_consumption_too_high, consumption)
+                errors["consumption"] = context.getString(R.string.error_consumption_too_high, consumption.formatNumber(1))
             }
         }
 

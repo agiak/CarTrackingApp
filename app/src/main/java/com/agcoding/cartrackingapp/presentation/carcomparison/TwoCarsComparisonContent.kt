@@ -26,6 +26,8 @@ import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.CarComparisonResult
 import com.agcoding.cartrackingapp.domain.model.ComparisonDifference
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * Two-car comparison content with tablet landscape support and car selector
@@ -267,7 +269,7 @@ private fun SummaryCard(result: CarComparisonResult) {
                         text = stringResource(
                             R.string.car_comparison_maintenance_insight,
                             expensiveCar,
-                            String.format("€%.0f", diff.absoluteDifference),
+                            diff.absoluteDifference.formatMoney(0),
                             cheaperCar
                         ),
                         style = MaterialTheme.typography.bodyMedium,
@@ -427,19 +429,19 @@ private fun DetailedStatsCard(car: CarComparisonData) {
 
             DetailRow(
                 label = stringResource(R.string.car_comparison_total_expenses),
-                value = String.format("€%.2f", car.totalExpenses)
+                value = car.totalExpenses.formatMoney(2)
             )
             DetailRow(
                 label = stringResource(R.string.car_comparison_total_kilometers),
-                value = String.format("%.0f km", car.totalKilometers)
+                value = "${car.totalKilometers.formatNumber(0)} km"
             )
             DetailRow(
                 label = stringResource(R.string.car_comparison_total_liters),
-                value = String.format("%.2f L", car.totalLiters)
+                value = "${car.totalLiters.formatNumber(2)} L"
             )
             DetailRow(
                 label = stringResource(R.string.car_comparison_years_active),
-                value = String.format("%.1f years", car.yearsActive)
+                value = "${car.yearsActive.formatNumber(1)} years"
             )
         }
     }

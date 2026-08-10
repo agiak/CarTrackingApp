@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
  * Dialog showing parsed voice data for user confirmation
@@ -99,21 +101,21 @@ fun VoiceConfirmationDialog(
                 // Parsed values with period (.) as decimal separator
                 if (data.cost != null && data.cost > 0) {
                     ParsedValueRow(
-                        label = stringResource(R.string.voice_parsed_cost, String.format(java.util.Locale.US, "%.2f €", data.cost)),
+                        label = stringResource(R.string.voice_parsed_cost, data.cost.formatMoney()),
                         isPresent = true
                     )
                 }
 
                 if (data.liters != null && data.liters > 0) {
                     ParsedValueRow(
-                        label = stringResource(R.string.voice_parsed_liters, String.format(java.util.Locale.US, "%.2f L", data.liters)),
+                        label = stringResource(R.string.voice_parsed_liters, "${data.liters.formatNumber(2)} L"),
                         isPresent = true
                     )
                 }
 
                 if (data.distance != null && data.distance > 0) {
                     ParsedValueRow(
-                        label = stringResource(R.string.voice_parsed_distance, String.format(java.util.Locale.US, "%.0f km", data.distance)),
+                        label = stringResource(R.string.voice_parsed_distance, "${data.distance.formatNumber(0)} km"),
                         isPresent = true
                     )
                 }

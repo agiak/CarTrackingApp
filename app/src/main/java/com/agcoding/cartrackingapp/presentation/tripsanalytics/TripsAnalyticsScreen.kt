@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.TripStatistics
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import java.text.SimpleDateFormat
@@ -210,7 +212,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_most_costly),
                 tripStats = highlights.mostCostly,
                 metricValue = highlights.mostCostly?.let {
-                    "€${String.format("%.2f", it.totalCost)}"
+                    it.totalCost.formatMoney()
                 },
                 icon = Icons.Default.AttachMoney,
                 modifier = Modifier.weight(1f)
@@ -219,7 +221,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_cheapest),
                 tripStats = highlights.cheapest,
                 metricValue = highlights.cheapest?.let {
-                    "€${String.format("%.2f", it.totalCost)}"
+                    it.totalCost.formatMoney()
                 },
                 icon = Icons.Default.AttachMoney,
                 modifier = Modifier.weight(1f)
@@ -235,7 +237,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_longest),
                 tripStats = highlights.longestDistance,
                 metricValue = highlights.longestDistance?.let {
-                    "${String.format("%.0f", it.totalDistance)} km"
+                    "${it.totalDistance.formatNumber(0)} km"
                 },
                 icon = Icons.Default.Route,
                 modifier = Modifier.weight(1f)
@@ -244,7 +246,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_shortest),
                 tripStats = highlights.shortestDistance,
                 metricValue = highlights.shortestDistance?.let {
-                    "${String.format("%.0f", it.totalDistance)} km"
+                    "${it.totalDistance.formatNumber(0)} km"
                 },
                 icon = Icons.Default.Route,
                 modifier = Modifier.weight(1f)
@@ -260,7 +262,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_most_efficient),
                 tripStats = highlights.mostFuelEfficient,
                 metricValue = highlights.mostFuelEfficient?.let {
-                    "${String.format("%.2f", it.averageConsumption)} L/100km"
+                    "${it.averageConsumption.formatNumber(2)} L/100km"
                 },
                 icon = Icons.Default.LocalGasStation,
                 modifier = Modifier.weight(1f)
@@ -269,7 +271,7 @@ private fun HighlightsSection(highlights: TripHighlights) {
                 label = stringResource(R.string.trips_analytics_least_efficient),
                 tripStats = highlights.leastFuelEfficient,
                 metricValue = highlights.leastFuelEfficient?.let {
-                    "${String.format("%.2f", it.averageConsumption)} L/100km"
+                    "${it.averageConsumption.formatNumber(2)} L/100km"
                 },
                 icon = Icons.Default.LocalGasStation,
                 modifier = Modifier.weight(1f)
@@ -439,7 +441,7 @@ private fun TripAnalyticsItem(
                     )
                 }
                 Text(
-                    text = "€${String.format("%.2f", tripStats.totalCost)}",
+                    text = tripStats.totalCost.formatMoney(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -454,12 +456,12 @@ private fun TripAnalyticsItem(
             ) {
                 TripMetricChip(
                     icon = Icons.Default.Route,
-                    value = "${String.format("%.0f", tripStats.totalDistance)} km"
+                    value = "${tripStats.totalDistance.formatNumber(0)} km"
                 )
                 TripMetricChip(
                     icon = Icons.Default.LocalGasStation,
                     value = if (tripStats.averageConsumption > 0)
-                        "${String.format("%.2f", tripStats.averageConsumption)} L/100km"
+                        "${tripStats.averageConsumption.formatNumber(2)} L/100km"
                     else "—"
                 )
                 TripMetricChip(
