@@ -7,6 +7,9 @@ import com.agcoding.cartrackingapp.domain.model.YearlyComparisonData
 import com.agcoding.cartrackingapp.domain.model.YearlyData
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatMoneyPer
+import com.agcoding.cartrackingapp.util.formatNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.text.SimpleDateFormat
@@ -161,32 +164,32 @@ class YearlyComparisonUseCase @Inject constructor(
                 year1Value = year1Data.totalCost,
                 year2Value = year2Data.totalCost,
                 unit = "€",
-                year1FormattedValue = "€${String.format(Locale.getDefault(), "%.2f", year1Data.totalCost)}",
-                year2FormattedValue = "€${String.format(Locale.getDefault(), "%.2f", year2Data.totalCost)}"
+                year1FormattedValue = year1Data.totalCost.formatMoney(),
+                year2FormattedValue = year2Data.totalCost.formatMoney()
             ),
             ComparisonMetric(
                 name = "Total Distance",
                 year1Value = year1Data.totalDistance,
                 year2Value = year2Data.totalDistance,
                 unit = "km",
-                year1FormattedValue = "${String.format(Locale.getDefault(), "%.0f", year1Data.totalDistance)} km",
-                year2FormattedValue = "${String.format(Locale.getDefault(), "%.0f", year2Data.totalDistance)} km"
+                year1FormattedValue = "${year1Data.totalDistance.formatNumber(0)} km",
+                year2FormattedValue = "${year2Data.totalDistance.formatNumber(0)} km"
             ),
             ComparisonMetric(
                 name = "Average Consumption",
                 year1Value = year1Data.averageConsumption,
                 year2Value = year2Data.averageConsumption,
                 unit = "L/100km",
-                year1FormattedValue = "${String.format(Locale.getDefault(), "%.2f", year1Data.averageConsumption)} L/100km",
-                year2FormattedValue = "${String.format(Locale.getDefault(), "%.2f", year2Data.averageConsumption)} L/100km"
+                year1FormattedValue = "${year1Data.averageConsumption.formatNumber(2)} L/100km",
+                year2FormattedValue = "${year2Data.averageConsumption.formatNumber(2)} L/100km"
             ),
             ComparisonMetric(
                 name = "Cost per km",
                 year1Value = year1Data.costPerKm,
                 year2Value = year2Data.costPerKm,
                 unit = "€/km",
-                year1FormattedValue = "€${String.format(Locale.getDefault(), "%.3f", year1Data.costPerKm)}/km",
-                year2FormattedValue = "€${String.format(Locale.getDefault(), "%.3f", year2Data.costPerKm)}/km"
+                year1FormattedValue = year1Data.costPerKm.formatMoneyPer("km", 3),
+                year2FormattedValue = year2Data.costPerKm.formatMoneyPer("km", 3)
             )
         )
     }

@@ -50,6 +50,9 @@ import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatMoneyPer
+import com.agcoding.cartrackingapp.util.formatNumber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -178,7 +181,7 @@ private fun SummarySection(
             SummaryCard(
                 icon = Icons.Default.AttachMoney,
                 title = stringResource(R.string.total_cost),
-                value = "€${String.format("%.2f", statistics.totalCost)}",
+                value = statistics.totalCost.formatMoney(),
                 subtitle = stringResource(R.string.fuel_plus_expenses),
                 modifier = Modifier.weight(1f),
                 onClick = onCostGraphClick
@@ -186,7 +189,7 @@ private fun SummarySection(
             SummaryCard(
                 icon = Icons.AutoMirrored.Filled.TrendingUp,
                 title = stringResource(R.string.avg_consumption),
-                value = "${String.format("%.1f", statistics.averageConsumption)} L/100km",
+                value = "${statistics.averageConsumption.formatNumber(1)} L/100km",
                 modifier = Modifier.weight(1f),
                 onClick = onConsumptionGraphClick
             )
@@ -200,7 +203,7 @@ private fun SummarySection(
             SummaryCard(
                 icon = Icons.Default.Route,
                 title = stringResource(R.string.total_distance),
-                value = "${String.format("%.0f", statistics.totalDistance)} km",
+                value = "${statistics.totalDistance.formatNumber(0)} km",
                 modifier = Modifier.weight(1f),
                 onClick = onDistanceGraphClick
             )
@@ -218,7 +221,7 @@ private fun SummarySection(
             SummaryCard(
                 icon = Icons.Default.AttachMoney,
                 title = stringResource(R.string.cost_per_kilometer),
-                value = "€${String.format("%.2f", statistics.costPerKilometer)}/km",
+                value = statistics.costPerKilometer.formatMoneyPer("km"),
                 subtitle = stringResource(R.string.average_cost_subtitle),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -298,10 +301,10 @@ private fun SummarySection(
                 )
                 TripStatsCard(
                     title = stringResource(R.string.trip_distance_stat),
-                    value = "${String.format("%.0f", statistics.tripDistance)} km",
+                    value = "${statistics.tripDistance.formatNumber(0)} km",
                     subtitle = stringResource(
                         R.string.percentage_of_total,
-                        String.format("%.1f%%", if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0)
+                        "${(if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0).formatNumber(1)}%"
                     ),
                     modifier = Modifier.weight(1f)
                 )
@@ -310,7 +313,7 @@ private fun SummarySection(
             if (statistics.tripAverageConsumption > 0) {
                 TripStatsCard(
                     title = stringResource(R.string.trip_avg_consumption_stat),
-                    value = "${String.format("%.1f", statistics.tripAverageConsumption)} L/100km",
+                    value = "${statistics.tripAverageConsumption.formatNumber(1)} L/100km",
                     subtitle = stringResource(R.string.trip_avg_consumption_subtitle),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -413,7 +416,7 @@ private fun CostBreakdownItem(
             )
         }
         Text(
-            text = "€${String.format("%.2f", amount)} (${String.format("%.1f", percentage)}%)",
+            text = "${amount.formatMoney()} (${percentage.formatNumber(1)}%)",
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -443,7 +446,7 @@ private fun ExpenseCard(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "€${String.format("%.2f", cost)}",
+                text = cost.formatMoney(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -521,7 +524,7 @@ private fun MonthlyTrendCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "€${String.format("%.2f", trend.totalCombinedCost)}",
+                    text = trend.totalCombinedCost.formatMoney(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -538,7 +541,7 @@ private fun MonthlyTrendCard(
                     Text(
                         text = stringResource(
                             R.string.fuel_label_format,
-                            String.format("%.2f", trend.totalCost)
+                            trend.totalCost.formatNumber(2)
                         ),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary
@@ -546,7 +549,7 @@ private fun MonthlyTrendCard(
                     Text(
                         text = stringResource(
                             R.string.expenses_label_format,
-                            String.format("%.2f", trend.expenseCost)
+                            trend.expenseCost.formatNumber(2)
                         ),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.secondary
@@ -570,18 +573,18 @@ private fun MonthlyTrendCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${String.format("%.1f", trend.totalLiters)} L",
+                    text = "${trend.totalLiters.formatNumber(1)} L",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${String.format("%.0f", trend.totalDistance)} km",
+                    text = "${trend.totalDistance.formatNumber(0)} km",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (trend.averageConsumption > 0) {
                     Text(
-                        text = "${String.format("%.1f", trend.averageConsumption)} L/100km",
+                        text = "${trend.averageConsumption.formatNumber(1)} L/100km",
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -640,7 +643,7 @@ private fun PerCarBreakdownCard(
                 Column(modifier = Modifier.weight(1f)) {
                     StatItem(
                         label = stringResource(R.string.total_cost_label),
-                        value = "€${String.format("%.2f", carStats.totalCost)}"
+                        value = carStats.totalCost.formatMoney()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     StatItem(
@@ -650,7 +653,7 @@ private fun PerCarBreakdownCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     StatItem(
                         label = stringResource(R.string.consumption_label),
-                        value = "${String.format("%.1f", carStats.averageConsumption)} L/100km"
+                        value = "${carStats.averageConsumption.formatNumber(1)} L/100km"
                     )
                 }
 
@@ -658,17 +661,17 @@ private fun PerCarBreakdownCard(
                 Column(modifier = Modifier.weight(1f)) {
                     StatItem(
                         label = stringResource(R.string.distance_label),
-                        value = "${String.format("%.0f", carStats.totalDistance)} km"
+                        value = "${carStats.totalDistance.formatNumber(0)} km"
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     StatItem(
                         label = stringResource(R.string.service_label),
-                        value = "€${String.format("%.2f", carStats.serviceExpensesCost)}"
+                        value = carStats.serviceExpensesCost.formatMoney()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     StatItem(
                         label = stringResource(R.string.other_label),
-                        value = "€${String.format("%.2f", carStats.otherExpensesCost)}"
+                        value = carStats.otherExpensesCost.formatMoney()
                     )
                 }
 
@@ -676,7 +679,7 @@ private fun PerCarBreakdownCard(
                 Column(modifier = Modifier.weight(1f)) {
                     StatItem(
                         label = stringResource(R.string.cost_per_km_short),
-                        value = "€${String.format("%.3f", carStats.costPerKilometer)}"
+                        value = carStats.costPerKilometer.formatMoney(3)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     StatItem(
