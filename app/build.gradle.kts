@@ -9,6 +9,29 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// ---------------------------------------------------------------------------
+// Centralized versioning (see version.properties in the project root).
+//
+// versionName is shared by both build profiles. The version code is chosen per
+// build profile: "development" -> developmentVersionCode, "production" ->
+// productionVersionCode. The profile is selected with the Gradle property
+// -Pcaribou.profile=<development|production> (defaults to "development" so
+// local/IDE builds keep working). The GitHub Actions workflow sets it
+// explicitly and bumps version.properties before each build.
+// ---------------------------------------------------------------------------
+val versionProps = Properties().apply {
+    val versionPropsFile = rootProject.file("version.properties")
+    if (versionPropsFile.exists()) {
+        versionPropsFile.inputStream().use { load(it) }
+    }
+}
+val caribouProfile = (project.findProperty("caribou.profile") as String?) ?: "development"
+val caribouVersionName = versionProps.getProperty("versionName") ?: "1.0.0"
+val caribouVersionCode = when (caribouProfile) {
+    "production" -> versionProps.getProperty("productionVersionCode")?.trim()?.toInt() ?: 1
+    else -> versionProps.getProperty("developmentVersionCode")?.trim()?.toInt() ?: 1
+}
+
 android {
     namespace = "com.agcoding.cartrackingapp"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -17,8 +40,8 @@ android {
         applicationId = "com.agcoding.cartrackingapp"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 19
-        versionName = "1.1.2"
+        versionCode = caribouVersionCode
+        versionName = caribouVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -40,10 +63,18 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("${rootProject.projectDir}/cariboo_key.jks")
-            storePassword = "CaribooKey!"
-            keyAlias = "cariboo"
-            keyPassword = "CaribooKey!"
+            // Signing credentials are supplied at build time via environment
+            // variables (provided by GitHub Secrets in CI). Nothing sensitive is
+            // stored in the repository. When the keystore is not available (e.g.
+            // a local debug build without secrets), the release config is simply
+            // left unpopulated and no signing is applied.
+            val keystoreFile = System.getenv("CARIBOU_KEYSTORE_FILE")
+            if (!keystoreFile.isNullOrBlank() && file(keystoreFile).exists()) {
+                storeFile = file(keystoreFile)
+                storePassword = System.getenv("CARIBOU_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("CARIBOU_KEY_ALIAS")
+                keyPassword = System.getenv("CARIBOU_KEY_PASSWORD")
+            }
         }
     }
 
@@ -65,7 +96,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            // Apply production signing only when a keystore was provided via
+            // secrets/environment; otherwise the release build stays unsigned.
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null) {
+                signingConfig = releaseSigning
+            }
         }
     }
 
