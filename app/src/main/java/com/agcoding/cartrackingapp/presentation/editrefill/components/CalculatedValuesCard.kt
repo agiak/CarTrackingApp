@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import java.util.Locale
+import com.agcoding.cartrackingapp.util.formatNumber
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 
 @Composable
 fun CalculatedValuesCard(
@@ -24,9 +25,9 @@ fun CalculatedValuesCard(
     tripDistance: String,
     modifier: Modifier = Modifier
 ) {
-    val amount = amountPaid.toDoubleOrNull()
-    val liters = litersAdded.toDoubleOrNull()
-    val distance = tripDistance.toDoubleOrNull()
+    val amount = amountPaid.parseLocalizedDouble()
+    val liters = litersAdded.parseLocalizedDouble()
+    val distance = tripDistance.parseLocalizedDouble()
 
     if (amount != null && liters != null && liters > 0) {
         val pricePerLiter = amount / liters
@@ -52,7 +53,7 @@ fun CalculatedValuesCard(
                 Text(
                     text = stringResource(
                         R.string.price_per_liter_format,
-                        String.format(Locale.getDefault(), "%.3f", pricePerLiter)
+                        pricePerLiter.formatNumber(3)
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -61,7 +62,7 @@ fun CalculatedValuesCard(
                     Text(
                         text = stringResource(
                             R.string.fuel_consumption_format,
-                            String.format(Locale.getDefault(), "%.2f", consumption)
+                            consumption.formatNumber(2)
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onTertiaryContainer

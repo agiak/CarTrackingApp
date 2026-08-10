@@ -5,6 +5,7 @@ import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -95,10 +96,10 @@ class DetectCostPerKmAnomaliesUseCase @Inject constructor() {
                             severity = severity,
                             title = "Cost per Kilometer Deviation",
                             description = "Cost per km in ${yearMonth.month.name} ${yearMonth.year} " +
-                                    "$direction by ${String.format("%.1f", percentageDeviation)}%. " +
-                                    "Current: €${String.format("%.3f", currentCostPerKm)}/km vs " +
-                                    "historical avg: €${String.format("%.3f", avgHistoricalCostPerKm)}/km " +
-                                    "(${String.format("%.0f", monthData.distance)} km traveled)",
+                                    "$direction by ${percentageDeviation.formatNumber(1)}%. " +
+                                    "Current: €${currentCostPerKm.formatNumber(3)}/km vs " +
+                                    "historical avg: €${avgHistoricalCostPerKm.formatNumber(3)}/km " +
+                                    "(${monthData.distance.formatNumber(0)} km traveled)",
                             detectedAt = detectedDate,
                             relatedTransactionId = null,
                             value = currentCostPerKm,

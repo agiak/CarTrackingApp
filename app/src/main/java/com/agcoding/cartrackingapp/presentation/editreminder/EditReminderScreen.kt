@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.util.parseLocalizedInt
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -196,12 +198,13 @@ fun EditReminderScreen(
                     label = { Text(stringResource(R.string.edit_reminder_additional_km)) },
                     placeholder = { Text(stringResource(R.string.reminder_mileage_hint)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = ThousandsSeparatorTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 if (reminderMileage.isNotBlank()) {
-                    val additionalKm = reminderMileage.toIntOrNull() ?: 0
+                    val additionalKm = reminderMileage.parseLocalizedInt() ?: 0
                     val targetOdometer = currentOdometer + additionalKm
 
                     Spacer(modifier = Modifier.height(8.dp))

@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.domain.model.CostItem
+import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
@@ -50,7 +51,7 @@ fun ExpenseItem(expense: CostItem) {
                 )
             }
             Text(
-                text = "€${String.format(Locale.getDefault(), "%.2f", expense.amount)}",
+                text = expense.amount.formatMoney(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

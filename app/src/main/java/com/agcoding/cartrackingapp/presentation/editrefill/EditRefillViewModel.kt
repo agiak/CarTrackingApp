@@ -10,6 +10,9 @@ import com.agcoding.cartrackingapp.domain.usecase.refill.GetRefillDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.UpdateRefillUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
+import com.agcoding.cartrackingapp.util.sanitizeIntInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,10 +66,10 @@ class EditRefillViewModel @Inject constructor(
                 if (details != null) {
                     val refill = details.refill
                     _uiState.value = EditRefillUiState(
-                        amountPaid = refill.amountPaid.toString(),
-                        litersAdded = refill.litersAdded.toString(),
-                        tripDistance = refill.tripDistance.toString(),
-                        odometerReading = refill.odometerReading.toString(),
+                        amountPaid = refill.amountPaid.toString().replace('.', ','),
+                        litersAdded = refill.litersAdded.toString().replace('.', ','),
+                        tripDistance = refill.tripDistance.toString().replace('.', ','),
+                        odometerReading = refill.odometerReading.toInt().toString(),
                         notes = refill.notes ?: "",
                         selectedDateMillis = refill.timestamp,
                         location = refill.location,
@@ -89,31 +92,19 @@ class EditRefillViewModel @Inject constructor(
     }
 
     fun updateAmountPaid(value: String) {
-        // Only allow digits and one decimal point
-        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
-            _uiState.value = _uiState.value.copy(amountPaid = value, errorMessage = null)
-        }
+        _uiState.value = _uiState.value.copy(amountPaid = sanitizeDecimalInput(value), errorMessage = null)
     }
 
     fun updateLitersAdded(value: String) {
-        // Only allow digits and one decimal point
-        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
-            _uiState.value = _uiState.value.copy(litersAdded = value, errorMessage = null)
-        }
+        _uiState.value = _uiState.value.copy(litersAdded = sanitizeDecimalInput(value), errorMessage = null)
     }
 
     fun updateTripDistance(value: String) {
-        // Only allow digits and one decimal point
-        if (value.isEmpty() || value.matches(Regex("^\\d*\\.?\\d*$"))) {
-            _uiState.value = _uiState.value.copy(tripDistance = value, errorMessage = null)
-        }
+        _uiState.value = _uiState.value.copy(tripDistance = sanitizeDecimalInput(value), errorMessage = null)
     }
 
     fun updateOdometerReading(value: String) {
-        // Only allow digits (no decimal for odometer)
-        if (value.isEmpty() || value.matches(Regex("^\\d+$"))) {
-            _uiState.value = _uiState.value.copy(odometerReading = value, errorMessage = null)
-        }
+        _uiState.value = _uiState.value.copy(odometerReading = sanitizeIntInput(value), errorMessage = null)
     }
 
     fun updateNotes(value: String) {
@@ -146,10 +137,10 @@ class EditRefillViewModel @Inject constructor(
         val state = _uiState.value
 
         // Validation
-        val amount = state.amountPaid.toDoubleOrNull()
-        val liters = state.litersAdded.toDoubleOrNull()
-        val distance = state.tripDistance.toDoubleOrNull()
-        val odometer = state.odometerReading.toDoubleOrNull()
+        val amount = state.amountPaid.parseLocalizedDouble()
+        val liters = state.litersAdded.parseLocalizedDouble()
+        val distance = state.tripDistance.parseLocalizedDouble()
+        val odometer = state.odometerReading.parseLocalizedDouble()
 
         if (amount == null || amount <= 0) {
             _uiState.value = state.copy(errorMessage = "Please enter a valid amount")

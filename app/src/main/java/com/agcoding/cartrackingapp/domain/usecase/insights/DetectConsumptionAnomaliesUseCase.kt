@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.Anomaly
 import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
@@ -94,9 +95,9 @@ class DetectConsumptionAnomaliesUseCase @Inject constructor() {
                         type = AnomalyType.CONSUMPTION_SPIKE,
                         severity = severity,
                         title = "Unusual Fuel Consumption",
-                        description = "Fuel consumption $direction by ${String.format("%.1f", percentageDeviation)}% " +
-                                "compared to 6-month average (${String.format("%.2f", avgHistoricalConsumption)} L/100km). " +
-                                "Current: ${String.format("%.2f", currentConsumption)} L/100km",
+                        description = "Fuel consumption $direction by ${percentageDeviation.formatNumber(1)}% " +
+                                "compared to 6-month average (${avgHistoricalConsumption.formatNumber(2)} L/100km). " +
+                                "Current: ${currentConsumption.formatNumber(2)} L/100km",
                         detectedAt = currentDate,
                         relatedTransactionId = currentRefill.id,
                         value = currentConsumption,

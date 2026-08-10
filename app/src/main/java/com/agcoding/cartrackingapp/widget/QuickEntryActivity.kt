@@ -67,7 +67,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatNumber
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
+import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -380,11 +385,10 @@ private fun QuickRefillDialog(
         if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed) {
             val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
 
-            // Pre-fill form fields with parsed data
-            // Use Locale.US to ensure period (.) as decimal separator for parsing compatibility
-            parsedData.cost?.let { cost = String.format(Locale.US, "%.2f", it) }
-            parsedData.liters?.let { liters = String.format(Locale.US, "%.2f", it) }
-            parsedData.distance?.let { distance = String.format(Locale.US, "%.0f", it) }
+            // Pre-fill form fields with parsed data as raw comma-decimal field values
+            parsedData.cost?.let { cost = sanitizeDecimalInput(it.toString()) }
+            parsedData.liters?.let { liters = sanitizeDecimalInput(it.toString()) }
+            parsedData.distance?.let { distance = sanitizeDecimalInput(it.toString()) }
 
             // Reset voice state after applying data
             viewModel.confirmVoiceParsedData()
@@ -394,16 +398,16 @@ private fun QuickRefillDialog(
     // Calculated values
     val pricePerLiter by remember {
         derivedStateOf {
-            val l = liters.toDoubleOrNull()
-            val c = cost.toDoubleOrNull()
+            val l = liters.parseLocalizedDouble()
+            val c = cost.parseLocalizedDouble()
             if (l != null && c != null && l > 0) c / l else null
         }
     }
 
     val consumption by remember {
         derivedStateOf {
-            val l = liters.toDoubleOrNull()
-            val d = distance.toDoubleOrNull()
+            val l = liters.parseLocalizedDouble()
+            val d = distance.parseLocalizedDouble()
             if (l != null && d != null && d > 0) (l / d) * 100 else null
         }
     }
@@ -699,12 +703,13 @@ private fun QuickRefillDialog(
                     OutlinedTextField(
                         value = liters,
                         onValueChange = {
-                            liters = it
+                            liters = sanitizeDecimalInput(it)
                             litersError = null
                             errorMessage = null
                         },
                         label = { Text(stringResource(id = R.string.liters_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = ThousandsSeparatorTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isLoading,
                         isError = litersError != null,
@@ -717,12 +722,13 @@ private fun QuickRefillDialog(
                     OutlinedTextField(
                         value = cost,
                         onValueChange = {
-                            cost = it
+                            cost = sanitizeDecimalInput(it)
                             costError = null
                             errorMessage = null
                         },
                         label = { Text(stringResource(id = R.string.cost_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = ThousandsSeparatorTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isLoading,
                         isError = costError != null,
@@ -1083,12 +1089,13 @@ private fun QuickExpenseDialog(
                     OutlinedTextField(
                         value = cost,
                         onValueChange = {
-                            cost = it
+                            cost = sanitizeDecimalInput(it)
                             costError = null
                             errorMessage = null
                         },
                         label = { Text(stringResource(id = R.string.cost_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = ThousandsSeparatorTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isLoading,
                         isError = costError != null,

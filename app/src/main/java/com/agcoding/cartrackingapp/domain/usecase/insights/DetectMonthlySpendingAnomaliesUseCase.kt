@@ -5,6 +5,7 @@ import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
+import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -84,8 +85,8 @@ class DetectMonthlySpendingAnomaliesUseCase @Inject constructor() {
                             severity = severity,
                             title = "Monthly Spending Increased",
                             description = "Total spending in ${yearMonth.month.name} ${yearMonth.year} " +
-                                    "(€${String.format("%.2f", spending)}) is ${String.format("%.1f", percentageIncrease)}% " +
-                                    "higher than 3-month average (€${String.format("%.2f", avgPreviousSpending)}). " +
+                                    "(€${spending.formatNumber(2)}) is ${percentageIncrease.formatNumber(1)}% " +
+                                    "higher than 3-month average (€${avgPreviousSpending.formatNumber(2)}). " +
                                     "Review fuel and maintenance expenses.",
                             detectedAt = detectedDate,
                             relatedTransactionId = null,

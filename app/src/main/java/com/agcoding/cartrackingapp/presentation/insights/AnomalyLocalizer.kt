@@ -86,9 +86,9 @@ class AnomalyLocalizer @Inject constructor(
                 val avgMatch = Regex("€([\\d.,]+)/L\\)").find(anomaly.description)
                 val currentMatch = Regex("Current: €([\\d.,]+)/L").find(anomaly.description)
 
-                val percentage = percentageMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val avg = avgMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val current = currentMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
+                val percentage = percentageMatch?.groupValues?.get(1) ?: "?"
+                val avg = avgMatch?.groupValues?.get(1) ?: "?"
+                val current = currentMatch?.groupValues?.get(1) ?: "?"
 
                 context.getString(
                     R.string.anomaly_desc_fuel_price_spike,
@@ -104,9 +104,9 @@ class AnomalyLocalizer @Inject constructor(
                 val currentMatch = Regex("Current: ([\\d.,]+) L/100km").find(anomaly.description)
 
                 val direction = percentageMatch?.groupValues?.get(1) ?: "increased"
-                val percentage = percentageMatch?.groupValues?.get(2)?.replace(",", ".") ?: "?"
-                val avg = avgMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val current = currentMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
+                val percentage = percentageMatch?.groupValues?.get(2) ?: "?"
+                val avg = avgMatch?.groupValues?.get(1) ?: "?"
+                val current = currentMatch?.groupValues?.get(1) ?: "?"
 
                 val directionStr = if (direction == "increased") {
                     context.getString(R.string.increased)
@@ -131,9 +131,9 @@ class AnomalyLocalizer @Inject constructor(
 
                 val categoryRaw = categoryMatch?.groupValues?.get(1)?.trim() ?: "Maintenance"
                 val category = translateCategory(categoryRaw)
-                val cost = costMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val percentage = percentageMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val avg = avgMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
+                val cost = costMatch?.groupValues?.get(1) ?: "?"
+                val percentage = percentageMatch?.groupValues?.get(1) ?: "?"
+                val avg = avgMatch?.groupValues?.get(1) ?: "?"
 
                 context.getString(
                     R.string.anomaly_desc_maintenance_outlier,
@@ -153,9 +153,9 @@ class AnomalyLocalizer @Inject constructor(
                 val monthRaw = monthMatch?.groupValues?.get(1) ?: "?"
                 val month = translateMonth(monthRaw)
                 val year = monthMatch?.groupValues?.get(2) ?: "?"
-                val cost = costMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val percentage = percentageMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val avg = avgMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
+                val cost = costMatch?.groupValues?.get(1) ?: "?"
+                val percentage = percentageMatch?.groupValues?.get(1) ?: "?"
+                val avg = avgMatch?.groupValues?.get(1) ?: "?"
 
                 context.getString(
                     R.string.anomaly_desc_monthly_spending,
@@ -175,10 +175,10 @@ class AnomalyLocalizer @Inject constructor(
                 val distanceMatch = Regex("\\(([\\d.,]+) km").find(anomaly.description)
 
                 val direction = directionMatch?.groupValues?.get(1) ?: "increased"
-                val percentage = percentageMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val current = currentMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val avg = avgMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
-                val distance = distanceMatch?.groupValues?.get(1)?.replace(",", ".") ?: "?"
+                val percentage = percentageMatch?.groupValues?.get(1) ?: "?"
+                val current = currentMatch?.groupValues?.get(1) ?: "?"
+                val avg = avgMatch?.groupValues?.get(1) ?: "?"
+                val distance = distanceMatch?.groupValues?.get(1) ?: "?"
 
                 val directionStr = if (direction == "increased") {
                     context.getString(R.string.increased)

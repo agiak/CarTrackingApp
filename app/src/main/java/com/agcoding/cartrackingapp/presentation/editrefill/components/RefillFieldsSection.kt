@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
@@ -47,6 +48,7 @@ fun RefillFieldsSection(
                 label = { Text(stringResource(R.string.amount_paid_eur)) },
                 placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
@@ -57,6 +59,7 @@ fun RefillFieldsSection(
                 label = { Text(stringResource(R.string.liters_added)) },
                 placeholder = { Text(stringResource(R.string.liters_added_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
@@ -76,6 +79,7 @@ fun RefillFieldsSection(
                 placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
                 supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
@@ -86,6 +90,7 @@ fun RefillFieldsSection(
                 label = { Text(stringResource(R.string.odometer_reading_km)) },
                 placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = ThousandsSeparatorTransformation(),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
@@ -98,6 +103,7 @@ fun RefillFieldsSection(
             label = { Text(stringResource(R.string.amount_paid_eur)) },
             placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = ThousandsSeparatorTransformation(),
             singleLine = true,
             modifier = modifier
         )
@@ -110,6 +116,7 @@ fun RefillFieldsSection(
             label = { Text(stringResource(R.string.liters_added)) },
             placeholder = { Text(stringResource(R.string.liters_added_hint)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = ThousandsSeparatorTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -123,6 +130,7 @@ fun RefillFieldsSection(
             placeholder = { Text(stringResource(R.string.trip_distance_hint)) },
             supportingText = { Text(stringResource(R.string.trip_distance_supporting)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = ThousandsSeparatorTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -135,6 +143,7 @@ fun RefillFieldsSection(
             label = { Text(stringResource(R.string.odometer_reading_km)) },
             placeholder = { Text(stringResource(R.string.odometer_reading_hint)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            visualTransformation = ThousandsSeparatorTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
