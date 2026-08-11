@@ -54,6 +54,8 @@ import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -293,53 +295,13 @@ fun CreateTripScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun SelectableRefillCard(
-    refill: FuelRefill,
-    isSelected: Boolean,
-    onToggleSelection: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onToggleSelection),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            }
-        ),
-        border = if (isSelected) {
-            androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-        } else null
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                        .format(Date(refill.timestamp)),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${refill.litersAdded.formatNumber(2)} L • ${refill.tripDistance.formatNumber(2)} km • ${refill.amountPaid.formatMoney()}",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = { onToggleSelection() }
-            )
-        }
+private fun CreateTripScreenPreview() {
+    CarTrackingAppTheme {
+        CreateTripScreen(
+            onNavigateBack = {}
+        )
     }
 }
 
