@@ -32,7 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocalGasStation
@@ -359,7 +359,7 @@ private fun getIconForSlide(index: Int): ImageVector {
         0 -> Icons.Default.DirectionsCar
         1 -> Icons.Default.LocalGasStation
         2 -> Icons.Default.Build
-        3 -> Icons.Default.AttachMoney
+        3 -> Icons.Default.EuroSymbol
         4 -> Icons.Default.ShowChart
         else -> Icons.Default.DirectionsCar
     }

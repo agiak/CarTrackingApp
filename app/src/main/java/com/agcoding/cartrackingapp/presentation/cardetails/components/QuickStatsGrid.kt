@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +59,7 @@ fun QuickStatsGrid(statistics: CarStatistics) {
         )
 
         QuickStatCard(
-            icon = Icons.Default.AttachMoney,
+            icon = Icons.Default.EuroSymbol,
             label = "Cost/km",
             value = if (statistics.costPerKilometer > 0) {
                 statistics.costPerKilometer.formatMoney()

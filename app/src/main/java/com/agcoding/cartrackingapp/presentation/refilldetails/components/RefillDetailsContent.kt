@@ -16,7 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOn
@@ -100,7 +100,7 @@ fun RefillDetailsContent(
                         modifier = Modifier.weight(1f)
                     )
                     MetricCard(
-                        icon = Icons.Default.AttachMoney,
+                        icon = Icons.Default.EuroSymbol,
                         label = stringResource(R.string.metric_price_per_liter),
                         value = refill.pricePerLiter.formatMoney(),
                         modifier = Modifier.weight(1f)
@@ -284,7 +284,7 @@ fun RefillDetailsContent(
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
-                    icon = Icons.Default.AttachMoney,
+                    icon = Icons.Default.EuroSymbol,
                     label = stringResource(R.string.metric_price_per_liter),
                     value = refill.pricePerLiter.formatMoney(),
                     modifier = Modifier.weight(1f)

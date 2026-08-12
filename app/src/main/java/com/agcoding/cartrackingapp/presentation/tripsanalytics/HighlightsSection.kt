@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.runtime.Composable
@@ -34,7 +34,7 @@ internal fun HighlightsSection(highlights: TripHighlights) {
                 metricValue = highlights.mostCostly?.let {
                     it.totalCost.formatMoney()
                 },
-                icon = Icons.Default.AttachMoney,
+                icon = Icons.Default.EuroSymbol,
                 modifier = Modifier.weight(1f)
             )
             HighlightCard(
@@ -43,7 +43,7 @@ internal fun HighlightsSection(highlights: TripHighlights) {
                 metricValue = highlights.cheapest?.let {
                     it.totalCost.formatMoney()
                 },
-                icon = Icons.Default.AttachMoney,
+                icon = Icons.Default.EuroSymbol,
                 modifier = Modifier.weight(1f)
             )
         }

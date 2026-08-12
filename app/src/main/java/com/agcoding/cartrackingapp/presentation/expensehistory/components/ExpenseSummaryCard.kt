@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FilterList
@@ -58,7 +58,7 @@ fun ExpenseSummaryCard(
             )
 
             ExpenseSummaryItem(
-                icon = Icons.Default.AttachMoney,
+                icon = Icons.Default.EuroSymbol,
                 label = stringResource(R.string.total_cost),
                 value = totalCost.formatMoney()
             )

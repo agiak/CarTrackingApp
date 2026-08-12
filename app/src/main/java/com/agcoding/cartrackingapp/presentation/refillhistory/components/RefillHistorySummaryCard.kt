@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.MaterialTheme
@@ -88,7 +88,7 @@ fun RefillHistorySummaryCard(
                     )
 
                     SummaryItem(
-                        icon = Icons.Default.AttachMoney,
+                        icon = Icons.Default.EuroSymbol,
                         label = stringResource(R.string.total_cost),
                         value = totalCost.formatMoney()
                     )
