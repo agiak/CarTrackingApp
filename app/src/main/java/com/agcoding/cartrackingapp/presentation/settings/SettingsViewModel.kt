@@ -576,8 +576,10 @@ class SettingsViewModel @Inject constructor(
                 random = random
             )
 
-            // Generate expenses (300 – 10 000 per car over 7 years)
-            val numberOfExpenses = random.nextInt(300, 10001)
+            // Generate a realistic number of expenses per car over 7 years
+            // (~7–20/year). The previous 300–10 000 range produced tens of
+            // thousands of expenses and multi-million total costs.
+            val numberOfExpenses = random.nextInt(50, 141)
             generateExpensesForCar(
                 carId = carId,
                 startTime = sevenYearsAgo,
