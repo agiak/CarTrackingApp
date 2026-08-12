@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -125,7 +125,7 @@ private fun HighlightCardPreview() {
                 endDate = 0L
             ),
             metricValue = "$68.00",
-            icon = Icons.Default.AttachMoney
+            icon = Icons.Default.EuroSymbol
         )
     }
 }

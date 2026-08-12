@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -439,7 +439,7 @@ private fun PreviewInteractiveLineChartDark() {
                 ChartDataPoint("Mar", 135.0, "€135"),
                 ChartDataPoint("Apr", 180.0, "€180")
             ),
-            tooltipIcon = androidx.compose.material.icons.Icons.Default.AttachMoney,
+            tooltipIcon = androidx.compose.material.icons.Icons.Default.EuroSymbol,
             modifier = Modifier.padding(16.dp)
         )
     }

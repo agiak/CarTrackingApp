@@ -17,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.CircularProgressIndicator
@@ -179,7 +179,7 @@ private fun SummarySection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SummaryCard(
-                icon = Icons.Default.AttachMoney,
+                icon = Icons.Default.EuroSymbol,
                 title = stringResource(R.string.total_cost),
                 value = statistics.totalCost.formatMoney(),
                 subtitle = stringResource(R.string.fuel_plus_expenses),
@@ -219,7 +219,7 @@ private fun SummarySection(
         // Third row - Cost per Kilometer
         if (statistics.costPerKilometer > 0) {
             SummaryCard(
-                icon = Icons.Default.AttachMoney,
+                icon = Icons.Default.EuroSymbol,
                 title = stringResource(R.string.cost_per_kilometer),
                 value = statistics.costPerKilometer.formatMoneyPer("km"),
                 subtitle = stringResource(R.string.average_cost_subtitle),

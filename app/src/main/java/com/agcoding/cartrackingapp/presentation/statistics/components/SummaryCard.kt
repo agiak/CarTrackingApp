@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -86,7 +86,7 @@ fun SummaryCard(
 private fun PreviewSummaryCard() {
     CarTrackingAppTheme(darkTheme = false) {
         SummaryCard(
-            icon = Icons.Default.AttachMoney,
+            icon = Icons.Default.EuroSymbol,
             title = "Total Cost",
             value = "€1,250.50",
             modifier = Modifier.padding(16.dp)
@@ -99,7 +99,7 @@ private fun PreviewSummaryCard() {
 private fun PreviewSummaryCardWithSubtitle() {
     CarTrackingAppTheme(darkTheme = false) {
         SummaryCard(
-            icon = Icons.Default.AttachMoney,
+            icon = Icons.Default.EuroSymbol,
             title = "Total Cost",
             value = "€2,840.75",
             subtitle = "Fuel + Expenses",
@@ -113,7 +113,7 @@ private fun PreviewSummaryCardWithSubtitle() {
 private fun PreviewSummaryCardDark() {
     CarTrackingAppTheme(darkTheme = true) {
         SummaryCard(
-            icon = Icons.Default.AttachMoney,
+            icon = Icons.Default.EuroSymbol,
             title = "Avg Consumption",
             value = "7.5 L/100km",
             modifier = Modifier.padding(16.dp)

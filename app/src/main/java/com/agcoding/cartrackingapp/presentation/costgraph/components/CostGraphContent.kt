@@ -18,7 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -79,7 +79,7 @@ fun CostGraphContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.AttachMoney,
+                            imageVector = Icons.Default.EuroSymbol,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
@@ -121,7 +121,7 @@ fun CostGraphContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.AttachMoney,
+                                imageVector = Icons.Default.EuroSymbol,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
@@ -201,7 +201,7 @@ fun CostGraphContent(
                                             formattedValue = monthData.totalCost.formatMoney()
                                         )
                                     },
-                                    tooltipIcon = Icons.Default.AttachMoney,
+                                    tooltipIcon = Icons.Default.EuroSymbol,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -290,7 +290,7 @@ fun CostGraphContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AttachMoney,
+                        imageVector = Icons.Default.EuroSymbol,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
@@ -332,7 +332,7 @@ fun CostGraphContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.AttachMoney,
+                            imageVector = Icons.Default.EuroSymbol,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
@@ -415,7 +415,7 @@ fun CostGraphContent(
                                     formattedValue = monthData.totalCost.formatMoney()
                                 )
                             },
-                            tooltipIcon = Icons.Default.AttachMoney,
+                            tooltipIcon = Icons.Default.EuroSymbol,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
