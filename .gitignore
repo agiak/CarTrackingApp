@@ -69,10 +69,12 @@ captures/
 # Comment next line if keeping position of elements in Navigation Editor is relevant for you
 .idea/navEditor.xml
 
-# Keystore files — signing material must never be committed.
-# Provided at build time via environment variables / GitHub Secrets.
+# Keystore files. The Caribou signing key (cariboo_key.jks) is intentionally
+# committed so debug and release builds share the same key; any other keystore
+# stays ignored.
 *.jks
 *.keystore
+!cariboo_key.jks
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
