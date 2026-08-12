@@ -178,61 +178,6 @@ fun AnomalyCard(
     }
 }
 
-@Composable
-private fun SeverityBadge(severity: AnomalySeverity) {
-    Surface(
-        color = getSeverityColor(severity).copy(alpha = 0.2f),
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = getSeverityLabel(severity),
-            style = MaterialTheme.typography.labelSmall,
-            color = getSeverityColor(severity),
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
-
-@Composable
-private fun getAnomalyIcon(type: AnomalyType): ImageVector {
-    return when (type) {
-        AnomalyType.FUEL_PRICE_SPIKE -> Icons.AutoMirrored.Filled.TrendingUp
-        AnomalyType.CONSUMPTION_SPIKE -> Icons.Default.Speed
-        AnomalyType.MAINTENANCE_OUTLIER -> Icons.Default.Build
-        AnomalyType.MONTHLY_SPENDING_INCREASE -> Icons.Default.AccountBalanceWallet
-        AnomalyType.COST_PER_KM_DEVIATION -> Icons.Default.Payments
-        AnomalyType.MISSING_TRIP_REFILL -> Icons.Default.Flag
-    }
-}
-
-@Composable
-private fun getSeverityColor(severity: AnomalySeverity): Color {
-    return when (severity) {
-        AnomalySeverity.LOW -> MaterialTheme.colorScheme.tertiary
-        AnomalySeverity.MEDIUM -> MaterialTheme.colorScheme.secondary
-        AnomalySeverity.HIGH -> MaterialTheme.colorScheme.error
-    }
-}
-
-@Composable
-private fun getSeverityBackgroundColor(severity: AnomalySeverity): Color {
-    return when (severity) {
-        AnomalySeverity.LOW -> MaterialTheme.colorScheme.surfaceVariant
-        AnomalySeverity.MEDIUM -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-        AnomalySeverity.HIGH -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-    }
-}
-
-@Composable
-private fun getSeverityLabel(severity: AnomalySeverity): String {
-    return when (severity) {
-        AnomalySeverity.LOW -> stringResource(R.string.severity_low)
-        AnomalySeverity.MEDIUM -> stringResource(R.string.severity_medium)
-        AnomalySeverity.HIGH -> stringResource(R.string.severity_high)
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun PreviewAnomalyCardHigh() {

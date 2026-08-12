@@ -31,6 +31,8 @@ import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.AddCategoryDialog
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.DeleteCategoryDialog
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.ManageExpenseCategoriesContent
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,6 +153,16 @@ fun ManageExpenseCategoriesScreen(
                 viewModel.deleteCategory(categoryName)
                 showDeleteDialog = null
             }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ManageExpenseCategoriesScreenPreview() {
+    CarTrackingAppTheme {
+        ManageExpenseCategoriesScreen(
+            onNavigateBack = {}
         )
     }
 }

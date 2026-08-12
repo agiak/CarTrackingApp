@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.formatMoney
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -123,5 +125,23 @@ internal fun ExpenseDetailsContent(
             }
         }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ExpenseDetailsContentPreview() {
+    CarTrackingAppTheme {
+        ExpenseDetailsContent(
+            expense = Expense(
+                id = 1,
+                carId = 1,
+                category = "Oil change",
+                amount = 89.99,
+                timestamp = 0L,
+                notes = "Full synthetic oil at local garage"
+            ),
+            carName = "Toyota Corolla"
+        )
     }
 }

@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.expense
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -271,5 +273,13 @@ fun AddExpenseBottomSheet(
                 DatePicker(state = datePickerState)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddExpenseBottomSheetPreview() {
+    CarTrackingAppTheme {
+        AddExpenseBottomSheet(carId = 1L, onDismiss = {})
     }
 }

@@ -44,6 +44,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillDetailsContent
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,6 +189,17 @@ private fun openGoogleMaps(context: Context, latitude: Double, longitude: Double
             Uri.parse("https://www.google.com/maps/search/?api=1&query=$latitude,$longitude")
         )
         context.startActivity(browserIntent)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RefillDetailsScreenPreview() {
+    CarTrackingAppTheme {
+        RefillDetailsScreen(
+            onNavigateBack = {},
+            onEditClick = {}
+        )
     }
 }
 

@@ -1,4 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.material3.Text
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -45,4 +48,12 @@ fun StyledTopAppBar(
             TopAppBarDefaults.windowInsets // Use default insets for tablets and portrait
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StyledTopAppBarPreview() {
+    CarTrackingAppTheme {
+        StyledTopAppBar(title = { Text("Title") })
+    }
 }

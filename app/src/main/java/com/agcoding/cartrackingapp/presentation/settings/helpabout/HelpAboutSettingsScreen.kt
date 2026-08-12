@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.helpabout
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import android.Manifest
 import android.os.Build
@@ -162,5 +164,13 @@ fun HelpAboutSettingsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HelpAboutSettingsScreenPreview() {
+    CarTrackingAppTheme {
+        HelpAboutSettingsScreen(onNavigateBack = {}, onViewGuide = {}, onViewNotifications = {})
     }
 }

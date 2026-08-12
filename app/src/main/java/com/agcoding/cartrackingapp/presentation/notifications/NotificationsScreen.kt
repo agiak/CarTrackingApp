@@ -19,12 +19,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.notifications.components.EmptyNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.ErrorNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.NotificationsContent
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,6 +124,17 @@ fun NotificationsScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NotificationsScreenPreview() {
+    CarTrackingAppTheme {
+        NotificationsScreen(
+            onNavigateBack = {},
+            onEditExpense = {}
+        )
     }
 }
 

@@ -1,4 +1,8 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -82,5 +86,13 @@ fun SettingsRow(
             }
         }
         trailing()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsRowPreview() {
+    CarTrackingAppTheme {
+        SettingsRow(icon = Icons.Default.Info, iconBackgroundColor = Color(0xFFEEEEEE), iconTint = Color(0xFF444444), title = "Title", subtitle = "Subtitle", trailing = {})
     }
 }

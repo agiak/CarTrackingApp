@@ -1,4 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.material.icons.filled.Info
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -80,5 +83,13 @@ fun SettingsGroupNavigationCard(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsGroupNavigationCardPreview() {
+    CarTrackingAppTheme {
+        SettingsGroupNavigationCard(title = "Title", subtitle = "Subtitle", icon = Icons.Default.Info, onClick = {})
     }
 }

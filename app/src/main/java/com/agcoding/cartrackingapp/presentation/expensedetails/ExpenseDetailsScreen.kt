@@ -35,6 +35,8 @@ import kotlinx.coroutines.launch
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensedetails.components.ExpenseDetailsContent
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,6 +147,17 @@ fun ExpenseDetailsScreen(
                     Text(stringResource(R.string.cancel))
                 }
             }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ExpenseDetailsScreenPreview() {
+    CarTrackingAppTheme {
+        ExpenseDetailsScreen(
+            onNavigateBack = {},
+            onEditExpense = {}
         )
     }
 }

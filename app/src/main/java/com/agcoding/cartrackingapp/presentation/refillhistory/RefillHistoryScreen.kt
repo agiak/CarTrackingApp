@@ -52,6 +52,8 @@ import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refillhistory.components.RefillHistoryContent
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -526,6 +528,18 @@ fun RefillHistoryScreen(
                 }
             },
             dismissButton = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RefillHistoryScreenPreview() {
+    CarTrackingAppTheme {
+        RefillHistoryScreen(
+            onNavigateBack = {},
+            onRefillClick = {},
+            onCreateTripClick = {}
         )
     }
 }

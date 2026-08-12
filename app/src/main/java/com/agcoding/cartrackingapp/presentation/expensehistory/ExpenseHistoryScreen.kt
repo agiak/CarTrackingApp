@@ -45,6 +45,8 @@ import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensehistory.components.ExpenseHistoryContent
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -293,6 +295,17 @@ fun ExpenseHistoryScreen(
                 modifier = Modifier.fillMaxHeight(0.85f)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ExpenseHistoryScreenPreview() {
+    CarTrackingAppTheme {
+        ExpenseHistoryScreen(
+            onNavigateBack = {},
+            onExpenseClick = {}
+        )
     }
 }
 

@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -267,5 +269,13 @@ fun StorageCard(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StorageCardPreview() {
+    CarTrackingAppTheme {
+        StorageCard(storageInfo = StorageInfo())
     }
 }

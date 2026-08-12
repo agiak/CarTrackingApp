@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
@@ -40,6 +41,7 @@ import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.insights.components.AnomalyCard
 import com.agcoding.cartrackingapp.presentation.insights.components.AnomalyFilterChips
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
  * Main Insights screen showing all detected anomalies.
@@ -134,133 +136,15 @@ fun InsightsScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun LoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun EmptyState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.size(72.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.insights_empty_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.insights_empty_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun ErrorState(message: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(72.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.insights_error_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-    }
-}
-
-@Composable
-private fun SuccessState(
-    anomalies: List<Anomaly>,
-    selectedFilter: AnomalyType?,
-    onFilterSelected: (AnomalyType?) -> Unit,
-    onClearFilter: () -> Unit,
-    onAnomalyClick: (Anomaly) -> Unit,
-    onAddToTrip: (Long, Long) -> Unit = { _, _ -> }
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Summary header
-        item {
-            Column {
-                Text(
-                    text = stringResource(R.string.insights_summary, anomalies.size),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.insights_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        // Filter chips
-        item {
-            AnomalyFilterChips(
-                selectedFilter = selectedFilter,
-                onFilterSelected = onFilterSelected,
-                onClearFilter = onClearFilter,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        // Anomaly cards
-        items(
-            items = anomalies,
-            key = { it.id }
-        ) { anomaly ->
-            AnomalyCard(
-                anomaly = anomaly,
-                onClick = { onAnomalyClick(anomaly) },
-                onAddToTrip = onAddToTrip,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+private fun InsightsScreenPreview() {
+    CarTrackingAppTheme {
+        InsightsScreen(
+            onBackClick = {},
+            onNavigateToRefillDetails = {},
+            onNavigateToExpenseDetails = {}
+        )
     }
 }
 

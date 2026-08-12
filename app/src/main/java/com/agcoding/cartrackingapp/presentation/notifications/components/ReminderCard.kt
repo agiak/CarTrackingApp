@@ -190,28 +190,6 @@ fun ReminderCard(
     }
 }
 
-@Composable
-private fun getDaysUntilText(dateMillis: Long): String {
-    val now = System.currentTimeMillis()
-    val diffMillis = dateMillis - now
-    val days = TimeUnit.MILLISECONDS.toDays(diffMillis)
-
-    return when {
-        days < 0 -> stringResource(R.string.notifications_overdue)
-        days == 0L -> stringResource(R.string.notifications_today)
-        days == 1L -> stringResource(R.string.notifications_tomorrow)
-        days < 7 -> stringResource(R.string.notifications_in_days, days)
-        days < 30 -> {
-            val weeks = days / 7
-            stringResource(R.string.notifications_in_weeks, weeks)
-        }
-        else -> {
-            val months = days / 30
-            stringResource(R.string.notifications_in_months, months)
-        }
-    }
-}
-
 private fun isReminderCloseToReached(reminder: ExpenseReminder): Boolean {
     val now = System.currentTimeMillis()
 

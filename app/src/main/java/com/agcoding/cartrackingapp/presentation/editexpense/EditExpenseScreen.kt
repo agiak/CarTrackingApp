@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.editexpense
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -157,5 +159,13 @@ fun EditExpenseScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditExpenseScreenPreview() {
+    CarTrackingAppTheme {
+        EditExpenseScreen(onNavigateBack = {})
     }
 }

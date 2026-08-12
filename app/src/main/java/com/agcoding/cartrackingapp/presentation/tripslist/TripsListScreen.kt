@@ -45,9 +45,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,65 +185,15 @@ fun TripsListScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun TripCard(
-    trip: Trip,
-    onClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+private fun TripsListScreenPreview() {
+    CarTrackingAppTheme {
+        TripsListScreen(
+            onNavigateBack = {},
+            onTripClick = {},
+            onCreateTripClick = {}
         )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = trip.name,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                if (trip.description != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = trip.description,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.refills_count_format, trip.refills.size),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = stringResource(R.string.trip_created_format, SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(trip.createdAt))),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(
-                onClick = onDeleteClick,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.delete_trip),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
     }
 }
 

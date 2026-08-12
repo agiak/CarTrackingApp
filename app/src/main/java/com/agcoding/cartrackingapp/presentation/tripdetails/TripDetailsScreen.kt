@@ -56,6 +56,8 @@ import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TripStatistics
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -278,189 +280,14 @@ fun TripDetailsScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun TripDetailsContent(
-    tripStatistics: TripStatistics,
-    onRefillClick: (Long) -> Unit,
-    onAddRefills: () -> Unit = {},
-    onRemoveRefill: (Long) -> Unit = {},
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Trip Header
-        item {
-            StyledCard(
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = tripStatistics.trip.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    if (tripStatistics.trip.description != null && tripStatistics.trip.description.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = tripStatistics.trip.description,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.trip_created_format,
-                            SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(tripStatistics.trip.createdAt))
-                        ),
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                    )
-                }
-            }
-        }
-
-        // Statistics Cards
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                StatCard(
-                    title = stringResource(R.string.stat_refills),
-                    value = tripStatistics.refillCount.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = stringResource(R.string.stat_total_cost),
-                    value = tripStatistics.totalCost.formatMoney(),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                StatCard(
-                    title = stringResource(R.string.stat_distance),
-                    value = "${tripStatistics.totalDistance.formatNumber(1)} km",
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = stringResource(R.string.stat_avg_consumption),
-                    value = "${tripStatistics.averageConsumption.formatNumber(2)} L/100km",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        item {
-            StatCard(
-                title = stringResource(R.string.stat_total_fuel),
-                value = "${tripStatistics.totalFuelConsumed.formatNumber(2)} L",
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        // Refills Section Header with + button
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.refills_section_header, tripStatistics.refillCount),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                IconButton(
-                    onClick = onAddRefills,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_refills_to_trip_cd),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
-
-        // Refills List
-        items(tripStatistics.trip.refills) { refill ->
-            Box(modifier = Modifier.fillMaxWidth()) {
-                RefillItemCard(
-                    refill = refill,
-                    carName = null,
-                    onClick = { onRefillClick(refill.id) }
-                )
-
-                // Remove bubble with minus at top right corner
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 8.dp, end = 8.dp)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.errorContainer)
-                        .clickable { onRemoveRefill(refill.id) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "−",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StatCard(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    StyledCard(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+private fun TripDetailsScreenPreview() {
+    CarTrackingAppTheme {
+        TripDetailsScreen(
+            onNavigateBack = {},
+            onRefillClick = {}
+        )
     }
 }
 

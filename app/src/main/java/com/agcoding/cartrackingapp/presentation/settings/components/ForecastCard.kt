@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -70,3 +72,10 @@ fun ForecastCard(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun ForecastCardPreview() {
+    CarTrackingAppTheme {
+        ForecastCard(forecastingEnabled = true, onForecastingToggle = {})
+    }
+}

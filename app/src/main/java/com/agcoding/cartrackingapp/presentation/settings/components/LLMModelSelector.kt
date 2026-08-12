@@ -29,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.LLMModel
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun LLMModelSelector(
@@ -83,62 +85,15 @@ fun LLMModelSelector(
     )
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun ModelOption(
-    model: LLMModel,
-    selected: Boolean,
-    onSelect: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = selected,
-                onClick = onSelect
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(
-                selected = selected,
-                onClick = onSelect
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = model.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = model.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(
-                        R.string.estimated_cost,
-                        String.format("$%.6f", model.costPerRequest)
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
+private fun LLMModelSelectorPreview() {
+    CarTrackingAppTheme {
+        LLMModelSelector(
+            currentModel = LLMModel.entries.first(),
+            onModelSelected = {},
+            onDismiss = {}
+        )
     }
 }
 

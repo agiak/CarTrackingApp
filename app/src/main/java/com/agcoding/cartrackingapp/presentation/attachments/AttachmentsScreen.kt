@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.attachments
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import android.Manifest
 import android.os.Build
@@ -380,3 +382,10 @@ fun AttachmentsScreen(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun AttachmentsScreenPreview() {
+    CarTrackingAppTheme {
+        AttachmentsScreen(onNavigateBack = {})
+    }
+}

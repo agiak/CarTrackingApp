@@ -1,4 +1,8 @@
 package com.agcoding.cartrackingapp.presentation.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -238,5 +242,13 @@ fun InteractiveBarChart(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun InteractiveBarChartPreview() {
+    CarTrackingAppTheme {
+        InteractiveBarChart(dataPoints = emptyList(), tooltipIcon = Icons.Default.Info)
     }
 }

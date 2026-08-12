@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.editcar
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -241,5 +243,13 @@ fun EditCarScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditCarScreenPreview() {
+    CarTrackingAppTheme {
+        EditCarScreen(onNavigateBack = {})
     }
 }

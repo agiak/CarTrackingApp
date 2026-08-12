@@ -43,12 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.parseLocalizedInt
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -282,6 +284,17 @@ fun EditReminderScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditReminderScreenPreview() {
+    CarTrackingAppTheme {
+        EditReminderScreen(
+            expenseId = 1L,
+            onNavigateBack = {}
+        )
     }
 }
 
