@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -214,5 +216,13 @@ fun SpreadsheetImportCard(
                 lineHeight = 14.sp
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SpreadsheetImportCardPreview() {
+    CarTrackingAppTheme {
+        SpreadsheetImportCard(isImporting = false, isGeneratingSample = false, onImport = {}, onGenerateSample = {})
     }
 }

@@ -1,4 +1,8 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,5 +58,13 @@ fun StorageActionButton(
             fontSize = 12.sp,
             color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StorageActionButtonPreview() {
+    CarTrackingAppTheme {
+        StorageActionButton(icon = Icons.Default.Info, text = "Action", onClick = {})
     }
 }

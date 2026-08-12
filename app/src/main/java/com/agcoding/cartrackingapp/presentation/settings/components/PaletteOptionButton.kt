@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -86,5 +88,13 @@ fun PaletteOptionButton(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PaletteOptionButtonPreview() {
+    CarTrackingAppTheme {
+        PaletteOptionButton(title = "Title", palette = ColorPalette.entries.first(), isSelected = true, onClick = {})
     }
 }

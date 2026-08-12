@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -145,5 +147,13 @@ fun PreferencesCard(
                 onClick = onViewNotificationHistory
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreferencesCardPreview() {
+    CarTrackingAppTheme {
+        PreferencesCard(notificationsEnabled = true, permissionPermanentlyDenied = false, onNotificationsToggle = {}, onOpenSettings = {}, onViewNotifications = {})
     }
 }

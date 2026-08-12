@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.datastorage
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -338,5 +340,13 @@ fun DataStorageSettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DataStorageSettingsScreenPreview() {
+    CarTrackingAppTheme {
+        DataStorageSettingsScreen(onNavigateBack = {})
     }
 }

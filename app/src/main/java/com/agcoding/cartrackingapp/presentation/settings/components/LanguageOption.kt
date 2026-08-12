@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,5 +61,13 @@ private fun LanguageOption(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LanguageOptionPreview() {
+    CarTrackingAppTheme {
+        LanguageOption(language = AppLanguage.entries.first(), isSelected = true, onSelect = {})
     }
 }
