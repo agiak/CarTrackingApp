@@ -147,6 +147,12 @@
     <string name="next">Next</string>
     <string name="get_started">Get Started</string>
 
+    <!-- Onboarding Import Prompt -->
+    <string name="onboarding_import_title">Have you used Caribou before?</string>
+    <string name="onboarding_import_message">If you already have a backup from Caribou — a JSON or Excel/CSV file — you can import it now to restore your cars, refills and expenses.</string>
+    <string name="onboarding_import_yes">Yes, import my data</string>
+    <string name="onboarding_import_no">No, start fresh</string>
+
     <!-- Permissions -->
     <string name="permission_location_title">Location</string>
     <string name="permission_location_desc">Used to automatically save where a fuel refill happened. This helps you remember which gas stations you visited.</string>
@@ -1250,10 +1256,7 @@
     <string name="export_json">Export JSON</string>
     <string name="export_excel">Export Excel</string>
     <string name="export_excel_failed">Excel export failed: %s</string>
-    <string name="import_choose_format_title">Choose Import Format</string>
-    <string name="import_choose_format_message">Select the format of the file you want to import:</string>
-    <string name="import_format_json">JSON Backup</string>
-    <string name="import_format_excel">Excel Spreadsheet</string>
+    <string name="import_unsupported_file">Unsupported file. Please choose a JSON backup or an Excel/CSV spreadsheet.</string>
 
     <!-- Database Error -->
     <string name="db_error_title">Update Required</string>

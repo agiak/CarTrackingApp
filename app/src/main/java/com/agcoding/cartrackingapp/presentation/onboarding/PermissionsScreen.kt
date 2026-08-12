@@ -61,8 +61,7 @@ import com.agcoding.cartrackingapp.R
 
 @Composable
 fun PermissionsScreen(
-    viewModel: OnboardingViewModel,
-    onComplete: () -> Unit
+    viewModel: OnboardingViewModel
 ) {
     val context = LocalContext.current
     val permissions = viewModel.permissions
@@ -287,7 +286,6 @@ fun PermissionsScreen(
                     Button(
                         onClick = {
                             viewModel.onPermissionsHandled()
-                            onComplete()
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -308,7 +306,6 @@ fun PermissionsScreen(
                         TextButton(
                             onClick = {
                                 viewModel.onPermissionsHandled()
-                                onComplete()
                             },
                             modifier = Modifier.weight(1f),
                             enabled = !isRequestingPermissions
@@ -320,7 +317,6 @@ fun PermissionsScreen(
                             onClick = {
                                 if (permissionsRequested) {
                                     viewModel.onPermissionsHandled()
-                                    onComplete()
                                 } else {
                                     startPermissionRequests()
                                 }
@@ -459,7 +455,6 @@ fun PermissionsScreen(
             Button(
                 onClick = {
                     viewModel.onPermissionsHandled()
-                    onComplete()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -481,7 +476,6 @@ fun PermissionsScreen(
                 TextButton(
                     onClick = {
                         viewModel.onPermissionsHandled()
-                        onComplete()
                     },
                     modifier = Modifier.weight(1f),
                     enabled = !isRequestingPermissions
@@ -495,7 +489,6 @@ fun PermissionsScreen(
                         if (permissionsRequested) {
                             // Already requested, just continue
                             viewModel.onPermissionsHandled()
-                            onComplete()
                         } else {
                             // Start requesting permissions from the first one
                             startPermissionRequests()
