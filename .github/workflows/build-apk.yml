@@ -20,10 +20,6 @@ on:
         options:
           - development
           - production
-  # TEMPORARY: incremental compile-check trigger for the composable-split work.
-  push:
-    branches:
-      - claude/caribou-github-actions-apk-n40l6o
 
 # Serialize runs so two concurrent builds can never read the same version
 # numbers or race on committing version.properties. Queued runs wait instead
