@@ -3,7 +3,7 @@ package com.agcoding.cartrackingapp.presentation.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -35,7 +35,7 @@ enum class NavigationAnimationType {
  */
 data class NavigationAnimationConfig(
     val type: NavigationAnimationType = NavigationAnimationType.HORIZONTAL_SLIDE,
-    val durationMillis: Int = 400 // Reduced for snappier feel
+    val durationMillis: Int = 300 // Smooth, snappy feel
 )
 
 /**
@@ -49,16 +49,16 @@ data class NavigationAnimationConfig(
  * - Snappy, no lag
  *
  * Optimizations:
- * - Uses LinearEasing for consistent speed (no slowdown at end)
+ * - Uses FastOutSlowInEasing for consistent speed (no slowdown at end)
  * - Reduced duration (200ms)
  * - Simplified offset calculations (30% of screen)
  * - Minimal fade for performance
  */
 object NavigationAnimations {
 
-    // Default animation durations (fast, snappy)
-    private const val DEFAULT_DURATION = 400
-    private const val MODAL_DURATION = 180
+    // Default animation durations (smooth, snappy)
+    private const val DEFAULT_DURATION = 300
+    private const val MODAL_DURATION = 220
 
     /**
      * Default enter transition: Horizontal slide from right + subtle fade
@@ -72,13 +72,13 @@ object NavigationAnimations {
                 slideInHorizontally(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     initialOffsetX = { fullWidth -> (fullWidth * 0.3).toInt() } // 30% offset for subtlety
                 ) + fadeIn(
                     animationSpec = tween(
                         durationMillis = config.durationMillis / 2, // Faster fade
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     initialAlpha = 0.5f
                 )
@@ -87,13 +87,13 @@ object NavigationAnimations {
                 slideInVertically(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     initialOffsetY = { fullHeight -> (fullHeight * 0.3).toInt() }
                 ) + fadeIn(
                     animationSpec = tween(
                         durationMillis = config.durationMillis / 2,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     initialAlpha = 0.5f
                 )
@@ -102,7 +102,7 @@ object NavigationAnimations {
                 fadeIn(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     )
                 )
             }
@@ -126,7 +126,7 @@ object NavigationAnimations {
                 fadeOut(
                     animationSpec = tween(
                         durationMillis = config.durationMillis / 2,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     targetAlpha = 0.5f
                 )
@@ -151,7 +151,7 @@ object NavigationAnimations {
                 fadeIn(
                     animationSpec = tween(
                         durationMillis = config.durationMillis / 2,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     initialAlpha = 0.5f
                 )
@@ -174,13 +174,13 @@ object NavigationAnimations {
                 slideOutHorizontally(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     targetOffsetX = { fullWidth -> fullWidth } // Full width slide for visibility
                 ) + fadeOut(
                     animationSpec = tween(
-                        durationMillis = (config.durationMillis * 2).toInt(), // 400ms - slower fade
-                        easing = LinearEasing
+                        durationMillis = config.durationMillis, // match the slide for a smooth exit
+                        easing = FastOutSlowInEasing
                     ),
                     targetAlpha = 0f
                 )
@@ -189,13 +189,13 @@ object NavigationAnimations {
                 slideOutVertically(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     ),
                     targetOffsetY = { fullHeight -> fullHeight } // Full height slide
                 ) + fadeOut(
                     animationSpec = tween(
-                        durationMillis = (config.durationMillis * 2).toInt(), // 400ms - slower fade
-                        easing = LinearEasing
+                        durationMillis = config.durationMillis, // match the slide for a smooth exit
+                        easing = FastOutSlowInEasing
                     ),
                     targetAlpha = 0f
                 )
@@ -204,7 +204,7 @@ object NavigationAnimations {
                 fadeOut(
                     animationSpec = tween(
                         durationMillis = config.durationMillis,
-                        easing = LinearEasing
+                        easing = FastOutSlowInEasing
                     )
                 )
             }
