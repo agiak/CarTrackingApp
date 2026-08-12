@@ -539,10 +539,8 @@ fun TransactionsScreen(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 @Preview(showBackground = true)
 @Composable
