@@ -55,8 +55,15 @@ fun OnboardingScreen(
 
             is OnboardingState.ShowPermissions -> {
                 PermissionsScreen(
-                    viewModel = viewModel,
-                    onComplete = onOnboardingComplete
+                    viewModel = viewModel
+                )
+            }
+
+            is OnboardingState.ShowImportPrompt -> {
+                OnboardingImportPromptScreen(
+                    onFinished = {
+                        viewModel.completeOnboarding()
+                    }
                 )
             }
 

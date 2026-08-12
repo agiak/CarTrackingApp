@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.presentation.settings
 
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.agcoding.cartrackingapp.BuildConfig
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
 import com.agcoding.cartrackingapp.data.export.ImportResult
@@ -393,6 +395,75 @@ class SettingsViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Unified import entry point. The user picks a single file and we route it to
+     * the right importer based on its type: JSON backups go to [importData], while
+     * Excel/CSV spreadsheets go to [importFromSpreadsheet]. This lets the UI expose
+     * a single "Import" action instead of asking the user to pick a format first.
+     */
+    fun importFromFile(uri: Uri) {
+        when (detectImportFileType(uri)) {
+            ImportFileType.JSON -> importData(uri)
+            ImportFileType.SPREADSHEET -> importFromSpreadsheet(uri)
+            ImportFileType.UNKNOWN -> {
+                _uiState.value = _uiState.value.copy(
+                    isImporting = false,
+                    isSpreadsheetImporting = false,
+                    importError = context.getString(R.string.import_unsupported_file)
+                )
+            }
+        }
+    }
+
+    private enum class ImportFileType { JSON, SPREADSHEET, UNKNOWN }
+
+    /**
+     * Detects the import file type. The file name/extension is the most reliable
+     * signal (many providers report generic MIME types), so we check it first and
+     * fall back to the content resolver's MIME type.
+     */
+    private fun detectImportFileType(uri: Uri): ImportFileType {
+        val name = queryDisplayName(uri)?.lowercase()
+        when {
+            name == null -> Unit
+            name.endsWith(".json") -> return ImportFileType.JSON
+            name.endsWith(".xlsx") || name.endsWith(".xls") || name.endsWith(".csv") ->
+                return ImportFileType.SPREADSHEET
+        }
+
+        val mimeType = context.contentResolver.getType(uri)?.lowercase()
+        return when {
+            mimeType == null -> ImportFileType.UNKNOWN
+            mimeType.contains("json") -> ImportFileType.JSON
+            mimeType.contains("spreadsheet") || mimeType.contains("excel") ||
+                mimeType.contains("csv") || mimeType.contains("comma-separated") ->
+                ImportFileType.SPREADSHEET
+            else -> ImportFileType.UNKNOWN
+        }
+    }
+
+    private fun queryDisplayName(uri: Uri): String? {
+        return try {
+            context.contentResolver.query(
+                uri,
+                arrayOf(OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) cursor.getString(index) else null
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to resolve display name for import uri")
+            null
         }
     }
 

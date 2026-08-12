@@ -17,6 +17,7 @@ sealed class OnboardingState {
     object Loading : OnboardingState()
     object ShowGuide : OnboardingState()
     object ShowPermissions : OnboardingState()
+    object ShowImportPrompt : OnboardingState()
     object Completed : OnboardingState()
 }
 
@@ -80,9 +81,10 @@ class OnboardingViewModel @Inject constructor(
 
     fun onPermissionsHandled() {
         viewModelScope.launch {
-            onboardingPreferences.setOnboardingCompleted(true)
             onboardingPreferences.setPermissionsRequested(true)
-            _state.value = OnboardingState.Completed
+            // After permissions we ask returning users whether they want to import
+            // existing data before finishing onboarding.
+            _state.value = OnboardingState.ShowImportPrompt
         }
     }
 

@@ -76,18 +76,13 @@ fun DataStorageSettingsScreen(
         viewModel.refreshStorageSize()
     }
 
-    // File picker for import
+    // Single file picker for import. The user picks any supported file (JSON
+    // backup or Excel/CSV spreadsheet) and the ViewModel detects the type and
+    // routes it to the correct importer.
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
-        uri?.let { viewModel.importData(it) }
-    }
-
-    // File picker for spreadsheet import
-    val spreadsheetPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        uri?.let { viewModel.importFromSpreadsheet(it) }
+        uri?.let { viewModel.importFromFile(it) }
     }
 
     // Show confirmation dialog for import
@@ -196,7 +191,8 @@ fun DataStorageSettingsScreen(
                 TextButton(
                     onClick = {
                         showImportConfirmDialog = false
-                        filePickerLauncher.launch(arrayOf("application/json"))
+                        // Accept any file; the ViewModel detects JSON vs Excel/CSV.
+                        filePickerLauncher.launch(arrayOf("*/*"))
                     }
                 ) {
                     Text(stringResource(R.string.import_action))
@@ -289,17 +285,7 @@ fun DataStorageSettingsScreen(
                 isGeneratingSample = uiState.isGeneratingSampleFile,
                 onExport = { viewModel.exportData() },
                 onExportExcel = { viewModel.exportToExcel() },
-                onImportJson = { showImportConfirmDialog = true },
-                onImportExcel = {
-                    spreadsheetPickerLauncher.launch(
-                        arrayOf(
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "application/vnd.ms-excel",
-                            "text/csv",
-                            "text/comma-separated-values"
-                        )
-                    )
-                },
+                onImport = { showImportConfirmDialog = true },
                 onGenerateSample = { viewModel.generateSampleSpreadsheet() },
                 onClear = { showClearConfirmDialog = true }
             )

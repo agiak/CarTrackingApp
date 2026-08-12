@@ -122,6 +122,12 @@
     <string name="next">Επόμενο</string>
     <string name="get_started">Ξεκινήστε</string>
 
+    <!-- Onboarding Import Prompt -->
+    <string name="onboarding_import_title">Έχετε ξαναχρησιμοποιήσει το Caribou;</string>
+    <string name="onboarding_import_message">Αν έχετε ήδη ένα αντίγραφο ασφαλείας από το Caribou — αρχείο JSON ή Excel/CSV — μπορείτε να το εισαγάγετε τώρα για να επαναφέρετε τα αυτοκίνητα, τους ανεφοδιασμούς και τα έξοδά σας.</string>
+    <string name="onboarding_import_yes">Ναι, εισαγωγή δεδομένων</string>
+    <string name="onboarding_import_no">Όχι, ξεκινήστε από την αρχή</string>
+
     <!-- Permissions -->
     <string name="permission_location_title">Τοποθεσία</string>
     <string name="permission_location_desc">Χρησιμοποιείται για την αυτόματη αποθήκευση της τοποθεσίας ενός ανεφοδιασμού. Έτσι θυμάστε σε ποια πρατήρια πήγατε.</string>
@@ -159,6 +165,7 @@
     <string name="import_data_title">Εισαγωγή δεδομένων</string>
     <string name="import_data_confirm">Η εισαγωγή θα αντικαταστήσει όλα τα υπάρχοντα δεδομένα. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Θέλετε να συνεχίσετε;</string>
     <string name="import_action">Εισαγωγή</string>
+    <string name="import_unsupported_file">Μη υποστηριζόμενο αρχείο. Επιλέξτε ένα αντίγραφο JSON ή ένα αρχείο Excel/CSV.</string>
     <string name="cancel">Ακύρωση</string>
     <string name="clear_all_data_title">Εκκαθάριση όλων των δεδομένων</string>
     <string name="clear_all_data_confirm">Αυτό θα διαγράψει μόνιμα όλα τα οχήματα, τους ανεφοδιασμούς και τα έξοδα. Η ενέργεια δεν μπορεί να αναιρεθεί. Είστε σίγουροι;</string>
