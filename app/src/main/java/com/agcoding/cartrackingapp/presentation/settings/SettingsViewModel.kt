@@ -72,6 +72,18 @@ data class StorageInfo(
     val formattedCacheSize: String get() = formatSize(cacheSize)
 }
 
+/**
+ * Structured counts of what a successful import brought in. Used to show a
+ * summary (e.g. on the onboarding success screen) instead of a plain message.
+ */
+data class ImportSummary(
+    val cars: Int = 0,
+    val refills: Int = 0,
+    val expenses: Int = 0,
+    val trips: Int = 0,
+    val reminders: Int = 0
+)
+
 data class SettingsUiState(
     val appSettings: AppSettings = AppSettings(),
     val appVersion: String = BuildConfig.VERSION_NAME,
@@ -95,7 +107,9 @@ data class SettingsUiState(
     val spreadsheetImportSuccess: String? = null,
     val spreadsheetImportError: String? = null,
     val sampleFileSuccess: String? = null,
-    val sampleFileError: String? = null
+    val sampleFileError: String? = null,
+    // Structured summary of the last successful import (JSON or spreadsheet).
+    val importSummary: ImportSummary? = null
 )
 
 @HiltViewModel
@@ -381,7 +395,12 @@ class SettingsViewModel @Inject constructor(
                 is ImportResult.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isImporting = false,
-                        importSuccess = "Imported ${result.carsImported} cars, ${result.refillsImported} refills, ${result.expensesImported} expenses"
+                        importSuccess = "Imported ${result.carsImported} cars, ${result.refillsImported} refills, ${result.expensesImported} expenses",
+                        importSummary = ImportSummary(
+                            cars = result.carsImported,
+                            refills = result.refillsImported,
+                            expenses = result.expensesImported
+                        )
                     )
                     // Delay to allow file system to update, then refresh storage size
                     delay(500)
@@ -494,7 +513,8 @@ class SettingsViewModel @Inject constructor(
             spreadsheetImportSuccess = null,
             spreadsheetImportError = null,
             sampleFileSuccess = null,
-            sampleFileError = null
+            sampleFileError = null,
+            importSummary = null
         )
     }
 
@@ -522,7 +542,14 @@ class SettingsViewModel @Inject constructor(
                     }
                     _uiState.value = _uiState.value.copy(
                         isSpreadsheetImporting = false,
-                        spreadsheetImportSuccess = message
+                        spreadsheetImportSuccess = message,
+                        importSummary = ImportSummary(
+                            cars = result.carsImported,
+                            refills = result.refillsImported,
+                            expenses = result.expensesImported,
+                            trips = result.tripsImported,
+                            reminders = result.remindersConfigured
+                        )
                     )
                     delay(500)
                     calculateStorageSize()
@@ -542,7 +569,14 @@ class SettingsViewModel @Inject constructor(
                     }
                     _uiState.value = _uiState.value.copy(
                         isSpreadsheetImporting = false,
-                        spreadsheetImportSuccess = message
+                        spreadsheetImportSuccess = message,
+                        importSummary = ImportSummary(
+                            cars = result.carsImported,
+                            refills = result.refillsImported,
+                            expenses = result.expensesImported,
+                            trips = result.tripsImported,
+                            reminders = result.remindersConfigured
+                        )
                     )
                     delay(500)
                     calculateStorageSize()
