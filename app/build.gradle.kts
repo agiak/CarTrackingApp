@@ -88,6 +88,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Sign development/debug builds with the same (release) key when one is
+            // provided via secrets/environment. Each CI runner otherwise generates a
+            // fresh random debug keystore, so consecutive development APKs would be
+            // signed with different keys and could not be installed over one another.
+            // A stable signature lets a new development APK update the previous one.
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null) {
+                signingConfig = releaseSigning
+            }
         }
 
         release {
