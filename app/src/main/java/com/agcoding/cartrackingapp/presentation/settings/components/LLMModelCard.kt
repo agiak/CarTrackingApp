@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -123,3 +125,10 @@ fun LLMModelCard(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun LLMModelCardPreview() {
+    CarTrackingAppTheme {
+        LLMModelCard(currentModel = LLMModel.entries.first(), onModelChange = {})
+    }
+}
