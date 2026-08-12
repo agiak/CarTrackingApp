@@ -44,6 +44,8 @@ import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TrashItem
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -123,52 +125,10 @@ fun TrashScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun TrashItemCard(
-    item: TrashItem,
-    dateFormat: SimpleDateFormat,
-    onRestore: () -> Unit,
-    onDeletePermanently: () -> Unit
-) {
-    val (title, subtitle, sectionLabel) = when (item) {
-        is TrashItem.CarItem -> Triple(item.car.name, item.car.licensePlate, stringResource(R.string.trash_cars_section))
-        is TrashItem.RefillItem -> Triple(
-            "${item.refill.amountPaid.formatMoney()} · ${item.refill.litersAdded.formatNumber(1)}L",
-            item.carName,
-            stringResource(R.string.trash_refills_section)
-        )
-        is TrashItem.ExpenseItem -> Triple(
-            "${item.expense.category} · ${item.expense.amount.formatMoney()}",
-            item.carName,
-            stringResource(R.string.trash_expenses_section)
-        )
-        is TrashItem.TripItem -> Triple(item.trip.name, item.carName, stringResource(R.string.trash_trips_section))
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(sectionLabel, fontSize = 11.sp, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Medium)
-                Text(
-                    stringResource(R.string.trash_deleted_on, dateFormat.format(Date(item.deletedAt))),
-                    fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text(subtitle, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onDeletePermanently, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.trash_delete_permanently), fontSize = 12.sp)
-                }
-                Button(onClick = onRestore, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.trash_restore))
-                }
-            }
-        }
+private fun TrashScreenPreview() {
+    CarTrackingAppTheme {
+        TrashScreen(onNavigateBack = {})
     }
 }
