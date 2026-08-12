@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.editrefill
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -136,5 +138,13 @@ fun EditRefillScreen(
                 DatePicker(state = datePickerState)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditRefillScreenPreview() {
+    CarTrackingAppTheme {
+        EditRefillScreen(onNavigateBack = {})
     }
 }

@@ -1,4 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.refill
+import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -403,5 +405,13 @@ fun AddRefillBottomSheet(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddRefillBottomSheetPreview() {
+    CarTrackingAppTheme {
+        AddRefillBottomSheet(carId = 1L, onDismiss = {})
     }
 }
