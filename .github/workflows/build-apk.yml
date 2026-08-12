@@ -63,41 +63,14 @@ jobs:
           # where github.event.inputs is not provided.
           ./scripts/bump-version.sh "${{ github.event.inputs.build_type || 'development' }}"
 
-      - name: Decode signing keystore (if provided)
-        env:
-          KS_B64: ${{ secrets.CARIBOU_KEYSTORE_BASE64 }}
-          BUILD_TYPE: ${{ steps.version.outputs.buildType }}
-        run: |
-          if [ -n "$KS_B64" ]; then
-            # Decode for BOTH build types so development APKs are signed with the
-            # same stable key and can be installed over a previous development APK.
-            echo "$KS_B64" | base64 -d > "${{ runner.temp }}/caribou-release.jks"
-            echo "Signing keystore decoded."
-          elif [ "$BUILD_TYPE" = "production" ]; then
-            echo "::error::CARIBOU_KEYSTORE_BASE64 secret is not set — required for production builds." >&2
-            exit 1
-          else
-            echo "::warning::No signing keystore secret set — this development APK uses the ephemeral debug key and may not install over a previous one."
-          fi
-
+      # Both build types are signed with the committed Caribou key (see
+      # app/build.gradle.kts). No signing secrets are required.
       - name: Build development (debug) APK
         if: ${{ steps.version.outputs.buildType == 'development' }}
-        env:
-          # Signs the debug build with the same (release) key when the keystore was
-          # decoded above; otherwise Gradle falls back to the default debug key.
-          CARIBOU_KEYSTORE_FILE: ${{ runner.temp }}/caribou-release.jks
-          CARIBOU_KEYSTORE_PASSWORD: ${{ secrets.CARIBOU_KEYSTORE_PASSWORD }}
-          CARIBOU_KEY_ALIAS: ${{ secrets.CARIBOU_KEY_ALIAS }}
-          CARIBOU_KEY_PASSWORD: ${{ secrets.CARIBOU_KEY_PASSWORD }}
         run: ./gradlew assembleDebug -Pcaribou.profile=development --no-daemon --stacktrace
 
       - name: Build production (release) APK
         if: ${{ steps.version.outputs.buildType == 'production' }}
-        env:
-          CARIBOU_KEYSTORE_FILE: ${{ runner.temp }}/caribou-release.jks
-          CARIBOU_KEYSTORE_PASSWORD: ${{ secrets.CARIBOU_KEYSTORE_PASSWORD }}
-          CARIBOU_KEY_ALIAS: ${{ secrets.CARIBOU_KEY_ALIAS }}
-          CARIBOU_KEY_PASSWORD: ${{ secrets.CARIBOU_KEY_PASSWORD }}
         run: ./gradlew assembleRelease -Pcaribou.profile=production --no-daemon --stacktrace
 
       - name: Assemble named APK

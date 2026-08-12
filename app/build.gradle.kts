@@ -63,18 +63,15 @@ android {
 
     signingConfigs {
         create("release") {
-            // Signing credentials are supplied at build time via environment
-            // variables (provided by GitHub Secrets in CI). Nothing sensitive is
-            // stored in the repository. When the keystore is not available (e.g.
-            // a local debug build without secrets), the release config is simply
-            // left unpopulated and no signing is applied.
-            val keystoreFile = System.getenv("CARIBOU_KEYSTORE_FILE")
-            if (!keystoreFile.isNullOrBlank() && file(keystoreFile).exists()) {
-                storeFile = file(keystoreFile)
-                storePassword = System.getenv("CARIBOU_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("CARIBOU_KEY_ALIAS")
-                keyPassword = System.getenv("CARIBOU_KEY_PASSWORD")
-            }
+            // The Caribou signing key is committed in the project so BOTH debug and
+            // release builds are always signed with the same key. This lets a new
+            // development APK be installed over a previous one and needs no CI secrets.
+            // Environment variables override the committed values when provided (e.g. to
+            // rotate the key via GitHub Secrets without changing the source).
+            storeFile = file(System.getenv("CARIBOU_KEYSTORE_FILE") ?: "${rootProject.projectDir}/cariboo_key.jks")
+            storePassword = System.getenv("CARIBOU_KEYSTORE_PASSWORD") ?: "CaribooKey!"
+            keyAlias = System.getenv("CARIBOU_KEY_ALIAS") ?: "cariboo"
+            keyPassword = System.getenv("CARIBOU_KEY_PASSWORD") ?: "CaribooKey!"
         }
     }
 
@@ -88,15 +85,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Sign development/debug builds with the same (release) key when one is
-            // provided via secrets/environment. Each CI runner otherwise generates a
-            // fresh random debug keystore, so consecutive development APKs would be
-            // signed with different keys and could not be installed over one another.
-            // A stable signature lets a new development APK update the previous one.
-            val releaseSigning = signingConfigs.getByName("release")
-            if (releaseSigning.storeFile != null) {
-                signingConfig = releaseSigning
-            }
+            // Sign debug/development builds with the same key as release, so a new
+            // development APK can be installed over a previous one.
+            signingConfig = signingConfigs.getByName("release")
         }
 
         release {
@@ -105,12 +96,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Apply production signing only when a keystore was provided via
-            // secrets/environment; otherwise the release build stays unsigned.
-            val releaseSigning = signingConfigs.getByName("release")
-            if (releaseSigning.storeFile != null) {
-                signingConfig = releaseSigning
-            }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
