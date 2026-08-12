@@ -152,6 +152,18 @@
     <string name="onboarding_import_message">If you already have a backup from Caribou — a JSON or Excel/CSV file — you can import it now to restore your cars, refills and expenses.</string>
     <string name="onboarding_import_yes">Yes, import my data</string>
     <string name="onboarding_import_no">No, start fresh</string>
+    <string name="onboarding_import_importing_title">Importing your data…</string>
+    <string name="onboarding_import_importing_message">This may take a few moments. Please keep the app open.</string>
+    <string name="onboarding_import_success_title">You\'re all set!</string>
+    <string name="onboarding_import_success_message">Your data was imported successfully.</string>
+    <string name="onboarding_import_continue">Continue to Caribou</string>
+    <string name="onboarding_import_error_title">Import failed</string>
+    <string name="onboarding_import_try_again">Try another file</string>
+    <string name="onboarding_import_stat_cars">Vehicles</string>
+    <string name="onboarding_import_stat_refills">Refills</string>
+    <string name="onboarding_import_stat_expenses">Service &amp; expenses</string>
+    <string name="onboarding_import_stat_trips">Trips</string>
+    <string name="onboarding_import_stat_reminders">Reminders</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Location</string>

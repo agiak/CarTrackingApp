@@ -127,6 +127,18 @@
     <string name="onboarding_import_message">Αν έχετε ήδη ένα αντίγραφο ασφαλείας από το Caribou — αρχείο JSON ή Excel/CSV — μπορείτε να το εισαγάγετε τώρα για να επαναφέρετε τα αυτοκίνητα, τους ανεφοδιασμούς και τα έξοδά σας.</string>
     <string name="onboarding_import_yes">Ναι, εισαγωγή δεδομένων</string>
     <string name="onboarding_import_no">Όχι, ξεκινήστε από την αρχή</string>
+    <string name="onboarding_import_importing_title">Γίνεται εισαγωγή δεδομένων…</string>
+    <string name="onboarding_import_importing_message">Μπορεί να χρειαστεί λίγος χρόνος. Παρακαλώ κρατήστε την εφαρμογή ανοιχτή.</string>
+    <string name="onboarding_import_success_title">Είστε έτοιμοι!</string>
+    <string name="onboarding_import_success_message">Τα δεδομένα σας εισήχθησαν με επιτυχία.</string>
+    <string name="onboarding_import_continue">Συνέχεια στο Caribou</string>
+    <string name="onboarding_import_error_title">Η εισαγωγή απέτυχε</string>
+    <string name="onboarding_import_try_again">Δοκιμή άλλου αρχείου</string>
+    <string name="onboarding_import_stat_cars">Οχήματα</string>
+    <string name="onboarding_import_stat_refills">Ανεφοδιασμοί</string>
+    <string name="onboarding_import_stat_expenses">Έξοδα &amp; service</string>
+    <string name="onboarding_import_stat_trips">Διαδρομές</string>
+    <string name="onboarding_import_stat_reminders">Υπενθυμίσεις</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Τοποθεσία</string>
