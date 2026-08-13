@@ -20,6 +20,7 @@ class AddFuelRefillUseCase @Inject constructor(
         tripDistance: Double,
         timestamp: Long = System.currentTimeMillis(),
         location: Location? = null,
+        locationName: String? = null,
         notes: String? = null,
     ): Result<Long> = try {
         val car = carRepository.getCarById(carId).first()
@@ -40,6 +41,7 @@ class AddFuelRefillUseCase @Inject constructor(
             fuelConsumption = fuelConsumption,
             pricePerLiter = pricePerLiter,
             location = location,
+            locationName = locationName?.trim()?.takeIf { it.isNotBlank() },
             timestamp = timestamp,
             notes = notes?.trim(),
         )

@@ -490,6 +490,9 @@
     <string name="location_captured">Location captured</string>
     <string name="no_location">No location</string>
     <string name="update">Update</string>
+    <string name="refill_location_name_label">Location name</string>
+    <string name="refill_location_name_hint">e.g. Shell, Kifisias Ave.</string>
+    <string name="location_detecting">Detecting location…</string>
     <string name="calculated">Calculated</string>
     <string name="price_per_liter_format">Price per liter: %1$s €</string>
     <string name="fuel_consumption_format">Fuel consumption: %1$s L/100km</string>

@@ -59,11 +59,15 @@ class RefillDetailsViewModel @Inject constructor(
                 }
                 .collect { details ->
                     if (details != null) {
-                        _uiState.value = RefillDetailsUiState.Success(details)
+                        val storedName = details.refill.locationName
+                        _uiState.value = RefillDetailsUiState.Success(details, storedName)
 
-                        // Fetch address if location is available
-                        details.refill.location?.let { location ->
-                            fetchAddress(location.latitude, location.longitude, details)
+                        // Prefer the persisted (user-editable) name. Only reverse-geocode
+                        // as a fallback for older refills that have coordinates but no name.
+                        if (storedName.isNullOrBlank()) {
+                            details.refill.location?.let { location ->
+                                fetchAddress(location.latitude, location.longitude, details)
+                            }
                         }
                     } else {
                         _uiState.value = RefillDetailsUiState.Error("Refill not found")

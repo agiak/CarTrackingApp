@@ -82,6 +82,7 @@ data class ExportedRefill(
     val pricePerLiter: Double,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val locationName: String? = null,
     val timestamp: Long,
     val notes: String? = null
 )
@@ -164,6 +165,7 @@ fun FuelRefill.toExported() = ExportedRefill(
     pricePerLiter = pricePerLiter,
     latitude = location?.latitude,
     longitude = location?.longitude,
+    locationName = locationName,
     timestamp = timestamp,
     notes = notes
 )
@@ -178,6 +180,7 @@ fun ExportedRefill.toDomain() = FuelRefill(
     fuelConsumption = fuelConsumption,
     pricePerLiter = pricePerLiter,
     location = if (latitude != null && longitude != null) Location(latitude, longitude) else null,
+    locationName = locationName,
     timestamp = timestamp,
     notes = notes
 )

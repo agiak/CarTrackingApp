@@ -255,32 +255,36 @@ fun AddRefillBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Location indicator
-            if (uiState.location != null) {
-                StyledCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    border = null
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+            // Location name — reverse-geocoded from the captured GPS position and
+            // editable by the user. Shown while capturing or once a position exists.
+            if (uiState.location != null || uiState.isLoadingLocation) {
+                StyledOutlinedTextField(
+                    value = uiState.locationName,
+                    onValueChange = viewModel::updateLocationName,
+                    label = { Text(stringResource(R.string.refill_location_name_label)) },
+                    placeholder = { Text(stringResource(R.string.refill_location_name_hint)) },
+                    singleLine = true,
+                    enabled = !uiState.isLoadingLocation && !uiState.isLoadingLocationName,
+                    leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = stringResource(R.string.location),
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.location_captured),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                }
+                    },
+                    trailingIcon = if (uiState.isLoadingLocation || uiState.isLoadingLocationName) {
+                        {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    } else null,
+                    supportingText = if (uiState.isLoadingLocation || uiState.isLoadingLocationName) {
+                        { Text(stringResource(R.string.location_detecting)) }
+                    } else null,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 

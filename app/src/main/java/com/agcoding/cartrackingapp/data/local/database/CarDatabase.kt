@@ -23,7 +23,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class],
-    version = 19,
+    version = 20,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -51,7 +51,7 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
                         MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
-                        MIGRATION_17_18, MIGRATION_18_19
+                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
@@ -329,6 +329,13 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
 val MIGRATION_18_19 = object : Migration(18, 19) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE expense_categories ADD COLUMN isQuickPick INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_19_20 = object : Migration(19, 20) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Persisted, user-editable name of the refill location (reverse-geocoded address).
+        db.execSQL("ALTER TABLE fuel_refills ADD COLUMN locationName TEXT DEFAULT NULL")
     }
 }
 

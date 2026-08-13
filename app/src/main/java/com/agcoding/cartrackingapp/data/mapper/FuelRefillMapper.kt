@@ -17,6 +17,7 @@ fun FuelRefillEntity.toDomain(): FuelRefill {
         location = if (latitude != null && longitude != null) {
             Location(latitude, longitude)
         } else null,
+        locationName = locationName,
         timestamp = timestamp,
         notes = notes,
         tripId = tripId,
@@ -36,9 +37,11 @@ fun FuelRefill.toEntity(): FuelRefillEntity {
         pricePerLiter = pricePerLiter,
         latitude = location?.latitude,
         longitude = location?.longitude,
+        locationName = locationName,
         timestamp = timestamp,
         notes = notes,
-        tripId = tripId
+        tripId = tripId,
+        deletedAt = deletedAt
     )
 }
 

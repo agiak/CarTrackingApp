@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.domain.usecase.refill.GetRefillDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.UpdateRefillUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
+import com.agcoding.cartrackingapp.util.GeocodingUtil
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import com.agcoding.cartrackingapp.util.sanitizeIntInput
@@ -30,6 +31,8 @@ data class EditRefillUiState(
     val notes: String = "",
     val selectedDateMillis: Long = System.currentTimeMillis(),
     val location: Location? = null,
+    val locationName: String = "",
+    val isLoadingLocationName: Boolean = false,
     val carId: Long = 0L,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
@@ -73,9 +76,16 @@ class EditRefillViewModel @Inject constructor(
                         notes = refill.notes ?: "",
                         selectedDateMillis = refill.timestamp,
                         location = refill.location,
+                        locationName = refill.locationName ?: "",
                         carId = refill.carId,
                         isLoading = false
                     )
+
+                    // For older refills that have coordinates but no stored name,
+                    // reverse-geocode once to prefill an editable name.
+                    if (refill.locationName.isNullOrBlank() && refill.location != null) {
+                        geocodeCurrentLocation()
+                    }
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -124,12 +134,40 @@ class EditRefillViewModel @Inject constructor(
         hideDatePicker()
     }
 
+    fun updateLocationName(value: String) {
+        _uiState.value = _uiState.value.copy(locationName = value)
+    }
+
     fun refreshLocation() {
         if (locationProvider.hasLocationPermission()) {
             viewModelScope.launch {
+                _uiState.value = _uiState.value.copy(isLoadingLocationName = true)
                 val location = locationProvider.getCurrentLocation()
                 _uiState.value = _uiState.value.copy(location = location)
+                // Re-fetching GPS refreshes the suggested name too.
+                if (location != null) {
+                    val name = GeocodingUtil.getAddressFromLocation(
+                        context, location.latitude, location.longitude
+                    )
+                    _uiState.value = _uiState.value.copy(locationName = name ?: _uiState.value.locationName)
+                }
+                _uiState.value = _uiState.value.copy(isLoadingLocationName = false)
             }
+        }
+    }
+
+    private fun geocodeCurrentLocation() {
+        val location = _uiState.value.location ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingLocationName = true)
+            val name = GeocodingUtil.getAddressFromLocation(
+                context, location.latitude, location.longitude
+            )
+            // Only fill if the user hasn't typed something in the meantime.
+            if (_uiState.value.locationName.isBlank() && name != null) {
+                _uiState.value = _uiState.value.copy(locationName = name)
+            }
+            _uiState.value = _uiState.value.copy(isLoadingLocationName = false)
         }
     }
 
@@ -174,6 +212,7 @@ class EditRefillViewModel @Inject constructor(
                 odometerReading = odometer,
                 timestamp = state.selectedDateMillis,
                 location = state.location,
+                locationName = state.locationName.takeIf { it.isNotBlank() },
                 notes = state.notes.takeIf { it.isNotBlank() },
             )) {
                 is Result.Success -> {
