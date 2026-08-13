@@ -1,5 +1,7 @@
 package com.agcoding.cartrackingapp.data.export
 
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -194,8 +196,9 @@ class DataExportManager @Inject constructor(
             }
 
             val bytes = buildExcelBytes(cars, allRefills, allExpenses)
-            val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault()).format(Date())
-            val fileName = "car_expenses_$timestamp.xlsx"
+            // Stable file name so each export REPLACES the previous one in Downloads
+            // instead of creating a new timestamped copy every time.
+            val fileName = "car_expenses.xlsx"
             val filePath = saveToDownloadsAsBytes(
                 fileName, bytes,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -362,27 +365,53 @@ class DataExportManager @Inject constructor(
 
     private fun saveToDownloadsAsBytes(fileName: String, bytes: ByteArray, mimeType: String): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, mimeType)
-                put(MediaStore.Downloads.IS_PENDING, 1)
-            }
             val resolver = context.contentResolver
-            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                ?: throw Exception("Could not create file in Downloads")
-            resolver.openOutputStream(uri)?.use { it.write(bytes) }
+            // Reuse an existing Download with the same name so the export REPLACES the
+            // previous file instead of MediaStore creating "car_expenses (1).xlsx", etc.
+            val existingUri = findDownloadUriByName(resolver, fileName)
+            val uri = existingUri ?: run {
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(MediaStore.Downloads.MIME_TYPE, mimeType)
+                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    put(MediaStore.Downloads.IS_PENDING, 1)
+                }
+                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                    ?: throw Exception("Could not create file in Downloads")
+            }
+            // "wt" truncates first, so overwriting a smaller file leaves no stale bytes.
+            resolver.openOutputStream(uri, "wt")?.use { it.write(bytes) }
                 ?: throw Exception("Could not write to file")
-            contentValues.clear()
-            contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-            resolver.update(uri, contentValues, null, null)
+            if (existingUri == null) {
+                val done = ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }
+                resolver.update(uri, done, null, null)
+            }
             "Downloads/$fileName"
         } else {
             @Suppress("DEPRECATION")
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val file = File(downloadsDir, fileName)
-            file.writeBytes(bytes)
+            file.writeBytes(bytes) // truncates/overwrites any existing file with this name
             file.absolutePath
         }
+    }
+
+    /**
+     * Finds an existing file in the public Downloads collection by its display name,
+     * so a re-export can overwrite it in place. Returns null if none exists.
+     */
+    private fun findDownloadUriByName(resolver: ContentResolver, fileName: String): Uri? {
+        val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.Downloads._ID)
+        val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
+        val selectionArgs = arrayOf(fileName)
+        resolver.query(collection, projection, selection, selectionArgs, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID))
+                return ContentUris.withAppendedId(collection, id)
+            }
+        }
+        return null
     }
 
     /**
