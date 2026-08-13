@@ -10,11 +10,6 @@ name: Build APK
 # the next build always continues from the correct version and no version code
 # is ever reused.
 on:
-  # TEMPORARY: build on push to the feature branch to validate the changes in CI.
-  # Remove this push trigger before merging.
-  push:
-    branches:
-      - claude/caribou-github-actions-apk-n40l6o
   workflow_dispatch:
     inputs:
       build_type:
