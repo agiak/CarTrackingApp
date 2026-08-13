@@ -18,10 +18,15 @@ data class VoiceRefillData(
     }
 
     /**
-     * Check if confidence is high (based on completeness)
+     * Check if confidence is high. A refill only needs a cost and liters, so we
+     * no longer require distance (it's optional). Instead we sanity-check the
+     * implied price per liter — a plausible value is strong evidence the two
+     * numbers were mapped to the right fields.
      */
     fun isHighConfidence(): Boolean {
-        return isComplete() && distance != null
+        if (!isComplete()) return false
+        val pricePerLiter = cost!! / liters!!
+        return pricePerLiter in 0.5..4.0
     }
 
     /**

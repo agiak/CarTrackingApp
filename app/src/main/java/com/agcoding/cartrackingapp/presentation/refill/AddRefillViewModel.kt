@@ -341,7 +341,9 @@ class AddRefillViewModel @Inject constructor(
                 null // API key not configured, will use regex fallback
             }
 
-            val result = parseVoiceRefillUseCase(transcript, null, selectedModel)
+            // Pass the API key so the smarter LLM parser is used when one is
+            // configured; the use case falls back to local parsing otherwise.
+            val result = parseVoiceRefillUseCase(transcript, apiKey, selectedModel)
 
             when (result) {
                 is VoiceParsingResult.Success -> {
