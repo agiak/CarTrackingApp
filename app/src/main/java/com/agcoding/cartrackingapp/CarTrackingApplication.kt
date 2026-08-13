@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.agcoding.cartrackingapp.data.local.database.DatabaseChangeObserver
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -18,9 +19,14 @@ class CarTrackingApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var databaseChangeObserver: DatabaseChangeObserver
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
+        // Start tracking data modifications (updates the "last modified" timestamp).
+        databaseChangeObserver.start()
         scheduleReminderChecks()
     }
 

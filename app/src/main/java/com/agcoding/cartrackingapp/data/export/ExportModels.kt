@@ -20,6 +20,8 @@ const val EXPORT_SCHEMA_VERSION = 1
 data class AppDataExport(
     val schemaVersion: Int = EXPORT_SCHEMA_VERSION,
     val exportDate: Long = System.currentTimeMillis(),
+    /** Epoch millis of the last data modification at export time (null if unknown). */
+    val lastDataModifiedAt: Long? = null,
     val appVersion: String = "",
     val data: ExportedData
 )
