@@ -12,21 +12,89 @@ plugins {
 // ---------------------------------------------------------------------------
 // Centralized versioning (see version.properties in the project root).
 //
-// versionName is shared by both build profiles. The version code is chosen per
-// build profile: "development" -> developmentVersionCode, "production" ->
-// productionVersionCode. The profile is selected with the Gradle property
-// -Pcaribou.profile=<development|production> (defaults to "development" so
-// local/IDE builds keep working). The GitHub Actions workflow sets it
-// explicitly and bumps version.properties before each build.
+// The development and production tracks each have their OWN versionName and
+// versionCode. The profile is selected with -Pcaribou.profile=<development|
+// production> (defaults to "development" so local/IDE builds keep working).
+//
+// The convenience tasks assembleDevelopmentBump / bundleProductionBump bump the
+// matching track (+1 versionName patch, +1 versionCode) BEFORE the build. The
+// bump runs at configuration time — while the requested-task list is known but
+// before the version below is read — so a single command bumps and then builds,
+// in one Gradle process, with no bash or nested invocation. It only edits
+// version.properties locally (no git commit). CI does the same via
+// scripts/bump-version.sh.
 // ---------------------------------------------------------------------------
+
+// Rewrites version.properties, bumping only the requested track.
+fun bumpCaribouVersion(profile: String) {
+    val file = rootProject.file("version.properties")
+    val props = Properties().apply { if (file.exists()) file.inputStream().use { load(it) } }
+
+    fun bumpPatch(name: String): String {
+        val parts = name.split(".")
+        require(parts.size == 3) { "versionName '$name' is not in MAJOR.MINOR.PATCH form" }
+        return "${parts[0]}.${parts[1]}.${parts[2].trim().toInt() + 1}"
+    }
+
+    // Fall back to a shared legacy "versionName" if a per-track name is absent.
+    val legacyName = props.getProperty("versionName")
+    var devName = props.getProperty("developmentVersionName") ?: legacyName ?: "1.0.0"
+    var devCode = props.getProperty("developmentVersionCode")?.trim()?.toInt() ?: 1
+    var prodName = props.getProperty("productionVersionName") ?: legacyName ?: "1.0.0"
+    var prodCode = props.getProperty("productionVersionCode")?.trim()?.toInt() ?: 1
+
+    if (profile == "production") {
+        prodName = bumpPatch(prodName); prodCode += 1
+    } else {
+        devName = bumpPatch(devName); devCode += 1
+    }
+
+    file.writeText(
+        """
+        # Centralized version management for Caribou.
+        #
+        # developmentVersionName / developmentVersionCode -> bumped ONLY on development builds.
+        # productionVersionName  / productionVersionCode  -> bumped ONLY on production builds.
+        #
+        # The development and production tracks are fully independent: each has its own
+        # versionName and versionCode counter. This file is updated by
+        # scripts/bump-version.sh (manual CI workflow) and by the local Gradle tasks
+        # (assembleDevelopmentBump / bundleProductionBump). Edit with care.
+        developmentVersionName=$devName
+        developmentVersionCode=$devCode
+        productionVersionName=$prodName
+        productionVersionCode=$prodCode
+        """.trimIndent() + "\n"
+    )
+    val active = if (profile == "production") "$prodName (code $prodCode)" else "$devName (code $devCode)"
+    logger.lifecycle("Caribou: bumped $profile version -> $active")
+}
+
+// Which convenience task (if any) was requested on the command line.
+val requestedCaribouTasks = gradle.startParameter.taskNames.map { it.substringAfterLast(':') }
+val caribouBumpDevelopment = requestedCaribouTasks.contains("assembleDevelopmentBump")
+val caribouBumpProduction = requestedCaribouTasks.contains("bundleProductionBump")
+
+// Perform the bump now, before the version is read below.
+if (caribouBumpDevelopment) bumpCaribouVersion("development")
+if (caribouBumpProduction) bumpCaribouVersion("production")
+
 val versionProps = Properties().apply {
     val versionPropsFile = rootProject.file("version.properties")
     if (versionPropsFile.exists()) {
         versionPropsFile.inputStream().use { load(it) }
     }
 }
-val caribouProfile = (project.findProperty("caribou.profile") as String?) ?: "development"
-val caribouVersionName = versionProps.getProperty("versionName") ?: "1.0.0"
+// A requested bump task also selects its profile so the build uses the right track.
+val caribouProfile = when {
+    caribouBumpProduction -> "production"
+    caribouBumpDevelopment -> "development"
+    else -> (project.findProperty("caribou.profile") as String?) ?: "development"
+}
+val caribouVersionName = when (caribouProfile) {
+    "production" -> versionProps.getProperty("productionVersionName")
+    else -> versionProps.getProperty("developmentVersionName")
+} ?: versionProps.getProperty("versionName") ?: "1.0.0"
 val caribouVersionCode = when (caribouProfile) {
     "production" -> versionProps.getProperty("productionVersionCode")?.trim()?.toInt() ?: 1
     else -> versionProps.getProperty("developmentVersionCode")?.trim()?.toInt() ?: 1
@@ -157,6 +225,31 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Convenience tasks: bump the version AND build, in a single command.
+//
+//   ./gradlew assembleDevelopmentBump  ->  bumps developmentVersionName +
+//       developmentVersionCode (each +1), then assembles the development (debug) APK.
+//   ./gradlew bundleProductionBump     ->  bumps productionVersionName +
+//       productionVersionCode (each +1), then builds the production (release) AAB bundle.
+//
+// The version bump happens above, at configuration time, when either task is
+// requested (see bumpCaribouVersion). These tasks just wire the bump to the
+// matching build output. The bump edits version.properties locally only — it
+// does NOT create a git commit.
+// ---------------------------------------------------------------------------
+tasks.register("assembleDevelopmentBump") {
+    group = "caribou"
+    description = "Bump the development version (versionName + versionCode +1) and assemble the development (debug) APK."
+    dependsOn("assembleDebug")
+}
+
+tasks.register("bundleProductionBump") {
+    group = "caribou"
+    description = "Bump the production version (versionName + versionCode +1) and build the production (release) AAB bundle."
+    dependsOn("bundleRelease")
 }
 
 // Force a consistent log4j-api version across all configurations so any transitive

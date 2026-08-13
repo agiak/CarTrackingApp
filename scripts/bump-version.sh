@@ -2,18 +2,17 @@
 #
 # Bumps the centralized version numbers in version.properties.
 #
-# Rules:
-#   * versionName            -> patch component incremented on EVERY build.
-#   * development build      -> developmentVersionCode incremented by 1.
-#   * production build       -> productionVersionCode  incremented by 1.
-#   * The two version codes are independent counters.
+# The development and production tracks are fully independent — each has its own
+# versionName and versionCode:
+#   * development build -> developmentVersionName patch +1, developmentVersionCode +1
+#   * production build  -> productionVersionName  patch +1, productionVersionCode  +1
 #
 # Usage:
 #   scripts/bump-version.sh <development|production> [path/to/version.properties]
 #
 # Outputs (stdout and, when running in GitHub Actions, $GITHUB_OUTPUT):
-#   versionName=<new version name>
-#   versionCode=<active version code for the chosen build type>
+#   versionName=<new version name for the chosen track>
+#   versionCode=<new version code for the chosen track>
 #   buildType=<development|production>
 #
 set -euo pipefail
@@ -39,30 +38,46 @@ get_prop() {
   echo "${value//[[:space:]]/}"
 }
 
-versionName="$(get_prop versionName)"
+developmentVersionName="$(get_prop developmentVersionName)"
 developmentVersionCode="$(get_prop developmentVersionCode)"
+productionVersionName="$(get_prop productionVersionName)"
 productionVersionCode="$(get_prop productionVersionCode)"
 
-if [[ -z "$versionName" || -z "$developmentVersionCode" || -z "$productionVersionCode" ]]; then
-  echo "ERROR: version.properties is missing one of: versionName, developmentVersionCode, productionVersionCode" >&2
+# Backwards compatibility: fall back to a shared legacy "versionName" if the
+# per-track names are not present yet.
+legacyVersionName="$(get_prop versionName)"
+developmentVersionName="${developmentVersionName:-$legacyVersionName}"
+productionVersionName="${productionVersionName:-$legacyVersionName}"
+
+if [[ -z "$developmentVersionName" || -z "$developmentVersionCode" || \
+      -z "$productionVersionName" || -z "$productionVersionCode" ]]; then
+  echo "ERROR: version.properties is missing one of: developmentVersionName, developmentVersionCode, productionVersionName, productionVersionCode" >&2
   exit 1
 fi
 
-# --- Increment versionName patch (semantic MAJOR.MINOR.PATCH) ---
-IFS='.' read -r major minor patch <<< "$versionName"
-if [[ -z "${major:-}" || -z "${minor:-}" || -z "${patch:-}" ]]; then
-  echo "ERROR: versionName '$versionName' is not in MAJOR.MINOR.PATCH form" >&2
-  exit 1
-fi
-patch=$((patch + 1))
-newVersionName="${major}.${minor}.${patch}"
+# Increment the patch component of a MAJOR.MINOR.PATCH version name.
+bump_patch() {
+  local name="$1"
+  local major minor patch
+  IFS='.' read -r major minor patch <<< "$name"
+  if [[ -z "${major:-}" || -z "${minor:-}" || -z "${patch:-}" ]]; then
+    echo "ERROR: versionName '$name' is not in MAJOR.MINOR.PATCH form" >&2
+    exit 1
+  fi
+  patch=$((patch + 1))
+  echo "${major}.${minor}.${patch}"
+}
 
-# --- Increment the relevant, independent version code ---
+# --- Bump only the selected track ---
 if [[ "$BUILD_TYPE" == "development" ]]; then
+  developmentVersionName="$(bump_patch "$developmentVersionName")"
   developmentVersionCode=$((developmentVersionCode + 1))
+  activeVersionName="$developmentVersionName"
   activeVersionCode="$developmentVersionCode"
 else
+  productionVersionName="$(bump_patch "$productionVersionName")"
   productionVersionCode=$((productionVersionCode + 1))
+  activeVersionName="$productionVersionName"
   activeVersionCode="$productionVersionCode"
 fi
 
@@ -70,27 +85,27 @@ fi
 cat > "$PROPS_FILE" <<EOF
 # Centralized version management for Caribou.
 #
-# versionName            -> incremented (patch) on EVERY build (development or production).
-# developmentVersionCode -> incremented ONLY on development builds.
-# productionVersionCode  -> incremented ONLY on production builds.
+# developmentVersionName / developmentVersionCode -> bumped ONLY on development builds.
+# productionVersionName  / productionVersionCode  -> bumped ONLY on production builds.
 #
-# The two version codes are fully independent counters.
-# This file is updated automatically by .github/workflows/build-apk.yml
-# (via scripts/bump-version.sh) and committed back to the repository so that
-# the next build always continues from the correct version. Edit with care.
-versionName=${newVersionName}
+# The development and production tracks are fully independent: each has its own
+# versionName and versionCode counter. This file is updated by
+# scripts/bump-version.sh — used by the manual GitHub Actions workflow and by the
+# local Gradle tasks (assembleDevelopmentBump / bundleProductionBump). Edit with care.
+developmentVersionName=${developmentVersionName}
 developmentVersionCode=${developmentVersionCode}
+productionVersionName=${productionVersionName}
 productionVersionCode=${productionVersionCode}
 EOF
 
-echo "versionName=${newVersionName}"
+echo "versionName=${activeVersionName}"
 echo "versionCode=${activeVersionCode}"
 echo "buildType=${BUILD_TYPE}"
 
 # Expose values to later GitHub Actions steps.
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   {
-    echo "versionName=${newVersionName}"
+    echo "versionName=${activeVersionName}"
     echo "versionCode=${activeVersionCode}"
     echo "buildType=${BUILD_TYPE}"
   } >> "$GITHUB_OUTPUT"

@@ -8,8 +8,8 @@ name: Build APK
 # type. The build uses the code (and version.properties) of the branch you pick.
 #
 # Pick a build type when you run it:
-#   * development -> bumps versionName + developmentVersionCode, builds a debug APK.
-#   * production  -> bumps versionName + productionVersionCode, builds a signed release APK.
+#   * development -> bumps developmentVersionName + developmentVersionCode, builds a debug APK.
+#   * production  -> bumps productionVersionName + productionVersionCode, builds a signed release APK.
 #
 # The updated version.properties is committed back to the branch you selected so
 # the next build always continues from the correct version and no version code
