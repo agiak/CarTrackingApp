@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,11 +28,15 @@ import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HelpAboutCard(
     appVersion: String,
-    onViewGuide: () -> Unit
+    onViewGuide: () -> Unit,
+    lastDataModifiedAt: Long? = null
 ) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
@@ -93,6 +98,35 @@ fun HelpAboutCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }
+            )
+
+            // Divider
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            )
+
+            // Last data modification
+            val lastModifiedText = lastDataModifiedAt?.let {
+                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(it))
+            } ?: stringResource(R.string.never)
+            SettingsRow(
+                icon = Icons.Default.Update,
+                iconBackgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                iconTint = MaterialTheme.colorScheme.secondary,
+                title = stringResource(R.string.settings_last_data_modification),
+                subtitle = null,
+                trailing = {
+                    Text(
+                        text = lastModifiedText,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             )
         }

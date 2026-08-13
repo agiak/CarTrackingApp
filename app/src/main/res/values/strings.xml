@@ -230,6 +230,8 @@
     <string name="version">Version</string>
     <string name="storage_mode">Storage Mode</string>
     <string name="offline_first">Offline-first</string>
+    <string name="settings_last_data_modification">Last data change</string>
+    <string name="never">Never</string>
 
     <!-- Car Details Screen -->
     <string name="car_details_title">Car Details</string>

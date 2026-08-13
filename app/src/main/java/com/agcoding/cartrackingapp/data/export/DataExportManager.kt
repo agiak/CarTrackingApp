@@ -13,6 +13,7 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.data.preferences.DataMetadataPreferences
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -49,7 +50,8 @@ class DataExportManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val dataMetadataPreferences: DataMetadataPreferences
 ) {
     private val json = Json {
         prettyPrint = true
@@ -80,6 +82,7 @@ class DataExportManager @Inject constructor(
             val exportData = AppDataExport(
                 schemaVersion = EXPORT_SCHEMA_VERSION,
                 exportDate = System.currentTimeMillis(),
+                lastDataModifiedAt = dataMetadataPreferences.lastDataModifiedAt.first(),
                 appVersion = BuildConfig.VERSION_NAME,
                 data = ExportedData(
                     cars = cars.map { it.toExported() },
@@ -195,7 +198,8 @@ class DataExportManager @Inject constructor(
                 allExpenses.addAll(expenseRepository.getExpensesByCarId(car.id).first())
             }
 
-            val bytes = buildExcelBytes(cars, allRefills, allExpenses)
+            val lastModified = dataMetadataPreferences.lastDataModifiedAt.first()
+            val bytes = buildExcelBytes(cars, allRefills, allExpenses, lastDataModifiedAt = lastModified)
             // Stable file name so each export REPLACES the previous one in Downloads
             // instead of creating a new timestamped copy every time.
             val fileName = "car_expenses.xlsx"
@@ -213,22 +217,57 @@ class DataExportManager @Inject constructor(
         cars: List<Car>,
         refills: List<FuelRefill>,
         expenses: List<Expense>,
-        customCategories: List<String> = emptyList()
+        customCategories: List<String> = emptyList(),
+        lastDataModifiedAt: Long? = null
     ): ByteArray {
         val carMap = cars.associateBy { it.id }
         val workbook = XSSFWorkbook()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         val headerStyle = (workbook.createCellStyle() as XSSFCellStyle).apply {
             fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
             fillPattern = FillPatternType.SOLID_FOREGROUND
             setFont(workbook.createFont().apply { bold = true })
         }
+        buildInfoSheet(workbook, headerStyle, dateTimeFormat, lastDataModifiedAt)
         buildCarsSheet(workbook, cars, headerStyle, dateFormat)
         buildRefillsSheet(workbook, refills, carMap, headerStyle, dateFormat)
         buildExpensesSheet(workbook, expenses, carMap, headerStyle, dateFormat)
         if (customCategories.isNotEmpty()) buildCategoriesSheet(workbook, customCategories, headerStyle)
         return ByteArrayOutputStream().also { workbook.write(it) }.toByteArray()
             .also { workbook.close() }
+    }
+
+    /**
+     * A small "Info" sheet at the front of the workbook with export metadata,
+     * including when the data was last modified.
+     */
+    private fun buildInfoSheet(
+        workbook: XSSFWorkbook,
+        headerStyle: XSSFCellStyle,
+        dateTimeFormat: SimpleDateFormat,
+        lastDataModifiedAt: Long?
+    ) {
+        val sheet = workbook.createSheet("Info")
+        val headerRow = sheet.createRow(0)
+        listOf("field", "value").forEachIndexed { i, title ->
+            headerRow.createCell(i).also {
+                it.setCellValue(title)
+                it.cellStyle = headerStyle
+            }
+        }
+        val rows = listOf(
+            "app_version" to BuildConfig.VERSION_NAME,
+            "exported_at" to dateTimeFormat.format(Date()),
+            "last_data_modification" to (lastDataModifiedAt?.let { dateTimeFormat.format(Date(it)) } ?: "")
+        )
+        rows.forEachIndexed { idx, (field, value) ->
+            val row = sheet.createRow(idx + 1)
+            row.createCell(0).setCellValue(field)
+            row.createCell(1).setCellValue(value)
+        }
+        sheet.setColumnWidth(0, 24 * 256)
+        sheet.setColumnWidth(1, 24 * 256)
     }
 
     private fun buildCarsSheet(

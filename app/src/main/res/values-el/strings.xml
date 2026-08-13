@@ -206,6 +206,8 @@
     <string name="version">Έκδοση</string>
     <string name="storage_mode">Λειτουργία αποθήκευσης</string>
     <string name="offline_first">Offline-first</string>
+    <string name="settings_last_data_modification">Τελευταία αλλαγή δεδομένων</string>
+    <string name="never">Ποτέ</string>
 
     <!-- Car Details Screen -->
     <string name="car_details_title">Λεπτομέρειες αυτοκινήτου</string>

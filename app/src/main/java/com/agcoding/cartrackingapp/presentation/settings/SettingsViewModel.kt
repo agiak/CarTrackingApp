@@ -19,6 +19,7 @@ import com.agcoding.cartrackingapp.data.export.SpreadsheetImportManager
 import com.agcoding.cartrackingapp.data.export.SpreadsheetImportResult
 import com.agcoding.cartrackingapp.data.preferences.AppLanguage
 import com.agcoding.cartrackingapp.data.preferences.AppSettings
+import com.agcoding.cartrackingapp.data.preferences.DataMetadataPreferences
 import com.agcoding.cartrackingapp.data.preferences.AppTheme
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
@@ -109,7 +110,9 @@ data class SettingsUiState(
     val sampleFileSuccess: String? = null,
     val sampleFileError: String? = null,
     // Structured summary of the last successful import (JSON or spreadsheet).
-    val importSummary: ImportSummary? = null
+    val importSummary: ImportSummary? = null,
+    // Epoch millis of the last data modification (null if nothing changed yet).
+    val lastDataModifiedAt: Long? = null
 )
 
 @HiltViewModel
@@ -125,6 +128,7 @@ class SettingsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val notificationHistoryRepository: NotificationHistoryRepository,
     private val notificationHelper: NotificationHelper,
+    private val dataMetadataPreferences: DataMetadataPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -172,6 +176,13 @@ class SettingsViewModel @Inject constructor(
                     AppTheme.SYSTEM -> null
                 }
                 themePreferences.setDarkModeOverride(isDark)
+            }
+        }
+
+        // Track the last data-modification timestamp for the About screen.
+        viewModelScope.launch {
+            dataMetadataPreferences.lastDataModifiedAt.collect { timestamp ->
+                _uiState.value = _uiState.value.copy(lastDataModifiedAt = timestamp)
             }
         }
 
