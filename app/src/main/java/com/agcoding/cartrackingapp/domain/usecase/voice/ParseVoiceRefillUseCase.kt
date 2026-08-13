@@ -232,14 +232,6 @@ Use null for missing values. No explanation, just JSON.
     private fun parseWithRegex(transcript: String): VoiceRefillData {
         android.util.Log.d("VoiceParser", "Regex parsing input: '$transcript'")
 
-        // CRITICAL: Check for three-number deterministic rule FIRST
-        val threeNumberResult = checkThreeNumberRule(transcript)
-        if (threeNumberResult != null) {
-            android.util.Log.d("VoiceParser", "Three-number rule applied: $threeNumberResult")
-            return threeNumberResult
-        }
-
-        // Continue with standard regex parsing
         // Normalize input - use word boundaries to avoid replacing "και" and "με" inside words
         val normalized = transcript.lowercase()
             .replace(Regex("""\bκαι\b"""), ",") // Replace Greek "and" (standalone word only)
@@ -247,124 +239,58 @@ Use null for missing values. No explanation, just JSON.
 
         android.util.Log.d("VoiceParser", "Normalized input: '$normalized'")
 
-        // Extract cost (euros) - Enhanced with € symbol support (before or after number)
-        val costRegex = """(?:€\s*)?(\d+[.,]?\d*)\s*(?:ευρ[ωώ]|euro[sς]?|€|eur)?""".toRegex()
-        val costMatches = costRegex.findAll(normalized).toList()
-        android.util.Log.d("VoiceParser", "Cost matches found: ${costMatches.size}")
-        val cost = costMatches.firstOrNull { match ->
-            // Check if this match has currency indicator
-            val fullMatch = match.value
-            android.util.Log.d("VoiceParser", "Cost match: '$fullMatch'")
-            fullMatch.contains("ευρ") || fullMatch.contains("€") ||
-            fullMatch.contains("euro") || fullMatch.contains("eur")
-        }?.groupValues?.get(1)?.replace(",", ".")?.toDoubleOrNull()
-        android.util.Log.d("VoiceParser", "Parsed cost: $cost")
+        // 1) Extract values that are explicitly labelled with a unit. These are
+        //    unambiguous and always win.
+        val costRegex = """(?:€\s*)?(\d+[.,]?\d*)\s*(?:ευρ[ωώ]|euro[sς]?|€|eur)""".toRegex()
+        var cost = costRegex.findAll(normalized)
+            .firstOrNull()?.groupValues?.get(1)?.replace(",", ".")?.toDoubleOrNull()
 
-        // Extract liters - Enhanced with L symbol support (before or after number)
-        val litersRegex = """(?:l\s*)?(\d+[.,]?\d*)\s*(?:λ[ίι]τρ[αο]?|liter[sς]?|l\b)?""".toRegex()
-        val litersMatches = litersRegex.findAll(normalized).toList()
-        android.util.Log.d("VoiceParser", "Liters matches found: ${litersMatches.size}")
-        val liters = litersMatches.firstOrNull { match ->
-            // Check if this match has liters indicator
-            val fullMatch = match.value
-            android.util.Log.d("VoiceParser", "Liters match: '$fullMatch'")
-            fullMatch.contains("λ") || fullMatch.contains("liter") ||
-            fullMatch.endsWith("l") || fullMatch.startsWith("l")
-        }?.groupValues?.get(1)?.replace(",", ".")?.toDoubleOrNull()
-        android.util.Log.d("VoiceParser", "Parsed liters: $liters")
+        val litersRegex = """(?:l\s*)?(\d+[.,]?\d*)\s*(?:λ[ίι]τρ[αο]?|liter[sς]?|litre[sς]?|l\b)""".toRegex()
+        var liters = litersRegex.findAll(normalized)
+            .firstOrNull()?.groupValues?.get(1)?.replace(",", ".")?.toDoubleOrNull()
 
-        // Extract distance (kilometers) - Enhanced with km symbol support
-        // Handle all Greek variations with different accents and spellings:
-        // χιλιόμετρα, χιλιομετρα, χιλιομέτρα, etc.
-        val distanceRegex = """(\d+[.,]?\d*)\s*(?:χιλι[οόω][μή]?[εέ]τρ[αοάώ]?|χλμ\.?|kilometer[sς]?|km\b)""".toRegex()
-        val distanceMatches = distanceRegex.findAll(normalized).toList()
-        android.util.Log.d("VoiceParser", "Distance matches found: ${distanceMatches.size}")
-        distanceMatches.forEach { match ->
-            android.util.Log.d("VoiceParser", "Distance match: '${match.value}' -> number: '${match.groupValues[1]}'")
-        }
-        val distance = distanceRegex.find(normalized)?.groupValues?.get(1)
+        val distanceRegex = """(\d+[.,]?\d*)\s*(?:χιλι[οόω][μή]?[εέ]τρ[αοάώ]?|χλμ\.?|kilometer[sς]?|kilometre[sς]?|km\b)""".toRegex()
+        var distance = distanceRegex.find(normalized)?.groupValues?.get(1)
             ?.replace(",", ".")?.toDoubleOrNull()
-        android.util.Log.d("VoiceParser", "Parsed distance: $distance")
 
-        val result = VoiceRefillData(
-            cost = cost,
-            liters = liters,
-            distance = distance
-        )
+        android.util.Log.d("VoiceParser", "Labelled -> cost=$cost, liters=$liters, distance=$distance")
 
+        // 2) Gather every number in the utterance and subtract the ones already
+        //    consumed by a labelled unit, leaving the "unlabelled" leftovers.
+        val numberRegex = """\d+[.,]?\d*""".toRegex()
+        val allNumbers = numberRegex.findAll(normalized)
+            .mapNotNull { it.value.replace(",", ".").toDoubleOrNull() }
+            .toMutableList()
+        listOfNotNull(cost, liters, distance).forEach { allNumbers.remove(it) }
+
+        // 3) Fill the still-missing fields from the leftovers ONLY when it is
+        //    unambiguous: the number of leftovers equals the number of missing
+        //    fields. Then map them positionally in the canonical spoken order
+        //    (cost, liters, distance). This generalizes the old "three bare
+        //    numbers" rule and also covers partial labelling, e.g.
+        //    "50 ευρώ 20 λίτρα 100" -> distance = 100.
+        val missingFields = buildList {
+            if (cost == null) add(Field.COST)
+            if (liters == null) add(Field.LITERS)
+            if (distance == null) add(Field.DISTANCE)
+        }
+        if (allNumbers.size == missingFields.size) {
+            missingFields.forEachIndexed { index, field ->
+                val value = allNumbers[index]
+                when (field) {
+                    Field.COST -> cost = value
+                    Field.LITERS -> liters = value
+                    Field.DISTANCE -> distance = value
+                }
+            }
+        }
+
+        val result = VoiceRefillData(cost = cost, liters = liters, distance = distance)
         android.util.Log.d("VoiceParser", "Final result: $result")
         return result
     }
 
-    /**
-     * Check if input matches the deterministic three-number rule:
-     * Exactly 3 standalone numbers with NO unit keywords
-     *
-     * If matched: 1st → cost, 2nd → liters, 3rd → distance
-     *
-     * @return VoiceRefillData if rule applies, null otherwise
-     */
-    private fun checkThreeNumberRule(transcript: String): VoiceRefillData? {
-        android.util.Log.d("VoiceParser", "Checking three-number rule for: '$transcript'")
-
-        val normalized = transcript.lowercase().trim()
-
-        // List of unit keywords that would invalidate the three-number rule
-        val unitKeywords = listOf(
-            // Greek
-            "ευρώ", "ευρω", "ευρ",
-            "λίτρα", "λιτρα", "λίτρ", "λιτρ",
-            "χιλιόμετρα", "χιλιομετρα", "χιλιόμετρ", "χιλιομετρ", "χλμ",
-            // English
-            "euro", "euros", "eur",
-            "liter", "liters", "litre", "litres",
-            "kilometer", "kilometers", "kilometre", "kilometres", "km",
-            // Symbols (will check separately as they may not have spaces)
-            "€", "l", "km"
-        )
-
-        // Check if any unit keywords are present (as standalone words for text, anywhere for symbols)
-        val hasKeywords = unitKeywords.any { keyword ->
-            if (keyword in listOf("€", "l", "km")) {
-                // For symbols, check if they appear
-                normalized.contains(keyword)
-            } else {
-                // For words, check as standalone (with word boundaries)
-                Regex("""\b${Regex.escape(keyword)}\b""").containsMatchIn(normalized)
-            }
-        }
-
-        if (hasKeywords) {
-            android.util.Log.d("VoiceParser", "Keywords found, three-number rule not applicable")
-            return null
-        }
-
-        // Extract all standalone numbers (decimal or integer)
-        // Match patterns like: 50, 20.5, 100, 35,5 (with comma as decimal)
-        val numberRegex = """\b(\d+[.,]?\d*)\b""".toRegex()
-        val numbers = numberRegex.findAll(normalized)
-            .map { it.groupValues[1].replace(",", ".").toDoubleOrNull() }
-            .filterNotNull()
-            .toList()
-
-        android.util.Log.d("VoiceParser", "Found ${numbers.size} numbers: $numbers")
-
-        // Check if we have exactly 3 numbers
-        if (numbers.size != 3) {
-            android.util.Log.d("VoiceParser", "Not exactly 3 numbers, three-number rule not applicable")
-            return null
-        }
-
-        // Apply the deterministic mapping: 1st=cost, 2nd=liters, 3rd=distance
-        val result = VoiceRefillData(
-            cost = numbers[0],
-            liters = numbers[1],
-            distance = numbers[2]
-        )
-
-        android.util.Log.d("VoiceParser", "✓ Three-number rule APPLIED: ${numbers[0]} → cost, ${numbers[1]} → liters, ${numbers[2]} → distance")
-        return result
-    }
+    private enum class Field { COST, LITERS, DISTANCE }
 
     // JSON models for OpenAI API
     @JsonClass(generateAdapter = true)

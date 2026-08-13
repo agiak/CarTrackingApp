@@ -66,6 +66,13 @@ class SpeechRecognitionService @Inject constructor(
     private var speechRecognizer: SpeechRecognizer? = null
 
     /**
+     * The most recent non-blank partial transcript for the active session. Used
+     * as a fallback so a pause- or timeout-truncated utterance still yields text
+     * instead of failing outright.
+     */
+    private var lastPartialText: String = ""
+
+    /**
      * Checks if speech recognition is available on this device.
      *
      * This should be called before attempting to start speech recognition to ensure
@@ -123,6 +130,9 @@ class SpeechRecognitionService @Inject constructor(
             return@callbackFlow
         }
 
+        // Fresh session: forget any partial from a previous run.
+        lastPartialText = ""
+
         // Create speech recognizer
         val recognizer = SpeechRecognizer.createSpeechRecognizer(context)
         speechRecognizer = recognizer
@@ -140,13 +150,15 @@ class SpeechRecognitionService @Inject constructor(
                 putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", arrayOf("el-GR", "el"))
             }
 
-            // SIGNIFICANTLY INCREASED TIMEOUTS FOR MANUAL CONTROL
-            // Allow 5 seconds of silence before considering speech possibly complete
+            // Tolerate pauses: wait several seconds of silence before treating
+            // speech as complete, so a mid-sentence pause doesn't cut the user off.
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
 
-            // Maximum recording duration: 30 seconds (safety limit)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 30000L)
+            // NOTE: EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS is intentionally NOT set.
+            // It is a *minimum* utterance length (the recognizer will not stop before
+            // it), not a maximum — a large value made recognition feel stuck. Silence
+            // handling above is what tolerates pauses.
 
             // Enable partial results for live feedback
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
@@ -179,6 +191,17 @@ class SpeechRecognitionService @Inject constructor(
             }
 
             override fun onError(error: Int) {
+                // "No match" and "speech timeout" typically happen when the user
+                // paused or trailed off. If we already captured a partial transcript,
+                // recover it as the result instead of failing the whole entry.
+                val recoverable = error == SpeechRecognizer.ERROR_NO_MATCH ||
+                    error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT
+                if (recoverable && lastPartialText.isNotBlank()) {
+                    trySend(SpeechRecognitionEvent.Results(lastPartialText, 0.4f))
+                    close()
+                    return
+                }
+
                 val errorMessage = when (error) {
                     SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
                     SpeechRecognizer.ERROR_CLIENT -> "Client error"
@@ -203,6 +226,9 @@ class SpeechRecognitionService @Inject constructor(
                     val bestMatch = matches[0]
                     val confidence = scores?.getOrNull(0) ?: 0.5f
                     trySend(SpeechRecognitionEvent.Results(bestMatch, confidence))
+                } else if (lastPartialText.isNotBlank()) {
+                    // Empty final result but we have a partial — use it.
+                    trySend(SpeechRecognitionEvent.Results(lastPartialText, 0.4f))
                 } else {
                     trySend(SpeechRecognitionEvent.Error("No results"))
                 }
@@ -212,7 +238,9 @@ class SpeechRecognitionService @Inject constructor(
             override fun onPartialResults(partialResults: Bundle?) {
                 val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (!matches.isNullOrEmpty()) {
-                    trySend(SpeechRecognitionEvent.PartialResults(matches[0]))
+                    val text = matches[0]
+                    if (text.isNotBlank()) lastPartialText = text
+                    trySend(SpeechRecognitionEvent.PartialResults(text))
                 }
             }
 
