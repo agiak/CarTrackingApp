@@ -93,6 +93,9 @@ fun EditRefillScreen(
                     onNotesChange = viewModel::updateNotes,
                     hasLocation = uiState.location != null,
                     onRefreshLocation = { viewModel.refreshLocation() },
+                    locationName = uiState.locationName,
+                    onLocationNameChange = viewModel::updateLocationName,
+                    isLoadingLocationName = uiState.isLoadingLocationName,
                     isSaving = uiState.isSaving,
                     onSaveClick = {
                         viewModel.saveRefill(onSuccess = onNavigateBack)

@@ -35,6 +35,9 @@ fun EditRefillContent(
     onNotesChange: (String) -> Unit,
     hasLocation: Boolean,
     onRefreshLocation: () -> Unit,
+    locationName: String = "",
+    onLocationNameChange: (String) -> Unit = {},
+    isLoadingLocationName: Boolean = false,
     isSaving: Boolean,
     onSaveClick: () -> Unit,
     errorMessage: String?,
@@ -78,8 +81,11 @@ fun EditRefillContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         RefillLocationCard(
+            locationName = locationName,
+            onLocationNameChange = onLocationNameChange,
             hasLocation = hasLocation,
             onRefreshLocation = onRefreshLocation,
+            isLoading = isLoadingLocationName,
             modifier = Modifier.fillMaxWidth()
         )
 

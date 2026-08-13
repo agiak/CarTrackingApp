@@ -10,6 +10,8 @@ data class FuelRefill(
     val fuelConsumption: Double,
     val pricePerLiter: Double,
     val location: Location? = null,
+    /** Human-readable name of the refill location (reverse-geocoded, user-editable). */
+    val locationName: String? = null,
     val timestamp: Long = System.currentTimeMillis(),
     val notes: String? = null,
     val tripId: Long? = null,

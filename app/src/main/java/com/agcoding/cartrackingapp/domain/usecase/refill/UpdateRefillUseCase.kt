@@ -19,6 +19,7 @@ class UpdateRefillUseCase @Inject constructor(
         odometerReading: Double,
         timestamp: Long,
         location: Location?,
+        locationName: String?,
         notes: String?,
     ): Result<Unit> = try {
         val pricePerLiter = amountPaid / litersAdded
@@ -35,6 +36,7 @@ class UpdateRefillUseCase @Inject constructor(
                 fuelConsumption = fuelConsumption,
                 pricePerLiter = pricePerLiter,
                 location = location,
+                locationName = locationName?.trim()?.takeIf { it.isNotBlank() },
                 timestamp = timestamp,
                 notes = notes,
             )

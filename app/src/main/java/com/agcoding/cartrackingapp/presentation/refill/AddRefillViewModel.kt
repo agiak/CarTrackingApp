@@ -15,6 +15,7 @@ import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
+import com.agcoding.cartrackingapp.util.GeocodingUtil
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
@@ -179,7 +180,25 @@ class AddRefillViewModel @Inject constructor(
                 location = location,
                 isLoadingLocation = false
             )
+
+            // Reverse-geocode to a readable name. Don't clobber a name the user
+            // already typed manually.
+            if (location != null && _uiState.value.locationName.isBlank()) {
+                _uiState.value = _uiState.value.copy(isLoadingLocationName = true)
+                val name = GeocodingUtil.getAddressFromLocation(
+                    context, location.latitude, location.longitude
+                )
+                _uiState.value = _uiState.value.copy(
+                    locationName = if (_uiState.value.locationName.isBlank()) name.orEmpty()
+                    else _uiState.value.locationName,
+                    isLoadingLocationName = false
+                )
+            }
         }
+    }
+
+    fun updateLocationName(value: String) {
+        _uiState.value = _uiState.value.copy(locationName = value)
     }
 
     fun saveRefill(onSuccess: () -> Unit) {
@@ -220,6 +239,7 @@ class AddRefillViewModel @Inject constructor(
                 tripDistance = distance,
                 timestamp = state.selectedDateMillis,
                 location = state.location,
+                locationName = state.locationName.takeIf { it.isNotBlank() },
                 notes = state.notes.takeIf { it.isNotBlank() },
             )) {
                 is Result.Success -> {
@@ -431,7 +451,9 @@ data class AddRefillUiState(
     val notes: String = "",
     val selectedDateMillis: Long = System.currentTimeMillis(),
     val location: com.agcoding.cartrackingapp.domain.model.Location? = null,
+    val locationName: String = "",
     val isLoadingLocation: Boolean = false,
+    val isLoadingLocationName: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
     val fieldErrors: Map<String, String> = emptyMap()

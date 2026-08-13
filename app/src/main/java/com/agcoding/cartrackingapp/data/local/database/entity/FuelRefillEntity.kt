@@ -35,6 +35,7 @@ data class FuelRefillEntity(
     val pricePerLiter: Double,
     val latitude: Double?,
     val longitude: Double?,
+    val locationName: String? = null,
     val timestamp: Long,
     val notes: String? = null,
     val tripId: Long? = null,

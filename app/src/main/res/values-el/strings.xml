@@ -464,6 +464,9 @@
     <string name="location_captured">Η τοποθεσία καταγράφηκε</string>
     <string name="no_location">Χωρίς τοποθεσία</string>
     <string name="update">Ενημέρωση</string>
+    <string name="refill_location_name_label">Όνομα τοποθεσίας</string>
+    <string name="refill_location_name_hint">π.χ. Shell, Λ. Κηφισίας</string>
+    <string name="location_detecting">Εντοπισμός τοποθεσίας…</string>
     <string name="calculated">Υπολογισμένο</string>
     <string name="price_per_liter_format">Τιμή ανά λίτρο: %1$s €</string>
     <string name="fuel_consumption_format">Κατανάλωση: %1$s L/100km</string>
