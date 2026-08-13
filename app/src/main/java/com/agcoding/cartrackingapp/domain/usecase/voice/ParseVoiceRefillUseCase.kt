@@ -46,7 +46,8 @@ class ParseVoiceRefillUseCase @Inject constructor() {
     suspend operator fun invoke(
         transcript: String,
         apiKey: String?,
-        model: LLMModel = LLMModel.DEFAULT
+        model: LLMModel = LLMModel.DEFAULT,
+        alternatives: List<String> = emptyList()
     ): VoiceParsingResult {
         if (transcript.isBlank()) {
             return VoiceParsingResult.Error("Empty transcript", transcript)
@@ -71,17 +72,45 @@ class ParseVoiceRefillUseCase @Inject constructor() {
             }
         }
 
-        // Fallback to local regex parsing
-        android.util.Log.d("VoiceParser", "Using regex fallback parsing")
-        val regexResult = parseWithRegex(transcript)
-        return if (regexResult.isComplete()) {
-            VoiceParsingResult.Success(regexResult)
+        // Fallback to local parsing. Try the best transcription AND every N-best
+        // alternative the recognizer offered, then keep whichever parses to the most
+        // complete/plausible refill. This effectively "isolates the right words" when
+        // the top result is garbled by noise but a lower-ranked one is clean.
+        android.util.Log.d("VoiceParser", "Using local fallback parsing over ${alternatives.size + 1} candidate(s)")
+        val candidates = (listOf(transcript) + alternatives)
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+
+        val best = candidates
+            .map { candidate -> candidate to parseWithRegex(candidate) }
+            .maxByOrNull { (_, data) -> scoreCandidate(data) }
+            ?.second
+            ?: parseWithRegex(transcript)
+
+        return if (best.isComplete()) {
+            VoiceParsingResult.Success(best)
         } else {
             VoiceParsingResult.Error(
-                "Could not parse refill data. Missing: ${regexResult.getMissingFields().joinToString()}",
+                "Could not parse refill data. Missing: ${best.getMissingFields().joinToString()}",
                 transcript
             )
         }
+    }
+
+    /**
+     * Ranks a parsed candidate so the best transcription can be chosen among the
+     * N-best alternatives. Completeness and a plausible price/litre dominate; the
+     * number of extracted fields breaks ties.
+     */
+    private fun scoreCandidate(data: VoiceRefillData): Int {
+        var score = 0
+        if (data.cost != null) score += 1
+        if (data.liters != null) score += 1
+        if (data.distance != null) score += 1
+        if (data.isComplete()) score += 10
+        if (data.isHighConfidence()) score += 5
+        return score
     }
 
     /**

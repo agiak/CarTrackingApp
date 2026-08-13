@@ -66,11 +66,34 @@ class SpeechRecognitionService @Inject constructor(
     private var speechRecognizer: SpeechRecognizer? = null
 
     /**
-     * The most recent non-blank partial transcript for the active session. Used
+     * The most recent non-blank partial transcript for the active segment. Used
      * as a fallback so a pause- or timeout-truncated utterance still yields text
      * instead of failing outright.
      */
     private var lastPartialText: String = ""
+
+    // ----- Continuous-session state (tolerant of pauses) -----
+    /** Transcript accumulated across restarted segments within one session. */
+    private var accumulatedText: String = ""
+    /** Set when the user presses stop; the session finalizes after the current segment. */
+    private var manualStopRequested: Boolean = false
+    /** How many listening segments have been started this session. */
+    private var segmentCount: Int = 0
+    /** Consecutive segments that produced no speech (used to give up gracefully). */
+    private var emptyStreak: Int = 0
+    /** Wall-clock start of the session, for the hard duration cap. */
+    private var sessionStartMs: Long = 0L
+    /** N-best alternatives from the most recent segment, for smarter parsing. */
+    private var lastAlternatives: List<String> = emptyList()
+
+    private companion object {
+        /** Hard cap on restarted segments so a misbehaving recognizer can't loop forever. */
+        const val MAX_SEGMENTS = 12
+        /** Hard cap on total session length. */
+        const val MAX_SESSION_MS = 120_000L
+        /** Give up after this many consecutive segments with no speech. */
+        const val MAX_EMPTY_STREAK = 2
+    }
 
     /**
      * Checks if speech recognition is available on this device.
@@ -130,48 +153,51 @@ class SpeechRecognitionService @Inject constructor(
             return@callbackFlow
         }
 
-        // Fresh session: forget any partial from a previous run.
+        // Fresh session: reset all accumulation state.
         lastPartialText = ""
+        accumulatedText = ""
+        segmentCount = 0
+        emptyStreak = 0
+        manualStopRequested = false
+        lastAlternatives = emptyList()
+        sessionStartMs = System.currentTimeMillis()
 
         // Create speech recognizer
         val recognizer = SpeechRecognizer.createSpeechRecognizer(context)
         speechRecognizer = recognizer
 
-        // Create recognition intent with extended timeouts for manual control
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languageCode)
+        val intent = buildRecognitionIntent(languageCode)
 
-            // Ensure Greek language support
-            if (languageCode.startsWith("el")) {
-                putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, languageCode)
-                // Add alternative Greek locale variations
-                putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", arrayOf("el-GR", "el"))
+        // Start another listening segment so capture continues after a pause.
+        fun relaunchSegment() {
+            segmentCount++
+            lastPartialText = ""
+            recognizer.startListening(intent)
+        }
+
+        // Emit the full accumulated transcript as the final result (or an error if
+        // nothing was captured) and complete the flow.
+        fun finalizeSession() {
+            val finalText = accumulatedText.trim()
+            if (finalText.isNotBlank()) {
+                trySend(SpeechRecognitionEvent.Results(finalText, 0.6f, lastAlternatives))
+            } else {
+                trySend(SpeechRecognitionEvent.Error("No speech input"))
             }
+            close()
+        }
 
-            // Tolerate pauses: wait several seconds of silence before treating
-            // speech as complete, so a mid-sentence pause doesn't cut the user off.
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
-
-            // NOTE: EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS is intentionally NOT set.
-            // It is a *minimum* utterance length (the recognizer will not stop before
-            // it), not a maximum — a large value made recognition feel stuck. Silence
-            // handling above is what tolerates pauses.
-
-            // Enable partial results for live feedback
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
-
-            // Prefer continuous recognition (less aggressive stopping)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
+        // Whether the safety caps (segment count / total duration) have been reached.
+        fun guardsExhausted(): Boolean {
+            val elapsed = System.currentTimeMillis() - sessionStartMs
+            return segmentCount + 1 >= MAX_SEGMENTS || elapsed >= MAX_SESSION_MS
         }
 
         // Set up recognition listener
         recognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
-                trySend(SpeechRecognitionEvent.ReadyForSpeech)
+                // Announce readiness only for the first segment to avoid UI flicker on restarts.
+                if (segmentCount == 0) trySend(SpeechRecognitionEvent.ReadyForSpeech)
             }
 
             override fun onBeginningOfSpeech() {
@@ -191,17 +217,33 @@ class SpeechRecognitionService @Inject constructor(
             }
 
             override fun onError(error: Int) {
-                // "No match" and "speech timeout" typically happen when the user
-                // paused or trailed off. If we already captured a partial transcript,
-                // recover it as the result instead of failing the whole entry.
+                // "No match"/"speech timeout" usually means the user paused or trailed
+                // off. In continuous mode we keep the session alive across such pauses
+                // rather than failing, until the user stops or a guard trips.
                 val recoverable = error == SpeechRecognizer.ERROR_NO_MATCH ||
                     error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT
-                if (recoverable && lastPartialText.isNotBlank()) {
-                    trySend(SpeechRecognitionEvent.Results(lastPartialText, 0.4f))
-                    close()
+                if (recoverable) {
+                    if (lastPartialText.isNotBlank()) {
+                        accumulatedText = "$accumulatedText $lastPartialText".trim()
+                        emptyStreak = 0
+                        trySend(SpeechRecognitionEvent.PartialResults(accumulatedText))
+                    } else {
+                        emptyStreak++
+                    }
+                    when {
+                        manualStopRequested -> finalizeSession()
+                        emptyStreak >= MAX_EMPTY_STREAK -> finalizeSession()
+                        guardsExhausted() -> finalizeSession()
+                        else -> relaunchSegment()
+                    }
                     return
                 }
 
+                // Non-recoverable error: keep anything already captured, else surface it.
+                if (accumulatedText.isNotBlank()) {
+                    finalizeSession()
+                    return
+                }
                 val errorMessage = when (error) {
                     SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
                     SpeechRecognizer.ERROR_CLIENT -> "Client error"
@@ -220,19 +262,32 @@ class SpeechRecognitionService @Inject constructor(
 
             override fun onResults(results: Bundle?) {
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val scores = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-
-                if (!matches.isNullOrEmpty()) {
-                    val bestMatch = matches[0]
-                    val confidence = scores?.getOrNull(0) ?: 0.5f
-                    trySend(SpeechRecognitionEvent.Results(bestMatch, confidence))
-                } else if (lastPartialText.isNotBlank()) {
-                    // Empty final result but we have a partial — use it.
-                    trySend(SpeechRecognitionEvent.Results(lastPartialText, 0.4f))
-                } else {
-                    trySend(SpeechRecognitionEvent.Error("No results"))
+                val segment = when {
+                    !matches.isNullOrEmpty() -> matches[0]
+                    lastPartialText.isNotBlank() -> lastPartialText
+                    else -> ""
                 }
-                close()
+                if (!matches.isNullOrEmpty()) lastAlternatives = matches.toList()
+                if (segment.isNotBlank()) {
+                    accumulatedText = "$accumulatedText $segment".trim()
+                    emptyStreak = 0
+                } else {
+                    emptyStreak++
+                }
+
+                when {
+                    manualStopRequested -> finalizeSession()
+                    emptyStreak >= MAX_EMPTY_STREAK -> finalizeSession()
+                    guardsExhausted() -> finalizeSession()
+                    else -> {
+                        // Show progress and keep listening (tolerates long pauses); the
+                        // user ends the session with the stop button.
+                        if (accumulatedText.isNotBlank()) {
+                            trySend(SpeechRecognitionEvent.PartialResults(accumulatedText))
+                        }
+                        relaunchSegment()
+                    }
+                }
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
@@ -240,7 +295,9 @@ class SpeechRecognitionService @Inject constructor(
                 if (!matches.isNullOrEmpty()) {
                     val text = matches[0]
                     if (text.isNotBlank()) lastPartialText = text
-                    trySend(SpeechRecognitionEvent.PartialResults(text))
+                    // Surface accumulated text plus the in-flight segment for live feedback.
+                    val live = "$accumulatedText $text".trim()
+                    trySend(SpeechRecognitionEvent.PartialResults(live))
                 }
             }
 
@@ -281,8 +338,49 @@ class SpeechRecognitionService @Inject constructor(
      */
     fun stopListeningManually() {
         android.util.Log.d("SpeechRecognition", "Manual stop requested by user")
+        // Flag the session so it finalizes (rather than restarting) once the
+        // current segment produces its results, then ask it to wrap up.
+        manualStopRequested = true
         speechRecognizer?.stopListening()
     }
+
+    /**
+     * Builds the recognition intent used for every listening segment. Kept as a
+     * single source of truth so restarted segments use identical configuration.
+     */
+    private fun buildRecognitionIntent(languageCode: String): Intent =
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languageCode)
+
+            // Ensure Greek language support
+            if (languageCode.startsWith("el")) {
+                putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, languageCode)
+                // Add alternative Greek locale variations
+                putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", arrayOf("el-GR", "el"))
+            }
+
+            // Tolerate pauses: wait several seconds of silence before treating
+            // speech as complete, so a mid-sentence pause doesn't cut the user off.
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
+
+            // NOTE: EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS is intentionally NOT set.
+            // It is a *minimum* utterance length (the recognizer will not stop before
+            // it), not a maximum — a large value made recognition feel stuck. Silence
+            // handling above is what tolerates pauses; longer pauses are handled by
+            // restarting the listening segment.
+
+            // Enable partial results and N-best alternatives for live feedback and
+            // smarter downstream parsing.
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
+
+            // Prefer online recognition: better acoustic models isolate speech from
+            // background noise far better than the on-device fallback.
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
+        }
 
     /**
      * Stops listening immediately and cleans up all speech recognition resources.
@@ -454,11 +552,17 @@ sealed class SpeechRecognitionEvent {
      *
      * **UI Suggestion**: Use this text as the final input value.
      *
-     * @property text The final recognized text
+     * @property text The final recognized text (best transcription)
      * @property confidence Confidence score (0.0 to 1.0, where 1.0 is highest confidence).
      *                      Values above 0.7 generally indicate high quality recognition.
+     * @property alternatives N-best alternative transcriptions (best first), used by
+     *                        the parser to pick the reading that yields valid data.
      */
-    data class Results(val text: String, val confidence: Float) : SpeechRecognitionEvent()
+    data class Results(
+        val text: String,
+        val confidence: Float,
+        val alternatives: List<String> = emptyList()
+    ) : SpeechRecognitionEvent()
 
     /**
      * An error occurred during recognition.

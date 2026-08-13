@@ -305,7 +305,7 @@ class AddRefillViewModel @Inject constructor(
             }
             is SpeechRecognitionEvent.Results -> {
                 _voiceState.value = VoiceRefillState.Processing(event.text)
-                parseVoiceTranscript(event.text)
+                parseVoiceTranscript(event.text, event.alternatives)
             }
             is SpeechRecognitionEvent.Error -> {
                 val errorMsg = when {
@@ -324,9 +324,12 @@ class AddRefillViewModel @Inject constructor(
      * Parse voice transcript using LLM or regex
      * Uses the selected LLM model from settings
      */
-    private suspend fun parseVoiceTranscript(transcript: String) {
+    private suspend fun parseVoiceTranscript(
+        transcript: String,
+        alternatives: List<String> = emptyList()
+    ) {
         try {
-            Timber.d( "Parsing transcript: '$transcript'")
+            Timber.d( "Parsing transcript: '$transcript' (${alternatives.size} alternatives)")
 
             // Get the selected LLM model from preferences
             val selectedModel = settingsPreferences.llmModelFlow.first()
@@ -343,7 +346,8 @@ class AddRefillViewModel @Inject constructor(
 
             // Pass the API key so the smarter LLM parser is used when one is
             // configured; the use case falls back to local parsing otherwise.
-            val result = parseVoiceRefillUseCase(transcript, apiKey, selectedModel)
+            // Alternatives let the local parser pick the reading that yields valid data.
+            val result = parseVoiceRefillUseCase(transcript, apiKey, selectedModel, alternatives)
 
             when (result) {
                 is VoiceParsingResult.Success -> {

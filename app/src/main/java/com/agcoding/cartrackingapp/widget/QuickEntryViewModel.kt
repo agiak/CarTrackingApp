@@ -206,7 +206,7 @@ class QuickEntryViewModel @Inject constructor(
                     }
                     is SpeechRecognitionEvent.Results -> {
                         Timber.d("Final: ${event.text}")
-                        parseVoiceTranscript(event.text)
+                        parseVoiceTranscript(event.text, event.alternatives)
                     }
                     is SpeechRecognitionEvent.Error -> {
                         Timber.e("Error: ${event.message}")
@@ -248,8 +248,11 @@ class QuickEntryViewModel @Inject constructor(
     /**
      * Parse voice transcript using LLM or regex
      */
-    private fun parseVoiceTranscript(transcript: String) {
-        Timber.d("Parsing transcript: '$transcript'")
+    private fun parseVoiceTranscript(
+        transcript: String,
+        alternatives: List<String> = emptyList()
+    ) {
+        Timber.d("Parsing transcript: '$transcript' (${alternatives.size} alternatives)")
 
         if (transcript.isBlank()) {
             _voiceState.value = VoiceRefillState.Error("No speech detected")
@@ -271,7 +274,7 @@ class QuickEntryViewModel @Inject constructor(
                     null
                 }
 
-                val result = parseVoiceRefillUseCase(transcript, apiKey, selectedModel)
+                val result = parseVoiceRefillUseCase(transcript, apiKey, selectedModel, alternatives)
 
                 when (result) {
                     is VoiceParsingResult.Success -> {

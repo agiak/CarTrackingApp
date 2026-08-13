@@ -2,11 +2,16 @@ name: Build APK
 
 # Manually triggered APK builds for Caribou.
 #
+# This workflow runs ONLY when you start it by hand — it never runs on a push or
+# commit. To run it: GitHub → Actions → "Build APK" → "Run workflow", then pick
+# the branch to build from the "Use workflow from" dropdown and choose the build
+# type. The build uses the code (and version.properties) of the branch you pick.
+#
 # Pick a build type when you run it:
 #   * development -> bumps versionName + developmentVersionCode, builds a debug APK.
 #   * production  -> bumps versionName + productionVersionCode, builds a signed release APK.
 #
-# The updated version.properties is committed back to the triggering branch so
+# The updated version.properties is committed back to the branch you selected so
 # the next build always continues from the correct version and no version code
 # is ever reused.
 on:
