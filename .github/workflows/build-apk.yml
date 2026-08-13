@@ -10,6 +10,11 @@ name: Build APK
 # the next build always continues from the correct version and no version code
 # is ever reused.
 on:
+  # TEMPORARY: build a PRODUCTION APK on push to the feature branch, since
+  # workflow_dispatch is not available to this integration. Remove before merging.
+  push:
+    branches:
+      - claude/caribou-github-actions-apk-n40l6o
   workflow_dispatch:
     inputs:
       build_type:
@@ -59,9 +64,8 @@ jobs:
         id: version
         run: |
           chmod +x scripts/bump-version.sh
-          # Falls back to "development" for non-dispatch triggers (e.g. push),
-          # where github.event.inputs is not provided.
-          ./scripts/bump-version.sh "${{ github.event.inputs.build_type || 'development' }}"
+          # TEMPORARY: force "production" on push to validate a production build.
+          ./scripts/bump-version.sh "${{ github.event.inputs.build_type || 'production' }}"
 
       # Both build types are signed with the committed Caribou key (see
       # app/build.gradle.kts). No signing secrets are required.
