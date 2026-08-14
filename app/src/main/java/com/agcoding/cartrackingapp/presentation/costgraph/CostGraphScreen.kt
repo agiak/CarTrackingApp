@@ -67,43 +67,24 @@ fun CostGraphScreen(
                     }
                 },
                 actions = {
-                    // Car filter button
+                    // Car filter button — icon only so long (Greek) labels never
+                    // squeeze the app-bar title into a broken vertical stack.
                     if (allCars.size > 1) {
-                        TextButton(
-                            onClick = { viewModel.showCarFilter() },
-                            modifier = Modifier.width(160.dp)
-                        ) {
+                        IconButton(onClick = { viewModel.showCarFilter() }) {
                             Icon(
                                 imageVector = Icons.Default.DirectionsCar,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            val selectedCars = allCars.filter { selectedCarIds.contains(it.id) }
-                            Text(
-                                text = when {
-                                    selectedCars.isEmpty() -> stringResource(R.string.all_cars)
-                                    selectedCars.size == 1 -> selectedCars[0].name
-                                    else -> selectedCars.joinToString(", ") { it.name }
-                                },
-                                fontSize = 14.sp
+                                contentDescription = stringResource(R.string.all_cars),
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
 
                     // Period selector button
-                    TextButton(
-                        onClick = { viewModel.showPeriodSelector() }
-                    ) {
+                    IconButton(onClick = { viewModel.showPeriodSelector() }) {
                         Icon(
                             imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(selectedPeriod.labelResId),
-                            fontSize = 14.sp
+                            contentDescription = stringResource(selectedPeriod.labelResId),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
