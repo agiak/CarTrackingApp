@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -416,9 +417,40 @@ fun RefillHistoryScreen(
                             enabled = rangePickerState.selectedStartDateMillis != null
                         ) { Text(stringResource(R.string.apply)) }
                     }
+                    // The stock headline ("Start date - End date") wraps one
+                    // character per line in Greek once the mode-toggle icon takes
+                    // its share of the width. Use a compact single-line headline
+                    // showing the actual range, and drop the toggle — this dialog
+                    // already has its own Close / Apply row.
                     DateRangePicker(
                         state = rangePickerState,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        title = {
+                            Text(
+                                text = stringResource(R.string.select_time_period),
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(start = 24.dp, top = 16.dp)
+                            )
+                        },
+                        headline = {
+                            val start = rangePickerState.selectedStartDateMillis
+                            val end = rangePickerState.selectedEndDateMillis
+                            Text(
+                                text = when {
+                                    start != null && end != null ->
+                                        "${dateFormat.format(Date(start))} – ${dateFormat.format(Date(end))}"
+                                    start != null -> dateFormat.format(Date(start))
+                                    else -> stringResource(R.string.select_date)
+                                },
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
+                            )
+                        },
+                        showModeToggle = false
                     )
                 }
             }
