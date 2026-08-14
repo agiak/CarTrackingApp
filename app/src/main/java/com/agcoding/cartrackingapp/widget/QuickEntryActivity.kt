@@ -69,6 +69,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.util.formatForDecimalInput
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
@@ -385,10 +386,12 @@ private fun QuickRefillDialog(
         if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed) {
             val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
 
-            // Pre-fill form fields with parsed data as raw comma-decimal field values
-            parsedData.cost?.let { cost = sanitizeDecimalInput(it.toString()) }
-            parsedData.liters?.let { liters = sanitizeDecimalInput(it.toString()) }
-            parsedData.distance?.let { distance = sanitizeDecimalInput(it.toString()) }
+            // Pre-fill form fields with parsed data as raw comma-decimal field values.
+            // Whole numbers stay whole ("38", not "38,0") — a decimal only appears
+            // when the user actually spoke one.
+            parsedData.cost?.let { cost = it.formatForDecimalInput() }
+            parsedData.liters?.let { liters = it.formatForDecimalInput() }
+            parsedData.distance?.let { distance = it.formatForDecimalInput() }
 
             // Reset voice state after applying data
             viewModel.confirmVoiceParsedData()

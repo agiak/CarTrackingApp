@@ -16,6 +16,7 @@ import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
 import com.agcoding.cartrackingapp.util.GeocodingUtil
+import com.agcoding.cartrackingapp.util.formatForDecimalInput
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
@@ -362,14 +363,16 @@ class AddRefillViewModel @Inject constructor(
             Timber.d( "Applying parsed data to form:")
             Timber.d( "  cost=${data.cost}, liters=${data.liters}, distance=${data.distance}")
 
-            // Apply parsed data to form fields as raw comma-decimal values
+            // Apply parsed data to form fields as raw comma-decimal values. Whole
+            // numbers stay whole ("38", not "38,0") — a decimal only appears when
+            // the user actually spoke one.
             if (data.cost != null && data.cost > 0) {
-                val formatted = data.cost.toString().replace('.', ',')
+                val formatted = data.cost.formatForDecimalInput()
                 Timber.d( "  Applying cost: $formatted")
                 updateAmountPaid(formatted)
             }
             if (data.liters != null && data.liters > 0) {
-                val formatted = data.liters.toString().replace('.', ',')
+                val formatted = data.liters.formatForDecimalInput()
                 Timber.d( "  Applying liters: $formatted")
                 updateLitersAdded(formatted)
             }
