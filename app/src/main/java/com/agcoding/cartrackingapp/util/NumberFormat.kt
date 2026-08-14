@@ -136,3 +136,27 @@ fun sanitizeDecimalInput(input: String): String {
 
 /** Sanitizes raw text entered into a whole-number field: digits only. */
 fun sanitizeIntInput(input: String): String = input.filter { it.isDigit() }
+
+/**
+ * Renders a [Double] as the RAW value of a decimal input field: digits plus an
+ * optional single ',' decimal separator, and NO grouping separators (grouping is
+ * applied visually by ThousandsSeparatorTransformation).
+ *
+ * Trailing zero decimals are dropped, so a whole number stays whole: 38.0 -> "38",
+ * while a genuine decimal is preserved: 38.5 -> "38,5". This matters for values
+ * filled in programmatically (e.g. voice input), where a spurious "38,0" both
+ * looks wrong and implies a precision the user never spoke.
+ *
+ * Grouping MUST stay off here: sanitizeDecimalInput treats '.' as a decimal
+ * separator, so a grouped "1.234" would be read back as 1,234.
+ */
+fun Double.formatForDecimalInput(maxDecimals: Int = 2): String =
+    DecimalFormat().apply {
+        decimalFormatSymbols = DecimalFormatSymbols(Locale.ROOT).apply {
+            decimalSeparator = ','
+        }
+        isGroupingUsed = false
+        minimumFractionDigits = 0
+        maximumFractionDigits = maxDecimals
+        roundingMode = RoundingMode.HALF_UP
+    }.format(this)
