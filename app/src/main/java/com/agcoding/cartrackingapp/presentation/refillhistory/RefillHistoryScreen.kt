@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -28,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -46,6 +45,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
@@ -380,26 +381,47 @@ fun RefillHistoryScreen(
             initialSelectedStartDateMillis = startDate,
             initialSelectedEndDateMillis = endDate
         )
-        DatePickerDialog(
+        // A DateRangePicker needs a bounded height to lay out its month grid, so it
+        // must live in a full-screen dialog with the picker taking the remaining
+        // space (weight(1f)). Nesting it in DatePickerDialog (sized for a single
+        // date) collapses the calendar to just its header.
+        Dialog(
             onDismissRequest = { showDateRangePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.setStartDate(rangePickerState.selectedStartDateMillis)
-                        viewModel.setEndDate(rangePickerState.selectedEndDateMillis)
-                        showDateRangePicker = false
-                    },
-                    enabled = rangePickerState.selectedStartDateMillis != null
-                ) { Text(stringResource(R.string.apply)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDateRangePicker = false }) { Text(stringResource(R.string.cancel)) }
-            }
+            properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            DateRangePicker(
-                state = rangePickerState,
-                modifier = Modifier.fillMaxHeight(0.85f)
-            )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { showDateRangePicker = false }) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = stringResource(R.string.cancel)
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                viewModel.setStartDate(rangePickerState.selectedStartDateMillis)
+                                viewModel.setEndDate(rangePickerState.selectedEndDateMillis)
+                                showDateRangePicker = false
+                            },
+                            enabled = rangePickerState.selectedStartDateMillis != null
+                        ) { Text(stringResource(R.string.apply)) }
+                    }
+                    DateRangePicker(
+                        state = rangePickerState,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
     }
 

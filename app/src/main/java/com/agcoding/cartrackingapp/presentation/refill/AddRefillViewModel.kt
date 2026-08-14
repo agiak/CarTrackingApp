@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class AddRefillViewModel @Inject constructor(
@@ -74,30 +73,9 @@ class AddRefillViewModel @Inject constructor(
             }
         }
 
-        // Populate with random values in debug mode
-        if (BuildConfig.DEBUG) {
-            populateRandomValues()
-        }
-
         if (carId > 0 && locationProvider.hasLocationPermission()) {
             fetchLocation()
         }
-    }
-
-    private fun populateRandomValues() {
-        val randomAmountPaid = Random.nextInt(30, 100).toString() + "," + Random.nextInt(0, 99).toString().padStart(2, '0')
-        val randomLiters = Random.nextInt(25, 60).toString() + "," + Random.nextInt(0, 9).toString()
-        val randomDistance = Random.nextInt(300, 700)
-
-        // Calculate new odometer reading from previous + random distance
-        val newOdometer = (_uiState.value.previousOdometer + randomDistance).toInt()
-
-        _uiState.value = _uiState.value.copy(
-            amountPaid = randomAmountPaid,
-            litersAdded = randomLiters,
-            odometer = newOdometer.toString(),
-            selectedDateMillis = System.currentTimeMillis()
-        )
     }
 
     fun updateAmountPaid(value: String) {

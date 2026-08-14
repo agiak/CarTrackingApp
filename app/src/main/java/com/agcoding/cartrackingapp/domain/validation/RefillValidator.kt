@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.domain.validation
 import android.content.Context
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.util.formatNumber
+import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 
 /**
  * Validator for Fuel Refill input data
@@ -27,7 +28,7 @@ object RefillValidator {
         val errors = mutableMapOf<String, String>()
 
         // Liters validation
-        val litersValue = liters.toDoubleOrNull()
+        val litersValue = liters.parseLocalizedDouble()
         when {
             litersValue == null -> errors["liters"] = context.getString(R.string.error_liters_invalid)
             litersValue <= 0 -> errors["liters"] = context.getString(R.string.error_liters_positive)
@@ -36,7 +37,7 @@ object RefillValidator {
         }
 
         // Cost validation
-        val costValue = cost.toDoubleOrNull()
+        val costValue = cost.parseLocalizedDouble()
         when {
             costValue == null -> errors["cost"] = context.getString(R.string.error_cost_invalid)
             costValue <= 0 -> errors["cost"] = context.getString(R.string.error_cost_positive)
@@ -45,7 +46,7 @@ object RefillValidator {
         }
 
         // Distance validation
-        val distanceValue = distance.toDoubleOrNull()
+        val distanceValue = distance.parseLocalizedDouble()
         when {
             distanceValue == null -> errors["distance"] = context.getString(R.string.error_distance_invalid)
             distanceValue <= 0 -> errors["distance"] = context.getString(R.string.error_distance_positive)
@@ -70,7 +71,7 @@ object RefillValidator {
     }
 
     fun validateLiters(context: Context, liters: String): String? {
-        val value = liters.toDoubleOrNull()
+        val value = liters.parseLocalizedDouble()
         return when {
             value == null -> context.getString(R.string.error_liters_invalid)
             value <= 0 -> context.getString(R.string.error_liters_positive)
@@ -81,7 +82,7 @@ object RefillValidator {
     }
 
     fun validateCost(context: Context, cost: String): String? {
-        val value = cost.toDoubleOrNull()
+        val value = cost.parseLocalizedDouble()
         return when {
             value == null -> context.getString(R.string.error_cost_invalid)
             value <= 0 -> context.getString(R.string.error_cost_positive)
@@ -92,7 +93,7 @@ object RefillValidator {
     }
 
     fun validateDistance(context: Context, distance: String): String? {
-        val value = distance.toDoubleOrNull()
+        val value = distance.parseLocalizedDouble()
         return when {
             value == null -> context.getString(R.string.error_distance_invalid)
             value <= 0 -> context.getString(R.string.error_distance_positive)
@@ -102,7 +103,7 @@ object RefillValidator {
     }
 
     fun validateOdometer(context: Context, odometer: String, previousOdometer: Double): String? {
-        val value = odometer.toDoubleOrNull()
+        val value = odometer.parseLocalizedDouble()
         return when {
             value == null -> context.getString(R.string.error_odometer_invalid)
             value < 0 -> context.getString(R.string.error_odometer_negative)
