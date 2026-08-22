@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,12 +60,13 @@ import com.agcoding.cartrackingapp.presentation.onboarding.AppPermissions
 import com.agcoding.cartrackingapp.presentation.onboarding.PermissionItem
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import androidx.compose.material.icons.filled.Info
 
 @Composable
 internal fun PermissionStatusBadge(isGranted: Boolean) {
-    val color = if (isGranted) MaterialTheme.colorScheme.tertiary
+    val color = if (isGranted) AppSuccess.color
     else MaterialTheme.colorScheme.error
     Row(
         modifier = Modifier

@@ -1,4 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.settings.permissions
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -46,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -190,14 +190,14 @@ fun PermissionsSettingsScreen(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.tertiary,
+                        tint = AppSuccess.color,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.all_permissions_granted),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = AppSuccess.color,
                         fontWeight = FontWeight.Medium
                     )
                 }

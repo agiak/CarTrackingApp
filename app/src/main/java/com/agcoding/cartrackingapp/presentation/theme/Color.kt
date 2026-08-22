@@ -21,6 +21,21 @@ val CardBackground = Color(0xFFF5F5F5)
 val DividerColor = Color(0xFFE0E0E0)
 
 // ============================================================================
+// Semantic success colors
+//
+// "Succeeded" and "granted" always read green, whichever accent palette the user
+// picked — a confirmation should not change meaning with their colour choice, so
+// these deliberately sit outside the ColorScheme. Two tones keep them legible on
+// light and dark surfaces; read them through [AppSuccess] rather than directly.
+// ============================================================================
+val SuccessGreenLight = Color(0xFF2E7D32)      // Forest green — on light surfaces
+val SuccessGreenDark = Color(0xFF81C784)       // Light green — on dark surfaces
+val SuccessContainerLight = Color(0xFFC8E6C9)  // Pale green fill
+val SuccessContainerDark = Color(0xFF1B5E20)   // Deep green fill
+val OnSuccessLight = Color(0xFFFFFFFF)         // Content on SuccessGreenLight
+val OnSuccessDark = Color(0xFF0B3D0B)          // Content on SuccessGreenDark
+
+// ============================================================================
 // Color Palette Definitions
 // ============================================================================
 

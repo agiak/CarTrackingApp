@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,8 +53,8 @@ import kotlinx.coroutines.launch
 fun SuccessCheckmark(
     modifier: Modifier = Modifier,
     size: Dp = 96.dp,
-    color: Color = MaterialTheme.colorScheme.primary,
-    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    color: Color = AppSuccess.color,
+    containerColor: Color = AppSuccess.container,
     holdMillis: Long = 550,
     onAnimationEnd: (() -> Unit)? = null
 ) {

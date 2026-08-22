@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.onboarding
 
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
@@ -49,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -527,7 +527,7 @@ private fun PermissionCard(
         ),
         border = BorderStroke(
             1.dp,
-            if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+            if (isGranted) AppSuccess.color.copy(alpha = 0.5f)
             else MaterialTheme.colorScheme.outlineVariant
         ),
         shape = RoundedCornerShape(12.dp)
@@ -544,7 +544,7 @@ private fun PermissionCard(
                     .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(
-                        if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
+                        if (isGranted) AppSuccess.color.copy(alpha = 0.1f)
                         else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                     ),
                 contentAlignment = Alignment.Center
@@ -553,7 +553,7 @@ private fun PermissionCard(
                     imageVector = permission.icon,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = if (isGranted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                    tint = if (isGranted) AppSuccess.color else MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -583,14 +583,14 @@ private fun PermissionCard(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.tertiary),
+                        .background(AppSuccess.color),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(R.string.granted),
                         modifier = Modifier.size(16.dp),
-                        tint = Color.White
+                        tint = AppSuccess.onColor
                     )
                 }
             }

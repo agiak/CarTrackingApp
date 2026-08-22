@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +60,7 @@ import com.agcoding.cartrackingapp.presentation.onboarding.AppPermissions
 import com.agcoding.cartrackingapp.presentation.onboarding.PermissionItem
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import androidx.compose.material.icons.filled.Info
 
@@ -80,7 +80,7 @@ internal fun PermissionRow(
         ),
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
-            if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
+            if (isGranted) AppSuccess.color.copy(alpha = 0.4f)
             else MaterialTheme.colorScheme.outlineVariant
         )
     ) {
@@ -96,7 +96,7 @@ internal fun PermissionRow(
                         .size(44.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(
-                            if (isGranted) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
+                            if (isGranted) AppSuccess.color.copy(alpha = 0.1f)
                             else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         ),
                     contentAlignment = Alignment.Center
@@ -105,7 +105,7 @@ internal fun PermissionRow(
                         imageVector = item.icon,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = if (isGranted) MaterialTheme.colorScheme.tertiary
+                        tint = if (isGranted) AppSuccess.color
                         else MaterialTheme.colorScheme.primary
                     )
                 }
@@ -131,13 +131,13 @@ internal fun PermissionRow(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.tertiary),
+                            .background(AppSuccess.color),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = stringResource(R.string.granted),
-                            tint = Color.White,
+                            tint = AppSuccess.onColor,
                             modifier = Modifier.size(18.dp)
                         )
                     }
