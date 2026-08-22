@@ -39,6 +39,39 @@ object ExpenseCategories {
         "Car wash",
         "Other"
     )
+
+    /**
+     * Whether an expense category counts as servicing in the statistics
+     * breakdown (fuel / service / other).
+     *
+     * Categories are stored as the display string that was on screen when the
+     * expense was saved, so the stored value depends on the app's language at
+     * that moment — "Small service", "Μικρό σέρβις", or a user-typed variant.
+     * Comparing against a single hard-coded literal therefore missed almost
+     * everything, and real service expenses were counted as "other".
+     *
+     * Matching is on a normalised form (lower-cased, accents stripped, final
+     * sigma unified) and looks for the service keyword anywhere in the name, so
+     * "Big service", "Μεγάλο σέρβις" and a custom "Μικρό service" all count.
+     */
+    fun isServiceCategory(category: String): Boolean {
+        val normalized = normalizeCategory(category)
+        return SERVICE_KEYWORDS.any { normalized.contains(it) }
+    }
+
+    /** Service keywords in every language the app ships, already normalised. */
+    private val SERVICE_KEYWORDS = listOf(
+        "service",   // English, and the Greek-Latin spelling people often type
+        "servis",
+        "σερβισ",    // Greek "σέρβις" after normalisation
+        "συντηρη"    // Greek "συντήρηση" — used by older entries
+    )
+
+    private fun normalizeCategory(value: String): String =
+        java.text.Normalizer
+            .normalize(value.trim().lowercase(), java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{M}+"), "")   // drop combining accents
+            .replace('ς', 'σ')               // final sigma -> sigma
 }
 
 data class Expense(

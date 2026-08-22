@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -83,7 +84,7 @@ fun ExpenseHistoryContent(
                 if (expenses.isNotEmpty()) {
                     val totalCost = expenses.sumOf { it.amount }
                     val serviceCount = expenses.count {
-                        it.category == "Service" || it.category.contains("service", ignoreCase = true)
+                        ExpenseCategories.isServiceCategory(it.category)
                     }
                     val otherCount = expenses.size - serviceCount
 

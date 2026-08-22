@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.CostCategory
 import com.agcoding.cartrackingapp.domain.model.CostItem
 import com.agcoding.cartrackingapp.domain.model.CostTrendData
 import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.model.MonthlyCost
 import com.agcoding.cartrackingapp.domain.model.TrendPeriod
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
@@ -75,8 +76,8 @@ class GetCostTrendUseCase @Inject constructor(
 
             // Calculate totals
             val totalFuelCost = filteredRefills.sumOf { it.amountPaid }
-            val totalServiceCost = filteredExpenses.filter { it.category.equals("Service", true) }.sumOf { it.amount }
-            val totalOtherCost = filteredExpenses.filter { !it.category.equals("Service", true) }.sumOf { it.amount }
+            val totalServiceCost = filteredExpenses.filter { ExpenseCategories.isServiceCategory(it.category) }.sumOf { it.amount }
+            val totalOtherCost = filteredExpenses.filter { !ExpenseCategories.isServiceCategory(it.category) }.sumOf { it.amount }
             val totalCost = totalFuelCost + totalServiceCost + totalOtherCost
 
             // Cost by category
@@ -168,8 +169,8 @@ class GetCostTrendUseCase @Inject constructor(
 
             if (bucketRefills.isNotEmpty() || bucketExpenses.isNotEmpty()) {
                 val fuelCost = bucketRefills.sumOf { it.amountPaid }
-                val serviceCost = bucketExpenses.filter { it.category.equals("Service", true) }.sumOf { it.amount }
-                val otherCost = bucketExpenses.filter { !it.category.equals("Service", true) }.sumOf { it.amount }
+                val serviceCost = bucketExpenses.filter { ExpenseCategories.isServiceCategory(it.category) }.sumOf { it.amount }
+                val otherCost = bucketExpenses.filter { !ExpenseCategories.isServiceCategory(it.category) }.sumOf { it.amount }
 
                 calendar.timeInMillis = currentBucketStart
 
