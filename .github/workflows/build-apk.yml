@@ -15,11 +15,6 @@ name: Build APK
 # the next build always continues from the correct version and no version code
 # is ever reused.
 on:
-  # TEMPORARY: one-off development build requested from the Claude session, which
-  # cannot call the workflow_dispatch API. Removed again right after this build.
-  push:
-    branches:
-      - develop
   workflow_dispatch:
     inputs:
       build_type:
