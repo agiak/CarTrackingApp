@@ -36,8 +36,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.parseLocalizedInt
@@ -79,6 +82,9 @@ fun EditReminderScreen(
     LaunchedEffect(expenseId) {
         viewModel.loadReminder(expenseId)
     }
+
+    // Shows the app-wide success confirmation before navigating back.
+    var showSuccess by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -225,9 +231,7 @@ fun EditReminderScreen(
                 Button(
                     onClick = {
                         viewModel.saveReminder(
-                            onSuccess = {
-                                onNavigateBack()
-                            },
+                            onSuccess = { showSuccess = true },
                             onError = { error ->
                                 scope.launch {
                                     snackbarHostState.showSnackbar(error)
@@ -284,6 +288,12 @@ fun EditReminderScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+
+        SuccessOverlay(
+            visible = showSuccess,
+            message = stringResource(R.string.reminder_saved),
+            onFinished = onNavigateBack
+        )
     }
 }
 

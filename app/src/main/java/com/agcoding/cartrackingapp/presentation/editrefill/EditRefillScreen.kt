@@ -24,6 +24,9 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.editrefill.components.EditRefillContent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,6 +46,9 @@ fun EditRefillScreen(
     val uiState by viewModel.uiState.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
     val scrollState = rememberScrollState()
+
+    // Shows the app-wide success confirmation before navigating back.
+    var showSuccess by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -98,7 +105,7 @@ fun EditRefillScreen(
                     isLoadingLocationName = uiState.isLoadingLocationName,
                     isSaving = uiState.isSaving,
                     onSaveClick = {
-                        viewModel.saveRefill(onSuccess = onNavigateBack)
+                        viewModel.saveRefill(onSuccess = { showSuccess = true })
                     },
                     errorMessage = uiState.errorMessage,
                     isTablet = isTablet,
@@ -141,6 +148,12 @@ fun EditRefillScreen(
                 DatePicker(state = datePickerState)
             }
         }
+
+        SuccessOverlay(
+            visible = showSuccess,
+            message = stringResource(R.string.changes_saved),
+            onFinished = onNavigateBack
+        )
     }
 }
 

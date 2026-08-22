@@ -34,6 +34,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.refill.components.VoiceEntrySection
@@ -72,6 +76,9 @@ fun AddRefillBottomSheet(
     )
     val scope = androidx.compose.runtime.rememberCoroutineScope()
 
+    // Shows the app-wide success confirmation in place of the form, then closes.
+    var showSuccess by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
         onDismissRequest = {
             scope.launch {
@@ -85,6 +92,25 @@ fun AddRefillBottomSheet(
         },
         sheetState = sheetState
     ) {
+        if (showSuccess) {
+            SuccessAnimation(
+                message = stringResource(R.string.refill_saved),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp),
+                onFinished = {
+                    scope.launch {
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            viewModel.resetForm()
+                            onDismiss()
+                            onSuccess()
+                        }
+                    }
+                }
+            )
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -352,16 +378,7 @@ fun AddRefillBottomSheet(
             // Save button
             Button(
                 onClick = {
-                    viewModel.saveRefill(onSuccess = {
-                        scope.launch {
-                            sheetState.hide()
-                        }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                onDismiss()
-                                onSuccess()
-                            }
-                        }
-                    })
+                    viewModel.saveRefill(onSuccess = { showSuccess = true })
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSaving &&
@@ -379,6 +396,7 @@ fun AddRefillBottomSheet(
                 }
                 Text(stringResource(R.string.save_refill))
             }
+        }
         }
     }
 

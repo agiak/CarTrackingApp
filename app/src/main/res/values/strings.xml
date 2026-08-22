@@ -1285,4 +1285,10 @@
     <string name="select_category">Select category</string>
     <string name="search_category">Search category</string>
     <string name="no_categories_found">No categories found</string>
+
+    <!-- Universal success confirmations -->
+    <string name="refill_saved">Refill saved</string>
+    <string name="changes_saved">Changes saved</string>
+    <string name="trip_created">Trip created</string>
+    <string name="reminder_saved">Reminder saved</string>
 </resources>

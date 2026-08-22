@@ -7,6 +7,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -200,6 +203,45 @@ fun SuccessAnimation(
                 )
             }
         }
+    }
+}
+
+/**
+ * The app-wide success confirmation: a full-surface overlay that covers whatever
+ * screen is underneath, plays [SuccessAnimation], and calls [onFinished] when it
+ * settles — typically to navigate back or close a dialog.
+ *
+ * Use this for every "saved successfully" moment so the confirmation looks and
+ * lasts the same everywhere. For a bottom sheet, prefer swapping the sheet's own
+ * content for [SuccessAnimation] instead, so the sheet keeps its shape.
+ *
+ * Renders nothing while [visible] is false. Pointer input is swallowed while it
+ * shows, so the form underneath cannot be tapped mid-animation.
+ */
+@Composable
+fun SuccessOverlay(
+    visible: Boolean,
+    message: String,
+    modifier: Modifier = Modifier,
+    supportingText: String? = null,
+    onFinished: () -> Unit
+) {
+    if (!visible) return
+
+    val blocker = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+            .clickable(interactionSource = blocker, indication = null) { },
+        contentAlignment = Alignment.Center
+    ) {
+        SuccessAnimation(
+            message = message,
+            supportingText = supportingText,
+            onFinished = onFinished
+        )
     }
 }
 
