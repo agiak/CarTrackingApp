@@ -1291,4 +1291,7 @@
     <string name="changes_saved">Changes saved</string>
     <string name="trip_created">Trip created</string>
     <string name="reminder_saved">Reminder saved</string>
+
+    <string name="insights_no_results_for_filter">No insights match this filter</string>
+    <string name="insights_show_all">Show all</string>
 </resources>

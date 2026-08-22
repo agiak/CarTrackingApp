@@ -1272,4 +1272,7 @@
     <string name="changes_saved">Οι αλλαγές αποθηκεύτηκαν</string>
     <string name="trip_created">Η διαδρομή δημιουργήθηκε</string>
     <string name="reminder_saved">Η υπενθύμιση αποθηκεύτηκε</string>
+
+    <string name="insights_no_results_for_filter">Καμία ανάλυση για αυτό το φίλτρο</string>
+    <string name="insights_show_all">Εμφάνιση όλων</string>
 </resources>

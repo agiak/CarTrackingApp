@@ -172,12 +172,12 @@ class InsightsViewModel @Inject constructor(
 
         if (_allAnomalies.isEmpty()) return
 
-        val filtered = applyFilter(_allAnomalies)
-        _uiState.value = if (filtered.isEmpty()) {
-            InsightsUiState.Empty
-        } else {
-            InsightsUiState.Success(filtered)
-        }
+        // Stay in Success even when the filter matches nothing. Empty is for
+        // "no anomalies at all" and renders without the filter chips — emitting it
+        // here stranded the user, with no way to pick another type or clear the
+        // filter short of leaving the screen. SuccessState shows its own
+        // no-results message instead.
+        _uiState.value = InsightsUiState.Success(applyFilter(_allAnomalies))
     }
 
     /**
