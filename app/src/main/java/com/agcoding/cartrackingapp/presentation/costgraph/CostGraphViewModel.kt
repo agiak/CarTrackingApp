@@ -56,6 +56,12 @@ class CostGraphViewModel @Inject constructor(
                 _allCars.value = cars
                 if (carId != null) {
                     _selectedCarIds.value = setOf(carId)
+                } else {
+                    // The screen opens showing every car, so the filter has to say so
+                    // too. Leaving this empty meant the filter sheet rendered every
+                    // checkbox unticked while the chart was showing all of them.
+                    // An empty set and a full set load the same data (see loadTrendData).
+                    _selectedCarIds.value = cars.map { it.id }.toSet()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("CostGraphVM", "Unexpected error", e)
