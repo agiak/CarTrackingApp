@@ -29,11 +29,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -52,8 +52,8 @@ import com.agcoding.cartrackingapp.presentation.carlist.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.carlist.components.PermissionsBanner
 import com.agcoding.cartrackingapp.presentation.carlist.components.ReminderBanner
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,8 +70,6 @@ fun CarListScreen(
     val showAddCarDialog by viewModel.showAddCarDialog.collectAsState()
     val showPermissionBanner by viewModel.showPermissionBanner.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     // Re-check permissions when the screen resumes (e.g. returning from system settings)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -84,6 +82,9 @@ fun CarListScreen(
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
     }
+
+    // Shows the app-wide success confirmation after a car is added.
+    var showSuccess by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -249,17 +250,16 @@ fun CarListScreen(
             AddCarDialog(
                 onDismiss = { viewModel.hideAddCarDialog() },
                 onConfirm = { name, plate, odometer ->
-                    viewModel.addCar(name, plate, odometer) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = context.getString(R.string.car_added_successfully),
-                                duration = androidx.compose.material3.SnackbarDuration.Short
-                            )
-                        }
-                    }
+                    viewModel.addCar(name, plate, odometer) { showSuccess = true }
                 }
             )
         }
+
+        SuccessOverlay(
+            visible = showSuccess,
+            message = stringResource(R.string.car_added_successfully),
+            onFinished = { showSuccess = false }
+        )
     }
 }
 

@@ -54,6 +54,7 @@ import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
@@ -77,6 +78,9 @@ fun CreateTripScreen(
             viewModel.clearError()
         }
     }
+
+    // Shows the app-wide success confirmation before navigating back.
+    var showSuccess by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -113,7 +117,7 @@ fun CreateTripScreen(
                     }
                     Button(
                         onClick = {
-                            viewModel.createTrip(onSuccess = onNavigateBack)
+                            viewModel.createTrip(onSuccess = { showSuccess = true })
                         },
                         modifier = Modifier.weight(1f),
                         enabled = !uiState.isCreating
@@ -292,6 +296,12 @@ fun CreateTripScreen(
                 }
             }
         }
+
+        SuccessOverlay(
+            visible = showSuccess,
+            message = stringResource(R.string.trip_created),
+            onFinished = onNavigateBack
+        )
     }
 }
 

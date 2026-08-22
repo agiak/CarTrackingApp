@@ -1266,4 +1266,10 @@
     <string name="select_category">Επιλογή κατηγορίας</string>
     <string name="search_category">Αναζήτηση κατηγορίας</string>
     <string name="no_categories_found">Δεν βρέθηκαν κατηγορίες</string>
+
+    <!-- Universal success confirmations -->
+    <string name="refill_saved">Ο ανεφοδιασμός αποθηκεύτηκε</string>
+    <string name="changes_saved">Οι αλλαγές αποθηκεύτηκαν</string>
+    <string name="trip_created">Η διαδρομή δημιουργήθηκε</string>
+    <string name="reminder_saved">Η υπενθύμιση αποθηκεύτηκε</string>
 </resources>

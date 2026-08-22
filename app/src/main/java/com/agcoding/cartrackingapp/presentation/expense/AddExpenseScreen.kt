@@ -1,9 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
-import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -432,25 +429,14 @@ fun AddExpenseScreen(
             }
         }
 
-        // Success overlay — covers the form once the expense is stored, then
-        // navigates back when the animation settles.
-        if (showSuccess) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
-                    .clickable(enabled = false) {},
-                contentAlignment = Alignment.Center
-            ) {
-                SuccessAnimation(
-                    message = stringResource(R.string.expense_saved),
-                    onFinished = {
-                        onExpenseSaved()
-                        onNavigateBack()
-                    }
-                )
+        SuccessOverlay(
+            visible = showSuccess,
+            message = stringResource(R.string.expense_saved),
+            onFinished = {
+                onExpenseSaved()
+                onNavigateBack()
             }
-        }
+        )
     }
 }
 

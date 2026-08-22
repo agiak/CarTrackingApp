@@ -69,6 +69,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.util.formatForDecimalInput
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
@@ -108,6 +109,11 @@ class QuickEntryActivity : AppCompatActivity() {
         setContent {
             CarTrackingAppTheme {
                 // Transparent background
+                // Holds the confirmation to play plus the work to run once it
+                // finishes, so the widget shows the same success animation as the
+                // in-app screens before closing.
+                var successState by remember { mutableStateOf<Pair<Int, () -> Unit>?>(null) }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -119,6 +125,7 @@ class QuickEntryActivity : AppCompatActivity() {
                             viewModel = viewModel,
                             onDismiss = { finish() },
                             onSuccess = { amount, timestamp ->
+                                successState = R.string.refill_saved to {
                                 // Get selected car
                                 val car = viewModel.selectedCar.value
                                 if (car != null) {
@@ -143,6 +150,7 @@ class QuickEntryActivity : AppCompatActivity() {
                                     sendBroadcast(broadcastIntent)
                                 }
                                 finish()
+                                }
                             }
                         )
 
@@ -150,6 +158,7 @@ class QuickEntryActivity : AppCompatActivity() {
                             viewModel = viewModel,
                             onDismiss = { finish() },
                             onSuccess = { amount, timestamp ->
+                                successState = R.string.refill_saved to {
                                 // Get selected car
                                 val car = viewModel.selectedCar.value
                                 if (car != null) {
@@ -174,6 +183,7 @@ class QuickEntryActivity : AppCompatActivity() {
                                     sendBroadcast(broadcastIntent)
                                 }
                                 finish()
+                                }
                             }
                         )
 
@@ -181,6 +191,7 @@ class QuickEntryActivity : AppCompatActivity() {
                             viewModel = viewModel,
                             onDismiss = { finish() },
                             onSuccess = { amount, timestamp ->
+                                successState = R.string.expense_saved to {
                                 // Get selected car
                                 val car = viewModel.selectedCar.value
                                 if (car != null) {
@@ -205,7 +216,16 @@ class QuickEntryActivity : AppCompatActivity() {
                                     sendBroadcast(broadcastIntent)
                                 }
                                 finish()
+                                }
                             }
+                        )
+                    }
+
+                    successState?.let { (messageRes, complete) ->
+                        SuccessOverlay(
+                            visible = true,
+                            message = stringResource(messageRes),
+                            onFinished = complete
                         )
                     }
                 }
