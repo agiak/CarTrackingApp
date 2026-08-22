@@ -1281,4 +1281,8 @@
     <string name="db_error_open_store">Open Play Store</string>
     <string name="db_error_close">Close App</string>
 
+    <!-- Category picker sheet -->
+    <string name="select_category">Select category</string>
+    <string name="search_category">Search category</string>
+    <string name="no_categories_found">No categories found</string>
 </resources>

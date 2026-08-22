@@ -13,11 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -25,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -96,56 +93,35 @@ fun CategorySelector(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Dropdown for non-quick-pick categories
+            // Opens the full category list in a bottom sheet. A chip-anchored
+            // dropdown was cramped to the chip's width and had nowhere to search.
             if (otherCategories.isNotEmpty()) {
-                ExposedDropdownMenuBox(
-                    expanded = dropdownExpanded,
-                    onExpandedChange = { onToggleDropdown() }
-                ) {
-                    val dropdownLabel = if (selectedCategory.isNotBlank()
-                        && !showCustomField
-                        && selectedCategory !in quickPickCategories
-                    ) {
-                        selectedCategory
-                    } else {
-                        stringResource(R.string.more_categories)
-                    }
+                val isOtherSelected = selectedCategory.isNotBlank()
+                    && !showCustomField
+                    && selectedCategory !in quickPickCategories
 
-                    FilterChip(
-                        selected = selectedCategory.isNotBlank()
-                            && !showCustomField
-                            && selectedCategory !in quickPickCategories,
-                        onClick = {},
-                        label = { Text(dropdownLabel) },
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        modifier = Modifier
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                            .widthIn(min = 150.dp)
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = dropdownExpanded,
-                        onDismissRequest = onDismissDropdown
-                    ) {
-                        otherCategories.forEach { name ->
-                            DropdownMenuItem(
-                                text = { Text(name) },
-                                onClick = { onSelectCategory(name) },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                        }
-                    }
-                }
+                FilterChip(
+                    selected = isOtherSelected,
+                    onClick = onToggleDropdown,
+                    label = {
+                        Text(
+                            text = if (isOtherSelected) selectedCategory
+                                   else stringResource(R.string.more_categories)
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    modifier = Modifier.widthIn(min = 150.dp)
+                )
             }
 
             // Custom chip
@@ -189,6 +165,24 @@ fun CategorySelector(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+
+    // The picker lists every category — not just the non-quick-pick ones — so a
+    // category is always findable from one place, whether or not it is starred.
+    if (dropdownExpanded) {
+        val allCategories = remember(quickPickCategories, otherCategories) {
+            (quickPickCategories + otherCategories).distinct().sorted()
+        }
+        CategoryPickerSheet(
+            categories = allCategories,
+            selectedCategory = if (showCustomField) "" else selectedCategory,
+            onSelect = onSelectCategory,
+            onDismiss = onDismissDropdown,
+            onCustomCategory = {
+                onDismissDropdown()
+                onShowCustomField()
+            }
+        )
     }
 }
 
