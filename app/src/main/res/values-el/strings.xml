@@ -1262,4 +1262,8 @@
     <string name="fab_open_cd">Άνοιγμα ενεργειών</string>
     <string name="remove">Αφαίρεση</string>
 
+    <!-- Category picker sheet -->
+    <string name="select_category">Επιλογή κατηγορίας</string>
+    <string name="search_category">Αναζήτηση κατηγορίας</string>
+    <string name="no_categories_found">Δεν βρέθηκαν κατηγορίες</string>
 </resources>

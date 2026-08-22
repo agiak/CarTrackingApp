@@ -36,7 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -77,6 +80,11 @@ fun AddExpenseBottomSheet(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Once the expense is stored the form is swapped for a success animation; the
+    // sheet closes when that animation settles rather than snapping shut instantly.
+    var showSuccess by remember { mutableStateOf(false) }
+    var savedSummary by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         viewModel.clearFields()
         if (expenseType.isNotBlank()) {
@@ -99,6 +107,26 @@ fun AddExpenseBottomSheet(
         },
         sheetState = sheetState
     ) {
+        if (showSuccess) {
+            SuccessAnimation(
+                message = stringResource(R.string.expense_saved),
+                supportingText = savedSummary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp),
+                onFinished = {
+                    scope.launch {
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            viewModel.clearFields()
+                            onDismiss()
+                            onSuccess()
+                        }
+                    }
+                }
+            )
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -211,16 +239,18 @@ fun AddExpenseBottomSheet(
             // Save button
             Button(
                 onClick = {
+                    val summaryCategory = category
+                    val summaryAmount = amount
                     viewModel.saveExpense(
                         onSuccess = {
-                            scope.launch {
-                                sheetState.hide()
-                            }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    onDismiss()
-                                    onSuccess()
-                                }
+                            savedSummary = when {
+                                summaryCategory.isNotBlank() && summaryAmount.isNotBlank() ->
+                                    "$summaryCategory · $summaryAmount €"
+                                summaryAmount.isNotBlank() -> "$summaryAmount €"
+                                summaryCategory.isNotBlank() -> summaryCategory
+                                else -> null
                             }
+                            showSuccess = true
                         },
                         onError = { error ->
                             kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
@@ -242,6 +272,7 @@ fun AddExpenseBottomSheet(
                 }
                 Text(stringResource(R.string.save_expense))
             }
+        }
         }
 
         // Date picker dialog

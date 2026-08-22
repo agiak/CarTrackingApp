@@ -1,6 +1,9 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,8 +40,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -48,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
@@ -86,6 +92,10 @@ fun AddExpenseScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Set once the expense is stored; drives the success overlay below, which
+    // navigates back when its animation settles.
+    var showSuccess by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.clearFields()
@@ -223,10 +233,7 @@ fun AddExpenseScreen(
                     Button(
                         onClick = {
                             viewModel.saveExpense(
-                                onSuccess = {
-                                    onExpenseSaved()
-                                    onNavigateBack()
-                                },
+                                onSuccess = { showSuccess = true },
                                 onError = { error ->
                                     scope.launch {
                                         snackbarHostState.showSnackbar(error)
@@ -342,9 +349,7 @@ fun AddExpenseScreen(
                 Button(
                     onClick = {
                         viewModel.saveExpense(
-                            onSuccess = {
-                                onNavigateBack()
-                            },
+                            onSuccess = { showSuccess = true },
                             onError = { error ->
                                 scope.launch {
                                     snackbarHostState.showSnackbar(error)
@@ -424,6 +429,26 @@ fun AddExpenseScreen(
                 }
             ) {
                 DatePicker(state = reminderDatePickerState)
+            }
+        }
+
+        // Success overlay — covers the form once the expense is stored, then
+        // navigates back when the animation settles.
+        if (showSuccess) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                SuccessAnimation(
+                    message = stringResource(R.string.expense_saved),
+                    onFinished = {
+                        onExpenseSaved()
+                        onNavigateBack()
+                    }
+                )
             }
         }
     }
