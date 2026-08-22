@@ -50,21 +50,36 @@ object ExpenseCategories {
      * Comparing against a single hard-coded literal therefore missed almost
      * everything, and real service expenses were counted as "other".
      *
+     * Servicing covers the maintenance categories: a service proper, an oil
+     * change, a tyre change and repairs. Insurance, road tax, parking, tolls,
+     * car washes and accessories are not maintenance and stay in "other".
+     *
      * Matching is on a normalised form (lower-cased, accents stripped, final
-     * sigma unified) and looks for the service keyword anywhere in the name, so
-     * "Big service", "Μεγάλο σέρβις" and a custom "Μικρό service" all count.
+     * sigma unified) and looks for a keyword anywhere in the name, so "Big
+     * service", "Μεγάλο σέρβις" and a custom "Μικρό service" all count.
      */
     fun isServiceCategory(category: String): Boolean {
         val normalized = normalizeCategory(category)
-        return SERVICE_KEYWORDS.any { normalized.contains(it) }
+        return SERVICE_PATTERNS.any { it.containsMatchIn(normalized) }
     }
 
-    /** Service keywords in every language the app ships, already normalised. */
-    private val SERVICE_KEYWORDS = listOf(
-        "service",   // English, and the Greek-Latin spelling people often type
-        "servis",
-        "σερβισ",    // Greek "σέρβις" after normalisation
-        "συντηρη"    // Greek "συντήρηση" — used by older entries
+    /**
+     * Maintenance keywords in every language the app ships, matched against the
+     * normalised name.
+     *
+     * Greek entries are stems, because the language inflects ("λάδι"/"λαδιών").
+     * Short English words are anchored to word boundaries — a bare "oil"
+     * substring would also match an accessory called "Spoiler".
+     */
+    private val SERVICE_PATTERNS = listOf(
+        // Service / maintenance
+        Regex("service|servis|σερβισ|συντηρη"),
+        // Oil change — "Oil change" / "Αλλαγή λαδιών"
+        Regex("\\boil\\b|λαδ"),
+        // Tyre change — "Tire change" / "Αλλαγή ελαστικών" (and colloquial λάστιχα)
+        Regex("\\bt[iy]res?\\b|ελαστικ|λαστιχ"),
+        // Repairs — "Repairs" / "Επισκευές"
+        Regex("\\brepair|επισκευ")
     )
 
     private fun normalizeCategory(value: String): String =
