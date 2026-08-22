@@ -72,8 +72,6 @@ fun AddExpenseScreen(
     val quickPickCategories by viewModel.quickPickCategories.collectAsState()
     val otherCategories by viewModel.otherCategories.collectAsState()
     val dropdownExpanded by viewModel.dropdownExpanded.collectAsState()
-    val showCustomCategoryField by viewModel.showCustomCategoryField.collectAsState()
-    val customCategoryText by viewModel.customCategoryText.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val amountError by viewModel.amountError.collectAsState()
     val categoryError by viewModel.categoryError.collectAsState()
@@ -148,15 +146,10 @@ fun AddExpenseScreen(
                         quickPickCategories = quickPickCategories,
                         otherCategories = otherCategories,
                         dropdownExpanded = dropdownExpanded,
-                        showCustomField = showCustomCategoryField,
-                        customText = customCategoryText,
                         categoryError = categoryError,
                         onSelectCategory = viewModel::selectCategory,
                         onToggleDropdown = viewModel::toggleDropdown,
                         onDismissDropdown = viewModel::dismissDropdown,
-                        onShowCustomField = viewModel::showCustomCategoryField,
-                        onHideCustomField = viewModel::hideCustomCategoryField,
-                        onCustomTextChange = viewModel::updateCustomCategoryText,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -270,15 +263,10 @@ fun AddExpenseScreen(
                     quickPickCategories = quickPickCategories,
                     otherCategories = otherCategories,
                     dropdownExpanded = dropdownExpanded,
-                    showCustomField = showCustomCategoryField,
-                    customText = customCategoryText,
                     categoryError = categoryError,
                     onSelectCategory = viewModel::selectCategory,
                     onToggleDropdown = viewModel::toggleDropdown,
                     onDismissDropdown = viewModel::dismissDropdown,
-                    onShowCustomField = viewModel::showCustomCategoryField,
-                    onHideCustomField = viewModel::hideCustomCategoryField,
-                    onCustomTextChange = viewModel::updateCustomCategoryText,
                     modifier = Modifier.fillMaxWidth()
                 )
 

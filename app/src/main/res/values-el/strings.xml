@@ -1275,4 +1275,9 @@
 
     <string name="insights_no_results_for_filter">Καμία ανάλυση για αυτό το φίλτρο</string>
     <string name="insights_show_all">Εμφάνιση όλων</string>
+
+    <!-- Category picker: type to create -->
+    <string name="category_search_or_create">Αναζήτηση ή πληκτρολόγησε νέα</string>
+    <string name="category_create_format">Δημιουργία \"%1$s\"</string>
+    <string name="category_type_to_create_hint">Δεν τη βρίσκεις στη λίστα; Απλά πληκτρολόγησέ την για να φτιάξεις δική σου κατηγορία.</string>
 </resources>

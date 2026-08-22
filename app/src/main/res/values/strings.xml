@@ -1294,4 +1294,9 @@
 
     <string name="insights_no_results_for_filter">No insights match this filter</string>
     <string name="insights_show_all">Show all</string>
+
+    <!-- Category picker: type to create -->
+    <string name="category_search_or_create">Search, or type a new one</string>
+    <string name="category_create_format">Create \"%1$s\"</string>
+    <string name="category_type_to_create_hint">Not in the list? Just type the name to create your own category.</string>
 </resources>

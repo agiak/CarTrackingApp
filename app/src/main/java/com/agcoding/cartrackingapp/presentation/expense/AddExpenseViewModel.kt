@@ -36,12 +36,6 @@ class AddExpenseViewModel @Inject constructor(
     private val _category = MutableStateFlow("")
     val category: StateFlow<String> = _category.asStateFlow()
 
-    private val _showCustomCategoryField = MutableStateFlow(false)
-    val showCustomCategoryField: StateFlow<Boolean> = _showCustomCategoryField.asStateFlow()
-
-    private val _customCategoryText = MutableStateFlow("")
-    val customCategoryText: StateFlow<String> = _customCategoryText.asStateFlow()
-
     private val translatedCategories = ExpenseCategories.predefinedResIds.map { resId ->
         getApplication<Application>().getString(resId)
     }
@@ -118,30 +112,25 @@ class AddExpenseViewModel @Inject constructor(
         _carId.value = carId
     }
 
+    /**
+     * Selects a category, whether picked from the list or just typed into the
+     * picker's search field.
+     *
+     * If the name already exists in a different casing the stored spelling wins,
+     * so typing "parking" reuses "Parking" instead of creating a second category
+     * that would split the same expenses in the statistics.
+     */
     fun selectCategory(value: String) {
-        _category.value = value
+        val trimmed = value.trim()
+        _category.value = existingCategoryNamed(trimmed) ?: trimmed
         _categoryError.value = null
-        _showCustomCategoryField.value = false
-        _customCategoryText.value = ""
         _dropdownExpanded.value = false
     }
 
-    fun showCustomCategoryField() {
-        _showCustomCategoryField.value = true
-        _category.value = ""
-        _customCategoryText.value = ""
-    }
-
-    fun hideCustomCategoryField() {
-        _showCustomCategoryField.value = false
-        _customCategoryText.value = ""
-    }
-
-    fun updateCustomCategoryText(value: String) {
-        _customCategoryText.value = value
-        _category.value = value
-        if (value.isNotBlank()) _categoryError.value = null
-    }
+    /** The stored category matching [name] ignoring case, if there is one. */
+    private fun existingCategoryNamed(name: String): String? =
+        (_quickPickCategories.value + _otherCategories.value)
+            .firstOrNull { it.equals(name, ignoreCase = true) }
 
     fun toggleDropdown() {
         _dropdownExpanded.value = !_dropdownExpanded.value
@@ -228,9 +217,10 @@ class AddExpenseViewModel @Inject constructor(
             try {
                 _isSaving.value = true
 
-                // Auto-save as custom category if it's not already known
-                val allKnown = (_quickPickCategories.value + _otherCategories.value).toSet()
-                if (categoryValue !in allKnown) {
+                // Store a newly typed category, unless the name already exists in
+                // another casing — in which case reuse the stored spelling.
+                val existing = existingCategoryNamed(categoryValue)
+                if (existing == null) {
                     expenseCategoryDao.insertCategory(
                         ExpenseCategoryEntity(name = categoryValue, isCustom = true)
                     )
@@ -247,7 +237,7 @@ class AddExpenseViewModel @Inject constructor(
 
                 val expense = Expense(
                     carId = _carId.value,
-                    category = categoryValue,
+                    category = existing ?: categoryValue,
                     amount = amountValue,
                     timestamp = selectedDate.value,
                     notes = notes.value.ifBlank { null },
@@ -268,8 +258,6 @@ class AddExpenseViewModel @Inject constructor(
 
     fun clearFields() {
         _category.value = ""
-        _showCustomCategoryField.value = false
-        _customCategoryText.value = ""
         _amount.value = ""
         _amountError.value = null
         _notes.value = ""

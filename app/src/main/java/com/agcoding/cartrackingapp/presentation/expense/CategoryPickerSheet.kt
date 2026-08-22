@@ -41,15 +41,20 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
+/** Longest a category name may be. Keeps chips and list rows readable. */
+private const val MAX_CATEGORY_LENGTH = 30
+
 /**
- * Category picker presented as a bottom sheet instead of an anchored dropdown.
+ * Category picker with type-to-create.
  *
- * A dropdown anchored to a chip gets cramped fast: it is limited to the chip's
- * width, scrolls awkwardly once there are many categories, and gives no room to
- * search. The sheet lists every category at full width, marks the current one,
- * filters as you type, and offers the custom-category entry in the same place.
+ * One field does both jobs: it filters the list as you type, and if what you
+ * typed is not already a category it offers to create it. That replaces the old
+ * separate "Custom" chip and free-text field, which let you type a name blind —
+ * so "parking" could be created next to an existing "Parking" and split the same
+ * expenses across two categories in the statistics.
  *
- * The search field only appears once the list is long enough to warrant it.
+ * The create row is offered only when nothing matches case-insensitively, so an
+ * existing category is always reused rather than duplicated.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,17 +62,19 @@ fun CategoryPickerSheet(
     categories: List<String>,
     selectedCategory: String,
     onSelect: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onCustomCategory: (() -> Unit)? = null
+    onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var query by remember { mutableStateOf("") }
 
-    val showSearch = categories.size > 6
-    val visibleCategories = remember(categories, query) {
-        if (query.isBlank()) categories
-        else categories.filter { it.contains(query.trim(), ignoreCase = true) }
+    val trimmedQuery = query.trim()
+    val visibleCategories = remember(categories, trimmedQuery) {
+        if (trimmedQuery.isEmpty()) categories
+        else categories.filter { it.contains(trimmedQuery, ignoreCase = true) }
     }
+    // Offer creation only for a name that does not already exist in any casing.
+    val canCreate = trimmedQuery.isNotEmpty() &&
+        categories.none { it.equals(trimmedQuery, ignoreCase = true) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -97,23 +104,57 @@ fun CategoryPickerSheet(
                 }
             }
 
-            if (showSearch) {
-                Spacer(modifier = Modifier.height(12.dp))
-                StyledOutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    placeholder = { Text(stringResource(R.string.search_category)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = null)
-                    },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            StyledOutlinedTextField(
+                value = query,
+                onValueChange = { if (it.length <= MAX_CATEGORY_LENGTH) query = it },
+                placeholder = { Text(stringResource(R.string.category_search_or_create)) },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = null)
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Tells the user the field doubles as "create", so they do not go
+            // hunting for a separate custom-category control.
+            Text(
+                text = stringResource(R.string.category_type_to_create_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Create row, pinned above the results while it applies.
+            if (canCreate) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect(trimmedQuery) }
+                        .padding(vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = stringResource(R.string.category_create_format, trimmedQuery),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                HorizontalDivider()
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (visibleCategories.isEmpty()) {
+            if (visibleCategories.isEmpty() && !canCreate) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -161,30 +202,6 @@ fun CategoryPickerSheet(
                     }
                 }
             }
-
-            if (onCustomCategory != null) {
-                HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onCustomCategory() }
-                        .padding(vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Text(
-                        text = stringResource(R.string.custom_category),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
         }
     }
 }
@@ -193,23 +210,22 @@ fun CategoryPickerSheet(
 // Preview Composables
 // ============================================
 
-@Preview(name = "Category Picker - Short list", showBackground = true, widthDp = 380)
+@Preview(name = "Category Picker", showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewCategoryPickerShort() {
+private fun PreviewCategoryPicker() {
     CarTrackingAppTheme(darkTheme = false) {
         CategoryPickerSheet(
-            categories = listOf("Insurance", "Parking", "Toll"),
+            categories = listOf("Insurance", "Parking", "Small service", "Toll"),
             selectedCategory = "Parking",
             onSelect = {},
-            onDismiss = {},
-            onCustomCategory = {}
+            onDismiss = {}
         )
     }
 }
 
-@Preview(name = "Category Picker - With search", showBackground = true, widthDp = 380)
+@Preview(name = "Category Picker - Dark", showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewCategoryPickerLong() {
+private fun PreviewCategoryPickerDark() {
     CarTrackingAppTheme(darkTheme = true) {
         CategoryPickerSheet(
             categories = listOf(
@@ -218,8 +234,7 @@ private fun PreviewCategoryPickerLong() {
             ),
             selectedCategory = "Toll",
             onSelect = {},
-            onDismiss = {},
-            onCustomCategory = {}
+            onDismiss = {}
         )
     }
 }
