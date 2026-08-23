@@ -239,6 +239,12 @@ android {
 // requested (see bumpCaribouVersion). These tasks just wire the bump to the
 // matching build output. The bump edits version.properties locally only — it
 // does NOT create a git commit.
+//
+// bundleProductionBump also EXPORTS the finished bundle: the signed .aab is
+// copied out of app/build/outputs/bundle/release (where it is easy to lose) into
+// a release/ folder at the project root, named for its version, and the absolute
+// path is printed so it can be uploaded straight to Play. Exported bundles are
+// gitignored (*.aab).
 // ---------------------------------------------------------------------------
 tasks.register("assembleDevelopmentBump") {
     group = "caribou"
@@ -248,8 +254,37 @@ tasks.register("assembleDevelopmentBump") {
 
 tasks.register("bundleProductionBump") {
     group = "caribou"
-    description = "Bump the production version (versionName + versionCode +1) and build the production (release) AAB bundle."
+    description = "Bump the production version (versionName + versionCode +1), build the signed release AAB and export it to release/."
     dependsOn("bundleRelease")
+
+    // Captured at configuration time — after the bump above, so these are the new numbers.
+    val exportedVersionName = caribouVersionName
+    val exportedVersionCode = caribouVersionCode
+    val bundleDir = layout.buildDirectory.dir("outputs/bundle/release")
+    val exportDir = rootProject.file("release")
+
+    doLast {
+        val producedDir = bundleDir.get().asFile
+        val bundle = File(producedDir, "app-release.aab").takeIf { it.exists() }
+            ?: producedDir.listFiles()
+                ?.filter { it.extension == "aab" }
+                ?.minByOrNull { it.name }
+            ?: error("Caribou: no .aab found in $producedDir")
+
+        exportDir.mkdirs()
+        val exported = File(
+            exportDir,
+            "Caribou_${exportedVersionName}_${exportedVersionCode}_production.aab"
+        )
+        bundle.copyTo(exported, overwrite = true)
+
+        logger.lifecycle("")
+        logger.lifecycle("Caribou: production bundle exported")
+        logger.lifecycle("  version : $exportedVersionName (code $exportedVersionCode)")
+        logger.lifecycle("  bundle  : ${exported.absolutePath}")
+        logger.lifecycle("  size    : ${"%.1f".format(exported.length() / 1024.0 / 1024.0)} MB")
+        logger.lifecycle("")
+    }
 }
 
 // Force a consistent log4j-api version across all configurations so any transitive
