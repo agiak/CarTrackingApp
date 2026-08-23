@@ -1,16 +1,21 @@
 package com.agcoding.cartrackingapp.presentation.expense
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -19,8 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
@@ -79,35 +87,49 @@ fun CategorySelector(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // Opens the full category list in a bottom sheet, where you can also
-        // create a category by typing it. Always available — a category might
-        // need creating even when every existing one is a quick pick.
-        run {
-            val isOtherSelected = selectedCategory.isNotBlank() &&
-                selectedCategory !in quickPickCategories
-
-            FilterChip(
-                selected = isOtherSelected,
-                onClick = onToggleDropdown,
-                label = {
-                    Text(
-                        text = if (isOtherSelected) selectedCategory
-                               else stringResource(R.string.more_categories)
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                modifier = Modifier.widthIn(min = 150.dp)
+        // Card-style selector rather than a chip with a dropdown arrow: it shows
+        // the current category at full width and reads as a field like the ones
+        // below it, instead of looking like an inline menu. Tapping it opens the
+        // picker sheet, where a category can also be created by typing.
+        Card(
+            onClick = onToggleDropdown,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(
+                1.dp,
+                if (categoryError != null) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.outlineVariant
             )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedCategory.ifBlank {
+                        stringResource(R.string.select_category)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (selectedCategory.isNotBlank()) FontWeight.Medium
+                                 else FontWeight.Normal,
+                    color = if (selectedCategory.isNotBlank()) MaterialTheme.colorScheme.onSurface
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
     }
 
