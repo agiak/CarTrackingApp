@@ -12,6 +12,7 @@ import com.agcoding.cartrackingapp.domain.model.VoiceParsingResult
 import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
+import com.agcoding.cartrackingapp.domain.usecase.voice.VoiceAutoStopDetector
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
@@ -55,6 +56,18 @@ class AddRefillViewModel @Inject constructor(
     val voiceState: StateFlow<VoiceRefillState> = _voiceState.asStateFlow()
 
     val isVoiceAvailable: Boolean get() = speechRecognitionService.isAvailable()
+
+    /**
+     * Ends the recording by itself once cost, liters and distance have all been
+     * heard, exactly as if the user had pressed Stop.
+     */
+    private val voiceAutoStopDetector = VoiceAutoStopDetector(
+        scope = viewModelScope,
+        parser = parseVoiceRefillUseCase
+    ) { data ->
+        Timber.d("Auto-stopping voice entry: all fields captured -> $data")
+        speechRecognitionService.stopListeningManually()
+    }
 
     fun setCarId(id: Long) {
         carId = id
@@ -247,6 +260,7 @@ class AddRefillViewModel @Inject constructor(
             return
         }
 
+        voiceAutoStopDetector.reset()
         _voiceState.value = VoiceRefillState.Listening("")
 
         viewModelScope.launch {
@@ -280,13 +294,18 @@ class AddRefillViewModel @Inject constructor(
                 _voiceState.value = VoiceRefillState.Listening("")
             }
             is SpeechRecognitionEvent.PartialResults -> {
-                _voiceState.value = VoiceRefillState.Listening(event.text)
+                // Also drives the auto-stop: recording ends on its own once all
+                // three fields have been heard and the reading settles.
+                val captured = voiceAutoStopDetector.onPartialTranscript(event.text)
+                _voiceState.value = VoiceRefillState.Listening(event.text, captured)
             }
             is SpeechRecognitionEvent.Results -> {
+                voiceAutoStopDetector.reset()
                 _voiceState.value = VoiceRefillState.Processing(event.text)
                 parseVoiceTranscript(event.text, event.alternatives)
             }
             is SpeechRecognitionEvent.Error -> {
+                voiceAutoStopDetector.reset()
                 val errorMsg = when {
                     event.message.contains("No speech") -> "No speech detected. Please try again."
                     event.message.contains("permission") -> "Microphone permission required"
@@ -393,6 +412,7 @@ class AddRefillViewModel @Inject constructor(
      */
     fun stopVoiceRecording() {
         Timber.d( "User manually stopped recording")
+        voiceAutoStopDetector.reset()
         speechRecognitionService.stopListeningManually()
         // State will be updated when onResults callback fires
     }
@@ -402,6 +422,7 @@ class AddRefillViewModel @Inject constructor(
      */
     fun cancelVoiceEntry() {
         Timber.d( "User cancelled voice entry")
+        voiceAutoStopDetector.reset()
         speechRecognitionService.stopListening()
         _voiceState.value = VoiceRefillState.Idle
     }
@@ -416,6 +437,7 @@ class AddRefillViewModel @Inject constructor(
     fun resetForm() {
         _uiState.value = AddRefillUiState()
         _showDatePicker.value = false
+        voiceAutoStopDetector.reset()
         _voiceState.value = VoiceRefillState.Idle
         speechRecognitionService.stopListening()
     }
@@ -451,7 +473,14 @@ data class AddRefillUiState(
  */
 sealed class VoiceRefillState {
     object Idle : VoiceRefillState()
-    data class Listening(val partialText: String) : VoiceRefillState()
+    /**
+     * @property captured the fields recognised in [partialText] so far, so the UI
+     *   can show which of cost/liters/distance are still missing.
+     */
+    data class Listening(
+        val partialText: String,
+        val captured: VoiceRefillData = VoiceRefillData()
+    ) : VoiceRefillState()
     data class Processing(val transcript: String) : VoiceRefillState()
     data class Parsed(val data: VoiceRefillData, val lowConfidence: Boolean = false) : VoiceRefillState()
     data class Error(val message: String, val transcript: String = "") : VoiceRefillState()

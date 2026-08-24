@@ -557,6 +557,11 @@
     <string name="voice_tap_to_speak">Tap to speak</string>
     <string name="voice_speak_refill_data">Speak naturally:\n"thirty five euros, twenty five liters, three eighty four kilometers"</string>
     <string name="voice_speak_naturally">Speak naturally and clearly</string>
+    <string name="voice_tap_stop_when_finished">Tap ’Stop’ when finished</string>
+    <string name="voice_all_fields_captured">Got everything — finishing…</string>
+    <string name="voice_field_cost">Cost</string>
+    <string name="voice_field_liters">Liters</string>
+    <string name="voice_field_distance">Distance</string>
 
     <!-- Voice Confirmation -->
     <string name="voice_parsed_title">I understood:</string>

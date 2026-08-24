@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
 
 /**
@@ -116,8 +117,10 @@ fun VoiceEntrySection(
                 modifier = Modifier.fillMaxWidth(),
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
+                val listening = voiceState as? VoiceRefillState.Listening
                 VoiceListeningIndicator(
-                    partialText = (voiceState as? VoiceRefillState.Listening)?.partialText ?: ""
+                    partialText = listening?.partialText ?: "",
+                    captured = listening?.captured ?: VoiceRefillData()
                 )
 
                 // Action buttons: Stop (primary) and Cancel (secondary)

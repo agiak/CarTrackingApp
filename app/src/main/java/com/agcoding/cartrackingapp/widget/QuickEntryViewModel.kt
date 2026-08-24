@@ -16,6 +16,7 @@ import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.usecase.expense.AddExpenseUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.AddFuelRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.voice.ParseVoiceRefillUseCase
+import com.agcoding.cartrackingapp.domain.usecase.voice.VoiceAutoStopDetector
 import com.agcoding.cartrackingapp.domain.validation.RefillValidator
 import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
 import com.agcoding.cartrackingapp.shared.domain.result.Result
@@ -44,6 +45,18 @@ class QuickEntryViewModel @Inject constructor(
 ) : ViewModel() {
 
     val isVoiceAvailable: Boolean get() = speechRecognitionService.isAvailable()
+
+    /**
+     * Ends the recording by itself once cost, liters and distance have all been
+     * heard, exactly as if the user had pressed Stop.
+     */
+    private val voiceAutoStopDetector = VoiceAutoStopDetector(
+        scope = viewModelScope,
+        parser = parseVoiceRefillUseCase
+    ) { data ->
+        Timber.d("Auto-stopping voice entry: all fields captured -> $data")
+        speechRecognitionService.stopListeningManually()
+    }
 
     private var carId: Long = -1L
 
@@ -195,6 +208,7 @@ class QuickEntryViewModel @Inject constructor(
      */
     fun startVoiceEntry() {
         Timber.d("Starting voice entry")
+        voiceAutoStopDetector.reset()
         _voiceState.value = VoiceRefillState.Listening(partialText = "")
 
         viewModelScope.launch {
@@ -202,14 +216,22 @@ class QuickEntryViewModel @Inject constructor(
                 when (event) {
                     is SpeechRecognitionEvent.PartialResults -> {
                         Timber.d("Partial: ${event.text}")
-                        _voiceState.value = VoiceRefillState.Listening(partialText = event.text)
+                        // Also drives the auto-stop: recording ends on its own once
+                        // all three fields have been heard and the reading settles.
+                        val captured = voiceAutoStopDetector.onPartialTranscript(event.text)
+                        _voiceState.value = VoiceRefillState.Listening(
+                            partialText = event.text,
+                            captured = captured
+                        )
                     }
                     is SpeechRecognitionEvent.Results -> {
                         Timber.d("Final: ${event.text}")
+                        voiceAutoStopDetector.reset()
                         parseVoiceTranscript(event.text, event.alternatives)
                     }
                     is SpeechRecognitionEvent.Error -> {
                         Timber.e("Error: ${event.message}")
+                        voiceAutoStopDetector.reset()
                         _voiceState.value = VoiceRefillState.Error(event.message)
                     }
                     SpeechRecognitionEvent.ReadyForSpeech -> {
@@ -232,6 +254,7 @@ class QuickEntryViewModel @Inject constructor(
      */
     fun stopVoiceRecording() {
         Timber.d("Stopping voice recording manually")
+        voiceAutoStopDetector.reset()
         speechRecognitionService.stopListeningManually()
     }
 
@@ -240,6 +263,7 @@ class QuickEntryViewModel @Inject constructor(
      */
     fun cancelVoiceEntry() {
         Timber.d("Canceling voice entry")
+        voiceAutoStopDetector.reset()
         speechRecognitionService.stopListening()
         _voiceState.value = VoiceRefillState.Idle
         parsedVoiceData = null

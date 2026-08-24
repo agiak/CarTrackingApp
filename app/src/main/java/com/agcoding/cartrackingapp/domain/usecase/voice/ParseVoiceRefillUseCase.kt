@@ -99,6 +99,18 @@ class ParseVoiceRefillUseCase @Inject constructor() {
     }
 
     /**
+     * Parses a transcript with the offline regex parser only — no network, no
+     * suspension. Used for the live check that runs on every partial transcript
+     * while the user is still speaking, so recording can stop by itself once all
+     * three fields have been heard.
+     *
+     * @param transcript the (possibly partial) transcript to inspect
+     * @return the fields recognised so far; missing ones are null
+     */
+    fun parseLocally(transcript: String): VoiceRefillData =
+        if (transcript.isBlank()) VoiceRefillData() else parseWithRegex(transcript, logging = false)
+
+    /**
      * Ranks a parsed candidate so the best transcription can be chosen among the
      * N-best alternatives. Completeness and a plausible price/litre dominate; the
      * number of extracted fields breaks ties.
@@ -258,15 +270,17 @@ Use null for missing values. No explanation, just JSON.
      * Enhanced for Greek language support and symbol recognition
      * Includes deterministic three-number rule
      */
-    private fun parseWithRegex(transcript: String): VoiceRefillData {
-        android.util.Log.d("VoiceParser", "Regex parsing input: '$transcript'")
+    private fun parseWithRegex(transcript: String, logging: Boolean = true): VoiceRefillData {
+        // Logging is suppressed for the live partial-transcript checks, which run
+        // many times per second while the user is speaking.
+        if (logging) android.util.Log.d("VoiceParser", "Regex parsing input: '$transcript'")
 
         // Normalize input - use word boundaries to avoid replacing "και" and "με" inside words
         val normalized = transcript.lowercase()
             .replace(Regex("""\bκαι\b"""), ",") // Replace Greek "and" (standalone word only)
             .replace(Regex("""\bμε\b"""), ",")  // Replace Greek "with" (standalone word only)
 
-        android.util.Log.d("VoiceParser", "Normalized input: '$normalized'")
+        if (logging) android.util.Log.d("VoiceParser", "Normalized input: '$normalized'")
 
         // 1) Extract values that are explicitly labelled with a unit. These are
         //    unambiguous and always win.
@@ -282,7 +296,7 @@ Use null for missing values. No explanation, just JSON.
         var distance = distanceRegex.find(normalized)?.groupValues?.get(1)
             ?.replace(",", ".")?.toDoubleOrNull()
 
-        android.util.Log.d("VoiceParser", "Labelled -> cost=$cost, liters=$liters, distance=$distance")
+        if (logging) android.util.Log.d("VoiceParser", "Labelled -> cost=$cost, liters=$liters, distance=$distance")
 
         // 2) Gather every number in the utterance and subtract the ones already
         //    consumed by a labelled unit, leaving the "unlabelled" leftovers.
@@ -315,7 +329,7 @@ Use null for missing values. No explanation, just JSON.
         }
 
         val result = VoiceRefillData(cost = cost, liters = liters, distance = distance)
-        android.util.Log.d("VoiceParser", "Final result: $result")
+        if (logging) android.util.Log.d("VoiceParser", "Final result: $result")
         return result
     }
 

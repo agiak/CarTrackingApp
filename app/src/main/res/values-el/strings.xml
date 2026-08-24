@@ -531,6 +531,11 @@
     <string name="voice_tap_to_speak">Πατήστε για να μιλήσετε</string>
     <string name="voice_speak_refill_data">Μιλήστε φυσιολογικά:\n\"τριάντα πέντε ευρώ, είκοσι πέντε λίτρα, τετρακόσια χιλιόμετρα\"</string>
     <string name="voice_speak_naturally">Μιλήστε φυσιολογικά και καθαρά</string>
+    <string name="voice_tap_stop_when_finished">Πατήστε «Διακοπή» όταν τελειώσετε</string>
+    <string name="voice_all_fields_captured">Τα κατέγραψα όλα — ολοκλήρωση…</string>
+    <string name="voice_field_cost">Κόστος</string>
+    <string name="voice_field_liters">Λίτρα</string>
+    <string name="voice_field_distance">Χιλιόμετρα</string>
 
     <!-- Voice Confirmation -->
     <string name="voice_parsed_title">Κατάλαβα:</string>

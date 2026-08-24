@@ -7,15 +7,19 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -30,14 +34,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
+import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 
 /**
- * Listening indicator with animated waveform
+ * Listening indicator with animated waveform.
+ *
+ * @param captured the fields heard so far — shown as three pills so the user can
+ *   see what is still missing, and why recording ends by itself once all three
+ *   are green.
  */
 @Composable
 fun VoiceListeningIndicator(
     partialText: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    captured: VoiceRefillData = VoiceRefillData()
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val scale by infiniteTransition.animateFloat(
@@ -85,6 +96,10 @@ fun VoiceListeningIndicator(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        VoiceCapturedFieldsRow(captured = captured)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         if (partialText.isNotBlank()) {
             Text(
                 text = partialText,
@@ -94,10 +109,15 @@ fun VoiceListeningIndicator(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Tap 'Stop' when finished",
+                text = if (captured.isComplete()) {
+                    stringResource(R.string.voice_all_fields_captured)
+                } else {
+                    stringResource(R.string.voice_tap_stop_when_finished)
+                },
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (captured.isComplete()) AppSuccess.color
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         } else {
@@ -108,6 +128,70 @@ fun VoiceListeningIndicator(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+/**
+ * The three refill fields shown as pills that turn green as the recognizer picks
+ * them up. Once all three are green the recording stops on its own, so this row
+ * doubles as an explanation of what just happened — and, before anything is
+ * spoken, as a reminder of what to say.
+ */
+@Composable
+fun VoiceCapturedFieldsRow(
+    captured: VoiceRefillData,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CapturedFieldPill(
+            label = stringResource(R.string.voice_field_cost),
+            captured = (captured.cost ?: 0.0) > 0.0
+        )
+        CapturedFieldPill(
+            label = stringResource(R.string.voice_field_liters),
+            captured = (captured.liters ?: 0.0) > 0.0
+        )
+        CapturedFieldPill(
+            label = stringResource(R.string.voice_field_distance),
+            captured = (captured.distance ?: 0.0) > 0.0
+        )
+    }
+}
+
+@Composable
+private fun CapturedFieldPill(
+    label: String,
+    captured: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .background(
+                color = if (captured) AppSuccess.container
+                        else MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(50)
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (captured) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = AppSuccess.color
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (captured) AppSuccess.color
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

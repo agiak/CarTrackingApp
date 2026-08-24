@@ -68,6 +68,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.presentation.refill.components.VoiceCapturedFieldsRow
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.util.formatForDecimalInput
@@ -531,7 +532,14 @@ private fun QuickRefillDialog(
                                         )
                                     }
 
-                                    val partialText = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening).partialText
+                                    val listening = voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening
+                                    val partialText = listening.partialText
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    // Turns green field by field; recording ends by
+                                    // itself once all three have been heard.
+                                    VoiceCapturedFieldsRow(captured = listening.captured)
+
                                     if (partialText.isNotBlank()) {
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
@@ -1368,7 +1376,13 @@ private fun QuickVoiceDialog(
                                 fontWeight = FontWeight.Bold
                             )
 
-                            val partialText = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening).partialText
+                            val listening = voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening
+                            val partialText = listening.partialText
+
+                            // Turns green field by field; recording ends by itself
+                            // once all three have been heard.
+                            VoiceCapturedFieldsRow(captured = listening.captured)
+
                             if (partialText.isNotBlank()) {
                                 Text(
                                     text = partialText,
