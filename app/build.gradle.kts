@@ -1,3 +1,4 @@
+import java.io.File
 import java.util.Properties
 
 plugins {
@@ -228,64 +229,122 @@ android {
 }
 
 // ---------------------------------------------------------------------------
-// Convenience tasks: bump the version AND build, in a single command.
+// Convenience tasks: bump the version, BUILD and EXPORT, in a single command.
 //
 //   ./gradlew assembleDevelopmentBump  ->  bumps developmentVersionName +
-//       developmentVersionCode (each +1), then assembles the development (debug) APK.
+//       developmentVersionCode (each +1), builds the development (debug) APK + AAB.
 //   ./gradlew bundleProductionBump     ->  bumps productionVersionName +
-//       productionVersionCode (each +1), then builds the production (release) AAB bundle.
+//       productionVersionCode (each +1), builds the production (release) APK + AAB.
+//
+// Both tracks are signed with the committed Caribou key (see signingConfigs
+// above) — the same key CI uses — so an exported development APK installs over a
+// previous one and a production bundle is ready to upload to Play.
 //
 // The version bump happens above, at configuration time, when either task is
-// requested (see bumpCaribouVersion). These tasks just wire the bump to the
-// matching build output. The bump edits version.properties locally only — it
-// does NOT create a git commit.
+// requested (see bumpCaribouVersion). The bump edits version.properties locally
+// only — it does NOT create a git commit.
 //
-// bundleProductionBump also EXPORTS the finished bundle: the signed .aab is
-// copied out of app/build/outputs/bundle/release (where it is easy to lose) into
-// a release/ folder at the project root, named for its version, and the absolute
-// path is printed so it can be uploaded straight to Play. Exported bundles are
-// gitignored (*.aab).
+// Each task EXPORTS both finished artifacts out of app/build/outputs (where they
+// are easy to lose) into a release/ folder at the project root, named for their
+// version exactly as the CI release assets are:
+//
+//   release/Caribou_<versionName>_<versionCode>_<track>.apk
+//   release/Caribou_<versionName>_<versionCode>_<track>.aab
+//
+// The absolute paths are printed at the end of the build. Exported artifacts are
+// gitignored (*.apk, *.aab).
 // ---------------------------------------------------------------------------
-tasks.register("assembleDevelopmentBump") {
-    group = "caribou"
-    description = "Bump the development version (versionName + versionCode +1) and assemble the development (debug) APK."
-    dependsOn("assembleDebug")
-}
 
-tasks.register("bundleProductionBump") {
-    group = "caribou"
-    description = "Bump the production version (versionName + versionCode +1), build the signed release AAB and export it to release/."
-    dependsOn("bundleRelease")
+/**
+ * Registers one "bump, build and export" task.
+ *
+ * @param taskName        name the task is invoked by (also what triggers the bump above)
+ * @param buildTypeName   the Android build type to build ("debug" or "release")
+ * @param track           label used in the exported file names ("development"/"production")
+ * @param versionSuffix   versionNameSuffix of [buildTypeName], needed to predict the APK name
+ */
+fun registerCaribouBumpTask(
+    taskName: String,
+    buildTypeName: String,
+    track: String,
+    versionSuffix: String
+) {
+    val capitalized = buildTypeName.replaceFirstChar { it.uppercase() }
 
-    // Captured at configuration time — after the bump above, so these are the new numbers.
-    val exportedVersionName = caribouVersionName
-    val exportedVersionCode = caribouVersionCode
-    val bundleDir = layout.buildDirectory.dir("outputs/bundle/release")
-    val exportDir = rootProject.file("release")
+    tasks.register(taskName) {
+        group = "caribou"
+        description = "Bump the $track version (versionName + versionCode +1), build the signed " +
+            "$buildTypeName APK and AAB, and export both to release/."
+        dependsOn("assemble$capitalized", "bundle$capitalized")
 
-    doLast {
-        val producedDir = bundleDir.get().asFile
-        val bundle = File(producedDir, "app-release.aab").takeIf { it.exists() }
-            ?: producedDir.listFiles()
-                ?.filter { it.extension == "aab" }
-                ?.minByOrNull { it.name }
-            ?: error("Caribou: no .aab found in $producedDir")
+        // Captured at configuration time — after the bump above, so these are the new numbers.
+        val exportedVersionName = caribouVersionName
+        val exportedVersionCode = caribouVersionCode
+        val apkDir = layout.buildDirectory.dir("outputs/apk/$buildTypeName")
+        val bundleDir = layout.buildDirectory.dir("outputs/bundle/$buildTypeName")
+        val exportDir = rootProject.file("release")
 
-        exportDir.mkdirs()
-        val exported = File(
-            exportDir,
-            "Caribou_${exportedVersionName}_${exportedVersionCode}_production.aab"
-        )
-        bundle.copyTo(exported, overwrite = true)
+        doLast {
+            // The APK is named by the applicationVariants block above, which uses the
+            // suffixed versionName. Fall back to the newest matching file so a rename
+            // there cannot break the export — but never to an older leftover build.
+            val apk = pickCaribouArtifact(
+                dir = apkDir.get().asFile,
+                extension = "apk",
+                preferredName = "cariboo_${buildTypeName}_$exportedVersionName$versionSuffix.apk"
+            )
+            val bundle = pickCaribouArtifact(
+                dir = bundleDir.get().asFile,
+                extension = "aab",
+                preferredName = "app-$buildTypeName.aab"
+            )
 
-        logger.lifecycle("")
-        logger.lifecycle("Caribou: production bundle exported")
-        logger.lifecycle("  version : $exportedVersionName (code $exportedVersionCode)")
-        logger.lifecycle("  bundle  : ${exported.absolutePath}")
-        logger.lifecycle("  size    : ${"%.1f".format(exported.length() / 1024.0 / 1024.0)} MB")
-        logger.lifecycle("")
+            exportDir.mkdirs()
+            val baseName = "Caribou_${exportedVersionName}_${exportedVersionCode}_$track"
+            val exportedApk = File(exportDir, "$baseName.apk")
+            val exportedBundle = File(exportDir, "$baseName.aab")
+            apk.copyTo(exportedApk, overwrite = true)
+            bundle.copyTo(exportedBundle, overwrite = true)
+
+            fun megabytes(file: File) = "%.1f".format(file.length() / 1024.0 / 1024.0)
+
+            logger.lifecycle("")
+            logger.lifecycle("Caribou: $track build exported")
+            logger.lifecycle("  version : $exportedVersionName (code $exportedVersionCode)")
+            logger.lifecycle("  apk     : ${exportedApk.absolutePath} (${megabytes(exportedApk)} MB)")
+            logger.lifecycle("  bundle  : ${exportedBundle.absolutePath} (${megabytes(exportedBundle)} MB)")
+            logger.lifecycle("")
+        }
     }
 }
+
+/**
+ * Finds the artifact just produced in [dir]: the expected [preferredName] if it is
+ * there, otherwise the most recently written file with [extension]. Picking by
+ * modification time (rather than by name) keeps stale outputs from earlier
+ * versions — which Gradle leaves behind — from being exported by mistake.
+ */
+fun pickCaribouArtifact(dir: File, extension: String, preferredName: String): File {
+    File(dir, preferredName).takeIf { it.exists() }?.let { return it }
+    return dir.listFiles()
+        ?.filter { it.isFile && it.extension == extension }
+        ?.maxByOrNull { it.lastModified() }
+        ?: error("Caribou: no .$extension found in $dir")
+}
+
+registerCaribouBumpTask(
+    taskName = "assembleDevelopmentBump",
+    buildTypeName = "debug",
+    track = "development",
+    versionSuffix = "-debug"
+)
+
+registerCaribouBumpTask(
+    taskName = "bundleProductionBump",
+    buildTypeName = "release",
+    track = "production",
+    versionSuffix = ""
+)
 
 // Force a consistent log4j-api version across all configurations so any transitive
 // dependency that pulls an older version (e.g. POI 5.2.3 → 2.17.2) is upgraded.
