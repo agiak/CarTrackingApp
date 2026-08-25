@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -68,8 +69,20 @@ fun OnboardingScreen(
             }
 
             is OnboardingState.Completed -> {
-                // Trigger navigation to home
-                onOnboardingComplete()
+                // Navigate to home exactly once. Calling this straight from
+                // composition re-fired it on every recomposition (and during the
+                // AnimatedContent transition), stacking duplicate home entries on
+                // the back stack — which is why the system Back button needed
+                // several presses to exit the app (issue #18).
+                LaunchedEffect(Unit) {
+                    onOnboardingComplete()
+                }
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }

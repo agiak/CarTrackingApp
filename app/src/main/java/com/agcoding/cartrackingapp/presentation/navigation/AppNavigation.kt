@@ -1,5 +1,9 @@
 package com.agcoding.cartrackingapp.presentation.navigation
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -214,6 +218,18 @@ fun AppNavigation(
         BottomNavItem.Settings.route
     )
 
+    // A single system-Back press on the home tab must close the app. The NavHost
+    // start destination is the onboarding gate rather than the home tab, so
+    // Navigation-Compose won't treat the home tab as the root that lets Back fall
+    // through to the system — leaving Back feeling stuck. Handle it explicitly so
+    // one press always exits from home (issue #18). Disabled while the add-refill
+    // sheet is open so Back dismisses the sheet first.
+    val context = LocalContext.current
+    val onHomeTab = currentDestination?.route == BottomNavItem.Cars.route
+    BackHandler(enabled = onHomeTab && showAddRefillSheet == null) {
+        context.findActivity()?.finish()
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -290,6 +306,8 @@ fun AppNavigation(
                             popUpTo(Screen.Onboarding.route) {
                                 inclusive = true
                             }
+                            // Never stack a second home entry if this fires again.
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -1038,4 +1056,11 @@ fun AppNavigation(
             )
         }
     }
+}
+
+/** Walk up the context wrappers to reach the hosting Activity, if any. */
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
