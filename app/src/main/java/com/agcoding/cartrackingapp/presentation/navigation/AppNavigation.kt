@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -237,7 +236,12 @@ fun AppNavigation(
                                 selected = selected,
                                 onClick = {
                                     navController.navigate(item.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
+                                        // Collapse the tab back stack onto the home tab so
+                                        // switching tabs never piles up entries. This keeps the
+                                        // home tab as a single back-stack entry, so one system
+                                        // Back press from it exits the app instead of walking
+                                        // through accumulated tab history (issue #18).
+                                        popUpTo(BottomNavItem.Cars.route) {
                                             saveState = true
                                         }
                                         launchSingleTop = true
@@ -315,7 +319,8 @@ fun AppNavigation(
                     },
                     onStatisticsClick = {
                         navController.navigate(BottomNavItem.Statistics.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
+                            // Same home-anchored back stack as the bottom bar (issue #18).
+                            popUpTo(BottomNavItem.Cars.route) {
                                 saveState = true
                             }
                             launchSingleTop = true
