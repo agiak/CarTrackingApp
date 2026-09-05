@@ -69,6 +69,8 @@ fun StatisticsScreen(
     onFuelForecastClick: () -> Unit = {},
     onTripAnalyticsClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
+    /** Opens the dedicated statistics screen for one car from the per-car breakdown. */
+    onCarStatisticsClick: (carId: Long) -> Unit = {},
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -127,7 +129,10 @@ fun StatisticsScreen(
                     perCarBreakdownCards = {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             state.statistics.perCarStatistics.forEach { carStats ->
-                                PerCarBreakdownCard(carStats)
+                                PerCarBreakdownCard(
+                                    carStats = carStats,
+                                    onClick = { onCarStatisticsClick(carStats.car.id) }
+                                )
                             }
                         }
                     },
@@ -610,10 +615,12 @@ private fun MonthlyTrendCard(
 
 @Composable
 private fun PerCarBreakdownCard(
-    carStats: com.agcoding.cartrackingapp.domain.model.CarStatistics
+    carStats: com.agcoding.cartrackingapp.domain.model.CarStatistics,
+    onClick: () -> Unit
 ) {
     StyledCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier

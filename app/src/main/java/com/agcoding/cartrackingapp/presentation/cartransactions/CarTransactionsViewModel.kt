@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.presentation.cartransactions
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.PeriodStatistics
 import com.agcoding.cartrackingapp.domain.model.periodStatistics
@@ -23,10 +24,12 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /**
- * Full transaction history for one car — the "See all" destination from car details.
+ * One car's records: the full transaction list plus totals for the selected period.
  *
- * Offers the same type/sort controls and the same shared date filter as the details
- * screen, so moving between the two never changes how filtering works.
+ * Backs two destinations that show the same data with a different emphasis — the
+ * "See all" transaction list reached from car details, and the car statistics screen
+ * reached from the per-car breakdown on the statistics screen. Both offer the same
+ * type/sort controls and the same shared date filter.
  */
 @HiltViewModel
 class CarTransactionsViewModel @Inject constructor(
@@ -40,9 +43,8 @@ class CarTransactionsViewModel @Inject constructor(
     private val _listFilter = MutableStateFlow(TransactionListFilter())
     val listFilter: StateFlow<TransactionListFilter> = _listFilter.asStateFlow()
 
-    val carName: StateFlow<String> = carRepository.getCarById(carId)
-        .map { it?.name.orEmpty() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+    val car: StateFlow<Car?> = carRepository.getCarById(carId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val allTransactions: StateFlow<List<TransactionWithData>> =
         getCarTransactionsUseCase(carId)

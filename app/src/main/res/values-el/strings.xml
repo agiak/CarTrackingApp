@@ -1299,6 +1299,7 @@
     <string name="no_transactions_for_filters">Δεν υπάρχουν συναλλαγές με τα επιλεγμένα φίλτρα</string>
 
     <!-- Period statistics -->
+    <string name="car_statistics_title">Στατιστικά αυτοκινήτου</string>
     <string name="period_statistics_title">Στατιστικά περιόδου</string>
     <string name="period_no_data">Δεν υπάρχουν δεδομένα για την επιλεγμένη περίοδο</string>
     <string name="stat_liters">Λίτρα</string>

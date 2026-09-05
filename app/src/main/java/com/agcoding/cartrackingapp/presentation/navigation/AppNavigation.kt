@@ -45,6 +45,7 @@ import com.agcoding.cartrackingapp.presentation.attachments.AttachmentsScreen
 import com.agcoding.cartrackingapp.presentation.carcomparison.CarComparisonScreen
 import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
+import com.agcoding.cartrackingapp.presentation.carstatistics.CarStatisticsScreen
 import com.agcoding.cartrackingapp.presentation.cartransactions.CarTransactionsScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
 import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScreen
@@ -105,6 +106,10 @@ sealed class Screen(val route: String) {
     /** Unified refills + expenses history for one car ("See all" from car details). */
     object CarTransactions : Screen("car_transactions/{carId}") {
         fun createRoute(carId: Long) = "car_transactions/$carId"
+    }
+    /** Dedicated statistics for one car (from the per-car breakdown on Statistics). */
+    object CarStatistics : Screen("car_statistics/{carId}") {
+        fun createRoute(carId: Long) = "car_statistics/$carId"
     }
     object Statistics : Screen("statistics")
     object Settings : Screen("settings")
@@ -417,6 +422,9 @@ fun AppNavigation(
                     },
                     onMonthClick = { month, year ->
                         navController.navigate(Screen.MonthDetails.createRoute(month, year))
+                    },
+                    onCarStatisticsClick = { carId ->
+                        navController.navigate(Screen.CarStatistics.createRoute(carId))
                     }
                 )
             }
@@ -654,6 +662,26 @@ fun AppNavigation(
                     },
                     onCreateTripClick = {
                         navController.navigate(Screen.CreateTrip.createRoute(carId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CarStatistics.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) {
+                CarStatisticsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onRefillClick = { refillId ->
+                        navController.navigate(Screen.RefillDetails.createRoute(refillId))
+                    },
+                    onExpenseClick = { expenseId ->
+                        navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
                     }
                 )
             }

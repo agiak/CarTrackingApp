@@ -1318,6 +1318,7 @@
     <string name="no_transactions_for_filters">No transactions match the selected filters</string>
 
     <!-- Period statistics -->
+    <string name="car_statistics_title">Car statistics</string>
     <string name="period_statistics_title">Statistics for period</string>
     <string name="period_no_data">No data for the selected period</string>
     <string name="stat_liters">Liters</string>

@@ -1,23 +1,22 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.agcoding.cartrackingapp.presentation.cartransactions
+package com.agcoding.cartrackingapp.presentation.carstatistics
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,23 +38,26 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.DateFilterButton
+import com.agcoding.cartrackingapp.presentation.cardetails.components.PeriodStatisticsCard
 import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.cartransactions.CarTransactionsViewModel
 import com.agcoding.cartrackingapp.presentation.transactions.SortBottomSheet
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionTypeFilterSheet
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
-import com.agcoding.cartrackingapp.util.formatMoney
 
 /**
- * Every refill and expense for one car, with the same controls as the car details
- * screen: type filter, sorting, and the shared year/month date filter.
+ * Statistics for one car, reached by tapping its card in the per-car breakdown on the
+ * statistics screen.
+ *
+ * Leads with the totals for the selected year/month — picked through the same shared
+ * date filter used everywhere — and follows with that period's transactions, which can
+ * additionally be filtered by type and re-sorted.
  */
 @Composable
-fun CarTransactionsScreen(
+fun CarStatisticsScreen(
     onNavigateBack: () -> Unit,
     onRefillClick: (Long) -> Unit = {},
     onExpenseClick: (Long) -> Unit = {},
@@ -66,7 +68,6 @@ fun CarTransactionsScreen(
     val periodStatistics by viewModel.periodStatistics.collectAsStateWithLifecycle()
     val availableYears by viewModel.availableYears.collectAsStateWithLifecycle()
     val car by viewModel.car.collectAsStateWithLifecycle()
-    val carName = car?.name.orEmpty()
 
     var showDateSheet by remember { mutableStateOf(false) }
     var showTypeFilterSheet by remember { mutableStateOf(false) }
@@ -79,13 +80,14 @@ fun CarTransactionsScreen(
                 title = {
                     Column {
                         Text(
-                            text = stringResource(R.string.all_transactions),
+                            text = car?.name ?: stringResource(R.string.car_statistics_title),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        if (carName.isNotBlank()) {
+                        val plate = car?.licensePlate.orEmpty()
+                        if (plate.isNotBlank()) {
                             Text(
-                                text = carName,
+                                text = plate,
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -126,96 +128,76 @@ fun CarTransactionsScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = 24.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Date filter — identical control to the one on car details
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateFilterButton(
-                    filter = listFilter.dateFilter,
-                    onClick = { showDateSheet = true }
+            // Totals for the selected period — the date chip in its header opens the
+            // shared year/month picker.
+            item(key = "period_stats") {
+                PeriodStatisticsCard(
+                    statistics = periodStatistics,
+                    onDateFilterClick = { showDateSheet = true }
                 )
             }
 
-            // Totals for the selected period
-            StyledCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.transactions_section_header,
-                            periodStatistics.transactionCount
-                        ),
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = periodStatistics.totalCost.formatMoney(),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+            item(key = "transactions_header") {
+                Text(
+                    text = stringResource(R.string.transactions_section_header, transactions.size),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             if (transactions.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.no_transactions_for_filters),
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(32.dp)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 8.dp,
-                        bottom = 24.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = transactions,
-                        key = { entry -> "${entry.transaction.type}_${entry.transaction.id}" }
-                    ) { entry ->
-                        when (entry) {
-                            is TransactionWithData.RefillTransaction -> RefillItemCard(
-                                refill = entry.refill,
-                                carName = null,
-                                onClick = { onRefillClick(entry.refill.id) }
-                            )
-
-                            is TransactionWithData.ExpenseTransaction -> ExpenseItemCard(
-                                expense = entry.expense,
-                                carName = null,
-                                onClick = { onExpenseClick(entry.expense.id) }
+                item(key = "transactions_empty") {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_transactions_for_filters),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+            } else {
+                items(
+                    items = transactions,
+                    key = { entry -> "${entry.transaction.type}_${entry.transaction.id}" }
+                ) { entry ->
+                    when (entry) {
+                        is TransactionWithData.RefillTransaction -> RefillItemCard(
+                            refill = entry.refill,
+                            carName = null,
+                            onClick = { onRefillClick(entry.refill.id) }
+                        )
+
+                        is TransactionWithData.ExpenseTransaction -> ExpenseItemCard(
+                            expense = entry.expense,
+                            carName = null,
+                            onClick = { onExpenseClick(entry.expense.id) }
+                        )
                     }
                 }
             }
