@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.CarAttachment
 import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.PeriodStatistics
+import com.agcoding.cartrackingapp.domain.model.filterByDate
 import com.agcoding.cartrackingapp.domain.model.periodStatistics
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
@@ -21,9 +22,6 @@ import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.transaction.GetCarTransactionsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetRecentTripsByCarUseCase
-import com.agcoding.cartrackingapp.presentation.transactions.SortOption
-import com.agcoding.cartrackingapp.presentation.transactions.TransactionListFilter
-import com.agcoding.cartrackingapp.presentation.transactions.applyFilter
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
@@ -100,8 +98,9 @@ class CarDetailsViewModel @Inject constructor(
     // statistics for whichever period the user picked.
     // ---------------------------------------------------------------------
 
-    private val _listFilter = MutableStateFlow(TransactionListFilter())
-    val listFilter: StateFlow<TransactionListFilter> = _listFilter.asStateFlow()
+    /** The period the screen is scoped to. Chosen from the statistics card. */
+    private val _dateFilter = MutableStateFlow(DateFilter.None)
+    val dateFilter: StateFlow<DateFilter> = _dateFilter.asStateFlow()
 
     /** Everything for this car, unfiltered — the source for the year picker and totals. */
     private val allTransactions: StateFlow<List<TransactionWithData>> =
@@ -113,39 +112,25 @@ class CarDetailsViewModel @Inject constructor(
         .map { transactions -> DateFilter.availableYears(transactions.map { it.transaction.timestamp }) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    /** The list the screen renders: type + date filtered, then sorted. */
+    /**
+     * Newest first, scoped to the selected period. This screen only previews the most
+     * recent entries — filtering by type and re-sorting live on the "see all" screen.
+     */
     val transactions: StateFlow<List<TransactionWithData>> =
-        combine(allTransactions, _listFilter) { transactions, filter ->
-            transactions.applyFilter(filter)
+        combine(allTransactions, _dateFilter) { transactions, dateFilter ->
+            transactions
+                .filterByDate(dateFilter) { it.transaction.timestamp }
+                .sortedByDescending { it.transaction.timestamp }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    /**
-     * Totals for the selected period. Deliberately ignores the type filter — hiding
-     * expenses from the list should not silently change what "total spent" means.
-     */
+    /** Totals for the selected period. */
     val periodStatistics: StateFlow<PeriodStatistics> =
-        combine(allTransactions, _listFilter) { transactions, filter ->
-            transactions.periodStatistics(filter.dateFilter)
+        combine(allTransactions, _dateFilter) { transactions, dateFilter ->
+            transactions.periodStatistics(dateFilter)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PeriodStatistics())
 
-    fun toggleRefillFilter() {
-        _listFilter.value = _listFilter.value.let { it.copy(showRefills = !it.showRefills) }
-    }
-
-    fun toggleExpenseFilter() {
-        _listFilter.value = _listFilter.value.let { it.copy(showExpenses = !it.showExpenses) }
-    }
-
-    fun setSortOption(option: SortOption) {
-        _listFilter.value = _listFilter.value.copy(sortOption = option)
-    }
-
     fun setDateFilter(dateFilter: DateFilter) {
-        _listFilter.value = _listFilter.value.copy(dateFilter = dateFilter.normalized)
-    }
-
-    fun clearListFilters() {
-        _listFilter.value = TransactionListFilter(sortOption = _listFilter.value.sortOption)
+        _dateFilter.value = dateFilter.normalized
     }
 
     init {

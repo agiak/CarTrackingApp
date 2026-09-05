@@ -34,12 +34,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.MoreVert
@@ -88,9 +86,6 @@ import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
-import com.agcoding.cartrackingapp.presentation.transactions.SortBottomSheet
-import com.agcoding.cartrackingapp.presentation.transactions.TransactionListFilter
-import com.agcoding.cartrackingapp.presentation.transactions.TransactionTypeFilterSheet
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,15 +113,13 @@ fun CarDetailsScreen(
 
     // Unified transactions list + period statistics
     val transactions by viewModel.transactions.collectAsState()
-    val listFilter by viewModel.listFilter.collectAsState()
+    val dateFilter by viewModel.dateFilter.collectAsState()
     val periodStatistics by viewModel.periodStatistics.collectAsState()
     val availableYears by viewModel.availableYears.collectAsState()
 
     var showOverflowMenu by remember { mutableStateOf(false) }
     var fabExpanded by remember { mutableStateOf(false) }
     var showDateSheet by remember { mutableStateOf(false) }
-    var showTypeFilterSheet by remember { mutableStateOf(false) }
-    var showSortSheet by remember { mutableStateOf(false) }
     val isDefault = (uiState as? CarDetailsUiState.Success)?.statistics?.car?.isDefault == true
 
     BackHandler(enabled = fabExpanded) { fabExpanded = false }
@@ -280,12 +273,9 @@ fun CarDetailsScreen(
                         ) {
                             carTransactionsSection(
                                 transactions = transactions,
-                                filter = listFilter,
                                 refillTripNames = refillTripNames,
                                 limit = PREVIEW_TRANSACTION_COUNT,
                                 onViewAll = onViewAllTransactionsClick,
-                                onFilterClick = { showTypeFilterSheet = true },
-                                onSortClick = { showSortSheet = true },
                                 onRefillClick = onRefillClick,
                                 onExpenseClick = onExpenseClick
                             )
@@ -353,12 +343,9 @@ fun CarDetailsScreen(
                         // Unified refills + expenses list
                         carTransactionsSection(
                             transactions = transactions,
-                            filter = listFilter,
                             refillTripNames = refillTripNames,
                             limit = PREVIEW_TRANSACTION_COUNT,
                             onViewAll = onViewAllTransactionsClick,
-                            onFilterClick = { showTypeFilterSheet = true },
-                            onSortClick = { showSortSheet = true },
                             onRefillClick = onRefillClick,
                             onExpenseClick = onExpenseClick
                         )
@@ -479,27 +466,10 @@ fun CarDetailsScreen(
     // Shared date filter — the same sheet used on every other screen
     if (showDateSheet) {
         DateFilterSheet(
-            selected = listFilter.dateFilter,
+            selected = dateFilter,
             availableYears = availableYears,
             onFilterChange = viewModel::setDateFilter,
             onDismiss = { showDateSheet = false }
-        )
-    }
-
-    if (showTypeFilterSheet) {
-        TransactionTypeFilterSheet(
-            filter = listFilter,
-            onToggleRefills = viewModel::toggleRefillFilter,
-            onToggleExpenses = viewModel::toggleExpenseFilter,
-            onDismiss = { showTypeFilterSheet = false }
-        )
-    }
-
-    if (showSortSheet) {
-        SortBottomSheet(
-            currentSort = listFilter.sortOption,
-            onSortSelected = viewModel::setSortOption,
-            onDismiss = { showSortSheet = false }
         )
     }
 
@@ -530,21 +500,19 @@ fun CarDetailsScreen(
 private const val PREVIEW_TRANSACTION_COUNT = 5
 
 /**
- * The unified refills + expenses list.
+ * The unified refills + expenses list, newest first.
  *
- * Shared by the portrait and split layouts so both offer the same header, the same
- * filter/sort controls and the same "See all" entry point.
+ * Deliberately a plain preview: filtering by type and re-sorting live on the "See all"
+ * screen, so the details screen stays readable. Shared by the portrait and split
+ * layouts so both show the same thing.
  *
  * @param limit how many entries to show, or `null` to show them all.
  */
 private fun LazyListScope.carTransactionsSection(
     transactions: List<TransactionWithData>,
-    filter: TransactionListFilter,
     refillTripNames: Map<Long, String>,
     limit: Int?,
     onViewAll: () -> Unit,
-    onFilterClick: () -> Unit,
-    onSortClick: () -> Unit,
     onRefillClick: (Long) -> Unit,
     onExpenseClick: (Long) -> Unit
 ) {
@@ -562,36 +530,14 @@ private fun LazyListScope.carTransactionsSection(
                 modifier = Modifier.weight(1f)
             )
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onFilterClick, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = stringResource(R.string.filter),
-                        tint = if (filter.hasTypeFilter) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                    )
-                }
-                IconButton(onClick = onSortClick, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Sort,
-                        contentDescription = stringResource(R.string.sort_by),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                if (limit != null && transactions.size > limit) {
-                    Text(
-                        text = stringResource(R.string.see_all),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .clickable(onClick = onViewAll)
-                            .padding(start = 4.dp)
-                    )
-                }
+            if (limit != null && transactions.size > limit) {
+                Text(
+                    text = stringResource(R.string.see_all),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(onClick = onViewAll)
+                )
             }
         }
     }
