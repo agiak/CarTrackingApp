@@ -1304,4 +1304,22 @@
     <string name="category_search_or_create">Search, or type a new one</string>
     <string name="category_create_format">Create \"%1$s\"</string>
     <string name="category_type_to_create_hint">Not in the list? Just type the name to create your own category.</string>
+
+    <!-- Shared date filter (year, optionally a month inside it) -->
+    <string name="date_filter_title">Filter by date</string>
+    <string name="date_filter_year">Year</string>
+    <string name="date_filter_month">Month</string>
+    <string name="date_filter_all_time">All time</string>
+    <string name="date_filter_whole_year">Whole year</string>
+
+    <!-- Unified transactions list -->
+    <string name="transactions_section_header">Transactions (%1$d)</string>
+    <string name="all_transactions">All transactions</string>
+    <string name="no_transactions_for_filters">No transactions match the selected filters</string>
+
+    <!-- Period statistics -->
+    <string name="period_statistics_title">Statistics for period</string>
+    <string name="period_no_data">No data for the selected period</string>
+    <string name="stat_liters">Liters</string>
+    <string name="stat_total_spent">Total spent</string>
 </resources>

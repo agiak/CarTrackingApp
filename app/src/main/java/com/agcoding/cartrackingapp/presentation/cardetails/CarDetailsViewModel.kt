@@ -6,6 +6,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.CarAttachment
+import com.agcoding.cartrackingapp.domain.model.DateFilter
+import com.agcoding.cartrackingapp.domain.model.PeriodStatistics
+import com.agcoding.cartrackingapp.domain.model.periodStatistics
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.domain.usecase.attachment.AddCarAttachmentUseCase
@@ -16,16 +19,25 @@ import com.agcoding.cartrackingapp.domain.usecase.attachment.RenameCarAttachment
 import com.agcoding.cartrackingapp.domain.usecase.car.DeleteCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.car.UpdateCarUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetCarStatisticsUseCase
+import com.agcoding.cartrackingapp.domain.usecase.transaction.GetCarTransactionsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetRecentTripsByCarUseCase
+import com.agcoding.cartrackingapp.presentation.transactions.SortOption
+import com.agcoding.cartrackingapp.presentation.transactions.TransactionListFilter
+import com.agcoding.cartrackingapp.presentation.transactions.applyFilter
+import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -42,6 +54,7 @@ class CarDetailsViewModel @Inject constructor(
     private val renameCarAttachmentUseCase: RenameCarAttachmentUseCase,
     private val getAttachmentFileUseCase: GetAttachmentFileUseCase,
     private val getRecentTripsByCarUseCase: GetRecentTripsByCarUseCase,
+    private val getCarTransactionsUseCase: GetCarTransactionsUseCase,
     private val tripRepository: TripRepository,
     savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context,
@@ -81,6 +94,59 @@ class CarDetailsViewModel @Inject constructor(
     // Map of refill ID to trip name for displaying trip badges
     private val _refillTripNames = MutableStateFlow<Map<Long, String>>(emptyMap())
     val refillTripNames: StateFlow<Map<Long, String>> = _refillTripNames.asStateFlow()
+
+    // ---------------------------------------------------------------------
+    // Unified transactions: refills and expenses in one filterable list, plus
+    // statistics for whichever period the user picked.
+    // ---------------------------------------------------------------------
+
+    private val _listFilter = MutableStateFlow(TransactionListFilter())
+    val listFilter: StateFlow<TransactionListFilter> = _listFilter.asStateFlow()
+
+    /** Everything for this car, unfiltered — the source for the year picker and totals. */
+    private val allTransactions: StateFlow<List<TransactionWithData>> =
+        getCarTransactionsUseCase(carId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Years that actually have records, so the date sheet only offers useful choices. */
+    val availableYears: StateFlow<List<Int>> = allTransactions
+        .map { transactions -> DateFilter.availableYears(transactions.map { it.transaction.timestamp }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** The list the screen renders: type + date filtered, then sorted. */
+    val transactions: StateFlow<List<TransactionWithData>> =
+        combine(allTransactions, _listFilter) { transactions, filter ->
+            transactions.applyFilter(filter)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /**
+     * Totals for the selected period. Deliberately ignores the type filter — hiding
+     * expenses from the list should not silently change what "total spent" means.
+     */
+    val periodStatistics: StateFlow<PeriodStatistics> =
+        combine(allTransactions, _listFilter) { transactions, filter ->
+            transactions.periodStatistics(filter.dateFilter)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PeriodStatistics())
+
+    fun toggleRefillFilter() {
+        _listFilter.value = _listFilter.value.let { it.copy(showRefills = !it.showRefills) }
+    }
+
+    fun toggleExpenseFilter() {
+        _listFilter.value = _listFilter.value.let { it.copy(showExpenses = !it.showExpenses) }
+    }
+
+    fun setSortOption(option: SortOption) {
+        _listFilter.value = _listFilter.value.copy(sortOption = option)
+    }
+
+    fun setDateFilter(dateFilter: DateFilter) {
+        _listFilter.value = _listFilter.value.copy(dateFilter = dateFilter.normalized)
+    }
+
+    fun clearListFilters() {
+        _listFilter.value = TransactionListFilter(sortOption = _listFilter.value.sortOption)
+    }
 
     init {
         loadCarDetails()

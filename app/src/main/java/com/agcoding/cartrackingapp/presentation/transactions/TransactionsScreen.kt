@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Receipt
@@ -54,8 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
+import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
+import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -79,8 +83,11 @@ fun TransactionsScreen(
     val hasAnyTransactions by viewModel.hasAnyTransactions.collectAsStateWithLifecycle()
     val defaultCarId by viewModel.defaultCarId.collectAsStateWithLifecycle()
 
+    val availableYears by viewModel.availableYears.collectAsStateWithLifecycle()
+
     var showFilterSheet by remember { mutableStateOf(false) }
     var showSortSheet by remember { mutableStateOf(false) }
+    var showDateSheet by remember { mutableStateOf(false) }
 
     val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
     val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
@@ -114,6 +121,14 @@ fun TransactionsScreen(
             })
         }
 
+        // Selected period, shown the same way as on the car screens
+        if (filter.dateFilter.isActive) {
+            val periodLabel = dateFilterLabel(filter.dateFilter)
+            filters.add(ActiveFilter("date", periodLabel) {
+                viewModel.setDateFilter(DateFilter.None)
+            })
+        }
+
         // Car filters
         filter.selectedCarIds.forEach { carId ->
             val car = cars.find { it.id == carId }
@@ -141,6 +156,19 @@ fun TransactionsScreen(
                 title = { Text(stringResource(R.string.nav_transactions)) },
                 actions = {
                     if (transactions.isNotEmpty()) {
+                        // Date filter — the same year/month picker as the car screens
+                        IconButton(onClick = { showDateSheet = true }) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = stringResource(R.string.date_filter_title),
+                                tint = if (filter.dateFilter.isActive) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        }
+
                         // Sort button with badge indicator
                         BadgedBox(
                             badge = {
@@ -534,6 +562,16 @@ fun TransactionsScreen(
             onToggleCarSelection = viewModel::toggleCarSelection,
             onClearCarFilter = viewModel::clearCarFilter,
             onDismiss = { showFilterSheet = false }
+        )
+    }
+
+    // Shared date filter — same sheet and behaviour on every layout
+    if (showDateSheet) {
+        DateFilterSheet(
+            selected = filter.dateFilter,
+            availableYears = availableYears,
+            onFilterChange = viewModel::setDateFilter,
+            onDismiss = { showDateSheet = false }
         )
     }
 }

@@ -27,16 +27,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.MoreVert
@@ -78,11 +81,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.components.CarHeaderCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.IncompleteInformationBanner
+import com.agcoding.cartrackingapp.presentation.cardetails.components.PeriodStatisticsCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.QuickStatsGrid
 import com.agcoding.cartrackingapp.presentation.cardetails.components.TotalSpendingCard
+import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.transactions.SortBottomSheet
+import com.agcoding.cartrackingapp.presentation.transactions.TransactionListFilter
+import com.agcoding.cartrackingapp.presentation.transactions.TransactionTypeFilterSheet
+import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,8 +102,7 @@ fun CarDetailsScreen(
     onRefillClick: (Long) -> Unit = {},
     onExpenseClick: (Long) -> Unit = {},
     onEditCarClick: () -> Unit = {},
-    onViewAllRefillsClick: () -> Unit = {},
-    onViewAllExpensesClick: () -> Unit = {},
+    onViewAllTransactionsClick: () -> Unit = {},
     onViewAllTripsClick: () -> Unit = {},
     onTripClick: (Long) -> Unit = {},
     onCreateTripClick: () -> Unit = {},
@@ -108,8 +116,17 @@ fun CarDetailsScreen(
     val recentTrips by viewModel.recentTrips.collectAsState()
     val refillTripNames by viewModel.refillTripNames.collectAsState()
 
+    // Unified transactions list + period statistics
+    val transactions by viewModel.transactions.collectAsState()
+    val listFilter by viewModel.listFilter.collectAsState()
+    val periodStatistics by viewModel.periodStatistics.collectAsState()
+    val availableYears by viewModel.availableYears.collectAsState()
+
     var showOverflowMenu by remember { mutableStateOf(false) }
     var fabExpanded by remember { mutableStateOf(false) }
+    var showDateSheet by remember { mutableStateOf(false) }
+    var showTypeFilterSheet by remember { mutableStateOf(false) }
+    var showSortSheet by remember { mutableStateOf(false) }
     val isDefault = (uiState as? CarDetailsUiState.Success)?.statistics?.car?.isDefault == true
 
     BackHandler(enabled = fabExpanded) { fabExpanded = false }
@@ -247,9 +264,13 @@ fun CarDetailsScreen(
 
                             QuickStatsGrid(state.statistics)
                             TotalSpendingCard(state.statistics)
+                            PeriodStatisticsCard(
+                                statistics = periodStatistics,
+                                onDateFilterClick = { showDateSheet = true }
+                            )
                         }
 
-                        // Right side: Lists (scrollable)
+                        // Right side: unified transactions list (scrollable)
                         LazyColumn(
                             modifier = Modifier
                                 .weight(0.55f)
@@ -257,76 +278,17 @@ fun CarDetailsScreen(
                             contentPadding = PaddingValues(bottom = 88.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Refills section
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.refills_section_header, state.statistics.totalRefills),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    if (state.statistics.totalRefills > 3) {
-                                        Text(
-                                            text = stringResource(R.string.see_all),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
-                                        )
-                                    }
-                                }
-                            }
-
-                            items(state.statistics.recentRefills.take(3)) { refill ->
-                                RefillItemCard(
-                                    refill = refill,
-                                    carName = null,
-                                    onClick = { onRefillClick(refill.id) }
-                                )
-                            }
-
-                            item {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-
-                            // Services section
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
-                                    Text(
-                                        text = stringResource(R.string.services_section_header, totalExpenses),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    if (totalExpenses > 3) {
-                                        Text(
-                                            text = stringResource(R.string.see_all),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
-                                        )
-                                    }
-                                }
-                            }
-
-                            items(state.statistics.recentExpenses.take(3)) { expense ->
-                                ExpenseItemCard(
-                                    expense = expense,
-                                    carName = null,
-                                    onClick = { onExpenseClick(expense.id) }
-                                )
-                            }
+                            carTransactionsSection(
+                                transactions = transactions,
+                                filter = listFilter,
+                                refillTripNames = refillTripNames,
+                                limit = PREVIEW_TRANSACTION_COUNT,
+                                onViewAll = onViewAllTransactionsClick,
+                                onFilterClick = { showTypeFilterSheet = true },
+                                onSortClick = { showSortSheet = true },
+                                onRefillClick = onRefillClick,
+                                onExpenseClick = onExpenseClick
+                            )
                         }
                     }
                 } else {
@@ -380,42 +342,28 @@ fun CarDetailsScreen(
                             TotalSpendingCard(state.statistics)
                         }
 
-                        // Refills header with "See All"
+                        // Statistics for the selected year / month
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.refills_section_header, state.statistics.totalRefills),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                if (state.statistics.totalRefills > 3) {
-                                    Text(
-                                        text = stringResource(R.string.see_all),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.clickable(onClick = onViewAllRefillsClick)
-                                    )
-                                }
-                            }
-                        }
-
-                        // Recent refills
-                        items(state.statistics.recentRefills.take(3)) { refill ->
-                            RefillItemCard(
-                                refill = refill,
-                                carName = null,
-                                onClick = { onRefillClick(refill.id) },
-                                tripName = refillTripNames[refill.id]
+                            PeriodStatisticsCard(
+                                statistics = periodStatistics,
+                                onDateFilterClick = { showDateSheet = true }
                             )
                         }
 
-                        // Trips section (always show) - MOVED HERE AFTER REFILLS
+                        // Unified refills + expenses list
+                        carTransactionsSection(
+                            transactions = transactions,
+                            filter = listFilter,
+                            refillTripNames = refillTripNames,
+                            limit = PREVIEW_TRANSACTION_COUNT,
+                            onViewAll = onViewAllTransactionsClick,
+                            onFilterClick = { showTypeFilterSheet = true },
+                            onSortClick = { showSortSheet = true },
+                            onRefillClick = onRefillClick,
+                            onExpenseClick = onExpenseClick
+                        )
+
+                        // Trips section
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -493,43 +441,6 @@ fun CarDetailsScreen(
                             }
                         }
 
-                        // Expenses header with "See All"
-                        item {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val totalExpenses = state.statistics.serviceExpenseCount + state.statistics.otherExpenseCount
-                                Text(
-                                    text = stringResource(R.string.services_section_header, totalExpenses),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                if (totalExpenses > 3) {
-                                    Text(
-                                        text = stringResource(R.string.see_all),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.clickable(onClick = onViewAllExpensesClick)
-                                    )
-                                }
-                            }
-                        }
-
-                        // Recent expenses
-                        items(state.statistics.recentExpenses.take(3)) { expense ->
-                            ExpenseItemCard(
-                                expense = expense,
-                                carName = null, // Don't show car name in car details screen
-                                onClick = { onExpenseClick(expense.id) }
-                            )
-                        }
                     }
                 }
             }
@@ -565,6 +476,33 @@ fun CarDetailsScreen(
         } // closes outer Box
     }
 
+    // Shared date filter — the same sheet used on every other screen
+    if (showDateSheet) {
+        DateFilterSheet(
+            selected = listFilter.dateFilter,
+            availableYears = availableYears,
+            onFilterChange = viewModel::setDateFilter,
+            onDismiss = { showDateSheet = false }
+        )
+    }
+
+    if (showTypeFilterSheet) {
+        TransactionTypeFilterSheet(
+            filter = listFilter,
+            onToggleRefills = viewModel::toggleRefillFilter,
+            onToggleExpenses = viewModel::toggleExpenseFilter,
+            onDismiss = { showTypeFilterSheet = false }
+        )
+    }
+
+    if (showSortSheet) {
+        SortBottomSheet(
+            currentSort = listFilter.sortOption,
+            onSortSelected = viewModel::setSortOption,
+            onDismiss = { showSortSheet = false }
+        )
+    }
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.hideDeleteDialog() },
@@ -585,6 +523,123 @@ fun CarDetailsScreen(
                 }
             }
         )
+    }
+}
+
+/** How many transactions the car details screen previews before "See all". */
+private const val PREVIEW_TRANSACTION_COUNT = 5
+
+/**
+ * The unified refills + expenses list.
+ *
+ * Shared by the portrait and split layouts so both offer the same header, the same
+ * filter/sort controls and the same "See all" entry point.
+ *
+ * @param limit how many entries to show, or `null` to show them all.
+ */
+private fun LazyListScope.carTransactionsSection(
+    transactions: List<TransactionWithData>,
+    filter: TransactionListFilter,
+    refillTripNames: Map<Long, String>,
+    limit: Int?,
+    onViewAll: () -> Unit,
+    onFilterClick: () -> Unit,
+    onSortClick: () -> Unit,
+    onRefillClick: (Long) -> Unit,
+    onExpenseClick: (Long) -> Unit
+) {
+    item(key = "transactions_header") {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.transactions_section_header, transactions.size),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onFilterClick, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = stringResource(R.string.filter),
+                        tint = if (filter.hasTypeFilter) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+                IconButton(onClick = onSortClick, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Sort,
+                        contentDescription = stringResource(R.string.sort_by),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (limit != null && transactions.size > limit) {
+                    Text(
+                        text = stringResource(R.string.see_all),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable(onClick = onViewAll)
+                            .padding(start = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    if (transactions.isEmpty()) {
+        item(key = "transactions_empty") {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_transactions_for_filters),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        return
+    }
+
+    val visible = if (limit == null) transactions else transactions.take(limit)
+    items(
+        items = visible,
+        key = { entry -> "${entry.transaction.type}_${entry.transaction.id}" }
+    ) { entry ->
+        when (entry) {
+            is TransactionWithData.RefillTransaction -> RefillItemCard(
+                refill = entry.refill,
+                carName = null,
+                onClick = { onRefillClick(entry.refill.id) },
+                tripName = refillTripNames[entry.refill.id]
+            )
+
+            is TransactionWithData.ExpenseTransaction -> ExpenseItemCard(
+                expense = entry.expense,
+                carName = null,
+                onClick = { onExpenseClick(entry.expense.id) }
+            )
+        }
     }
 }
 

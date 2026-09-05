@@ -2,6 +2,8 @@ package com.agcoding.cartrackingapp.presentation.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agcoding.cartrackingapp.domain.model.DateFilter
+import com.agcoding.cartrackingapp.domain.model.filterByDate
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.usecase.transaction.GetAllTransactionsUseCase
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
@@ -19,7 +21,9 @@ import javax.inject.Inject
 data class TransactionFilter(
     val showRefills: Boolean = true,
     val showExpenses: Boolean = true,
-    val selectedCarIds: Set<Long> = emptySet()
+    val selectedCarIds: Set<Long> = emptySet(),
+    /** Same year/month filter used on the car screens. */
+    val dateFilter: DateFilter = DateFilter.None
 )
 
 enum class SortOption {
@@ -80,6 +84,9 @@ class TransactionsViewModel @Inject constructor(
             filtered = filtered.filter { it.transaction.carId in filter.selectedCarIds }
         }
 
+        // Apply the shared year/month date filter
+        filtered = filtered.filterByDate(filter.dateFilter) { it.transaction.timestamp }
+
         // Apply sorting
         when (sortOption) {
             SortOption.DATE_NEWEST -> filtered.sortedByDescending { it.transaction.timestamp }
@@ -120,9 +127,19 @@ class TransactionsViewModel @Inject constructor(
         _filter.value = TransactionFilter()
     }
 
+    fun setDateFilter(dateFilter: DateFilter) {
+        _filter.value = _filter.value.copy(dateFilter = dateFilter.normalized)
+    }
+
+    /** Years that actually have records, for the shared date filter sheet. */
+    val availableYears: StateFlow<List<Int>> = getAllTransactionsUseCase()
+        .map { transactions -> DateFilter.availableYears(transactions.map { it.transaction.timestamp }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun hasActiveFilters(): Boolean {
         val current = _filter.value
-        return !current.showRefills || !current.showExpenses || current.selectedCarIds.isNotEmpty()
+        return !current.showRefills || !current.showExpenses ||
+                current.selectedCarIds.isNotEmpty() || current.dateFilter.isActive
     }
 
     fun setSortOption(option: SortOption) {

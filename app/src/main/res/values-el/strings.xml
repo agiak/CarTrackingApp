@@ -1285,4 +1285,22 @@
     <string name="category_search_or_create">Αναζήτηση ή πληκτρολόγησε νέα</string>
     <string name="category_create_format">Δημιουργία \"%1$s\"</string>
     <string name="category_type_to_create_hint">Δεν τη βρίσκεις στη λίστα; Απλά πληκτρολόγησέ την για να φτιάξεις δική σου κατηγορία.</string>
+
+    <!-- Shared date filter (year, optionally a month inside it) -->
+    <string name="date_filter_title">Φίλτρο ημερομηνίας</string>
+    <string name="date_filter_year">Έτος</string>
+    <string name="date_filter_month">Μήνας</string>
+    <string name="date_filter_all_time">Όλη η περίοδος</string>
+    <string name="date_filter_whole_year">Όλο το έτος</string>
+
+    <!-- Unified transactions list -->
+    <string name="transactions_section_header">Συναλλαγές (%1$d)</string>
+    <string name="all_transactions">Όλες οι συναλλαγές</string>
+    <string name="no_transactions_for_filters">Δεν υπάρχουν συναλλαγές με τα επιλεγμένα φίλτρα</string>
+
+    <!-- Period statistics -->
+    <string name="period_statistics_title">Στατιστικά περιόδου</string>
+    <string name="period_no_data">Δεν υπάρχουν δεδομένα για την επιλεγμένη περίοδο</string>
+    <string name="stat_liters">Λίτρα</string>
+    <string name="stat_total_spent">Συνολική δαπάνη</string>
 </resources>
