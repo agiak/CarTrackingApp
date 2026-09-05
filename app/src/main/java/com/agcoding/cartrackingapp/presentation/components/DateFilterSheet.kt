@@ -40,7 +40,9 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /**
- * The one date filter UI in the app: pick a year, then optionally a month inside it.
+ * The one date filter UI in the app: pick any number of years, then optionally any
+ * number of months inside them. Months narrow every selected year, so 2024 + 2025 with
+ * March + April means those two months in both years.
  *
  * Every screen that filters by date uses this sheet so the interaction is identical
  * everywhere. Selections apply immediately — there is no separate confirm step —
@@ -102,15 +104,15 @@ fun DateFilterSheet(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilterChip(
-                    selected = selected.year == null,
+                    selected = !selected.isActive,
                     onClick = { onFilterChange(DateFilter.None) },
                     label = { Text(stringResource(R.string.date_filter_all_time)) },
                     colors = selectedChipColors()
                 )
                 years.forEach { year ->
                     FilterChip(
-                        selected = selected.year == year,
-                        onClick = { onFilterChange(selected.withYear(year)) },
+                        selected = year in selected.years,
+                        onClick = { onFilterChange(selected.toggleYear(year)) },
                         label = { Text(year.toString()) },
                         colors = selectedChipColors()
                     )
@@ -119,8 +121,8 @@ fun DateFilterSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Months only make sense once a year is chosen.
-            val monthsEnabled = selected.year != null
+            // Months only make sense once at least one year is chosen.
+            val monthsEnabled = selected.isActive
             Text(
                 text = stringResource(R.string.date_filter_month),
                 style = MaterialTheme.typography.titleMedium,
@@ -139,16 +141,16 @@ fun DateFilterSheet(
             ) {
                 FilterChip(
                     enabled = monthsEnabled,
-                    selected = monthsEnabled && selected.month == null,
-                    onClick = { onFilterChange(selected.withMonth(null)) },
-                    label = { Text(stringResource(R.string.date_filter_whole_year)) },
+                    selected = monthsEnabled && selected.months.isEmpty(),
+                    onClick = { onFilterChange(selected.clearMonths()) },
+                    label = { Text(stringResource(R.string.date_filter_all_months)) },
                     colors = selectedChipColors()
                 )
                 (1..12).forEach { month ->
                     FilterChip(
                         enabled = monthsEnabled,
-                        selected = selected.month == month,
-                        onClick = { onFilterChange(selected.withMonth(month)) },
+                        selected = month in selected.months,
+                        onClick = { onFilterChange(selected.toggleMonth(month)) },
                         label = { Text(shortMonthName(month)) },
                         colors = selectedChipColors()
                     )
@@ -191,12 +193,37 @@ private fun selectedChipColors() = FilterChipDefaults.filterChipColors(
     selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
 )
 
-/** Human-readable description of [filter], e.g. "All time", "2025", "March 2025". */
+/**
+ * Human-readable description of [filter] — "All time", "2025", "March 2025",
+ * "2023, 2024, 2025", "Mar, Apr · 2024, 2025".
+ *
+ * Long selections are truncated to keep the chip a chip: the first two entries plus a
+ * "+N" tail.
+ */
 @Composable
 fun dateFilterLabel(filter: DateFilter): String {
-    val year = filter.year ?: return stringResource(R.string.date_filter_all_time)
-    val month = filter.month ?: return year.toString()
-    return "${fullMonthName(month)} $year"
+    if (!filter.isActive) return stringResource(R.string.date_filter_all_time)
+
+    val years = filter.years.sorted()
+    val months = filter.months.sorted()
+
+    // The common single-year cases read better spelled out.
+    if (years.size == 1 && months.isEmpty()) return years.first().toString()
+    if (years.size == 1 && months.size == 1) {
+        return "${fullMonthName(months.first())} ${years.first()}"
+    }
+
+    val yearsPart = summarize(years.map { it.toString() })
+    if (months.isEmpty()) return yearsPart
+
+    val monthsPart = summarize(months.map { shortMonthName(it) })
+    return "$monthsPart · $yearsPart"
+}
+
+/** "a, b" for short lists, "a, b +N" once there are more than three. */
+private fun summarize(values: List<String>): String = when {
+    values.size <= 3 -> values.joinToString(", ")
+    else -> values.take(2).joinToString(", ") + " +" + (values.size - 2)
 }
 
 /** Locale-aware standalone month name, e.g. "Μάρτιος" / "March". */
@@ -225,6 +252,17 @@ private fun PreviewDateFilterButtonAllTime() {
 @Composable
 private fun PreviewDateFilterButtonMonth() {
     CarTrackingAppTheme(darkTheme = false) {
-        DateFilterButton(filter = DateFilter(year = 2025, month = 3), onClick = {})
+        DateFilterButton(filter = DateFilter.of(year = 2025, month = 3), onClick = {})
+    }
+}
+
+@Preview(name = "Date filter button - multi select", showBackground = true)
+@Composable
+private fun PreviewDateFilterButtonMultiple() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DateFilterButton(
+            filter = DateFilter(years = setOf(2024, 2025), months = setOf(3, 4)),
+            onClick = {}
+        )
     }
 }

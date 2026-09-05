@@ -177,7 +177,7 @@ private fun PeriodStat(
 // ============================================
 
 private val sampleStatistics = PeriodStatistics(
-    filter = DateFilter(year = 2025, month = 3),
+    filter = DateFilter.of(year = 2025, month = 3),
     totalCost = 742.5,
     fuelCost = 512.5,
     expensesCost = 230.0,
@@ -203,7 +203,7 @@ private fun PreviewPeriodStatisticsCard() {
 private fun PreviewPeriodStatisticsCardEmpty() {
     CarTrackingAppTheme(darkTheme = false) {
         PeriodStatisticsCard(
-            statistics = PeriodStatistics(filter = DateFilter(year = 2024)),
+            statistics = PeriodStatistics(filter = DateFilter.of(year = 2024)),
             onDateFilterClick = {}
         )
     }

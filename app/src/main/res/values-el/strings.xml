@@ -1291,7 +1291,7 @@
     <string name="date_filter_year">Έτος</string>
     <string name="date_filter_month">Μήνας</string>
     <string name="date_filter_all_time">Όλη η περίοδος</string>
-    <string name="date_filter_whole_year">Όλο το έτος</string>
+    <string name="date_filter_all_months">Όλοι οι μήνες</string>
 
     <!-- Unified transactions list -->
     <string name="transactions_section_header">Συναλλαγές (%1$d)</string>

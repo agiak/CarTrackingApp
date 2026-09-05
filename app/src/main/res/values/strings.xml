@@ -1310,7 +1310,7 @@
     <string name="date_filter_year">Year</string>
     <string name="date_filter_month">Month</string>
     <string name="date_filter_all_time">All time</string>
-    <string name="date_filter_whole_year">Whole year</string>
+    <string name="date_filter_all_months">All months</string>
 
     <!-- Unified transactions list -->
     <string name="transactions_section_header">Transactions (%1$d)</string>
