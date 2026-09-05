@@ -6,7 +6,7 @@ import com.agcoding.cartrackingapp.domain.model.DistanceDataPoint
 import com.agcoding.cartrackingapp.domain.model.DistanceTrendData
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.MonthlyDistance
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
+import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.TripInfo
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -27,9 +27,7 @@ class GetDistanceTrendUseCase @Inject constructor(
 ) {
     operator fun invoke(
         carId: Long? = null,
-        period: TrendPeriod = TrendPeriod.ALL_TIME,
-        customStartMillis: Long? = null,
-        customEndMillis: Long? = null
+        dateFilter: DateFilter = DateFilter.None
     ): Flow<DistanceTrendData?> {
         val refillsFlow = if (carId != null) {
             refillRepository.getRefillsByCarId(carId)
@@ -40,20 +38,17 @@ class GetDistanceTrendUseCase @Inject constructor(
         return combine(refillsFlow, carRepository.getAllCars()) { refills, cars ->
             if (refills.isEmpty()) return@combine null
 
-            // Determine date range
-            val dateRange = calculateDateRange(period, customStartMillis, customEndMillis, refills)
+            // Chart only what the filter selected, at a granularity that matches it.
+            val window = trendWindowFor(dateFilter, refills.map { it.timestamp })
+                ?: return@combine null
+            val dateRange = window.dateRange
+            val bucketSize = window.bucket
 
-            // Filter refills by date range
-            val filteredRefills = refills.filter { refill ->
-                refill.timestamp >= dateRange.startMillis &&
-                refill.timestamp <= dateRange.endMillis
-            }.sortedBy { it.timestamp }
+            val filteredRefills = refills
+                .filter { dateFilter.matches(it.timestamp) }
+                .sortedBy { it.timestamp }
 
             if (filteredRefills.isEmpty()) return@combine null
-
-            // Calculate aggregation bucket size
-            val totalDays = ((dateRange.endMillis - dateRange.startMillis) / (24 * 60 * 60 * 1000L)).toInt()
-            val bucketSize = AggregationBucket.forDateRange(totalDays)
 
             // Aggregate refills into buckets for the line graph
             val dataPoints = aggregateRefills(filteredRefills, bucketSize, dateRange)
@@ -118,31 +113,6 @@ class GetDistanceTrendUseCase @Inject constructor(
         }
     }
 
-    private fun calculateDateRange(
-        period: TrendPeriod,
-        customStartMillis: Long?,
-        customEndMillis: Long?,
-        refills: List<FuelRefill>
-    ): DateRange {
-        val now = System.currentTimeMillis()
-
-        return when (period) {
-            TrendPeriod.CUSTOM -> {
-                require(customStartMillis != null && customEndMillis != null)
-                DateRange(customStartMillis, customEndMillis, "Custom Range")
-            }
-            TrendPeriod.ALL_TIME -> {
-                val earliest = refills.minOfOrNull { it.timestamp } ?: now
-                DateRange(earliest, now, "All Time")
-            }
-            else -> {
-                val daysAgo = period.days
-                val startMillis = now - (daysAgo.toLong() * 24 * 60 * 60 * 1000L)
-                DateRange(startMillis, now, period.label)
-            }
-        }
-    }
-
     private fun aggregateRefills(
         refills: List<FuelRefill>,
         bucketSize: AggregationBucket,
@@ -150,7 +120,6 @@ class GetDistanceTrendUseCase @Inject constructor(
     ): List<DistanceDataPoint> {
         if (refills.isEmpty()) return emptyList()
 
-        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val dataPoints = mutableListOf<DistanceDataPoint>()
 
         val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
@@ -160,7 +129,8 @@ class GetDistanceTrendUseCase @Inject constructor(
         var currentBucketStart = dateRange.startMillis
 
         while (currentBucketStart < dateRange.endMillis) {
-            val bucketEnd = minOf(currentBucketStart + bucketMillis, dateRange.endMillis)
+            val nextStart = nextBucketStart(currentBucketStart, bucketSize)
+            val bucketEnd = minOf(nextStart, dateRange.endMillis)
 
             val bucketRefills = refills.filter { refill ->
                 refill.timestamp >= currentBucketStart && refill.timestamp < bucketEnd
@@ -168,7 +138,7 @@ class GetDistanceTrendUseCase @Inject constructor(
 
             if (bucketRefills.isNotEmpty()) {
                 val totalDistance = bucketRefills.sumOf { it.tripDistance }
-                val bucketMiddle = currentBucketStart + (bucketMillis / 2)
+                val bucketMiddle = currentBucketStart + (bucketEnd - currentBucketStart) / 2
 
                 val label = when (bucketSize) {
                     AggregationBucket.DAILY -> dateFormat.format(Date(bucketMiddle))
@@ -191,7 +161,7 @@ class GetDistanceTrendUseCase @Inject constructor(
                 )
             }
 
-            currentBucketStart = bucketEnd
+            currentBucketStart = nextStart
         }
 
         return dataPoints
@@ -211,14 +181,20 @@ class GetDistanceTrendUseCase @Inject constructor(
         val earliestTimestamp = refills.minOf { it.timestamp }
         val latestTimestamp = refills.maxOf { it.timestamp }
 
-        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val monthlyDistances = mutableListOf<MonthlyDistance>()
 
-        var currentBucketStart = earliestTimestamp
+        // Month-and-longer buckets start on the 1st so a bucket labelled "March"
+        // really covers March.
+        var currentBucketStart = when (bucketSize) {
+            AggregationBucket.MONTHLY,
+            AggregationBucket.QUARTERLY,
+            AggregationBucket.YEARLY -> startOfMonth(earliestTimestamp)
+            else -> earliestTimestamp
+        }
         val calendar = Calendar.getInstance()
 
         while (currentBucketStart <= latestTimestamp) {
-            val bucketEnd = currentBucketStart + bucketMillis
+            val bucketEnd = nextBucketStart(currentBucketStart, bucketSize)
 
             val bucketRefills = refills.filter { it.timestamp in currentBucketStart until bucketEnd }
 

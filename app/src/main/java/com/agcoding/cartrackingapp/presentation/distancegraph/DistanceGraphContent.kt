@@ -63,7 +63,6 @@ import com.agcoding.cartrackingapp.domain.model.TripInfo
 import com.agcoding.cartrackingapp.presentation.components.ChartDataPoint
 import com.agcoding.cartrackingapp.presentation.components.InteractiveBarChart
 import com.agcoding.cartrackingapp.presentation.components.InteractiveLineChart
-import com.agcoding.cartrackingapp.presentation.components.PeriodSelectorSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.DistanceDataPoint

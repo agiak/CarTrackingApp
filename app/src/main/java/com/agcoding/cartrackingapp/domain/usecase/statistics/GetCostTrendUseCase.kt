@@ -3,10 +3,9 @@ package com.agcoding.cartrackingapp.domain.usecase.statistics
 import com.agcoding.cartrackingapp.domain.model.CostCategory
 import com.agcoding.cartrackingapp.domain.model.CostItem
 import com.agcoding.cartrackingapp.domain.model.CostTrendData
-import com.agcoding.cartrackingapp.domain.model.DateRange
+import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.model.MonthlyCost
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -30,7 +29,7 @@ class GetCostTrendUseCase @Inject constructor(
 ) {
     operator fun invoke(
         carId: Long? = null,
-        period: TrendPeriod = TrendPeriod.ALL_TIME
+        dateFilter: DateFilter = DateFilter.None
     ): Flow<CostTrendData?> {
         val refillsFlow = if (carId != null) {
             refillRepository.getRefillsByCarId(carId)
@@ -47,29 +46,17 @@ class GetCostTrendUseCase @Inject constructor(
         return combine(refillsFlow, expensesFlow, carRepository.getAllCars()) { refills, expenses, cars ->
             if (refills.isEmpty() && expenses.isEmpty()) return@combine null
 
-            // Determine date range
-            val now = System.currentTimeMillis()
             val allTimestamps = (refills.map { it.timestamp } + expenses.map { it.timestamp })
 
             if (allTimestamps.isEmpty()) return@combine null
 
-            val earliest = allTimestamps.minOrNull() ?: now
+            // Chart only what the filter selected, at a granularity that matches it.
+            val window = trendWindowFor(dateFilter, allTimestamps) ?: return@combine null
+            val dateRange = window.dateRange
+            val bucketSize = window.bucket
 
-            val dateRange = when (period) {
-                TrendPeriod.LAST_30_DAYS -> DateRange(now - 30L * 24 * 60 * 60 * 1000, now, "Last 30 Days")
-                TrendPeriod.LAST_60_DAYS -> DateRange(now - 60L * 24 * 60 * 60 * 1000, now, "Last 60 Days")
-                TrendPeriod.LAST_90_DAYS -> DateRange(now - 90L * 24 * 60 * 60 * 1000, now, "Last 90 Days")
-                TrendPeriod.LAST_YEAR -> DateRange(now - 365L * 24 * 60 * 60 * 1000, now, "Last Year")
-                TrendPeriod.ALL_TIME -> DateRange(earliest, now, "All Time")
-                TrendPeriod.CUSTOM -> DateRange(earliest, now, "Custom Range")
-            }
-
-            val totalDays = ((dateRange.endMillis - dateRange.startMillis) / (24 * 60 * 60 * 1000L)).toInt()
-            val bucketSize = com.agcoding.cartrackingapp.domain.model.AggregationBucket.forDateRange(totalDays)
-
-            // Filter by date range
-            val filteredRefills = refills.filter { it.timestamp in dateRange.startMillis..dateRange.endMillis }
-            val filteredExpenses = expenses.filter { it.timestamp in dateRange.startMillis..dateRange.endMillis }
+            val filteredRefills = refills.filter { dateFilter.matches(it.timestamp) }
+            val filteredExpenses = expenses.filter { dateFilter.matches(it.timestamp) }
 
             // Calculate monthly costs
             val monthlyCosts = calculateMonthlyCosts(filteredRefills, filteredExpenses, bucketSize)
@@ -155,14 +142,20 @@ class GetCostTrendUseCase @Inject constructor(
         val earliestTimestamp = allTimestamps.minOrNull() ?: return emptyList()
         val latestTimestamp = allTimestamps.maxOrNull() ?: return emptyList()
 
-        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val monthlyCosts = mutableListOf<MonthlyCost>()
 
-        var currentBucketStart = earliestTimestamp
+        // Month-and-longer buckets start on the 1st so a bucket labelled "March"
+        // really covers March.
+        var currentBucketStart = when (bucketSize) {
+            com.agcoding.cartrackingapp.domain.model.AggregationBucket.MONTHLY,
+            com.agcoding.cartrackingapp.domain.model.AggregationBucket.QUARTERLY,
+            com.agcoding.cartrackingapp.domain.model.AggregationBucket.YEARLY -> startOfMonth(earliestTimestamp)
+            else -> earliestTimestamp
+        }
         val calendar = Calendar.getInstance()
 
         while (currentBucketStart <= latestTimestamp) {
-            val bucketEnd = currentBucketStart + bucketMillis
+            val bucketEnd = nextBucketStart(currentBucketStart, bucketSize)
 
             val bucketRefills = refills.filter { it.timestamp in currentBucketStart until bucketEnd }
             val bucketExpenses = expenses.filter { it.timestamp in currentBucketStart until bucketEnd }

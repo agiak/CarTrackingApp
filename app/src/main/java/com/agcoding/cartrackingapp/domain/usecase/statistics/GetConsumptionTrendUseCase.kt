@@ -4,9 +4,9 @@ import com.agcoding.cartrackingapp.domain.model.AggregationBucket
 import com.agcoding.cartrackingapp.domain.model.ConsumptionDataPoint
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrend
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrendData
+import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,9 +23,7 @@ class GetConsumptionTrendUseCase @Inject constructor(
 ) {
     operator fun invoke(
         carId: Long? = null,
-        period: TrendPeriod = TrendPeriod.ALL_TIME,
-        customStartMillis: Long? = null,
-        customEndMillis: Long? = null
+        dateFilter: DateFilter = DateFilter.None
     ): Flow<ConsumptionTrendData?> {
         return if (carId != null) {
             refillRepository.getRefillsByCarId(carId)
@@ -34,24 +32,19 @@ class GetConsumptionTrendUseCase @Inject constructor(
         }.map { refills ->
             if (refills.isEmpty()) return@map null
 
-            // Determine date range
-            val dateRange = calculateDateRange(period, customStartMillis, customEndMillis)
+            // Chart only what the filter selected, at a granularity that matches it.
+            val window = trendWindowFor(dateFilter, refills.map { it.timestamp })
+                ?: return@map null
+            val dateRange = window.dateRange
 
-            // Filter refills by date range
-            val filteredRefills = refills.filter { refill ->
-                refill.timestamp >= dateRange.startMillis &&
-                refill.timestamp <= dateRange.endMillis
-            }.sortedBy { it.timestamp }
+            val filteredRefills = refills
+                .filter { dateFilter.matches(it.timestamp) }
+                .sortedBy { it.timestamp }
 
-            if (filteredRefills.isEmpty()) return@map null
             if (filteredRefills.size < 2) return@map null // Need at least 2 refills for a trend
 
-            // Calculate aggregation bucket size
-            val totalDays = ((dateRange.endMillis - dateRange.startMillis) / (24 * 60 * 60 * 1000L)).toInt()
-            val bucketSize = AggregationBucket.forDateRange(totalDays)
-
             // Aggregate refills into buckets
-            val dataPoints = aggregateRefills(filteredRefills, bucketSize, dateRange)
+            val dataPoints = aggregateRefills(filteredRefills, window.bucket, dateRange)
 
             if (dataPoints.isEmpty()) return@map null
 
@@ -76,29 +69,6 @@ class GetConsumptionTrendUseCase @Inject constructor(
         }
     }
 
-    private fun calculateDateRange(
-        period: TrendPeriod,
-        customStartMillis: Long?,
-        customEndMillis: Long?
-    ): DateRange {
-        val now = System.currentTimeMillis()
-
-        return when (period) {
-            TrendPeriod.CUSTOM -> {
-                require(customStartMillis != null && customEndMillis != null)
-                DateRange(customStartMillis, customEndMillis, "Custom Range")
-            }
-            TrendPeriod.ALL_TIME -> {
-                DateRange(0L, now, "All Time")
-            }
-            else -> {
-                val daysAgo = period.days
-                val startMillis = now - (daysAgo.toLong() * 24 * 60 * 60 * 1000L)
-                DateRange(startMillis, now, period.label)
-            }
-        }
-    }
-
     private fun aggregateRefills(
         refills: List<FuelRefill>,
         bucketSize: AggregationBucket,
@@ -106,7 +76,6 @@ class GetConsumptionTrendUseCase @Inject constructor(
     ): List<ConsumptionDataPoint> {
         if (refills.isEmpty()) return emptyList()
 
-        val bucketMillis = bucketSize.daysPerBucket * 24 * 60 * 60 * 1000L
         val dataPoints = mutableListOf<ConsumptionDataPoint>()
 
         // Create buckets
@@ -116,7 +85,8 @@ class GetConsumptionTrendUseCase @Inject constructor(
         val monthYearFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
         while (currentBucketStart < dateRange.endMillis) {
-            val bucketEnd = minOf(currentBucketStart + bucketMillis, dateRange.endMillis)
+            val nextStart = nextBucketStart(currentBucketStart, bucketSize)
+            val bucketEnd = minOf(nextStart, dateRange.endMillis)
 
             // Get refills in this bucket
             val bucketRefills = refills.filter { refill ->
@@ -136,7 +106,7 @@ class GetConsumptionTrendUseCase @Inject constructor(
                 }
 
                 // Use middle of bucket as timestamp
-                val bucketMiddle = currentBucketStart + (bucketMillis / 2)
+                val bucketMiddle = currentBucketStart + (bucketEnd - currentBucketStart) / 2
 
                 val label = when (bucketSize) {
                     AggregationBucket.DAILY -> dateFormat.format(Date(bucketMiddle))
@@ -160,7 +130,7 @@ class GetConsumptionTrendUseCase @Inject constructor(
                 )
             }
 
-            currentBucketStart = bucketEnd
+            currentBucketStart = nextStart
         }
 
         return dataPoints

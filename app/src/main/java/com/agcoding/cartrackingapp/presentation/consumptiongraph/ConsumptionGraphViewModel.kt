@@ -5,15 +5,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.ConsumptionTrendData
-import com.agcoding.cartrackingapp.domain.model.TrendPeriod
+import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.domain.usecase.statistics.GetAvailableYearsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetConsumptionTrendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +24,7 @@ import javax.inject.Inject
 class ConsumptionGraphViewModel @Inject constructor(
     private val getConsumptionTrendUseCase: GetConsumptionTrendUseCase,
     private val carRepository: CarRepository,
+    getAvailableYearsUseCase: GetAvailableYearsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -29,8 +33,12 @@ class ConsumptionGraphViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ConsumptionGraphUiState>(ConsumptionGraphUiState.Loading)
     val uiState: StateFlow<ConsumptionGraphUiState> = _uiState.asStateFlow()
 
-    private val _selectedPeriod = MutableStateFlow(TrendPeriod.ALL_TIME)
-    val selectedPeriod: StateFlow<TrendPeriod> = _selectedPeriod.asStateFlow()
+    /** The shared year/month filter, same control as everywhere else in the app. */
+    private val _dateFilter = MutableStateFlow(DateFilter.None)
+    val dateFilter: StateFlow<DateFilter> = _dateFilter.asStateFlow()
+
+    val availableYears: StateFlow<List<Int>> = getAvailableYearsUseCase(carId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _showPeriodSelector = MutableStateFlow(false)
     val showPeriodSelector: StateFlow<Boolean> = _showPeriodSelector.asStateFlow()
@@ -69,9 +77,8 @@ class ConsumptionGraphViewModel @Inject constructor(
         }
     }
 
-    fun selectPeriod(period: TrendPeriod) {
-        _selectedPeriod.value = period
-        _showPeriodSelector.value = false
+    fun setDateFilter(dateFilter: DateFilter) {
+        _dateFilter.value = dateFilter.normalized
         loadTrendData()
     }
 
@@ -127,7 +134,7 @@ class ConsumptionGraphViewModel @Inject constructor(
                     for (selectedCarId in _selectedCarIds.value) {
                         getConsumptionTrendUseCase(
                             carId = selectedCarId,
-                            period = _selectedPeriod.value
+                            dateFilter = _dateFilter.value
                         ).first()?.let { data ->
                             allCarData.add(data)
                         }
@@ -145,7 +152,7 @@ class ConsumptionGraphViewModel @Inject constructor(
                     // Single car or all cars - use standard flow
                     getConsumptionTrendUseCase(
                         carId = carsToLoad,
-                        period = _selectedPeriod.value
+                        dateFilter = _dateFilter.value
                     )
                         .catch { e ->
                             _uiState.value = ConsumptionGraphUiState.Error(e.message ?: "Failed to load consumption trend")
