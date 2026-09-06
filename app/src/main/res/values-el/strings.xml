@@ -958,17 +958,6 @@
     <string name="car_comparison_no_data_available">Δεν υπάρχουν διαθέσιμα δεδομένα για αυτό το μέτρο</string>
 
     <!-- Yearly Comparison -->
-    <string name="yearly_comparison_button">Ετήσια Σύγκριση</string>
-    <string name="yearly_comparison_title">Ετήσια Σύγκριση</string>
-    <string name="yearly_comparison_back">Πίσω</string>
-    <string name="yearly_comparison_insufficient_data_title">Ανεπαρκή Δεδομένα</string>
-    <string name="yearly_comparison_insufficient_data_message">Χρειάζεστε δεδομένα από τουλάχιστον 2 διαφορετικά έτη για να χρησιμοποιήσετε την ετήσια σύγκριση</string>
-    <string name="yearly_comparison_error">Σφάλμα: %s</string>
-    <string name="yearly_comparison_monthly_trends">Μηνιαίες Τάσεις</string>
-    <string name="yearly_comparison_base_year">Βασικό Έτος</string>
-    <string name="yearly_comparison_comparison_year">Έτος Σύγκρισης</string>
-    <string name="yearly_comparison_monthly_cost_breakdown">Μηνιαία Ανάλυση Κόστους</string>
-    <string name="yearly_comparison_month">Μήνας</string>
 
     <!-- Default Car -->
     <string name="set_as_default">Ορισμός ως Προεπιλεγμένο</string>
@@ -1311,5 +1300,9 @@
     <string name="period_comparison_no_data">Καμία από τις δύο περιόδους δεν έχει εγγραφές. Διάλεξε άλλες περιόδους.</string>
     <string name="period_comparison_one_sided">Μόνο η μία από τις δύο περιόδους έχει εγγραφές, οπότε κάθε διαφορά είναι ολόκληρο το ποσό.</string>
     <string name="period_comparison_records">Εγγραφές</string>
+    <string name="period_comparison_button">Σύγκριση περιόδων</string>
+    <string name="period_comparison_all_cars">Όλα τα αυτοκίνητα</string>
+    <string name="period_comparison_cars_selected">%1$d αυτοκίνητα</string>
+    <string name="period_comparison_monthly_breakdown">Μηνιαία ανάλυση κόστους</string>
     <string name="period_comparison_no_baseline">Χωρίς βάση σύγκρισης</string>
 </resources>

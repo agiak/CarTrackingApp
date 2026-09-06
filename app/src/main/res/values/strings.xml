@@ -956,17 +956,6 @@
     <string name="car_comparison_no_data_available">No data available for this metric</string>
 
     <!-- Yearly Comparison -->
-    <string name="yearly_comparison_button">Compare Years</string>
-    <string name="yearly_comparison_title">Yearly Comparison</string>
-    <string name="yearly_comparison_back">Back</string>
-    <string name="yearly_comparison_insufficient_data_title">Insufficient Data</string>
-    <string name="yearly_comparison_insufficient_data_message">You need data from at least 2 different years to use yearly comparison</string>
-    <string name="yearly_comparison_error">Error: %s</string>
-    <string name="yearly_comparison_monthly_trends">Monthly Trends</string>
-    <string name="yearly_comparison_base_year">Base Year</string>
-    <string name="yearly_comparison_comparison_year">Comparison Year</string>
-    <string name="yearly_comparison_monthly_cost_breakdown">Monthly Cost Breakdown</string>
-    <string name="yearly_comparison_month">Month</string>
 
     <!-- Default Car -->
     <string name="set_as_default">Set as Default</string>
@@ -1330,5 +1319,9 @@
     <string name="period_comparison_no_data">Neither period has any records. Pick different periods.</string>
     <string name="period_comparison_one_sided">Only one of the two periods has records, so every difference is the whole amount.</string>
     <string name="period_comparison_records">Records</string>
+    <string name="period_comparison_button">Compare periods</string>
+    <string name="period_comparison_all_cars">All cars</string>
+    <string name="period_comparison_cars_selected">%1$d cars</string>
+    <string name="period_comparison_monthly_breakdown">Monthly cost breakdown</string>
     <string name="period_comparison_no_baseline">No baseline</string>
 </resources>

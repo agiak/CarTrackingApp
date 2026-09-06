@@ -62,6 +62,7 @@ import com.agcoding.cartrackingapp.presentation.notifications.NotificationHistor
 import com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
+import com.agcoding.cartrackingapp.presentation.periodcomparison.FleetComparisonScreen
 import com.agcoding.cartrackingapp.presentation.periodcomparison.PeriodComparisonScreen
 import com.agcoding.cartrackingapp.presentation.refill.AddRefillBottomSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.RefillDetailsScreen
@@ -81,7 +82,6 @@ import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
 import com.agcoding.cartrackingapp.presentation.tripsanalytics.TripsAnalyticsScreen
-import com.agcoding.cartrackingapp.presentation.yearlycomparison.YearlyComparisonScreen
 import com.agcoding.cartrackingapp.util.PermissionUtil
 import kotlinx.coroutines.launch
 
@@ -146,7 +146,8 @@ sealed class Screen(val route: String) {
     object MonthDetails : Screen("month_details/{month}/{year}") {
         fun createRoute(month: Int, year: Int) = "month_details/$month/$year"
     }
-    object YearlyComparison : Screen("yearly_comparison")
+    /** Two periods compared across the fleet, or a subset of it (from Statistics). */
+    object FleetComparison : Screen("fleet_comparison")
     object CarComparison : Screen("car_comparison")
     object FuelForecast : Screen("fuel_forecast")
     object Insights : Screen("insights")
@@ -410,8 +411,8 @@ fun AppNavigation(
                     onMonthlyTrendsClick = {
                         navController.navigate(Screen.MonthlyTrends.route)
                     },
-                    onYearlyComparisonClick = {
-                        navController.navigate(Screen.YearlyComparison.route)
+                    onPeriodComparisonClick = {
+                        navController.navigate(Screen.FleetComparison.route)
                     },
                     onCarComparisonClick = {
                         navController.navigate(Screen.CarComparison.route)
@@ -990,10 +991,10 @@ fun AppNavigation(
             }
 
             animatedComposable(
-                route = Screen.YearlyComparison.route,
+                route = Screen.FleetComparison.route,
                 animationConfig = NavigationAnimations.HorizontalSlide
             ) {
-                YearlyComparisonScreen(
+                FleetComparisonScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     }

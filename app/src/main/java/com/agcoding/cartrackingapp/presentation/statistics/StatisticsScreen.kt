@@ -63,7 +63,7 @@ fun StatisticsScreen(
     onCostGraphClick: () -> Unit = {},
     onRefillsGraphClick: () -> Unit = {},
     onMonthlyTrendsClick: () -> Unit = {},
-    onYearlyComparisonClick: () -> Unit = {},
+    onPeriodComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
@@ -111,7 +111,7 @@ fun StatisticsScreen(
                 StatisticsContent(
                     statistics = state.statistics,
                     onMonthlyTrendsClick = onMonthlyTrendsClick,
-                    onYearlyComparisonClick = onYearlyComparisonClick,
+                    onPeriodComparisonClick = onPeriodComparisonClick,
                     onCarComparisonClick = onCarComparisonClick,
                     onFuelForecastClick = onFuelForecastClick,
                     onInsightsClick = onInsightsClick,

@@ -1,6 +1,8 @@
 package com.agcoding.cartrackingapp.domain.model
 
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
+import java.time.Instant
+import java.time.ZoneId
 import kotlin.math.abs
 
 /** The metrics a period comparison reports, in the order they are presented. */
@@ -151,3 +153,21 @@ fun List<TransactionWithData>.periodComparison(
     primary = periodStatistics(primary),
     secondary = periodStatistics(secondary)
 )
+
+/**
+ * What the entries inside [filter] cost, totalled per calendar month (1 = January).
+ *
+ * Months are keyed without their year on purpose: a period can span several years, and
+ * the breakdown is there to show the shape of the spending across the year — January of
+ * 2024 and January of 2025 belong in the same "January" of a two-year period. Months with
+ * nothing in them are absent rather than zero, so callers can tell "no records" apart
+ * from "records adding up to nothing".
+ */
+fun List<TransactionWithData>.monthlyTotals(
+    filter: DateFilter,
+    zoneId: ZoneId = ZoneId.systemDefault()
+): Map<Int, Double> = filterByDate(filter) { it.transaction.timestamp }
+    .groupingBy { entry ->
+        Instant.ofEpochMilli(entry.transaction.timestamp).atZone(zoneId).toLocalDate().monthValue
+    }
+    .fold(0.0) { sum, entry -> sum + entry.transaction.amount }

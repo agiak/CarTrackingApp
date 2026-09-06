@@ -54,7 +54,7 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun StatisticsContent(
     statistics: GlobalStatistics,
     onMonthlyTrendsClick: () -> Unit,
-    onYearlyComparisonClick: () -> Unit = {},
+    onPeriodComparisonClick: () -> Unit = {},
     onCarComparisonClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
@@ -137,7 +137,7 @@ fun StatisticsContent(
 
                 // Analysis shortcuts – compact grid after summary
                 AnalysisButtonsGrid(
-                    onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
+                    onPeriodComparisonClick = if (distinctYears >= 1) onPeriodComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
                     onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
                     onInsightsClick = onInsightsClick
@@ -204,7 +204,7 @@ fun StatisticsContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 AnalysisButtonsGrid(
-                    onYearlyComparisonClick = if (distinctYears >= 2) onYearlyComparisonClick else null,
+                    onPeriodComparisonClick = if (distinctYears >= 1) onPeriodComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
                     onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
                     onInsightsClick = onInsightsClick
@@ -315,29 +315,29 @@ private fun SectionHeader(
  */
 @Composable
 private fun AnalysisButtonsGrid(
-    onYearlyComparisonClick: (() -> Unit)?,
+    onPeriodComparisonClick: (() -> Unit)?,
     onCarComparisonClick: (() -> Unit)?,
     onFuelForecastClick: (() -> Unit)?,
     onInsightsClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     // Nothing to show – return early
-    if (onYearlyComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null && onInsightsClick == null) return
+    if (onPeriodComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null && onInsightsClick == null) return
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // First row: Yearly Comparison + Car Comparison (each shown when available)
-        if (onYearlyComparisonClick != null || onCarComparisonClick != null) {
+        if (onPeriodComparisonClick != null || onCarComparisonClick != null) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Yearly Comparison
-                if (onYearlyComparisonClick != null) {
+                if (onPeriodComparisonClick != null) {
                     OutlinedButton(
-                        onClick = onYearlyComparisonClick,
+                        onClick = onPeriodComparisonClick,
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
@@ -359,7 +359,7 @@ private fun AnalysisButtonsGrid(
                         )
                         Spacer(modifier = Modifier.size(4.dp))
                         Text(
-                            text = stringResource(R.string.yearly_comparison_button),
+                            text = stringResource(R.string.period_comparison_button),
                             fontSize = 12.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
