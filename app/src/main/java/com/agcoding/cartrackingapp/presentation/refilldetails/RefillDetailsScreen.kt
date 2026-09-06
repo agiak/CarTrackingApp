@@ -29,10 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +47,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillDetailsContent
+import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillTripCard
+import com.agcoding.cartrackingapp.presentation.refilldetails.components.TripPickerSheet
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
@@ -56,9 +61,31 @@ fun RefillDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    val trips by viewModel.trips.collectAsState()
+    val currentTrip by viewModel.currentTrip.collectAsState()
+    val tripMessage by viewModel.tripMessage.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    var showTripPicker by remember { mutableStateOf(false) }
+
+    // Report the outcome of a trip action once, then clear it so it cannot repeat on
+    // the next recomposition.
+    LaunchedEffect(tripMessage) {
+        val message = tripMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(
+            message = when (message) {
+                is TripActionMessage.Added ->
+                    context.getString(R.string.refill_added_to_trip, message.tripName)
+
+                TripActionMessage.Removed -> context.getString(R.string.refill_removed_from_trip)
+                TripActionMessage.Failed -> context.getString(R.string.refill_trip_update_failed)
+            },
+            duration = SnackbarDuration.Short
+        )
+        viewModel.clearTripMessage()
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -116,7 +143,13 @@ fun RefillDetailsScreen(
                     },
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
+                        .padding(paddingValues),
+                    tripSection = {
+                        RefillTripCard(
+                            tripName = currentTrip?.name,
+                            onClick = { showTripPicker = true }
+                        )
+                    }
                 )
             }
             is RefillDetailsUiState.Error -> {
@@ -138,6 +171,26 @@ fun RefillDetailsScreen(
                     }
                 }
             }
+        }
+
+        if (showTripPicker) {
+            TripPickerSheet(
+                trips = trips,
+                currentTripId = currentTrip?.id,
+                onTripSelected = { trip ->
+                    showTripPicker = false
+                    viewModel.assignToTrip(trip)
+                },
+                onCreateTrip = { name, description ->
+                    showTripPicker = false
+                    viewModel.createTripAndAssign(name, description)
+                },
+                onRemoveFromTrip = {
+                    showTripPicker = false
+                    viewModel.removeFromTrip()
+                },
+                onDismiss = { showTripPicker = false }
+            )
         }
 
         if (showDeleteDialog) {

@@ -1324,4 +1324,17 @@
     <string name="period_comparison_cars_selected">%1$d cars</string>
     <string name="period_comparison_monthly_breakdown">Monthly cost breakdown</string>
     <string name="period_comparison_no_baseline">No baseline</string>
+
+    <!-- Refill trip membership -->
+    <string name="refill_trip_section">Trip</string>
+    <string name="refill_not_in_trip">Not part of a trip</string>
+    <string name="refill_add_to_trip">Add to trip</string>
+    <string name="refill_change_trip">Change</string>
+    <string name="refill_added_to_trip">Refill added to \"%1$s\"</string>
+    <string name="refill_removed_from_trip">Refill removed from the trip</string>
+    <string name="refill_trip_update_failed">Could not update the trip</string>
+    <string name="trip_picker_title">Choose a trip</string>
+    <string name="trip_picker_new">New trip</string>
+    <string name="trip_picker_empty">This car has no trips yet. Create one to group its refills.</string>
+    <string name="trip_picker_remove">Remove from trip</string>
 </resources>

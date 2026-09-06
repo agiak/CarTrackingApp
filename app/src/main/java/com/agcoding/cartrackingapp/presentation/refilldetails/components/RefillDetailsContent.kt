@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.presentation.refilldetails.components
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,7 +54,8 @@ fun RefillDetailsContent(
     addressString: String?,
     context: Context,
     onLocationClick: (Double, Double) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tripSection: (@Composable () -> Unit)? = null
 ) {
     val refill = details.refill
     val car = details.car
@@ -87,6 +89,9 @@ fun RefillDetailsContent(
                     amountPaid = refill.amountPaid,
                     timestamp = refill.timestamp
                 )
+
+                // Trip membership
+                tripSection?.invoke()
 
                 // Metrics Grid - Row 1
                 Row(
@@ -269,6 +274,13 @@ fun RefillDetailsContent(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
+
+            // Trip membership
+            if (tripSection != null) {
+                Box(modifier = Modifier.padding(bottom = 16.dp)) {
+                    tripSection()
+                }
+            }
 
             // Metrics Grid - Row 1
             Row(
