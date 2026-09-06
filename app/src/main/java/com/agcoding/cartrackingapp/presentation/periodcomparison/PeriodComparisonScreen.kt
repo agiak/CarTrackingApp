@@ -49,10 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ComparisonDirection
-import com.agcoding.cartrackingapp.domain.model.ComparisonMetric
-import com.agcoding.cartrackingapp.domain.model.ComparisonMetricKey
 import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.PeriodComparison
+import com.agcoding.cartrackingapp.domain.model.PeriodMetric
+import com.agcoding.cartrackingapp.domain.model.PeriodMetricKey
 import com.agcoding.cartrackingapp.domain.model.PeriodStatistics
 import com.agcoding.cartrackingapp.presentation.components.DateFilterButton
 import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
@@ -312,7 +312,7 @@ private fun MetricsHeaderRow(primaryLabel: String, secondaryLabel: String) {
 }
 
 @Composable
-private fun ComparisonMetricRow(metric: ComparisonMetric) {
+private fun ComparisonMetricRow(metric: PeriodMetric) {
     StyledCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(
@@ -353,11 +353,11 @@ private fun ComparisonMetricRow(metric: ComparisonMetric) {
  * The difference between the two periods: the absolute change on top, the relative
  * change below.
  *
- * Only the rate metrics are coloured — see [ComparisonMetric.lowerIsBetter] for why a
+ * Only the rate metrics are coloured — see [PeriodMetric.lowerIsBetter] for why a
  * smaller total is not automatically good news.
  */
 @Composable
-private fun DeltaCell(metric: ComparisonMetric, modifier: Modifier = Modifier) {
+private fun DeltaCell(metric: PeriodMetric, modifier: Modifier = Modifier) {
     val tint = when (metric.isImprovement) {
         true -> AppSuccess.color
         false -> MaterialTheme.colorScheme.error
@@ -428,17 +428,17 @@ private fun signed(value: Double, formatted: String): String =
     if (value > 0) "+$formatted" else formatted
 
 @Composable
-private fun metricLabel(key: ComparisonMetricKey): String = stringResource(
+private fun metricLabel(key: PeriodMetricKey): String = stringResource(
     when (key) {
-        ComparisonMetricKey.TOTAL_COST -> R.string.stat_total_spent
-        ComparisonMetricKey.FUEL_COST -> R.string.fuel_cost
-        ComparisonMetricKey.EXPENSES_COST -> R.string.expenses
-        ComparisonMetricKey.DISTANCE -> R.string.distance
-        ComparisonMetricKey.LITERS -> R.string.stat_liters
-        ComparisonMetricKey.AVG_CONSUMPTION -> R.string.avg_consumption
-        ComparisonMetricKey.AVG_PRICE_PER_LITER -> R.string.average_price_per_liter
-        ComparisonMetricKey.COST_PER_KM -> R.string.cost_per_km
-        ComparisonMetricKey.TRANSACTIONS -> R.string.period_comparison_records
+        PeriodMetricKey.TOTAL_COST -> R.string.stat_total_spent
+        PeriodMetricKey.FUEL_COST -> R.string.fuel_cost
+        PeriodMetricKey.EXPENSES_COST -> R.string.expenses
+        PeriodMetricKey.DISTANCE -> R.string.distance
+        PeriodMetricKey.LITERS -> R.string.stat_liters
+        PeriodMetricKey.AVG_CONSUMPTION -> R.string.avg_consumption
+        PeriodMetricKey.AVG_PRICE_PER_LITER -> R.string.average_price_per_liter
+        PeriodMetricKey.COST_PER_KM -> R.string.cost_per_km
+        PeriodMetricKey.TRANSACTIONS -> R.string.period_comparison_records
     }
 )
 
@@ -449,17 +449,17 @@ private fun metricLabel(key: ComparisonMetricKey): String = stringResource(
  * two visibly different periods would both print the same figure with a difference of
  * "0,00 €" between them.
  */
-private fun formatMetric(key: ComparisonMetricKey, value: Double): String = when (key) {
-    ComparisonMetricKey.TOTAL_COST,
-    ComparisonMetricKey.FUEL_COST,
-    ComparisonMetricKey.EXPENSES_COST,
-    ComparisonMetricKey.AVG_PRICE_PER_LITER -> value.formatMoney()
+private fun formatMetric(key: PeriodMetricKey, value: Double): String = when (key) {
+    PeriodMetricKey.TOTAL_COST,
+    PeriodMetricKey.FUEL_COST,
+    PeriodMetricKey.EXPENSES_COST,
+    PeriodMetricKey.AVG_PRICE_PER_LITER -> value.formatMoney()
 
-    ComparisonMetricKey.COST_PER_KM -> value.formatMoney(decimals = 3)
-    ComparisonMetricKey.DISTANCE -> "${value.toInt().formatNumber()} km"
-    ComparisonMetricKey.LITERS -> "${value.formatNumber(1)} L"
-    ComparisonMetricKey.AVG_CONSUMPTION -> "${value.formatNumber(1)} L/100km"
-    ComparisonMetricKey.TRANSACTIONS -> value.toInt().formatNumber()
+    PeriodMetricKey.COST_PER_KM -> value.formatMoney(decimals = 3)
+    PeriodMetricKey.DISTANCE -> "${value.toInt().formatNumber()} km"
+    PeriodMetricKey.LITERS -> "${value.formatNumber(1)} L"
+    PeriodMetricKey.AVG_CONSUMPTION -> "${value.formatNumber(1)} L/100km"
+    PeriodMetricKey.TRANSACTIONS -> value.toInt().formatNumber()
 }
 
 // ============================================

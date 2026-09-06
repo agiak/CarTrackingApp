@@ -4,7 +4,7 @@ import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWi
 import kotlin.math.abs
 
 /** The metrics a period comparison reports, in the order they are presented. */
-enum class ComparisonMetricKey {
+enum class PeriodMetricKey {
     TOTAL_COST,
     FUEL_COST,
     EXPENSES_COST,
@@ -28,8 +28,8 @@ enum class ComparisonDirection { UP, DOWN, FLAT }
  * normalised by distance or volume, carry a good/bad judgement. The totals still report
  * their delta; they are simply shown without a verdict colour.
  */
-data class ComparisonMetric(
-    val key: ComparisonMetricKey,
+data class PeriodMetric(
+    val key: PeriodMetricKey,
     val primary: Double,
     val secondary: Double,
     val lowerIsBetter: Boolean? = null
@@ -102,41 +102,41 @@ data class PeriodComparison(
     val isComparable: Boolean get() = primary.hasData && secondary.hasData
 
     /** The metrics that have a value in at least one of the two periods. */
-    val metrics: List<ComparisonMetric>
+    val metrics: List<PeriodMetric>
         get() = listOf(
-            ComparisonMetric(ComparisonMetricKey.TOTAL_COST, primary.totalCost, secondary.totalCost),
-            ComparisonMetric(ComparisonMetricKey.FUEL_COST, primary.fuelCost, secondary.fuelCost),
-            ComparisonMetric(
-                ComparisonMetricKey.EXPENSES_COST,
+            PeriodMetric(PeriodMetricKey.TOTAL_COST, primary.totalCost, secondary.totalCost),
+            PeriodMetric(PeriodMetricKey.FUEL_COST, primary.fuelCost, secondary.fuelCost),
+            PeriodMetric(
+                PeriodMetricKey.EXPENSES_COST,
                 primary.expensesCost,
                 secondary.expensesCost
             ),
-            ComparisonMetric(
-                ComparisonMetricKey.DISTANCE,
+            PeriodMetric(
+                PeriodMetricKey.DISTANCE,
                 primary.totalDistance,
                 secondary.totalDistance
             ),
-            ComparisonMetric(ComparisonMetricKey.LITERS, primary.totalLiters, secondary.totalLiters),
-            ComparisonMetric(
-                ComparisonMetricKey.AVG_CONSUMPTION,
+            PeriodMetric(PeriodMetricKey.LITERS, primary.totalLiters, secondary.totalLiters),
+            PeriodMetric(
+                PeriodMetricKey.AVG_CONSUMPTION,
                 primary.averageConsumption,
                 secondary.averageConsumption,
                 lowerIsBetter = true
             ),
-            ComparisonMetric(
-                ComparisonMetricKey.AVG_PRICE_PER_LITER,
+            PeriodMetric(
+                PeriodMetricKey.AVG_PRICE_PER_LITER,
                 primary.averagePricePerLiter,
                 secondary.averagePricePerLiter,
                 lowerIsBetter = true
             ),
-            ComparisonMetric(
-                ComparisonMetricKey.COST_PER_KM,
+            PeriodMetric(
+                PeriodMetricKey.COST_PER_KM,
                 primary.costPerKilometer,
                 secondary.costPerKilometer,
                 lowerIsBetter = true
             ),
-            ComparisonMetric(
-                ComparisonMetricKey.TRANSACTIONS,
+            PeriodMetric(
+                PeriodMetricKey.TRANSACTIONS,
                 primary.transactionCount.toDouble(),
                 secondary.transactionCount.toDouble()
             )
