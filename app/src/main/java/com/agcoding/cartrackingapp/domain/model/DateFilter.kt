@@ -41,6 +41,18 @@ data class DateFilter(
         return date.monthValue in months
     }
 
+    /**
+     * Whether a bucket already reduced to a calendar [year] and [month] is inside this
+     * filter. [month] is 1-based like [months] — callers holding a 0-based
+     * `Calendar.MONTH` must add 1.
+     */
+    fun matchesYearMonth(year: Int, month: Int): Boolean {
+        if (years.isEmpty()) return true
+        if (year !in years) return false
+        if (months.isEmpty()) return true
+        return month in months
+    }
+
     /** Adds [year] if absent, removes it if present. Clearing the last year clears months too. */
     fun toggleYear(year: Int): DateFilter {
         val next = if (year in years) years - year else years + year

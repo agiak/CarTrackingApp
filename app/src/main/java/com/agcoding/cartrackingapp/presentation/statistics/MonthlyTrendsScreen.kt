@@ -23,10 +23,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,15 +56,12 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.domain.model.DateFilter
+import com.agcoding.cartrackingapp.presentation.components.DateFilterButton
+import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
+import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
-
-enum class MonthlyTrendsFilter(val labelRes: Int, val months: Int?) {
-    LAST_3_MONTHS(R.string.filter_last_3_months, 3),
-    LAST_6_MONTHS(R.string.filter_last_6_months, 6),
-    LAST_YEAR(R.string.filter_last_year, 12),
-    ALL_TIME(R.string.filter_all_time, null)
-}
 
 enum class MonthlyTrendsSortBy(val labelRes: Int) {
     TIME(R.string.sort_time),
@@ -87,11 +83,22 @@ fun MonthlyTrendsScreen(
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedFilter by remember { mutableStateOf(MonthlyTrendsFilter.ALL_TIME) }
+    var dateFilter by remember { mutableStateOf(DateFilter.None) }
     var selectedSortBy by remember { mutableStateOf(MonthlyTrendsSortBy.TIME) }
     var sortOrder by remember { mutableStateOf(SortOrder.DESCENDING) }
     var showFilterSheet by remember { mutableStateOf(false) }
+    var showDateSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // The years that actually have trends, for the shared date picker.
+    val availableYears = remember(uiState) {
+        (uiState as? StatisticsUiState.Success)
+            ?.statistics?.monthlyTrends
+            ?.map { it.year }
+            ?.distinct()
+            ?.sortedDescending()
+            .orEmpty()
+    }
 
     Scaffold(
         topBar = {
@@ -106,18 +113,24 @@ fun MonthlyTrendsScreen(
                     }
                 },
                 actions = {
-                    // Show filter button only in portrait (split view has sidebar)
+                    // Show controls only in portrait (split view has a sidebar)
                     val configuration = LocalConfiguration.current
                     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
                     val useSplitView = configuration.screenWidthDp >= 600 || isLandscape
                     if (!useSplitView) {
-                        val hasActiveFilter = selectedFilter != MonthlyTrendsFilter.ALL_TIME
+                        IconButton(onClick = { showDateSheet = true }) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = stringResource(R.string.date_filter_title),
+                                tint = if (dateFilter.isActive) MaterialTheme.colorScheme.primary
+                                       else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                         IconButton(onClick = { showFilterSheet = true }) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
                                 contentDescription = stringResource(R.string.filter_label),
-                                tint = if (hasActiveFilter) MaterialTheme.colorScheme.primary
-                                       else MaterialTheme.colorScheme.onSurface
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -135,7 +148,7 @@ fun MonthlyTrendsScreen(
                 val useSplitView = configuration.screenWidthDp >= 600 || isLandscape
 
                 val allTrends = state.statistics.monthlyTrends
-                val filteredTrends = filterTrends(allTrends, selectedFilter)
+                val filteredTrends = filterTrends(allTrends, dateFilter)
                 val sortedTrends = sortTrends(filteredTrends, selectedSortBy, sortOrder)
 
                 if (useSplitView) {
@@ -154,7 +167,7 @@ fun MonthlyTrendsScreen(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Time filter card
+                            // Time filter card — opens the shared year/month picker
                             StyledCard {
                                 Column(
                                     modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -166,20 +179,10 @@ fun MonthlyTrendsScreen(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        MonthlyTrendsFilter.entries.forEach { filter ->
-                                            FilterChip(
-                                                selected = selectedFilter == filter,
-                                                onClick = { selectedFilter = filter },
-                                                label = { Text(stringResource(filter.labelRes)) },
-                                                colors = FilterChipDefaults.filterChipColors(
-                                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                                ),
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-                                    }
+                                    DateFilterButton(
+                                        filter = dateFilter,
+                                        onClick = { showDateSheet = true }
+                                    )
                                 }
                             }
 
@@ -244,7 +247,7 @@ fun MonthlyTrendsScreen(
                             }
 
                             if (sortedTrends.isNotEmpty()) {
-                                FilteredSummaryCard(sortedTrends, selectedFilter)
+                                FilteredSummaryCard(sortedTrends, dateFilter)
                             }
                         }
 
@@ -274,7 +277,7 @@ fun MonthlyTrendsScreen(
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            item { FilteredSummaryCard(sortedTrends, selectedFilter) }
+                            item { FilteredSummaryCard(sortedTrends, dateFilter) }
                             items(sortedTrends) { trend ->
                                 MonthlyTrendItem(trend = trend, onClick = { onMonthClick(trend.month, trend.year) })
                             }
@@ -293,10 +296,8 @@ fun MonthlyTrendsScreen(
                 sheetState = sheetState
             ) {
                 MonthlyTrendsFilterSheet(
-                    selectedFilter = selectedFilter,
                     selectedSortBy = selectedSortBy,
                     sortOrder = sortOrder,
-                    onFilterSelected = { selectedFilter = it },
                     onSortBySelected = { selectedSortBy = it },
                     onSortOrderToggled = {
                         sortOrder = if (sortOrder == SortOrder.ASCENDING) SortOrder.DESCENDING else SortOrder.ASCENDING
@@ -305,15 +306,23 @@ fun MonthlyTrendsScreen(
                 )
             }
         }
+
+        // Shared date filter — the same year/month picker used everywhere else
+        if (showDateSheet) {
+            DateFilterSheet(
+                selected = dateFilter,
+                availableYears = availableYears,
+                onFilterChange = { dateFilter = it.normalized },
+                onDismiss = { showDateSheet = false }
+            )
+        }
     }
 }
 
 @Composable
 private fun MonthlyTrendsFilterSheet(
-    selectedFilter: MonthlyTrendsFilter,
     selectedSortBy: MonthlyTrendsSortBy,
     sortOrder: SortOrder,
-    onFilterSelected: (MonthlyTrendsFilter) -> Unit,
     onSortBySelected: (MonthlyTrendsSortBy) -> Unit,
     onSortOrderToggled: () -> Unit,
     onDone: () -> Unit
@@ -344,39 +353,8 @@ private fun MonthlyTrendsFilterSheet(
 
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
-        // Time Period section
-        Text(
-            text = stringResource(R.string.filter_time_period),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-        )
-        MonthlyTrendsFilter.entries.forEach { filter ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onFilterSelected(filter) }
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = filter == selectedFilter,
-                    onClick = { onFilterSelected(filter) }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(filter.labelRes),
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        HorizontalDivider(
-            modifier = Modifier.padding(top = 8.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        )
+        // The time period lives in the shared date filter sheet, opened from the
+        // calendar action in the top bar.
 
         // Sort By section
         Text(
@@ -480,11 +458,19 @@ private fun EmptyTrendsState(modifier: Modifier = Modifier) {
     }
 }
 
-private fun filterTrends(trends: List<MonthlyTrend>, filter: MonthlyTrendsFilter): List<MonthlyTrend> {
-    return when (filter.months) {
-        null -> trends
-        else -> trends.take(filter.months)
-    }
+/**
+ * Keeps the months the [dateFilter] selects.
+ *
+ * This used to be `trends.take(n)` for a "last N months" window, which took the first
+ * N *entries* of the list rather than the last N calendar months — so any month with no
+ * records silently pulled an older month into the window.
+ *
+ * [MonthlyTrend.month] comes from `Calendar.MONTH` and is 0-based, while the filter is
+ * 1-based, hence the +1.
+ */
+private fun filterTrends(trends: List<MonthlyTrend>, dateFilter: DateFilter): List<MonthlyTrend> {
+    if (!dateFilter.isActive) return trends
+    return trends.filter { dateFilter.matchesYearMonth(it.year, it.month + 1) }
 }
 
 private fun sortTrends(
@@ -502,7 +488,7 @@ private fun sortTrends(
 }
 
 @Composable
-private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrendsFilter) {
+private fun FilteredSummaryCard(trends: List<MonthlyTrend>, dateFilter: DateFilter) {
     val totalRefillCost = trends.sumOf { it.totalCost }
     val totalExpenseCost = trends.sumOf { it.expenseCost }
     val totalCombinedCost = trends.sumOf { it.totalCombinedCost }
@@ -519,7 +505,7 @@ private fun FilteredSummaryCard(trends: List<MonthlyTrend>, filter: MonthlyTrend
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
-                text = stringResource(R.string.summary_label_format, stringResource(filter.labelRes)),
+                text = stringResource(R.string.summary_label_format, dateFilterLabel(dateFilter)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
