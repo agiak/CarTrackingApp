@@ -3,7 +3,6 @@
 package com.agcoding.cartrackingapp.presentation.refilldetails.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,22 +17,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Route
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,22 +47,19 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
  * the caller. A refill belongs to at most one trip, so picking a different one moves it
  * rather than adding a second membership — and the trip it is currently in is marked.
  *
- * Creating a trip happens in place: the form expands inside the sheet and the new trip
- * gets the refill straight away, which is the whole reason the user opened this.
+ * Creating a trip hands off to [NewTripSheet] rather than expanding a form here: naming a
+ * trip is a separate decision from picking one, and it needs the room.
  */
 @Composable
 fun TripPickerSheet(
     trips: List<Trip>,
     currentTripId: Long?,
     onTripSelected: (Trip) -> Unit,
-    onCreateTrip: (name: String, description: String?) -> Unit,
+    onCreateNewTrip: () -> Unit,
     onRemoveFromTrip: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var creating by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -89,32 +79,21 @@ fun TripPickerSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (creating) {
-                NewTripForm(
-                    name = name,
-                    description = description,
-                    onNameChange = { name = it },
-                    onDescriptionChange = { description = it },
-                    onCancel = { creating = false },
-                    onCreate = { onCreateTrip(name, description) }
-                )
-            } else {
-                TripRow(
-                    icon = { tint ->
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = tint,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    },
-                    title = stringResource(R.string.trip_picker_new),
-                    subtitle = null,
-                    selected = false,
-                    accent = true,
-                    onClick = { creating = true }
-                )
-            }
+            TripRow(
+                icon = { tint ->
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = tint,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                title = stringResource(R.string.trip_picker_new),
+                subtitle = null,
+                selected = false,
+                accent = true,
+                onClick = onCreateNewTrip
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -139,7 +118,7 @@ fun TripPickerSheet(
                         TripRow(
                             icon = { tint ->
                                 Icon(
-                                    imageVector = Icons.Default.Route,
+                                    imageVector = Icons.Default.Flag,
                                     contentDescription = null,
                                     tint = tint,
                                     modifier = Modifier.size(20.dp)
@@ -167,50 +146,6 @@ fun TripPickerSheet(
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun NewTripForm(
-    name: String,
-    description: String,
-    onNameChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    onCancel: () -> Unit,
-    onCreate: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = onNameChange,
-            label = { Text(stringResource(R.string.trip_name_required_label)) },
-            placeholder = { Text(stringResource(R.string.trip_name_placeholder)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = description,
-            onValueChange = onDescriptionChange,
-            label = { Text(stringResource(R.string.trip_description_optional_label)) },
-            placeholder = { Text(stringResource(R.string.trip_notes_hint)) },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = onCancel) {
-                Text(stringResource(R.string.cancel))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = onCreate,
-                enabled = name.isNotBlank()
-            ) {
-                Text(stringResource(R.string.create_trip_title))
             }
         }
     }
@@ -270,23 +205,6 @@ private fun TripRow(
 // Preview Composables
 // ============================================
 
-@Preview(name = "New trip form", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewNewTripForm() {
-    CarTrackingAppTheme(darkTheme = false) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            NewTripForm(
-                name = "Summer 2026",
-                description = "",
-                onNameChange = {},
-                onDescriptionChange = {},
-                onCancel = {},
-                onCreate = {}
-            )
-        }
-    }
-}
-
 @Preview(name = "Trip rows", showBackground = true, widthDp = 400)
 @Composable
 private fun PreviewTripRows() {
@@ -304,7 +222,7 @@ private fun PreviewTripRows() {
             )
             TripRow(
                 icon = { tint ->
-                    Icon(Icons.Default.Route, null, tint = tint, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Flag, null, tint = tint, modifier = Modifier.size(20.dp))
                 },
                 title = "Summer Vacation 2026",
                 subtitle = "6 refills",
@@ -314,7 +232,7 @@ private fun PreviewTripRows() {
             )
             TripRow(
                 icon = { tint ->
-                    Icon(Icons.Default.Route, null, tint = tint, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Flag, null, tint = tint, modifier = Modifier.size(20.dp))
                 },
                 title = "Weekend in the mountains",
                 subtitle = "2 refills",

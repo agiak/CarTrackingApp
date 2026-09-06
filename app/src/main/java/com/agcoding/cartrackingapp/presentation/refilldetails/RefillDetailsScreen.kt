@@ -47,7 +47,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillDetailsContent
+import com.agcoding.cartrackingapp.presentation.refilldetails.components.NewTripSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillTripCard
+import com.agcoding.cartrackingapp.presentation.refilldetails.components.TripCreatedSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.TripPickerSheet
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -69,21 +71,31 @@ fun RefillDetailsScreen(
     val scope = rememberCoroutineScope()
 
     var showTripPicker by remember { mutableStateOf(false) }
+    var showNewTripSheet by remember { mutableStateOf(false) }
+    var createdTripName by remember { mutableStateOf<String?>(null) }
 
     // Report the outcome of a trip action once, then clear it so it cannot repeat on
-    // the next recomposition.
+    // the next recomposition. A newly created trip gets the success sheet instead of a
+    // snackbar — one confirmation per action, never both.
     LaunchedEffect(tripMessage) {
-        val message = tripMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(
-            message = when (message) {
-                is TripActionMessage.Added ->
-                    context.getString(R.string.refill_added_to_trip, message.tripName)
+        when (val message = tripMessage) {
+            null -> return@LaunchedEffect
+            is TripActionMessage.Created -> createdTripName = message.tripName
+            is TripActionMessage.Assigned -> snackbarHostState.showSnackbar(
+                message = context.getString(R.string.refill_added_to_trip, message.tripName),
+                duration = SnackbarDuration.Short
+            )
 
-                TripActionMessage.Removed -> context.getString(R.string.refill_removed_from_trip)
-                TripActionMessage.Failed -> context.getString(R.string.refill_trip_update_failed)
-            },
-            duration = SnackbarDuration.Short
-        )
+            TripActionMessage.Removed -> snackbarHostState.showSnackbar(
+                message = context.getString(R.string.refill_removed_from_trip),
+                duration = SnackbarDuration.Short
+            )
+
+            TripActionMessage.Failed -> snackbarHostState.showSnackbar(
+                message = context.getString(R.string.refill_trip_update_failed),
+                duration = SnackbarDuration.Short
+            )
+        }
         viewModel.clearTripMessage()
     }
 
@@ -181,15 +193,32 @@ fun RefillDetailsScreen(
                     showTripPicker = false
                     viewModel.assignToTrip(trip)
                 },
-                onCreateTrip = { name, description ->
+                onCreateNewTrip = {
                     showTripPicker = false
-                    viewModel.createTripAndAssign(name, description)
+                    showNewTripSheet = true
                 },
                 onRemoveFromTrip = {
                     showTripPicker = false
                     viewModel.removeFromTrip()
                 },
                 onDismiss = { showTripPicker = false }
+            )
+        }
+
+        if (showNewTripSheet) {
+            NewTripSheet(
+                onCreate = { name, description ->
+                    showNewTripSheet = false
+                    viewModel.createTripAndAssign(name, description)
+                },
+                onDismiss = { showNewTripSheet = false }
+            )
+        }
+
+        createdTripName?.let { tripName ->
+            TripCreatedSheet(
+                tripName = tripName,
+                onFinished = { createdTripName = null }
             )
         }
 

@@ -29,9 +29,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Outcome of a trip action, shown once as a snackbar and then cleared. */
+/**
+ * Outcome of a trip action, consumed once by the screen and then cleared.
+ *
+ * [Created] is separate from [Assigned] because creating a trip earns the full success
+ * animation, while moving a refill between existing trips only needs a snackbar.
+ */
 sealed interface TripActionMessage {
-    data class Added(val tripName: String) : TripActionMessage
+    data class Created(val tripName: String) : TripActionMessage
+    data class Assigned(val tripName: String) : TripActionMessage
     object Removed : TripActionMessage
     object Failed : TripActionMessage
 }
@@ -151,7 +157,7 @@ class RefillDetailsViewModel @Inject constructor(
     fun assignToTrip(trip: Trip) {
         viewModelScope.launch {
             _tripMessage.value = when (addRefillsToTripUseCase(trip.id, listOf(refillId))) {
-                is Result.Success -> TripActionMessage.Added(trip.name)
+                is Result.Success -> TripActionMessage.Assigned(trip.name)
                 is Result.Error -> TripActionMessage.Failed
             }
         }
@@ -168,7 +174,7 @@ class RefillDetailsViewModel @Inject constructor(
             _tripMessage.value = when (
                 createTripUseCase(carId, name, description?.takeIf { it.isNotBlank() }, listOf(refillId))
             ) {
-                is Result.Success -> TripActionMessage.Added(name.trim())
+                is Result.Success -> TripActionMessage.Created(name.trim())
                 is Result.Error -> TripActionMessage.Failed
             }
         }

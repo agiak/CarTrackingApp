@@ -1313,6 +1313,7 @@
     <string name="refill_change_trip">Αλλαγή</string>
     <string name="refill_added_to_trip">Ο ανεφοδιασμός προστέθηκε στο ταξίδι \"%1$s\"</string>
     <string name="refill_trip_update_failed">Δεν ήταν δυνατή η ενημέρωση του ταξιδιού</string>
+    <string name="new_trip_sheet_subtitle">Ο ανεφοδιασμός θα προστεθεί στο νέο ταξίδι.</string>
     <string name="trip_picker_title">Επιλογή ταξιδιού</string>
     <string name="trip_picker_new">Νέο ταξίδι</string>
     <string name="trip_picker_empty">Αυτό το αυτοκίνητο δεν έχει ταξίδια ακόμη. Δημιούργησε ένα για να ομαδοποιήσεις τους ανεφοδιασμούς του.</string>

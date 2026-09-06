@@ -1332,6 +1332,7 @@
     <string name="refill_change_trip">Change</string>
     <string name="refill_added_to_trip">Refill added to \"%1$s\"</string>
     <string name="refill_trip_update_failed">Could not update the trip</string>
+    <string name="new_trip_sheet_subtitle">The refill will be added to the new trip.</string>
     <string name="trip_picker_title">Choose a trip</string>
     <string name="trip_picker_new">New trip</string>
     <string name="trip_picker_empty">This car has no trips yet. Create one to group its refills.</string>
