@@ -1300,4 +1300,16 @@
     <string name="period_no_data">Δεν υπάρχουν δεδομένα για την επιλεγμένη περίοδο</string>
     <string name="stat_liters">Λίτρα</string>
     <string name="stat_total_spent">Συνολική δαπάνη</string>
+
+    <!-- Period comparison -->
+    <string name="period_comparison_title">Σύγκριση περιόδων</string>
+    <string name="period_comparison_subtitle">Βάλε δύο περιόδους δίπλα δίπλα και δες τι άλλαξε</string>
+    <string name="period_comparison_primary">Περίοδος Α</string>
+    <string name="period_comparison_secondary">Περίοδος Β</string>
+    <string name="period_comparison_swap">Εναλλαγή των δύο περιόδων</string>
+    <string name="period_comparison_difference">Διαφορά</string>
+    <string name="period_comparison_no_data">Καμία από τις δύο περιόδους δεν έχει εγγραφές. Διάλεξε άλλες περιόδους.</string>
+    <string name="period_comparison_one_sided">Μόνο η μία από τις δύο περιόδους έχει εγγραφές, οπότε κάθε διαφορά είναι ολόκληρο το ποσό.</string>
+    <string name="period_comparison_records">Εγγραφές</string>
+    <string name="period_comparison_no_baseline">Χωρίς βάση σύγκρισης</string>
 </resources>

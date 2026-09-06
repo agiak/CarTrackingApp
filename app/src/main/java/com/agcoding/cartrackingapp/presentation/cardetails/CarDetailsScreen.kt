@@ -79,6 +79,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cardetails.components.CarHeaderCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.IncompleteInformationBanner
+import com.agcoding.cartrackingapp.presentation.cardetails.components.ComparePeriodsCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.PeriodStatisticsCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.QuickStatsGrid
 import com.agcoding.cartrackingapp.presentation.cardetails.components.TotalSpendingCard
@@ -98,6 +99,7 @@ fun CarDetailsScreen(
     onExpenseClick: (Long) -> Unit = {},
     onEditCarClick: () -> Unit = {},
     onViewAllTransactionsClick: () -> Unit = {},
+    onComparePeriodsClick: () -> Unit = {},
     onViewAllTripsClick: () -> Unit = {},
     onTripClick: (Long) -> Unit = {},
     onCreateTripClick: () -> Unit = {},
@@ -261,6 +263,7 @@ fun CarDetailsScreen(
                                 statistics = periodStatistics,
                                 onDateFilterClick = { showDateSheet = true }
                             )
+                            ComparePeriodsCard(onClick = onComparePeriodsClick)
                         }
 
                         // Right side: unified transactions list (scrollable)
@@ -338,6 +341,11 @@ fun CarDetailsScreen(
                                 statistics = periodStatistics,
                                 onDateFilterClick = { showDateSheet = true }
                             )
+                        }
+
+                        // Same period statistics, but for two periods against each other
+                        item {
+                            ComparePeriodsCard(onClick = onComparePeriodsClick)
                         }
 
                         // Unified refills + expenses list

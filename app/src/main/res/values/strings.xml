@@ -1319,4 +1319,16 @@
     <string name="period_no_data">No data for the selected period</string>
     <string name="stat_liters">Liters</string>
     <string name="stat_total_spent">Total spent</string>
+
+    <!-- Period comparison -->
+    <string name="period_comparison_title">Compare periods</string>
+    <string name="period_comparison_subtitle">Set two periods side by side and see what changed</string>
+    <string name="period_comparison_primary">Period A</string>
+    <string name="period_comparison_secondary">Period B</string>
+    <string name="period_comparison_swap">Swap the two periods</string>
+    <string name="period_comparison_difference">Difference</string>
+    <string name="period_comparison_no_data">Neither period has any records. Pick different periods.</string>
+    <string name="period_comparison_one_sided">Only one of the two periods has records, so every difference is the whole amount.</string>
+    <string name="period_comparison_records">Records</string>
+    <string name="period_comparison_no_baseline">No baseline</string>
 </resources>

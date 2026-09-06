@@ -62,6 +62,7 @@ import com.agcoding.cartrackingapp.presentation.notifications.NotificationHistor
 import com.agcoding.cartrackingapp.presentation.notifications.NotificationsScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingGuideScreen
 import com.agcoding.cartrackingapp.presentation.onboarding.OnboardingScreen
+import com.agcoding.cartrackingapp.presentation.periodcomparison.PeriodComparisonScreen
 import com.agcoding.cartrackingapp.presentation.refill.AddRefillBottomSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.RefillDetailsScreen
 import com.agcoding.cartrackingapp.presentation.refillhistory.RefillHistoryScreen
@@ -110,6 +111,10 @@ sealed class Screen(val route: String) {
     /** Dedicated statistics for one car (from the per-car breakdown on Statistics). */
     object CarStatistics : Screen("car_statistics/{carId}") {
         fun createRoute(carId: Long) = "car_statistics/$carId"
+    }
+    /** Two periods of one car's history compared side by side (from car details). */
+    object PeriodComparison : Screen("period_comparison/{carId}") {
+        fun createRoute(carId: Long) = "period_comparison/$carId"
     }
     object Statistics : Screen("statistics")
     object Settings : Screen("settings")
@@ -592,6 +597,9 @@ fun AppNavigation(
                     onViewAllTransactionsClick = {
                         navController.navigate(Screen.CarTransactions.createRoute(carId))
                     },
+                    onComparePeriodsClick = {
+                        navController.navigate(Screen.PeriodComparison.createRoute(carId))
+                    },
                     onViewAllTripsClick = {
                         navController.navigate(Screen.TripsList.createRoute(carId))
                     },
@@ -682,6 +690,20 @@ fun AppNavigation(
                     },
                     onExpenseClick = { expenseId ->
                         navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.PeriodComparison.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument("carId") { type = NavType.LongType }
+                )
+            ) {
+                PeriodComparisonScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }
