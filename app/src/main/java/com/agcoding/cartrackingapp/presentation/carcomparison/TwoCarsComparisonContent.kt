@@ -713,8 +713,12 @@ private fun PreviewMetricRows() {
 @Composable
 private fun PreviewCarSelectorBox() {
     CarTrackingAppTheme(darkTheme = false) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            CarSelectorBox(carName = previewCorolla.carName, onClick = {})
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CarSelectorBox(carName = previewCorolla.carName, onClick = {}, isPrimary = true)
+            CarSelectorBox(carName = previewGolf.carName, onClick = {}, isPrimary = false)
         }
     }
 }
