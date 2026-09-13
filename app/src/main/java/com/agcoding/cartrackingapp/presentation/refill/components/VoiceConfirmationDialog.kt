@@ -25,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 
@@ -259,3 +261,59 @@ fun VoiceErrorState(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Voice confirmation", showBackground = true, widthDp = 400, heightDp = 560)
+@Composable
+private fun PreviewVoiceConfirmationDialog() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceConfirmationDialog(
+            data = VoiceRefillData(cost = 45.0, liters = 28.4, distance = 384.0),
+            lowConfidence = false,
+            onConfirm = {},
+            onEdit = {},
+            onCancel = {}
+        )
+    }
+}
+
+@Preview(name = "Voice confirmation - low confidence", showBackground = true, widthDp = 400, heightDp = 560)
+@Composable
+private fun PreviewVoiceConfirmationDialogLowConfidence() {
+    CarTrackingAppTheme(darkTheme = true) {
+        VoiceConfirmationDialog(
+            data = VoiceRefillData(cost = 45.0, liters = 28.4),
+            lowConfidence = true,
+            onConfirm = {},
+            onEdit = {},
+            onCancel = {}
+        )
+    }
+}
+
+@Preview(name = "Parsed value rows", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewParsedValueRows() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            ParsedValueRow(label = "Cost", isPresent = true)
+            ParsedValueRow(label = "Liters", isPresent = true)
+            ParsedValueRow(label = "Distance", isPresent = false)
+        }
+    }
+}
+
+@Preview(name = "Voice error state", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceErrorState() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceErrorState(
+            message = "Could not understand the recording",
+            transcript = "forty five euros",
+            onRetry = {},
+            onCancel = {}
+        )
+    }
+}

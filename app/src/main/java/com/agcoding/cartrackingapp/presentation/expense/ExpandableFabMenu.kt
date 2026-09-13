@@ -35,7 +35,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun ExpandableFabMenu(
@@ -140,6 +142,62 @@ private fun FabMenuItem(
                 imageVector = icon,
                 contentDescription = label,
                 modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "FAB menu - collapsed", showBackground = true, widthDp = 220, heightDp = 220)
+@Composable
+private fun PreviewExpandableFabMenu() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ExpandableFabMenu(onRefillClick = {}, onExpenseClick = {})
+        }
+    }
+}
+
+/** The expanded state lives inside the menu, so the items are previewed on their own. */
+@Preview(name = "FAB menu items", showBackground = true, widthDp = 260)
+@Composable
+private fun PreviewFabMenuItems() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FabMenuItem(
+                icon = Icons.Default.Receipt,
+                label = stringResource(R.string.fab_menu_expense),
+                onClick = {}
+            )
+            FabMenuItem(
+                icon = Icons.Default.LocalGasStation,
+                label = stringResource(R.string.fab_menu_refill),
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "FAB menu items - dark", showBackground = true, widthDp = 260)
+@Composable
+private fun PreviewFabMenuItemsDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FabMenuItem(
+                icon = Icons.Default.Receipt,
+                label = stringResource(R.string.fab_menu_expense),
+                onClick = {}
             )
         }
     }

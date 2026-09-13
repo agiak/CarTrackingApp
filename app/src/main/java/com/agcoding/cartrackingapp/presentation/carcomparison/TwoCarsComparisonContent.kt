@@ -21,11 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.CarComparisonResult
 import com.agcoding.cartrackingapp.domain.model.ComparisonDifference
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 
@@ -618,3 +620,101 @@ private fun CarSelectorBox(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Two cars - summary", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewSummaryCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        SummaryCard(result = previewTwoCarResult)
+    }
+}
+
+@Preview(name = "Two cars - metric card", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewComparisonMetricCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ComparisonMetricCard(
+            title = stringResource(R.string.cost_per_km),
+            car1Name = previewCorolla.carName,
+            car1Value = previewCorolla.costPerKm,
+            car2Name = previewGolf.carName,
+            car2Value = previewGolf.costPerKm,
+            difference = previewTwoCarResult.costPerKmDifference,
+            suffix = " €/km",
+            lowerIsBetter = true
+        )
+    }
+}
+
+/** One of the two cars has no figure for this metric yet. */
+@Preview(name = "Two cars - metric card, missing value", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewComparisonMetricCardMissing() {
+    CarTrackingAppTheme(darkTheme = true) {
+        ComparisonMetricCard(
+            title = stringResource(R.string.avg_consumption),
+            car1Name = previewCorolla.carName,
+            car1Value = previewCorolla.avgConsumption,
+            car2Name = previewPanda.carName,
+            car2Value = previewPanda.avgConsumption,
+            difference = null,
+            suffix = " L/100km",
+            lowerIsBetter = true
+        )
+    }
+}
+
+@Preview(name = "Two cars - detailed stats", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewDetailedStatsCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        DetailedStatsCard(car = previewCorolla)
+    }
+}
+
+@Preview(name = "Two cars - metric rows", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMetricRows() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            MetricRow(
+                carName = previewCorolla.carName,
+                value = previewCorolla.costPerKm,
+                suffix = " €/km",
+                isBest = true,
+                isWorst = false
+            )
+            MetricRow(
+                carName = previewGolf.carName,
+                value = previewGolf.costPerKm,
+                suffix = " €/km",
+                isBest = false,
+                isWorst = true
+            )
+            MetricRow(
+                carName = previewPanda.carName,
+                value = null,
+                suffix = " €/km",
+                isBest = false,
+                isWorst = false
+            )
+            DetailRow(label = stringResource(R.string.total_distance), value = "42.000 km")
+        }
+    }
+}
+
+@Preview(name = "Two cars - selector", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewCarSelectorBox() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            CarSelectorBox(carName = previewCorolla.carName, onClick = {})
+        }
+    }
+}

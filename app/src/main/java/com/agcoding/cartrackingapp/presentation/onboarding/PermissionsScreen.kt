@@ -55,9 +55,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun PermissionsScreen(
@@ -595,5 +597,33 @@ private fun PermissionCard(
                 }
             }
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Permission - granted", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPermissionCardGranted() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PermissionCard(permission = AppPermissions.permissions.first(), isGranted = true)
+    }
+}
+
+@Preview(name = "Permission - not granted", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPermissionCardDenied() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PermissionCard(permission = AppPermissions.permissions.first(), isGranted = false)
+    }
+}
+
+@Preview(name = "Permission - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPermissionCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        PermissionCard(permission = AppPermissions.permissions.last(), isGranted = false)
     }
 }

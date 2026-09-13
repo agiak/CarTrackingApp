@@ -60,8 +60,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -373,5 +375,46 @@ private fun getColorForSlide(index: Int): Color {
         3 -> Color(0xFFFF9800) // Orange
         4 -> Color(0xFF9C27B0) // Purple
         else -> Color(0xFF4CAF50)
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Guide slide - first", showBackground = true, widthDp = 400, heightDp = 560)
+@Composable
+private fun PreviewSlideContentFirst() {
+    CarTrackingAppTheme(darkTheme = false) {
+        SlideContent(
+            slide = OnboardingContent.slides.first(),
+            slideIndex = 0,
+            isCurrentPage = true
+        )
+    }
+}
+
+/** Off-screen pages are drawn smaller and dimmer; this is what a neighbour looks like. */
+@Preview(name = "Guide slide - not current", showBackground = true, widthDp = 400, heightDp = 560)
+@Composable
+private fun PreviewSlideContentNotCurrent() {
+    CarTrackingAppTheme(darkTheme = false) {
+        SlideContent(
+            slide = OnboardingContent.slides.first(),
+            slideIndex = 0,
+            isCurrentPage = false
+        )
+    }
+}
+
+@Preview(name = "Guide slide - dark", showBackground = true, widthDp = 400, heightDp = 560)
+@Composable
+private fun PreviewSlideContentDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        SlideContent(
+            slide = OnboardingContent.slides.last(),
+            slideIndex = OnboardingContent.slides.lastIndex,
+            isCurrentPage = true
+        )
     }
 }

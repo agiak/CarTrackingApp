@@ -21,11 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ForecastResult
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.statistics.CarSpecificInsights
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastUiState
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
@@ -370,3 +373,84 @@ private fun LowDataWarning(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+private val reliableForecast = FuelForecastUiState(
+    carId = 1,
+    carName = "Corolla",
+    costPerKmForecast = ForecastResult(
+        predictedNextValue = 0.148,
+        trend = -0.004,
+        confidence = 0.78,
+        dataPointsUsed = 9
+    ),
+    efficiencyForecast = ForecastResult(
+        predictedNextValue = 6.82,
+        trend = 0.05,
+        confidence = 0.52,
+        dataPointsUsed = 9
+    ),
+    carInsights = CarSpecificInsights(
+        hasSummerConsumptionIssue = true,
+        hasImprovingTrend = true,
+        avgMonthlyVariation = 4.2
+    )
+)
+
+/** Two refills in, nothing can be predicted yet — the warning path. */
+private val lowDataForecast = FuelForecastUiState(
+    carId = 2,
+    carName = "Golf",
+    costPerKmForecast = ForecastResult(
+        predictedNextValue = 0.161,
+        trend = 0.0,
+        confidence = 0.2,
+        dataPointsUsed = 2
+    ),
+    efficiencyForecast = null
+)
+
+@Preview(name = "Forecast section", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewFuelForecastSection() {
+    CarTrackingAppTheme(darkTheme = false) {
+        FuelForecastSection(forecasts = listOf(reliableForecast, lowDataForecast))
+    }
+}
+
+@Preview(name = "Forecast card", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewFuelForecastCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        FuelForecastCard(forecast = reliableForecast)
+    }
+}
+
+@Preview(name = "Forecast card - low data", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewFuelForecastCardLowData() {
+    CarTrackingAppTheme(darkTheme = true) {
+        FuelForecastCard(forecast = lowDataForecast)
+    }
+}
+
+@Preview(name = "Trend and confidence", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewTrendAndConfidence() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TrendIndicator(trend = 0.006)
+            TrendIndicator(trend = -0.006)
+            TrendIndicator(trend = 0.0)
+            ConfidenceBadge(confidence = 0.82)
+            ConfidenceBadge(confidence = 0.55)
+            ConfidenceBadge(confidence = 0.2)
+            LowDataWarning()
+        }
+    }
+}

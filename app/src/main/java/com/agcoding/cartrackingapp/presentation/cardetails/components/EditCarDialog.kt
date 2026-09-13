@@ -30,7 +30,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.util.sanitizeIntInput
 import java.text.SimpleDateFormat
@@ -302,5 +304,41 @@ fun EditCarDialog(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+private val previewCar = Car(
+    id = 1,
+    name = "Corolla",
+    licensePlate = "ABC-1234",
+    currentOdometer = 124_500.0,
+    initialOdometer = 90_000.0
+)
+
+@Preview(name = "Edit car", showBackground = true, widthDp = 400, heightDp = 700)
+@Composable
+private fun PreviewEditCarDialog() {
+    CarTrackingAppTheme(darkTheme = false) {
+        EditCarDialog(
+            car = previewCar,
+            onDismiss = {},
+            onConfirm = { _, _, _, _, _, _, _, _ -> }
+        )
+    }
+}
+
+@Preview(name = "Edit car - dark", showBackground = true, widthDp = 400, heightDp = 700)
+@Composable
+private fun PreviewEditCarDialogDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        EditCarDialog(
+            car = previewCar,
+            onDismiss = {},
+            onConfirm = { _, _, _, _, _, _, _, _ -> }
+        )
     }
 }

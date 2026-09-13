@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.AttachmentType
 import com.agcoding.cartrackingapp.domain.model.CarAttachment
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.FileSizeFormatter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -140,5 +142,69 @@ fun AttachmentItem(
                 }
             }
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+private fun previewAttachment(
+    fileName: String,
+    fileType: AttachmentType,
+    fileSizeBytes: Long
+) = CarAttachment(
+    id = 1,
+    carId = 1,
+    fileName = fileName,
+    fileType = fileType,
+    fileSizeBytes = fileSizeBytes,
+    dateAdded = 1_767_225_600_000, // 2026-01-01, so the preview never shifts with the clock
+    internalPath = "/attachments/$fileName"
+)
+
+@Preview(name = "Attachment - PDF", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewAttachmentItemPdf() {
+    CarTrackingAppTheme(darkTheme = false) {
+        AttachmentItem(
+            attachment = previewAttachment("insurance-2026.pdf", AttachmentType.PDF, 284_000),
+            onOpen = {},
+            onRename = {},
+            onDownload = {},
+            onDelete = {}
+        )
+    }
+}
+
+@Preview(name = "Attachment - image, long name", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewAttachmentItemImage() {
+    CarTrackingAppTheme(darkTheme = false) {
+        AttachmentItem(
+            attachment = previewAttachment(
+                fileName = "a-very-long-scanned-service-invoice-name.jpg",
+                fileType = AttachmentType.IMAGE,
+                fileSizeBytes = 2_400_000
+            ),
+            onOpen = {},
+            onRename = {},
+            onDownload = {},
+            onDelete = {}
+        )
+    }
+}
+
+@Preview(name = "Attachment - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewAttachmentItemDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        AttachmentItem(
+            attachment = previewAttachment("kteo.pdf", AttachmentType.PDF, 96_000),
+            onOpen = {},
+            onRename = {},
+            onDownload = {},
+            onDelete = {}
+        )
     }
 }

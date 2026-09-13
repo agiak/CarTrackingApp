@@ -32,10 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
  * Listening indicator with animated waveform.
@@ -231,3 +233,63 @@ fun VoiceProcessingIndicator(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+private val partiallyCaptured = VoiceRefillData(cost = 45.0, liters = 28.4)
+private val fullyCaptured = VoiceRefillData(cost = 45.0, liters = 28.4, distance = 384.0)
+
+@Preview(name = "Listening - nothing captured", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceListeningEmpty() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceListeningIndicator(partialText = "")
+    }
+}
+
+@Preview(name = "Listening - partly captured", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceListeningPartial() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceListeningIndicator(
+            partialText = "forty five euros, twenty eight point four liters",
+            captured = partiallyCaptured
+        )
+    }
+}
+
+@Preview(name = "Listening - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceListeningDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        VoiceListeningIndicator(
+            partialText = "forty five euros, twenty eight point four liters, three eighty four kilometers",
+            captured = fullyCaptured
+        )
+    }
+}
+
+@Preview(name = "Captured fields row", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceCapturedFieldsRow() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceCapturedFieldsRow(captured = partiallyCaptured)
+    }
+}
+
+@Preview(name = "Captured fields row - complete", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceCapturedFieldsRowComplete() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceCapturedFieldsRow(captured = fullyCaptured)
+    }
+}
+
+@Preview(name = "Processing", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceProcessing() {
+    CarTrackingAppTheme(darkTheme = false) {
+        VoiceProcessingIndicator(transcript = "forty five euros, twenty eight liters, three eighty four")
+    }
+}

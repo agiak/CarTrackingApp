@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
@@ -40,6 +41,7 @@ import com.agcoding.cartrackingapp.presentation.components.DateFilterButton
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 
@@ -346,4 +348,78 @@ private fun formatMetric(key: PeriodMetricKey, value: Double): String = when (ke
     PeriodMetricKey.LITERS -> "${value.formatNumber(1)} L"
     PeriodMetricKey.AVG_CONSUMPTION -> "${value.formatNumber(1)} L/100km"
     PeriodMetricKey.TRANSACTIONS -> value.toInt().formatNumber()
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+/** A neutral total, and the two verdicts a rate metric can carry. */
+private val neutralMetric =
+    PeriodMetric(PeriodMetricKey.TOTAL_COST, primary = 1842.5, secondary = 1610.0)
+private val improvedMetric = PeriodMetric(
+    PeriodMetricKey.AVG_CONSUMPTION,
+    primary = 6.84,
+    secondary = 7.13,
+    lowerIsBetter = true
+)
+private val worsenedMetric = PeriodMetric(
+    PeriodMetricKey.COST_PER_KM,
+    primary = 0.149,
+    secondary = 0.145,
+    lowerIsBetter = true
+)
+private val noBaselineMetric =
+    PeriodMetric(PeriodMetricKey.EXPENSES_COST, primary = 430.0, secondary = 0.0)
+
+@Preview(name = "Period pickers", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPeriodPickersCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PeriodPickersCard(
+            primaryFilter = DateFilter.of(year = 2025),
+            secondaryFilter = DateFilter(years = setOf(2023, 2024), months = setOf(3, 4)),
+            primaryCount = 23,
+            secondaryCount = 20,
+            onEditPrimary = {},
+            onEditSecondary = {}
+        )
+    }
+}
+
+@Preview(name = "Metric rows", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPeriodMetricRows() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            MetricsHeaderRow(primaryLabel = "2025", secondaryLabel = "2024")
+            PeriodMetricRow(metric = neutralMetric)
+            PeriodMetricRow(metric = improvedMetric)
+            PeriodMetricRow(metric = worsenedMetric)
+            PeriodMetricRow(metric = noBaselineMetric)
+        }
+    }
+}
+
+@Preview(name = "Metric rows - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPeriodMetricRowsDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            MetricsHeaderRow(primaryLabel = "Mar, Apr · 2025", secondaryLabel = "Mar, Apr · 2024")
+            PeriodMetricRow(metric = improvedMetric)
+            PeriodMetricRow(metric = worsenedMetric)
+        }
+    }
+}
+
+@Preview(name = "Notices", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewPeriodComparisonNotice() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            PeriodComparisonNotice(text = stringResource(R.string.period_comparison_no_data))
+            PeriodComparisonNotice(text = stringResource(R.string.period_comparison_one_sided))
+        }
+    }
 }

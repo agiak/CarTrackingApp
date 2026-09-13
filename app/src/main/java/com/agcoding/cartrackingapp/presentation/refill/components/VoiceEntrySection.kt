@@ -32,10 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.VoiceRefillData
 import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
  * Voice entry FAB and state handling
@@ -211,3 +213,69 @@ fun VoiceEntrySection(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Composable
+private fun PreviewVoiceEntrySection(state: VoiceRefillState, isVoiceAvailable: Boolean = true) {
+    VoiceEntrySection(
+        voiceState = state,
+        onStartVoiceEntry = {},
+        onStopVoiceRecording = {},
+        onConfirmParsedData = {},
+        onCancelVoiceEntry = {},
+        onRetryVoiceEntry = {},
+        isVoiceAvailable = isVoiceAvailable
+    )
+}
+
+@Preview(name = "Voice entry - idle", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceEntryIdle() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PreviewVoiceEntrySection(VoiceRefillState.Idle)
+    }
+}
+
+@Preview(name = "Voice entry - unavailable", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceEntryUnavailable() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PreviewVoiceEntrySection(VoiceRefillState.Idle, isVoiceAvailable = false)
+    }
+}
+
+@Preview(name = "Voice entry - listening", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceEntryListening() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PreviewVoiceEntrySection(
+            VoiceRefillState.Listening(
+                partialText = "forty five euros, twenty eight liters",
+                captured = VoiceRefillData(cost = 45.0, liters = 28.4)
+            )
+        )
+    }
+}
+
+@Preview(name = "Voice entry - processing", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceEntryProcessing() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PreviewVoiceEntrySection(VoiceRefillState.Processing("forty five euros, twenty eight liters"))
+    }
+}
+
+@Preview(name = "Voice entry - error", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewVoiceEntryError() {
+    CarTrackingAppTheme(darkTheme = true) {
+        PreviewVoiceEntrySection(
+            VoiceRefillState.Error(
+                message = "Could not understand the recording",
+                transcript = "forty five euros"
+            )
+        )
+    }
+}

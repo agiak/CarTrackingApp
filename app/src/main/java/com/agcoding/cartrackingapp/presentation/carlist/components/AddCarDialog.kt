@@ -16,9 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.sanitizeIntInput
 
 @Composable
@@ -86,4 +88,24 @@ fun AddCarDialog(
             }
         }
     )
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Add car dialog", showBackground = true, widthDp = 400, heightDp = 480)
+@Composable
+private fun PreviewAddCarDialog() {
+    CarTrackingAppTheme(darkTheme = false) {
+        AddCarDialog(onDismiss = {}, onConfirm = { _, _, _ -> })
+    }
+}
+
+@Preview(name = "Add car dialog - dark", showBackground = true, widthDp = 400, heightDp = 480)
+@Composable
+private fun PreviewAddCarDialogDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        AddCarDialog(onDismiss = {}, onConfirm = { _, _, _ -> })
+    }
 }

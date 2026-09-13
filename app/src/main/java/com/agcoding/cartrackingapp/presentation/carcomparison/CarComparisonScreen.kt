@@ -27,10 +27,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
  * Car Comparison Screen - Compare cars based on cost, consumption, and maintenance
@@ -236,3 +238,56 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "Mode selector - all cars", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewComparisonModeSelectorAll() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ComparisonModeSelector(
+            selectedMode = ComparisonMode.ALL_CARS,
+            onModeSelected = {},
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Mode selector - two cars", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewComparisonModeSelectorTwo() {
+    CarTrackingAppTheme(darkTheme = true) {
+        ComparisonModeSelector(
+            selectedMode = ComparisonMode.TWO_CARS,
+            onModeSelected = {},
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Loading", showBackground = true, widthDp = 400, heightDp = 300)
+@Composable
+private fun PreviewLoadingContent() {
+    CarTrackingAppTheme(darkTheme = false) { LoadingContent() }
+}
+
+@Preview(name = "Too few cars", showBackground = true, widthDp = 400, heightDp = 300)
+@Composable
+private fun PreviewInsufficientCarsContent() {
+    CarTrackingAppTheme(darkTheme = false) { InsufficientCarsContent() }
+}
+
+@Preview(name = "Too little data", showBackground = true, widthDp = 400, heightDp = 300)
+@Composable
+private fun PreviewInsufficientDataContent() {
+    CarTrackingAppTheme(darkTheme = false) { InsufficientDataContent() }
+}
+
+@Preview(name = "Error", showBackground = true, widthDp = 400, heightDp = 300)
+@Composable
+private fun PreviewErrorContent() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ErrorContent(message = "Could not load the comparison", onRetry = {})
+    }
+}

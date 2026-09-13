@@ -74,6 +74,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
@@ -87,6 +88,7 @@ import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -760,3 +762,47 @@ private fun MiniSpeedDialItem(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+private val previewTrip = com.agcoding.cartrackingapp.domain.model.Trip(
+    id = 1,
+    carId = 1,
+    name = "Summer Vacation 2026",
+    description = "Athens to Thessaloniki and back",
+    createdAt = 1_767_225_600_000, // fixed, so the preview never shifts with the clock
+    updatedAt = 1_767_225_600_000
+)
+
+@Preview(name = "Trip card", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewTripCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        TripCard(trip = previewTrip, onClick = {})
+    }
+}
+
+@Preview(name = "Trip card - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewTripCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        TripCard(trip = previewTrip.copy(description = null), onClick = {})
+    }
+}
+
+@Preview(name = "Speed dial - collapsed", showBackground = true, widthDp = 260, heightDp = 220)
+@Composable
+private fun PreviewSpeedDialFabCollapsed() {
+    CarTrackingAppTheme(darkTheme = false) {
+        SpeedDialFab(expanded = false, onToggle = {}, onAddRefill = {}, onAddExpense = {})
+    }
+}
+
+@Preview(name = "Speed dial - expanded", showBackground = true, widthDp = 260, heightDp = 260)
+@Composable
+private fun PreviewSpeedDialFabExpanded() {
+    CarTrackingAppTheme(darkTheme = false) {
+        SpeedDialFab(expanded = true, onToggle = {}, onAddRefill = {}, onAddExpense = {})
+    }
+}

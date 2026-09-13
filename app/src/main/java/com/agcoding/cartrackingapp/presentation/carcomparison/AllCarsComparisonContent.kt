@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.MultiCarComparisonResult
 import com.agcoding.cartrackingapp.util.formatNumber
@@ -391,3 +392,46 @@ private fun MetricRankingCard(
     }
 }
 
+// ============================================
+// Preview Composables
+// ============================================
+
+@Preview(name = "All cars comparison", showBackground = true, widthDp = 400, heightDp = 900)
+@Composable
+private fun PreviewAllCarsComparisonContent() {
+    CarTrackingAppTheme(darkTheme = false) {
+        AllCarsComparisonContent(result = previewMultiCarResult)
+    }
+}
+
+@Preview(name = "All cars comparison - dark", showBackground = true, widthDp = 400, heightDp = 900)
+@Composable
+private fun PreviewAllCarsComparisonContentDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        AllCarsComparisonContent(result = previewMultiCarResult)
+    }
+}
+
+@Preview(name = "Overall summary", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewOverallSummaryCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        OverallSummaryCard(result = previewMultiCarResult)
+    }
+}
+
+@Preview(name = "Metric ranking", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMetricRankingCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        MetricRankingCard(
+            title = stringResource(R.string.cost_per_km),
+            cars = previewMultiCarResult.cars,
+            getValue = { it.costPerKm },
+            suffix = " €/km",
+            lowerIsBetter = true,
+            bestCarId = previewMultiCarResult.bestCostPerKm,
+            worstCarId = previewMultiCarResult.worstCostPerKm
+        )
+    }
+}

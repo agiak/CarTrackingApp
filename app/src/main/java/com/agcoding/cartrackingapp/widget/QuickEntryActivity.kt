@@ -62,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -1512,5 +1513,68 @@ private fun QuickVoiceDialog(
                 }
             }
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+private val previewCars = listOf(
+    com.agcoding.cartrackingapp.domain.model.Car(
+        id = 1,
+        name = "Corolla",
+        licensePlate = "ABC-1234",
+        currentOdometer = 124_500.0,
+        initialOdometer = 90_000.0
+    ),
+    com.agcoding.cartrackingapp.domain.model.Car(
+        id = 2,
+        name = "Golf",
+        licensePlate = "XYZ-9876",
+        currentOdometer = 84_000.0,
+        initialOdometer = 12_000.0
+    )
+)
+
+@Preview(name = "Car selector", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewCarSelector() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CarSelector(
+            cars = previewCars,
+            selectedCar = previewCars.first(),
+            onCarSelected = {},
+            showError = false,
+            enabled = true
+        )
+    }
+}
+
+@Preview(name = "Car selector - error", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewCarSelectorError() {
+    CarTrackingAppTheme(darkTheme = false) {
+        CarSelector(
+            cars = previewCars,
+            selectedCar = null,
+            onCarSelected = {},
+            showError = true,
+            enabled = true
+        )
+    }
+}
+
+@Preview(name = "Car selector - disabled", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewCarSelectorDisabled() {
+    CarTrackingAppTheme(darkTheme = true) {
+        CarSelector(
+            cars = previewCars,
+            selectedCar = previewCars.last(),
+            onCarSelected = {},
+            showError = false,
+            enabled = false
+        )
     }
 }

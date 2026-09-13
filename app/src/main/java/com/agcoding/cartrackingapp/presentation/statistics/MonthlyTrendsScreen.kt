@@ -50,9 +50,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -592,5 +594,93 @@ private fun MonthlyTrendItem(
                 Text(text = stringResource(R.string.expenses_count_format, trend.expenseCount), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+private fun previewTrend(
+    month: Int,
+    monthName: String,
+    totalCost: Double,
+    expenseCost: Double = 0.0
+) = MonthlyTrend(
+    month = month,
+    year = 2026,
+    monthName = monthName,
+    totalCost = totalCost,
+    totalLiters = totalCost / 1.7,
+    totalDistance = totalCost * 8,
+    averageConsumption = 6.9,
+    refillCount = 3,
+    expenseCount = if (expenseCost > 0) 1 else 0,
+    expenseCost = expenseCost
+)
+
+private val previewTrends = listOf(
+    previewTrend(0, "Jan", 182.0),
+    previewTrend(1, "Feb", 214.5, expenseCost = 120.0),
+    previewTrend(2, "Mar", 168.0)
+)
+
+@Preview(name = "Monthly trend item", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthlyTrendItem() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            MonthlyTrendItem(trend = previewTrends[0], onClick = {})
+            MonthlyTrendItem(trend = previewTrends[1], onClick = {})
+        }
+    }
+}
+
+@Preview(name = "Monthly trend item - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthlyTrendItemDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        MonthlyTrendItem(trend = previewTrends[1], onClick = {})
+    }
+}
+
+@Preview(name = "Filtered summary - all time", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewFilteredSummaryCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        FilteredSummaryCard(trends = previewTrends, dateFilter = DateFilter.None)
+    }
+}
+
+@Preview(name = "Filtered summary - period", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewFilteredSummaryCardFiltered() {
+    CarTrackingAppTheme(darkTheme = false) {
+        FilteredSummaryCard(
+            trends = previewTrends.take(2),
+            dateFilter = DateFilter(years = setOf(2026), months = setOf(1, 2))
+        )
+    }
+}
+
+@Preview(name = "Empty trends", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewEmptyTrendsState() {
+    CarTrackingAppTheme(darkTheme = false) {
+        EmptyTrendsState()
+    }
+}
+
+@Preview(name = "Sort sheet", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthlyTrendsFilterSheet() {
+    CarTrackingAppTheme(darkTheme = false) {
+        MonthlyTrendsFilterSheet(
+            selectedSortBy = MonthlyTrendsSortBy.COST,
+            sortOrder = SortOrder.DESCENDING,
+            onSortBySelected = {},
+            onSortOrderToggled = {},
+            onDone = {}
+        )
     }
 }

@@ -55,9 +55,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -682,6 +684,107 @@ private fun InfoTooltip(
                         )
                 )
             }
+        }
+    }
+}
+
+// ============================================
+// Preview Composables
+// ============================================
+
+/** Totals only — the cards below never read the refill and expense lists themselves. */
+private val previewMonth = MonthDetailsUiState.Success(
+    month = 2,
+    year = 2026,
+    refills = emptyList(),
+    expenses = emptyList(),
+    carNames = emptyMap(),
+    refillsCost = 214.5,
+    expensesCost = 120.0,
+    totalCost = 334.5,
+    totalLiters = 126.2,
+    totalDistance = 1_820.0,
+    averageConsumption = 6.93
+)
+
+@Preview(name = "Month summary", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthSummaryCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        MonthSummaryCard(state = previewMonth)
+    }
+}
+
+@Preview(name = "Month summary - dark", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthSummaryCardDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        MonthSummaryCard(state = previewMonth)
+    }
+}
+
+@Preview(name = "Month insights", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthInsightsCard() {
+    CarTrackingAppTheme(darkTheme = false) {
+        MonthInsightsCard(state = previewMonth)
+    }
+}
+
+@Preview(name = "Month - no expenses", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewMonthSummaryCardNoExpenses() {
+    CarTrackingAppTheme(darkTheme = false) {
+        MonthSummaryCard(
+            state = previewMonth.copy(expensesCost = 0.0, totalCost = previewMonth.refillsCost)
+        )
+    }
+}
+
+@Preview(name = "Stat items", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewStatItems() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            StatItem(
+                label = stringResource(R.string.refills),
+                value = "214,50 €",
+                icon = Icons.Default.LocalGasStation,
+                iconTint = MaterialTheme.colorScheme.primary
+            )
+            StatItem(
+                label = stringResource(R.string.expenses),
+                value = "120,00 €",
+                icon = Icons.Default.Receipt,
+                iconTint = MaterialTheme.colorScheme.secondary
+            )
+        }
+    }
+}
+
+@Preview(name = "Insight rows", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewInsightRows() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            InsightRow(label = "Cost per kilometre", value = "0,184 €")
+            InsightRow(label = "Fuel share", value = "64%", showInfoIcon = true, onInfoClick = {})
+        }
+    }
+}
+
+@Preview(name = "Info tooltip", showBackground = true, widthDp = 400)
+@Composable
+private fun PreviewInfoTooltip() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            InfoTooltip(
+                message = "How much of this month's spending went on fuel.",
+                onDismiss = {}
+            )
         }
     }
 }
