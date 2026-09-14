@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -345,28 +345,36 @@ fun InteractiveLineChart(
                     .padding(start = if (showYAxisLabels) 45.dp else 0.dp, top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Show labels at start, middle, and end to avoid crowding
-                val indicesToShow = if (dataPoints.size <= 5) {
-                    dataPoints.indices.toList()
-                } else {
-                    listOf(0, dataPoints.size / 2, dataPoints.size - 1)
-                }
-
-                dataPoints.forEachIndexed { index, dataPoint ->
-                    if (index in indicesToShow) {
-                        Text(
+                if (dataPoints.size <= MAX_LINE_LABELS_SHOWN_IN_FULL) {
+                    // Every label fits, so each one sits under its own point.
+                    dataPoints.forEachIndexed { index, dataPoint ->
+                        LineAxisLabel(
                             text = dataPoint.label,
-                            fontSize = 10.sp,
                             color = textColor,
-                            textAlign = when(index) {
+                            textAlign = when (index) {
                                 0 -> androidx.compose.ui.text.style.TextAlign.Start
-                                dataPoints.size - 1 -> androidx.compose.ui.text.style.TextAlign.End
+                                dataPoints.lastIndex -> androidx.compose.ui.text.style.TextAlign.End
                                 else -> androidx.compose.ui.text.style.TextAlign.Center
                             },
                             modifier = Modifier.weight(1f)
                         )
-                    } else {
-                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                } else {
+                    // Only three labels are drawn, so they share the width between them
+                    // rather than each being squeezed into one point's worth of space —
+                    // which is what wrapped a long bucket label over several lines.
+                    val indicesToShow = listOf(0, dataPoints.size / 2, dataPoints.size - 1)
+                    indicesToShow.forEachIndexed { position, index ->
+                        LineAxisLabel(
+                            text = dataPoints[index].label,
+                            color = textColor,
+                            textAlign = when (position) {
+                                0 -> androidx.compose.ui.text.style.TextAlign.Start
+                                indicesToShow.lastIndex -> androidx.compose.ui.text.style.TextAlign.End
+                                else -> androidx.compose.ui.text.style.TextAlign.Center
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
@@ -377,6 +385,31 @@ fun InteractiveLineChart(
 // ============================================
 // Preview Composables
 // ============================================
+
+/** How many points can each keep their own label before only three are drawn. */
+private const val MAX_LINE_LABELS_SHOWN_IN_FULL = 5
+
+/**
+ * One x-axis label. Never wraps — see [InteractiveBarChart]'s equivalent for why.
+ */
+@Composable
+private fun LineAxisLabel(
+    text: String,
+    color: Color,
+    textAlign: androidx.compose.ui.text.style.TextAlign,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        fontSize = 10.sp,
+        color = color,
+        textAlign = textAlign,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+}
 
 @Preview(name = "Line Chart - Multiple Points", showBackground = true, widthDp = 380)
 @Composable

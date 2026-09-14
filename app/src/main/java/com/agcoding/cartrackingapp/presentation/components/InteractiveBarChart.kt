@@ -17,7 +17,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
@@ -221,28 +222,65 @@ fun InteractiveBarChart(
                     .padding(start = if (showYAxisLabels) 45.dp else 0.dp, top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                val indicesToShow = if (dataPoints.size <= 6) {
-                    dataPoints.indices.toList()
-                } else {
-                    listOf(0, dataPoints.size / 2, dataPoints.size - 1)
-                }
-
-                dataPoints.forEachIndexed { index, dataPoint ->
-                    if (index in indicesToShow) {
-                        Text(
+                if (dataPoints.size <= MAX_LABELS_SHOWN_IN_FULL) {
+                    // Few enough bars that every label fits: one slot each keeps each
+                    // label under its own bar.
+                    dataPoints.forEach { dataPoint ->
+                        AxisLabel(
                             text = dataPoint.label,
-                            fontSize = 10.sp,
                             color = textColor,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             modifier = Modifier.weight(1f)
                         )
-                    } else {
-                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                } else {
+                    // Only the first, middle and last labels are drawn, so they share the
+                    // width between the three of them. Giving each one a slot the width of
+                    // a single bar is what used to wrap "Jan 1 - Jan 15 2024" down five
+                    // lines; a third of the row is room enough for any bucket label.
+                    val indicesToShow = listOf(0, dataPoints.size / 2, dataPoints.size - 1)
+                    indicesToShow.forEachIndexed { position, index ->
+                        AxisLabel(
+                            text = dataPoints[index].label,
+                            color = textColor,
+                            textAlign = when (position) {
+                                0 -> androidx.compose.ui.text.style.TextAlign.Start
+                                indicesToShow.lastIndex -> androidx.compose.ui.text.style.TextAlign.End
+                                else -> androidx.compose.ui.text.style.TextAlign.Center
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
         }
     }
+}
+
+/** How many bars can each keep their own label before only three are drawn. */
+private const val MAX_LABELS_SHOWN_IN_FULL = 6
+
+/**
+ * One x-axis label. Never wraps: an axis label that grows to five lines pushes the
+ * chart around and reads as broken, so a label too long for its slot is cut instead.
+ */
+@Composable
+private fun AxisLabel(
+    text: String,
+    color: Color,
+    textAlign: androidx.compose.ui.text.style.TextAlign,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        fontSize = 10.sp,
+        color = color,
+        textAlign = textAlign,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true)

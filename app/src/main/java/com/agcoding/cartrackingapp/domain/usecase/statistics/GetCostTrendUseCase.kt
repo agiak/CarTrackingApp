@@ -11,8 +11,10 @@ import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.util.safeDivide
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -125,6 +127,10 @@ class GetCostTrendUseCase @Inject constructor(
                 dateRange = dateRange
             )
         }
+            // The aggregation below walks every record once per bucket, and the collectors
+            // are ViewModels launching on the main dispatcher — without this it all ran on
+            // the main thread, which is what made the graph screens stutter on entry.
+            .flowOn(Dispatchers.Default)
     }
 
     private fun calculateMonthlyCosts(

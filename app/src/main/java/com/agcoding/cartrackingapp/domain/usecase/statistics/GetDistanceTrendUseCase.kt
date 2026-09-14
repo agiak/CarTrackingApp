@@ -10,8 +10,10 @@ import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.TripInfo
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -111,6 +113,10 @@ class GetDistanceTrendUseCase @Inject constructor(
                 monthlyDistances = monthlyDistances
             )
         }
+            // The aggregation below walks every record once per bucket, and the collectors
+            // are ViewModels launching on the main dispatcher — without this it all ran on
+            // the main thread, which is what made the graph screens stutter on entry.
+            .flowOn(Dispatchers.Default)
     }
 
     private fun aggregateRefills(

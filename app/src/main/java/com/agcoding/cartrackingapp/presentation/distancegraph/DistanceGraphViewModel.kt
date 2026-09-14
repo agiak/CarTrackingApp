@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetAvailableYearsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.statistics.GetDistanceTrendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,6 +52,13 @@ class DistanceGraphViewModel @Inject constructor(
 
     private val _showCarFilter = MutableStateFlow(false)
     val showCarFilter: StateFlow<Boolean> = _showCarFilter.asStateFlow()
+
+    /**
+     * The collector feeding the chart. Each load subscribes to a repository flow that
+     * never completes, so without cancelling the previous one every filter change left
+     * another live collector recomputing the whole trend on every database change.
+     */
+    private var trendJob: Job? = null
 
     init {
         loadCars()
@@ -113,7 +121,8 @@ class DistanceGraphViewModel @Inject constructor(
     }
 
     private fun loadTrendData() {
-        viewModelScope.launch {
+        trendJob?.cancel()
+        trendJob = viewModelScope.launch {
             _uiState.value = DistanceGraphUiState.Loading
 
             try {

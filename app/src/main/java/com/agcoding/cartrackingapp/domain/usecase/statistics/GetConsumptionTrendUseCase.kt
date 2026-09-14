@@ -8,7 +8,9 @@ import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.DateRange
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,6 +69,10 @@ class GetConsumptionTrendUseCase @Inject constructor(
                 dateRange = dateRange
             )
         }
+            // The aggregation below walks every record once per bucket, and the collectors
+            // are ViewModels launching on the main dispatcher — without this it all ran on
+            // the main thread, which is what made the graph screens stutter on entry.
+            .flowOn(Dispatchers.Default)
     }
 
     private fun aggregateRefills(
