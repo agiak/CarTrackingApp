@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocalGasStation
@@ -275,18 +274,19 @@ fun ExpenseItemCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon
+            // Icon — a wrench for servicing, a receipt for every other expense
+            val categoryColors = expenseCategoryColors(expense.category)
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(categoryColors.container),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Build,
+                    imageVector = expenseCategoryIcon(expense.category),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = categoryColors.icon,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -400,6 +400,50 @@ private fun PreviewExpenseItemCard() {
                 reminderMileage = 15000,
                 preExpiryNotificationSent = false,
                 reminderDismissed = false
+            ),
+            carName = "Honda Civic",
+            onClick = {}
+        )
+    }
+}
+
+/**
+ * The other half of the split: a category that is not servicing, so the row
+ * shows the receipt badge instead of the wrench. Greek on purpose — the badge
+ * and the statistics both classify the stored display string, and that string
+ * is whatever language the app was in when the expense was saved.
+ */
+@Preview(name = "Expense Card - General", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewExpenseItemCardGeneral() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ExpenseItemCard(
+            expense = Expense(
+                id = 3,
+                carId = 1,
+                category = "Πλύσιμο",
+                amount = 15.00,
+                timestamp = System.currentTimeMillis(),
+                notes = null
+            ),
+            carName = "Honda Civic",
+            onClick = {}
+        )
+    }
+}
+
+@Preview(name = "Expense Card - Greek service", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewExpenseItemCardGreekService() {
+    CarTrackingAppTheme(darkTheme = false) {
+        ExpenseItemCard(
+            expense = Expense(
+                id = 4,
+                carId = 1,
+                category = "Μικρό σέρβις",
+                amount = 180.00,
+                timestamp = System.currentTimeMillis(),
+                notes = null
             ),
             carName = "Honda Civic",
             onClick = {}

@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.domain.usecase.statistics
 
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
+import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -33,14 +34,11 @@ class GetCarStatisticsUseCase @Inject constructor(
                     refillsCost / totalLiters
                 } else 0.0
 
-                // Expense breakdown by category
-                // For backward compatibility, group service-related categories together
-                val serviceCategories = listOf("Service", "Small service", "Big service", "Oil change", "Tire change", "Repairs")
-                val serviceExpenses = expenses.filter { expense ->
-                    serviceCategories.any { it.equals(expense.category, ignoreCase = true) }
-                }
-                val otherExpenses = expenses.filter { expense ->
-                    !serviceCategories.any { it.equals(expense.category, ignoreCase = true) }
+                // Expense breakdown by category. The split is derived from the
+                // stored category name on every read rather than persisted, so
+                // it applies to expenses that were saved long before this code.
+                val (serviceExpenses, otherExpenses) = expenses.partition {
+                    ExpenseCategories.isServiceCategory(it.category)
                 }
                 val serviceExpensesCost = serviceExpenses.sumOf { it.amount }
                 val otherExpensesCost = otherExpenses.sumOf { it.amount }
