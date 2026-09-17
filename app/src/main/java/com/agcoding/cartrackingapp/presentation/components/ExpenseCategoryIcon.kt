@@ -33,14 +33,7 @@ data class ExpenseCategoryColors(val container: Color, val icon: Color)
 
 @Composable
 fun expenseCategoryColors(category: String): ExpenseCategoryColors =
-    if (ExpenseCategories.isServiceCategory(category)) {
-        ExpenseCategoryColors(
-            container = MaterialTheme.colorScheme.primaryContainer,
-            icon = MaterialTheme.colorScheme.primary
-        )
-    } else {
-        ExpenseCategoryColors(
-            container = MaterialTheme.colorScheme.secondaryContainer,
-            icon = MaterialTheme.colorScheme.secondary
-        )
-    }
+    ExpenseCategoryColors(
+        container = MaterialTheme.colorScheme.primaryContainer,
+        icon = MaterialTheme.colorScheme.primary
+    )
