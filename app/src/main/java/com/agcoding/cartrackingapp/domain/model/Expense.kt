@@ -64,6 +64,21 @@ object ExpenseCategories {
     }
 
     /**
+     * Whether a category counts towards the cost of keeping the car on the road
+     * in the car comparison screen.
+     *
+     * Wider than [isServiceCategory]: on top of servicing it includes the
+     * recurring obligations of ownership — insurance and the roadworthiness
+     * test. It deliberately stays out of the fuel/service/other breakdown,
+     * which is a three-way split where insurance belongs in "other".
+     */
+    fun isMaintenanceCategory(category: String): Boolean {
+        if (isServiceCategory(category)) return true
+        val normalized = normalizeCategory(category)
+        return OWNERSHIP_PATTERNS.any { it.containsMatchIn(normalized) }
+    }
+
+    /**
      * Maintenance keywords in every language the app ships, matched against the
      * normalised name.
      *
@@ -80,6 +95,18 @@ object ExpenseCategories {
         Regex("\\bt[iy]res?\\b|ελαστικ|λαστιχ"),
         // Repairs — "Repairs" / "Επισκευές"
         Regex("\\brepair|επισκευ")
+    )
+
+    /**
+     * Costs of ownership that are not servicing, used only by
+     * [isMaintenanceCategory]. Kept separate so widening the comparison screen
+     * can never leak into the fuel/service/other breakdown.
+     */
+    private val OWNERSHIP_PATTERNS = listOf(
+        // Insurance — "Insurance" / "Ασφάλεια"
+        Regex("insurance|ασφαλ"),
+        // Roadworthiness test — "Inspection" / "ΚΤΕΟ"
+        Regex("inspection|κτεο|\\bkteo\\b")
     )
 
     private fun normalizeCategory(value: String): String =

@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.CarComparisonResult
 import com.agcoding.cartrackingapp.domain.model.ComparisonDifference
+import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.domain.model.MultiCarComparisonResult
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
@@ -45,9 +46,8 @@ class CalculateCarComparisonUseCase @Inject constructor(
         val totalKilometers = refills.sumOf { it.tripDistance }
 
         // Calculate maintenance costs (excluding fuel-related expenses)
-        val maintenanceCategories = listOf("Maintenance", "Repair", "Service", "Insurance", "Inspection")
         val totalMaintenanceCost = expenses
-            .filter { expense -> maintenanceCategories.any { category -> expense.category.contains(category, ignoreCase = true) } }
+            .filter { ExpenseCategories.isMaintenanceCategory(it.category) }
             .sumOf { it.amount }
 
         // Calculate years active (from first to last transaction)

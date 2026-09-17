@@ -4,6 +4,7 @@ import com.agcoding.cartrackingapp.domain.model.Anomaly
 import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
 import com.agcoding.cartrackingapp.domain.model.Expense
+import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
 import com.agcoding.cartrackingapp.util.formatNumber
 import java.time.LocalDate
 import java.time.ZoneId
@@ -21,32 +22,14 @@ import javax.inject.Inject
  */
 class DetectMaintenanceAnomaliesUseCase @Inject constructor() {
 
-    // Maintenance-related categories
-    private val maintenanceCategories = setOf(
-        "Service",
-        "Tire Change",
-        "Oil Change",
-        "Small Service",
-        "Big Service",
-        "Repairs",
-        "Συντήρηση",
-        "Αλλαγή Ελαστικών",
-        "Αλλαγή Λαδιών",
-        "Μικρό Service",
-        "Μεγάλο Service",
-        "Επισκευές"
-    )
-
     operator fun invoke(expenses: List<Expense>): List<Anomaly> {
         if (expenses.isEmpty()) return emptyList()
 
         val anomalies = mutableListOf<Anomaly>()
 
         // Filter maintenance expenses
-        val maintenanceExpenses = expenses.filter { expense ->
-            maintenanceCategories.any { category ->
-                expense.category.equals(category, ignoreCase = true)
-            }
+        val maintenanceExpenses = expenses.filter {
+            ExpenseCategories.isServiceCategory(it.category)
         }
 
         if (maintenanceExpenses.isEmpty()) return emptyList()
