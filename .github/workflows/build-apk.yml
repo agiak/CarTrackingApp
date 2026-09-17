@@ -15,8 +15,6 @@ name: Build APK
 # the next build always continues from the correct version and no version code
 # is ever reused.
 on:
-  push:
-    branches: [develop]
   workflow_dispatch:
     inputs:
       build_type:
