@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.domain.usecase.comparison
 
-import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.CarComparisonResult
 import com.agcoding.cartrackingapp.domain.model.ComparisonDifference
@@ -17,7 +16,7 @@ import kotlin.math.abs
 /**
  * Use case for calculating car comparison metrics from local data only
  */
-class CalculateCarComparisonUseCase @Inject constructor(
+class  CalculateCarComparisonUseCase @Inject constructor(
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository
