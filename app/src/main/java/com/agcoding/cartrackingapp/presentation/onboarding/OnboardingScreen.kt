@@ -23,9 +23,14 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun OnboardingScreen(
     onOnboardingComplete: () -> Unit,
     onNavigateToAuth: (CloudAuthMode) -> Unit = {},
+    openedByDeepLink: Boolean = false,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(openedByDeepLink) {
+        if (openedByDeepLink) viewModel.onOpenedByDeepLink()
+    }
 
     AnimatedContent(
         targetState = state,

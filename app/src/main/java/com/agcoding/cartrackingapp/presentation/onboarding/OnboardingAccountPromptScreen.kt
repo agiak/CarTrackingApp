@@ -93,11 +93,22 @@ fun OnboardingAccountPromptScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // The same rule as the status card: while the engine moves
+            // nothing, an account does not yet keep anything safe, and this is
+            // the screen where the user is deciding — the worst possible place
+            // to promise a backup that is not happening.
             ChoiceCard(
-                icon = Icons.Default.CloudQueue,
-                accent = AppSuccess.color,
+                icon = if (dataSyncAvailable) Icons.Default.CloudQueue else Icons.Default.Info,
+                accent = if (dataSyncAvailable) {
+                    AppSuccess.color
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
                 title = stringResource(R.string.onboarding_account_online_title),
-                body = stringResource(R.string.onboarding_account_online_body),
+                body = stringResource(
+                    if (dataSyncAvailable) R.string.onboarding_account_online_body
+                    else R.string.onboarding_account_online_body_pending
+                ),
             )
 
             ChoiceCard(
@@ -106,15 +117,6 @@ fun OnboardingAccountPromptScreen(
                 title = stringResource(R.string.onboarding_account_offline_title),
                 body = stringResource(R.string.onboarding_account_offline_body),
             )
-
-            if (!dataSyncAvailable) {
-                ChoiceCard(
-                    icon = Icons.Default.Info,
-                    accent = MaterialTheme.colorScheme.onSurfaceVariant,
-                    title = stringResource(R.string.cloud_sync_not_ready_title),
-                    body = stringResource(R.string.cloud_sync_not_ready_desc),
-                )
-            }
 
             Spacer(modifier = Modifier.height(4.dp))
 

@@ -37,6 +37,14 @@ class OnboardingViewModel @Inject constructor(
     /** Passed through to the prompt so it does not over-promise; see CloudSync. */
     val dataSyncAvailable: Boolean = cloudSync.movesData
 
+    /**
+     * The app was opened by tapping a notification or a widget, so it is on
+     * its way somewhere specific. Asking about accounts in the middle of that
+     * would be answering a question nobody asked — and it would leave the
+     * prompt sitting underneath, waiting to appear when they press back.
+     */
+    private var openedByDeepLink = false
+
     private val _state = MutableStateFlow<OnboardingState>(OnboardingState.Loading)
     val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
@@ -77,8 +85,21 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun shouldAskAboutAccount(): Boolean {
+        if (openedByDeepLink) return false
         val cloud = cloudRepository.state.first()
         return !cloud.accountPromptAnswered && !cloud.isSignedIn
+    }
+
+    /**
+     * Checked in both directions on purpose: this arrives from the first
+     * composition while [checkOnboardingStatus] is suspended on DataStore, and
+     * either of the two can finish first.
+     */
+    fun onOpenedByDeepLink() {
+        openedByDeepLink = true
+        if (_state.value is OnboardingState.ShowAccountPrompt) {
+            completeOnboarding()
+        }
     }
 
     fun nextSlide() {

@@ -343,7 +343,11 @@ fun AppNavigation(
                     },
                     onNavigateToAuth = { mode ->
                         navController.navigate(Screen.CloudAuth.createRoute(mode))
-                    }
+                    },
+                    // A deep link pushes its destination on top of this one.
+                    // Without this, pressing back out of it would uncover the
+                    // account prompt instead of the home screen.
+                    openedByDeepLink = widgetAction != null || notificationExpenseId != null
                 )
             }
 

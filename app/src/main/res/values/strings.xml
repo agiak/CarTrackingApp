@@ -1447,6 +1447,7 @@
     <string name="onboarding_account_subtitle">Both work. Here is the difference.</string>
     <string name="onboarding_account_online_title">With an account</string>
     <string name="onboarding_account_online_body">Your cars, refills and expenses are kept on the server as well as on this phone. You get them back if you lose it, and you can use the same data on a second phone.</string>
+        <string name="onboarding_account_online_body_pending">Today an account only reserves your place. Your cars and records still live on this phone alone, because uploading them is still being built — but when it is ready, everything you already have goes up on its own.</string>
     <string name="onboarding_account_offline_title">Without an account</string>
     <string name="onboarding_account_offline_body">Everything works exactly the same. Your data stays on this phone and nothing ever leaves it — which also means that if you lose the phone, it is gone.</string>
     <string name="onboarding_account_continue_offline">Continue without an account</string>

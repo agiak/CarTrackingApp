@@ -1428,6 +1428,7 @@
     <string name="onboarding_account_subtitle">Και τα δύο δουλεύουν. Να η διαφορά.</string>
     <string name="onboarding_account_online_title">Με λογαριασμό</string>
     <string name="onboarding_account_online_body">Τα αυτοκίνητα, οι ανεφοδιασμοί και τα έξοδά σου κρατιούνται και στον διακομιστή, όχι μόνο στο κινητό. Τα βρίσκεις ξανά αν το χάσεις, και τα έχεις και σε δεύτερο κινητό.</string>
+        <string name="onboarding_account_online_body_pending">Προς το παρόν ο λογαριασμός απλώς κρατάει τη θέση σου. Τα αυτοκίνητα και οι εγγραφές σου μένουν ακόμη μόνο σε αυτό το κινητό, γιατί το ανέβασμα φτιάχνεται ακόμη — αλλά μόλις είναι έτοιμο, ό,τι έχεις ήδη ανεβαίνει μόνο του.</string>
     <string name="onboarding_account_offline_title">Χωρίς λογαριασμό</string>
     <string name="onboarding_account_offline_body">Όλα δουλεύουν ακριβώς το ίδιο. Τα δεδομένα μένουν σε αυτό το κινητό και δεν φεύγουν ποτέ — που σημαίνει επίσης ότι αν χάσεις το κινητό, χάθηκαν.</string>
     <string name="onboarding_account_continue_offline">Συνέχεια χωρίς λογαριασμό</string>
