@@ -141,7 +141,10 @@ class CloudAuthViewModel @Inject constructor(
 
     fun sendReset() {
         val state = _uiState.value
-        if (state.isSendingReset || !state.resetEmail.contains('@')) {
+        // A second tap while the first is in flight is not a bad address, so
+        // it must not be reported as one.
+        if (state.isSendingReset) return
+        if (!state.resetEmail.contains('@')) {
             _uiState.value = state.copy(error = CloudError.INVALID_EMAIL)
             return
         }

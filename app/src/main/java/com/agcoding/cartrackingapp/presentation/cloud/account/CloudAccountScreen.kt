@@ -95,8 +95,12 @@ fun CloudAccountScreen(
             null -> null
         }
         if (text != null) {
-            viewModel.consumeMessage()
+            // Shown before it is consumed, not after: clearing the message
+            // changes this effect's key, which cancels this very coroutine —
+            // and showSnackbar suspends for the whole time the snackbar is up,
+            // so consuming first makes it flash and vanish.
             snackbarHostState.showSnackbar(text)
+            viewModel.consumeMessage()
         }
     }
 
