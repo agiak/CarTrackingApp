@@ -13,16 +13,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.StyledLargeTopAppBar
 import com.agcoding.cartrackingapp.presentation.notifications.components.EmptyNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.ErrorNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.NotificationsContent
@@ -36,11 +38,14 @@ fun NotificationsScreen(
     viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            StyledTopAppBar(
+            StyledLargeTopAppBar(
                 title = { Text(stringResource(R.string.notifications_title)) },
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(

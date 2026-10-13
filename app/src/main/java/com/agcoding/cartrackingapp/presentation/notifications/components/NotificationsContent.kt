@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.usecase.expense.ExpenseReminder
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -34,12 +39,16 @@ fun NotificationsContent(
             Spacer(modifier = Modifier.height(4.dp))
         }
 
+        // Just the count. The screen's name is the large title in the bar now,
+        // and repeating it here as a second heading was the reason this screen
+        // said "Service Reminders" twice before you reached the first card.
         item {
             val activeCount = reminders.count { it.expense.reminderEnabled }
-            NotificationsHeader(
-                activeCount = activeCount
+            Text(
+                text = stringResource(R.string.notifications_active_count, activeCount),
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
         items(reminders) { reminder ->
