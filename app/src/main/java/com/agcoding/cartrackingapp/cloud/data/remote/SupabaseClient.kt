@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,7 +45,7 @@ class SupabaseClient @Inject constructor() {
             method = "POST",
             path = "/functions/v1/signup",
             body = JSONObject()
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("password", password)
                 .put("display_name", displayName)
                 .toString(),
@@ -57,7 +58,10 @@ class SupabaseClient @Inject constructor() {
             call(
                 method = "POST",
                 path = "/auth/v1/token?grant_type=password",
-                body = JSONObject().put("email", email).put("password", password).toString(),
+                body = JSONObject()
+                    .put("email", email.normalizedEmail())
+                    .put("password", password)
+                    .toString(),
             )
         )
     )
@@ -102,7 +106,7 @@ class SupabaseClient @Inject constructor() {
             path = "/functions/v1/password-reset",
             body = JSONObject()
                 .put("action", "request")
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("lang", language)
                 .toString(),
         )
@@ -115,7 +119,7 @@ class SupabaseClient @Inject constructor() {
             path = "/functions/v1/password-reset",
             body = JSONObject()
                 .put("action", "redeem")
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("password", password)
                 .toString(),
         )
@@ -227,6 +231,22 @@ class SupabaseClient @Inject constructor() {
     }
 
     // ── plumbing ──────────────────────────────────────────────────────────
+
+    /**
+     * The address as the account is actually stored under.
+     *
+     * The `signup` edge function trims and lower-cases before creating the
+     * user, so anything that does not do the same here is looking for an
+     * account under a name nobody has. A keyboard that capitalises the first
+     * letter, or an autofill that hands over a trailing space, would otherwise
+     * create `Me@x.gr` and then fail to sign into it — with "wrong password"
+     * as the only explanation offered.
+     *
+     * [java.util.Locale.ROOT] because in Turkish locales `I` lower-cases to a
+     * dotless `ı`, which would turn a valid address into a different one on
+     * exactly the phones least likely to be testing this.
+     */
+    private fun String.normalizedEmail(): String = trim().lowercase(Locale.ROOT)
 
     /**
      * One value of a PostgREST `in.(…)` list.
