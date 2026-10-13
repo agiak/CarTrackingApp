@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Palette
@@ -45,7 +46,8 @@ fun SettingsScreen(
     onNavigateToHelpAbout: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToPermissions: () -> Unit = {},
-    onNavigateToDeveloper: () -> Unit = {}
+    onNavigateToDeveloper: () -> Unit = {},
+    onNavigateToCloudAccount: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -94,6 +96,15 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_group_data_storage_subtitle),
                     icon = Icons.Outlined.Storage,
                     onClick = onNavigateToDataStorage
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_cloud_title),
+                    subtitle = stringResource(R.string.settings_group_cloud_subtitle),
+                    icon = Icons.Outlined.CloudSync,
+                    onClick = onNavigateToCloudAccount
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

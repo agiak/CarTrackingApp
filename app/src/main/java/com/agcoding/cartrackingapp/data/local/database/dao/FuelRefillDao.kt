@@ -48,5 +48,13 @@ interface FuelRefillDao {
 
     @Query("DELETE FROM fuel_refills WHERE id = :refillId AND deletedAt IS NOT NULL")
     suspend fun permanentlyDeleteRefill(refillId: Long)
+
+    // Sync — trashed rows included on purpose; see CarDao.getAllForSync.
+
+    @Query("SELECT * FROM fuel_refills ORDER BY id ASC")
+    suspend fun getAllForSync(): List<FuelRefillEntity>
+
+    @Query("DELETE FROM fuel_refills")
+    suspend fun deleteAll()
 }
 

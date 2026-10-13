@@ -75,5 +75,13 @@ interface TripDao {
 
     @Query("DELETE FROM trips WHERE id = :tripId AND deletedAt IS NOT NULL")
     suspend fun permanentlyDeleteTrip(tripId: Long)
+
+    // Sync — trashed rows included on purpose; see CarDao.getAllForSync.
+
+    @Query("SELECT * FROM trips ORDER BY id ASC")
+    suspend fun getAllForSync(): List<TripEntity>
+
+    @Query("DELETE FROM trips")
+    suspend fun deleteAll()
 }
 

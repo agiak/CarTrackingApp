@@ -1337,4 +1337,105 @@
     <string name="trip_picker_new">New trip</string>
     <string name="trip_picker_empty">This car has no trips yet. Create one to group its refills.</string>
     <string name="trip_picker_remove">Remove from trip</string>
+
+    <!-- Cloud account &amp; sync -->
+    <string name="settings_group_cloud_title">Account &amp; sync</string>
+    <string name="settings_group_cloud_subtitle">Back up your data and use it on a second phone</string>
+
+    <string name="cloud_section_account">ACCOUNT</string>
+    <string name="cloud_section_sync">SYNC</string>
+    <string name="cloud_section_security">SECURITY</string>
+
+    <!-- Status card -->
+    <string name="cloud_mode_offline_title">No account</string>
+    <string name="cloud_mode_offline_desc">Everything is kept on this phone only.</string>
+    <string name="cloud_mode_online_title">Backed up</string>
+    <string name="cloud_mode_online_desc">Your data is on the server as well as on this phone.</string>
+    <string name="cloud_mode_syncing_title">Syncing…</string>
+    <string name="cloud_mode_syncing_desc">Comparing this phone with the server.</string>
+    <string name="cloud_mode_no_internet_title">No internet</string>
+    <string name="cloud_mode_no_internet_desc">Changes will be sent as soon as you are back online.</string>
+    <string name="cloud_mode_sync_error_title">Sync failed</string>
+    <string name="cloud_mode_sync_error_desc">Nothing was lost. It will be tried again.</string>
+    <string name="cloud_last_sync">Last sync: %1$s</string>
+    <string name="cloud_last_sync_never">Not synced yet</string>
+    <string name="cloud_pending_changes">There are changes waiting to be sent</string>
+
+    <!-- Signed out -->
+    <string name="cloud_pitch_title">Keep your data safe</string>
+    <string name="cloud_pitch_body">The app works perfectly well without an account. With one, your cars, refills and expenses are kept on the server too — so you get them back if you lose your phone, and you can use them on a second one.</string>
+
+    <!-- Sign in / create account -->
+    <string name="cloud_sign_in_title">Sign in</string>
+    <string name="cloud_sign_in_subtitle">The email and password of your account.</string>
+    <string name="cloud_sign_in_action">Sign in</string>
+    <string name="cloud_sign_up_title">Create account</string>
+    <string name="cloud_sign_up_subtitle">An email and a password, that is all. There is no confirmation mail to wait for.</string>
+    <string name="cloud_sign_up_action">Create account</string>
+    <string name="cloud_switch_to_sign_up">No account yet? Create one</string>
+    <string name="cloud_switch_to_sign_in">Already have an account? Sign in</string>
+    <string name="cloud_email">Email</string>
+    <string name="cloud_password">Password</string>
+    <string name="cloud_password_min">At least 6 characters</string>
+    <string name="cloud_display_name">Your name</string>
+    <string name="cloud_display_name_optional">Optional — only you ever see it</string>
+    <string name="cloud_show_password">Show password</string>
+    <string name="cloud_hide_password">Hide password</string>
+
+    <!-- Forgotten password -->
+    <string name="cloud_forgot_password">Forgot your password?</string>
+    <string name="cloud_reset_title">Reset password</string>
+    <string name="cloud_reset_desc">We will email you a temporary password. Sign in with it and you will be asked to choose a new one.</string>
+    <string name="cloud_reset_action">Send</string>
+    <string name="cloud_reset_sent">If that address has an account, a temporary password is on its way.</string>
+
+    <!-- Change password -->
+    <string name="cloud_change_password_title">Change password</string>
+    <string name="cloud_change_password_desc">Choose a new password for your account</string>
+    <string name="cloud_change_password_action">Save</string>
+    <string name="cloud_change_password_forced_title">Choose a new password</string>
+    <string name="cloud_change_password_forced_desc">You signed in with a temporary password. Choose a real one to carry on.</string>
+    <string name="cloud_new_password">New password</string>
+    <string name="cloud_repeat_password">Repeat password</string>
+    <string name="cloud_passwords_differ">The two passwords are not the same</string>
+
+    <!-- Signed in -->
+    <string name="cloud_signed_in_as">Signed in as</string>
+    <string name="cloud_sync_now">Sync now</string>
+    <string name="cloud_sync_now_desc">Compare this phone with the server right away</string>
+    <string name="cloud_synced">Synced</string>
+    <string name="cloud_nothing_to_sync">Already up to date</string>
+    <string name="cloud_sign_out">Sign out</string>
+    <string name="cloud_sign_out_desc">Carry on using the app without an account</string>
+    <string name="cloud_sign_out_message">You can sign in again at any time. Everything that has been synced stays on the server.</string>
+    <string name="cloud_signed_out">Signed out</string>
+    <string name="cloud_delete_account">Delete account</string>
+    <string name="cloud_delete_account_desc">Remove the account and everything on the server</string>
+    <string name="cloud_delete_account_message">The account and every row it holds on the server are deleted for good. This cannot be undone.</string>
+    <string name="cloud_delete_account_action">Delete</string>
+    <string name="cloud_account_deleted">Account deleted</string>
+    <string name="cloud_wipe_local">Also remove the data from this phone</string>
+    <string name="cloud_wipe_local_desc">Cars, refills, expenses, trips and attachments. Only offered once a sync has actually completed.</string>
+
+    <!-- Sync progress -->
+    <string name="cloud_stage_connect">Connecting…</string>
+    <string name="cloud_stage_pull">Fetching your data…</string>
+    <string name="cloud_stage_data">Sending your data…</string>
+    <string name="cloud_stage_finish">Finishing…</string>
+    <string name="cloud_sync_not_ready_title">Data sync is not switched on yet</string>
+    <string name="cloud_sync_not_ready_desc">The account works, but your cars and records are not being uploaded yet.</string>
+
+    <!-- Cloud errors -->
+    <string name="cloud_error_invalid_credentials">Wrong email or password.</string>
+    <string name="cloud_error_user_exists">There is already an account with this email.</string>
+    <string name="cloud_error_weak_password">The password must be at least 6 characters.</string>
+    <string name="cloud_error_same_password">That is already your password.</string>
+    <string name="cloud_error_email_send_failed">The email could not be sent. Try again in a moment.</string>
+    <string name="cloud_error_invalid_email">That email address does not look right.</string>
+    <string name="cloud_error_rate_limited">Too many attempts. Wait a minute and try again.</string>
+    <string name="cloud_error_session_expired">Your session expired. Sign in again.</string>
+    <string name="cloud_error_no_connection">No internet connection.</string>
+    <string name="cloud_error_unsynced_changes">There are changes that have not been sent yet. Sync first.</string>
+    <string name="cloud_error_unknown">Something went wrong. Try again.</string>
+
 </resources>

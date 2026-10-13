@@ -1318,4 +1318,105 @@
     <string name="trip_picker_new">Νέο ταξίδι</string>
     <string name="trip_picker_empty">Αυτό το αυτοκίνητο δεν έχει ταξίδια ακόμη. Δημιούργησε ένα για να ομαδοποιήσεις τους ανεφοδιασμούς του.</string>
     <string name="trip_picker_remove">Αφαίρεση από το ταξίδι</string>
+
+    <!-- Cloud account &amp; sync -->
+    <string name="settings_group_cloud_title">Λογαριασμός &amp; συγχρονισμός</string>
+    <string name="settings_group_cloud_subtitle">Κράτα αντίγραφο των δεδομένων σου και χρησιμοποίησέ τα σε δεύτερο κινητό</string>
+
+    <string name="cloud_section_account">ΛΟΓΑΡΙΑΣΜΟΣ</string>
+    <string name="cloud_section_sync">ΣΥΓΧΡΟΝΙΣΜΟΣ</string>
+    <string name="cloud_section_security">ΑΣΦΑΛΕΙΑ</string>
+
+    <!-- Status card -->
+    <string name="cloud_mode_offline_title">Χωρίς λογαριασμό</string>
+    <string name="cloud_mode_offline_desc">Όλα μένουν μόνο σε αυτό το κινητό.</string>
+    <string name="cloud_mode_online_title">Ασφαλές αντίγραφο</string>
+    <string name="cloud_mode_online_desc">Τα δεδομένα σου είναι και στον διακομιστή, όχι μόνο εδώ.</string>
+    <string name="cloud_mode_syncing_title">Συγχρονισμός…</string>
+    <string name="cloud_mode_syncing_desc">Γίνεται σύγκριση με τον διακομιστή.</string>
+    <string name="cloud_mode_no_internet_title">Χωρίς ιντερνέτ</string>
+    <string name="cloud_mode_no_internet_desc">Οι αλλαγές θα σταλούν μόλις ξανασυνδεθείς.</string>
+    <string name="cloud_mode_sync_error_title">Ο συγχρονισμός απέτυχε</string>
+    <string name="cloud_mode_sync_error_desc">Δεν χάθηκε τίποτα. Θα ξαναδοκιμαστεί.</string>
+    <string name="cloud_last_sync">Τελευταίος συγχρονισμός: %1$s</string>
+    <string name="cloud_last_sync_never">Δεν έχει γίνει συγχρονισμός ακόμη</string>
+    <string name="cloud_pending_changes">Υπάρχουν αλλαγές που δεν έχουν σταλεί</string>
+
+    <!-- Signed out -->
+    <string name="cloud_pitch_title">Κράτα τα δεδομένα σου ασφαλή</string>
+    <string name="cloud_pitch_body">Η εφαρμογή δουλεύει μια χαρά χωρίς λογαριασμό. Με λογαριασμό, τα αυτοκίνητα, οι ανεφοδιασμοί και τα έξοδά σου κρατιούνται και στον διακομιστή — ώστε να τα βρεις αν χάσεις το κινητό, και να τα έχεις και σε δεύτερο.</string>
+
+    <!-- Sign in / create account -->
+    <string name="cloud_sign_in_title">Σύνδεση</string>
+    <string name="cloud_sign_in_subtitle">Το email και ο κωδικός του λογαριασμού σου.</string>
+    <string name="cloud_sign_in_action">Σύνδεση</string>
+    <string name="cloud_sign_up_title">Νέος λογαριασμός</string>
+    <string name="cloud_sign_up_subtitle">Μόνο ένα email κι ένας κωδικός. Δεν χρειάζεται να περιμένεις email επιβεβαίωσης.</string>
+    <string name="cloud_sign_up_action">Δημιουργία λογαριασμού</string>
+    <string name="cloud_switch_to_sign_up">Δεν έχεις λογαριασμό; Δημιούργησε έναν</string>
+    <string name="cloud_switch_to_sign_in">Έχεις ήδη λογαριασμό; Συνδέσου</string>
+    <string name="cloud_email">Email</string>
+    <string name="cloud_password">Κωδικός</string>
+    <string name="cloud_password_min">Τουλάχιστον 6 χαρακτήρες</string>
+    <string name="cloud_display_name">Το όνομά σου</string>
+    <string name="cloud_display_name_optional">Προαιρετικό — το βλέπεις μόνο εσύ</string>
+    <string name="cloud_show_password">Εμφάνιση κωδικού</string>
+    <string name="cloud_hide_password">Απόκρυψη κωδικού</string>
+
+    <!-- Forgotten password -->
+    <string name="cloud_forgot_password">Ξέχασες τον κωδικό σου;</string>
+    <string name="cloud_reset_title">Επαναφορά κωδικού</string>
+    <string name="cloud_reset_desc">Θα σου στείλουμε με email έναν προσωρινό κωδικό. Συνδέσου με αυτόν και θα σου ζητηθεί να διαλέξεις καινούργιο.</string>
+    <string name="cloud_reset_action">Αποστολή</string>
+    <string name="cloud_reset_sent">Αν υπάρχει λογαριασμός με αυτή τη διεύθυνση, ο προσωρινός κωδικός έρχεται.</string>
+
+    <!-- Change password -->
+    <string name="cloud_change_password_title">Αλλαγή κωδικού</string>
+    <string name="cloud_change_password_desc">Διάλεξε καινούργιο κωδικό για τον λογαριασμό σου</string>
+    <string name="cloud_change_password_action">Αποθήκευση</string>
+    <string name="cloud_change_password_forced_title">Διάλεξε καινούργιο κωδικό</string>
+    <string name="cloud_change_password_forced_desc">Συνδέθηκες με προσωρινό κωδικό. Διάλεξε έναν κανονικό για να συνεχίσεις.</string>
+    <string name="cloud_new_password">Νέος κωδικός</string>
+    <string name="cloud_repeat_password">Επανάληψη κωδικού</string>
+    <string name="cloud_passwords_differ">Οι δύο κωδικοί δεν είναι ίδιοι</string>
+
+    <!-- Signed in -->
+    <string name="cloud_signed_in_as">Συνδεδεμένος ως</string>
+    <string name="cloud_sync_now">Συγχρονισμός τώρα</string>
+    <string name="cloud_sync_now_desc">Σύγκριση με τον διακομιστή αμέσως</string>
+    <string name="cloud_synced">Ο συγχρονισμός ολοκληρώθηκε</string>
+    <string name="cloud_nothing_to_sync">Δεν υπήρχαν αλλαγές</string>
+    <string name="cloud_sign_out">Αποσύνδεση</string>
+    <string name="cloud_sign_out_desc">Συνέχισε να χρησιμοποιείς την εφαρμογή χωρίς λογαριασμό</string>
+    <string name="cloud_sign_out_message">Μπορείς να ξανασυνδεθείς οποτεδήποτε. Ό,τι έχει συγχρονιστεί μένει στον διακομιστή.</string>
+    <string name="cloud_signed_out">Αποσυνδεθήκατε</string>
+    <string name="cloud_delete_account">Διαγραφή λογαριασμού</string>
+    <string name="cloud_delete_account_desc">Αφαίρεση του λογαριασμού και όλων όσων είναι στον διακομιστή</string>
+    <string name="cloud_delete_account_message">Ο λογαριασμός και όλα τα δεδομένα που κρατάει στον διακομιστή διαγράφονται οριστικά. Δεν αναιρείται.</string>
+    <string name="cloud_delete_account_action">Διαγραφή</string>
+    <string name="cloud_account_deleted">Ο λογαριασμός διαγράφηκε</string>
+    <string name="cloud_wipe_local">Να αφαιρεθούν και τα δεδομένα από αυτό το κινητό</string>
+    <string name="cloud_wipe_local_desc">Αυτοκίνητα, ανεφοδιασμοί, έξοδα, ταξίδια και συνημμένα. Επιτρέπεται μόνο αφού έχει ολοκληρωθεί ένας συγχρονισμός.</string>
+
+    <!-- Sync progress -->
+    <string name="cloud_stage_connect">Σύνδεση…</string>
+    <string name="cloud_stage_pull">Λήψη των δεδομένων σου…</string>
+    <string name="cloud_stage_data">Αποστολή των δεδομένων σου…</string>
+    <string name="cloud_stage_finish">Ολοκλήρωση…</string>
+    <string name="cloud_sync_not_ready_title">Ο συγχρονισμός δεδομένων δεν είναι ακόμη ενεργός</string>
+    <string name="cloud_sync_not_ready_desc">Ο λογαριασμός δουλεύει, αλλά τα αυτοκίνητα και οι εγγραφές σου δεν ανεβαίνουν ακόμη.</string>
+
+    <!-- Cloud errors -->
+    <string name="cloud_error_invalid_credentials">Λάθος email ή κωδικός.</string>
+    <string name="cloud_error_user_exists">Υπάρχει ήδη λογαριασμός με αυτό το email.</string>
+    <string name="cloud_error_weak_password">Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.</string>
+    <string name="cloud_error_same_password">Αυτός είναι ήδη ο κωδικός σου.</string>
+    <string name="cloud_error_email_send_failed">Το email δεν μπόρεσε να σταλεί. Δοκίμασε ξανά σε λίγο.</string>
+    <string name="cloud_error_invalid_email">Αυτή η διεύθυνση email δεν μοιάζει σωστή.</string>
+    <string name="cloud_error_rate_limited">Πολλές προσπάθειες. Περίμενε ένα λεπτό και ξαναδοκίμασε.</string>
+    <string name="cloud_error_session_expired">Η σύνδεσή σου έληξε. Συνδέσου ξανά.</string>
+    <string name="cloud_error_no_connection">Δεν υπάρχει σύνδεση στο ιντερνέτ.</string>
+    <string name="cloud_error_unsynced_changes">Υπάρχουν αλλαγές που δεν έχουν σταλεί. Κάνε πρώτα συγχρονισμό.</string>
+    <string name="cloud_error_unknown">Κάτι πήγε στραβά. Δοκίμασε ξανά.</string>
+
 </resources>

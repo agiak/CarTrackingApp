@@ -47,6 +47,10 @@ import com.agcoding.cartrackingapp.presentation.cardetails.CarDetailsScreen
 import com.agcoding.cartrackingapp.presentation.carlist.CarListScreen
 import com.agcoding.cartrackingapp.presentation.carstatistics.CarStatisticsScreen
 import com.agcoding.cartrackingapp.presentation.cartransactions.CarTransactionsScreen
+import com.agcoding.cartrackingapp.presentation.cloud.account.CloudAccountScreen
+import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
+import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthScreen
+import com.agcoding.cartrackingapp.presentation.cloud.password.ChangePasswordScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
 import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScreen
 import com.agcoding.cartrackingapp.presentation.editcar.EditCarScreen
@@ -180,6 +184,17 @@ sealed class Screen(val route: String) {
     object HelpAboutSettings : Screen("settings/help_about")
     object PermissionsSettings : Screen("settings/permissions")
     object DeveloperSettings : Screen("settings/developer")
+    object CloudAccountSettings : Screen("settings/cloud_account")
+
+    /** @param mode a [CloudAuthMode] name: which of the two to open on. */
+    object CloudAuth : Screen("settings/cloud_account/auth/{mode}") {
+        fun createRoute(mode: CloudAuthMode) = "settings/cloud_account/auth/${mode.name}"
+    }
+
+    /** @param forced true after signing in with an emailed temporary password. */
+    object CloudChangePassword : Screen("settings/cloud_account/password/{forced}") {
+        fun createRoute(forced: Boolean) = "settings/cloud_account/password/$forced"
+    }
     object NotificationHistory : Screen("notification_history")
     object Trash : Screen("trash")
 }
@@ -457,6 +472,9 @@ fun AppNavigation(
                     },
                     onNavigateToDeveloper = {
                         navController.navigate(Screen.DeveloperSettings.route)
+                    },
+                    onNavigateToCloudAccount = {
+                        navController.navigate(Screen.CloudAccountSettings.route)
                     }
                 )
             }
@@ -550,6 +568,70 @@ fun AppNavigation(
             ) {
                 DeveloperSettingsScreen(
                     onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            // Cloud account
+            animatedComposable(
+                route = Screen.CloudAccountSettings.route,
+                animationConfig = NavigationAnimations.HorizontalSlide
+            ) {
+                CloudAccountScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToAuth = { mode ->
+                        navController.navigate(Screen.CloudAuth.createRoute(mode))
+                    },
+                    onNavigateToChangePassword = {
+                        navController.navigate(Screen.CloudChangePassword.createRoute(forced = false))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CloudAuth.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(navArgument("mode") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val mode = backStackEntry.arguments?.getString("mode")
+                    ?.let { runCatching { CloudAuthMode.valueOf(it) }.getOrNull() }
+                    ?: CloudAuthMode.SignIn
+                CloudAuthScreen(
+                    initialMode = mode,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onSignedIn = {
+                        navController.popBackStack()
+                    },
+                    onMustChangePassword = {
+                        // Replaces the auth screen rather than stacking on it:
+                        // going "back" from a mandatory password change should
+                        // not land on a sign-in form for an account the user
+                        // is already signed in to.
+                        navController.navigate(
+                            Screen.CloudChangePassword.createRoute(forced = true)
+                        ) {
+                            popUpTo(Screen.CloudAuth.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CloudChangePassword.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(navArgument("forced") { type = NavType.BoolType })
+            ) { backStackEntry ->
+                ChangePasswordScreen(
+                    forced = backStackEntry.arguments?.getBoolean("forced") == true,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onChanged = {
                         navController.popBackStack()
                     }
                 )
