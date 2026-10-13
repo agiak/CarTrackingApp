@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkDao
+import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkEntity
 import com.agcoding.cartrackingapp.data.local.database.dao.CarAttachmentDao
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
@@ -22,8 +24,8 @@ import com.agcoding.cartrackingapp.data.local.database.entity.NotificationHistor
 import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
-    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class],
-    version = 20,
+    entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class, SyncLinkEntity::class],
+    version = 21,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -34,6 +36,7 @@ abstract class CarDatabase : RoomDatabase() {
     abstract fun carAttachmentDao(): CarAttachmentDao
     abstract fun tripDao(): TripDao
     abstract fun notificationHistoryDao(): NotificationHistoryDao
+    abstract fun syncLinkDao(): SyncLinkDao
 
     companion object {
         @Volatile
@@ -51,7 +54,7 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
                         MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
-                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20
+                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
@@ -336,6 +339,25 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Persisted, user-editable name of the refill location (reverse-geocoded address).
         db.execSQL("ALTER TABLE fuel_refills ADD COLUMN locationName TEXT DEFAULT NULL")
+    }
+}
+
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // The only table cloud sync adds. Every existing table is left exactly
+        // as it was, so an install that never signs in is unaffected: the
+        // table is simply created and stays empty.
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `sync_links` (
+                `entity` TEXT NOT NULL,
+                `localKey` TEXT NOT NULL,
+                `remoteId` TEXT NOT NULL,
+                `hash` TEXT NOT NULL,
+                PRIMARY KEY(`entity`, `localKey`)
+            )
+            """.trimIndent()
+        )
     }
 }
 
