@@ -40,6 +40,21 @@ Or paste them in the dashboard: Edge Functions → Secrets.
 
 ## Sending
 
+Open **`tools/push-admin.html`** in a browser — double-click it, `file://` is
+fine. It is one static page with no build and nothing running: a title, a body,
+a preview of what the notification will look like, and three buttons. Paste the
+admin key once and the browser remembers it.
+
+The three buttons, in the order you should press them:
+
+1. **Πόσες συσκευές;** — asks how many devices this would reach and sends
+   nothing (`dry_run`). Also the cheapest way to prove the whole chain works.
+2. **Δοκιμή σε εμένα** — sends only to the devices of one account, by email.
+3. **Αποστολή σε όλους** — everyone. Asks for confirmation first, because this
+   one cannot be taken back.
+
+Or by hand:
+
 ```bash
 curl -X POST \
   'https://gqinaapwmxkvizehseag.supabase.co/functions/v1/send-push' \
@@ -49,16 +64,21 @@ curl -X POST \
 ```
 
 ```json
-{ "devices": 12, "sent": 11, "failed": 0, "pruned": 1 }
+{ "audience": "all", "devices": 12, "sent": 11, "failed": 0, "pruned": 1 }
 ```
 
-- `devices` — rows in `device_tokens`
+- `devices` — how many devices were in the audience
 - `sent` — accepted by Firebase
 - `pruned` — tokens Firebase rejected as dead (uninstalled app); the rows are
   deleted, so the count shrinks on its own rather than rotting
 - `failed` — temporary failures, not retried; send again if it is not zero
 
-`title` is required (≤120 chars), `body` optional (≤1000).
+| field | | |
+|---|---|---|
+| `title` | required | ≤120 chars |
+| `body` | optional | ≤1000 chars |
+| `only_email` | optional | send only to that account's devices |
+| `dry_run` | optional | count the audience, send nothing |
 
 ## Things worth knowing before you rely on it
 
@@ -77,6 +97,13 @@ which is comfortable into the low thousands of devices within one invocation.
 Past that, move to an FCM *topic*: every device subscribes on sign-in and one
 API call reaches all of them — at the cost of no longer knowing who is on the
 list or being able to target one person.
+
+**The admin key sits in the browser, not in the app.** It is deliberately not
+shipped anywhere near the APK: a key inside an installed app is a key anybody
+with the APK can pull out, and this one opens every user's notification tray.
+If you later want to send from the phone instead, that is a different design —
+mark an account as admin server-side and have the function check the caller's
+JWT, so there is no shared secret in a client at all.
 
 **Nothing can read `device_tokens` from the client.** The table has RLS on,
 zero policies, and no grants: devices register through

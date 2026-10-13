@@ -21,6 +21,17 @@ const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 const PAGE = 1000;
 const CONCURRENCY = 20;
 
+// Open to any origin, deliberately. The admin page runs from a file:// URL
+// (origin `null`) or from wherever it is opened, so there is no fixed origin
+// to name. Nothing is lost by it: the function authenticates on a header no
+// third-party page can obtain, and sets no cookies for a browser to attach.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type, x-admin-key",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Max-Age": "86400",
+};
+
 interface ServiceAccount {
   project_id: string;
   client_email: string;
@@ -30,7 +41,7 @@ interface ServiceAccount {
 function reply(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...CORS },
   });
 }
 
@@ -144,6 +155,11 @@ async function sendOne(
 }
 
 Deno.serve(async (req: Request) => {
+  // The browser asks before it is willing to send `x-admin-key`.
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS });
+  }
+
   if (req.method !== "POST") {
     return reply(405, { error_code: "method_not_allowed", msg: "Use POST" });
   }
@@ -173,6 +189,14 @@ Deno.serve(async (req: Request) => {
 
   const title = String(body.title ?? "").trim();
   const message = String(body.body ?? "").trim();
+  // Aim at one account instead of all of them. The point of this is to read
+  // the thing on a real phone, in the real font, before several thousand
+  // people read it.
+  const onlyEmail = String(body.only_email ?? "").trim();
+  // Count the audience and stop. Answers "how many people is this about to
+  // reach" without reaching them.
+  const dryRun = body.dry_run === true;
+
   if (!title || title.length > 120) {
     return reply(400, {
       error_code: "validation_failed",
@@ -183,6 +207,12 @@ Deno.serve(async (req: Request) => {
     return reply(400, {
       error_code: "validation_failed",
       msg: "body must be 1000 characters or fewer",
+    });
+  }
+  if (onlyEmail.length > 320) {
+    return reply(400, {
+      error_code: "validation_failed",
+      msg: "only_email is not an email address",
     });
   }
 
@@ -200,24 +230,49 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // Every registered device. PostgREST caps a response at 1000 rows, so this
-  // pages rather than quietly notifying only the first thousand people.
+  const audience = onlyEmail || "all";
   const tokens: string[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await admin
-      .from("device_tokens")
-      .select("token")
-      .order("token", { ascending: true })
-      .range(from, from + PAGE - 1);
+
+  if (onlyEmail) {
+    // auth.users is not exposed over REST, so the join lives in a definer
+    // function only the service role may call.
+    const { data, error } = await admin.rpc("device_tokens_for_email", {
+      p_email: onlyEmail,
+    });
     if (error) {
       return reply(500, { error_code: "unexpected_failure", msg: error.message });
     }
-    tokens.push(...(data ?? []).map((row) => row.token as string));
-    if (!data || data.length < PAGE) break;
+    tokens.push(...(data ?? []) as string[]);
+  } else {
+    // Every registered device. PostgREST caps a response at 1000 rows, so this
+    // pages rather than quietly notifying only the first thousand people.
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await admin
+        .from("device_tokens")
+        .select("token")
+        .order("token", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) {
+        return reply(500, { error_code: "unexpected_failure", msg: error.message });
+      }
+      tokens.push(...(data ?? []).map((row) => row.token as string));
+      if (!data || data.length < PAGE) break;
+    }
+  }
+
+  if (dryRun) {
+    return reply(200, {
+      dry_run: true,
+      audience,
+      devices: tokens.length,
+      sent: 0,
+      failed: 0,
+      pruned: 0,
+    });
   }
 
   if (tokens.length === 0) {
-    return reply(200, { devices: 0, sent: 0, failed: 0, pruned: 0 });
+    return reply(200, { audience, devices: 0, sent: 0, failed: 0, pruned: 0 });
   }
 
   let bearer: string;
@@ -264,6 +319,7 @@ Deno.serve(async (req: Request) => {
   }
 
   return reply(200, {
+    audience,
     devices: tokens.length,
     sent,
     failed,
