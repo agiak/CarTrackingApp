@@ -18,10 +18,11 @@ interface CloudSync {
     /**
      * Whether this engine actually moves data.
      *
-     * False while the per-entity tables are still being designed: the account
-     * works, but nothing is uploaded. The account screen reads it so it can
-     * say so plainly instead of letting the user believe their cars and
-     * refills are backed up when they are not.
+     * The screens that tell the user their data is safe read this rather than
+     * assume it. It existed because for a while the account worked and nothing
+     * was uploaded yet, and saying "backed up" then would have been a lie; it
+     * stays because the next version of that situation — a table added here
+     * before its sync is written — should cost a boolean, not a wrong promise.
      */
     val movesData: Boolean
 

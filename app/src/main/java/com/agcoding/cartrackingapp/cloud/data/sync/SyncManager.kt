@@ -280,7 +280,9 @@ class SyncManager @Inject constructor(
             table = RemoteTable.CATEGORIES,
             session = session,
             remote = remote.getValue(RemoteTable.CATEGORIES),
-            local = categoryDao.getAllForSync().map { it.toLocalItem() },
+            local = categoryDao.getAllForSync()
+                .filter { it.name.isUploadableCategoryName() }
+                .map { it.toLocalItem() },
             newRemoteId = { it.localKey },
             insert = { row ->
                 val name = row.remoteId
@@ -422,6 +424,25 @@ class SyncManager @Inject constructor(
 
     private fun SyncLink.toEntity(table: RemoteTable, hash: String) =
         SyncLinkEntity(entity = table.name, localKey = localKey, remoteId = remoteId, hash = hash)
+
+    /**
+     * Whether a category's name can satisfy `check (length(trim(name)) between
+     * 1 and 100)`.
+     *
+     * Every other table clamps its text on the way out, but a category's name
+     * *is* its key: cutting it short would not fix the row, it would turn it
+     * into a different category. So an impossible name is left on this phone
+     * instead — the alternative is a row that makes PostgREST reject the whole
+     * batch, which would mean no categories ever syncing again, for anybody.
+     *
+     * Measured untrimmed at the top and Kotlin-trimmed at the bottom, because
+     * Kotlin counts UTF-16 units where Postgres counts characters and trims
+     * more kinds of space than Postgres does. Both errors therefore fall on
+     * the side of skipping a row the server would have taken, never of sending
+     * one it will refuse.
+     */
+    private fun String.isUploadableCategoryName(): Boolean =
+        length <= 100 && trim().isNotEmpty()
 
     private companion object {
         /** Long enough to collapse one screen's worth of saves into one sync. */

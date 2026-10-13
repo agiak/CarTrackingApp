@@ -91,11 +91,16 @@ class CloudSyncProgressViewModel @Inject constructor(
 
         viewModelScope.launch {
             val result = runCatching { cloudSync.syncNow() }
-            // Let the bar and its labels play out even if the sync was instant.
-            delay((MIN_SCREEN_MILLIS - (System.currentTimeMillis() - startedAt)).coerceAtLeast(0))
-            pacing?.cancel()
             result.fold(
                 onSuccess = { summary ->
+                    // Let the bar and its labels play out even if the sync was
+                    // instant. Only on the way to a tick: holding a bar that
+                    // is already going nowhere just delays bad news.
+                    delay(
+                        (MIN_SCREEN_MILLIS - (System.currentTimeMillis() - startedAt))
+                            .coerceAtLeast(0)
+                    )
+                    pacing?.cancel()
                     _uiState.value = _uiState.value.copy(progress = 1f, stage = SyncStage.DONE)
                     delay(DONE_PAUSE_MILLIS)
                     _uiState.value = _uiState.value.copy(
@@ -104,6 +109,7 @@ class CloudSyncProgressViewModel @Inject constructor(
                     )
                 },
                 onFailure = { error ->
+                    pacing?.cancel()
                     _uiState.value = _uiState.value.copy(
                         step = CloudSyncStep.Failed,
                         error = (error as? CloudException)?.error ?: CloudError.UNKNOWN,

@@ -214,7 +214,7 @@ class SupabaseClient @Inject constructor() {
         ids.chunked(DELETE_BATCH).forEach { batch ->
             val url = tableUrl(table)
                 .addQueryParameter("user_id", "eq.${session.userId}")
-                .addQueryParameter(keyColumn, batch.joinToString(",", "in.(", ")") { "\"$it\"" })
+                .addQueryParameter(keyColumn, batch.joinToString(",", "in.(", ")") { quoted(it) })
                 .build()
             request(
                 method = "PATCH",
@@ -227,6 +227,18 @@ class SupabaseClient @Inject constructor() {
     }
 
     // ── plumbing ──────────────────────────────────────────────────────────
+
+    /**
+     * One value of a PostgREST `in.(…)` list.
+     *
+     * The quotes are what let a value contain a comma or a parenthesis, so a
+     * value that contains a quote of its own has to escape it — and the
+     * backslash that does the escaping has to be escaped first. Without this,
+     * deleting a category called `Service "A"` sends a filter the server
+     * cannot parse, and every sync from then on fails on the same row.
+     */
+    private fun quoted(value: String): String =
+        "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
     private fun tableUrl(table: String): HttpUrl.Builder =
         (SupabaseConfig.URL + "/rest/v1/" + table).toHttpUrl().newBuilder()
