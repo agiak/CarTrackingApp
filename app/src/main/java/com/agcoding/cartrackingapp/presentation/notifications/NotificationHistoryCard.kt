@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.domain.model.NotificationHistoryItem
+import com.agcoding.cartrackingapp.domain.model.NotificationKind
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
@@ -41,6 +43,21 @@ internal fun NotificationHistoryCard(
     val formattedDate = dateFormat.format(Date(notification.timestamp))
     val relativeTime = getRelativeTimeText(notification.timestamp)
 
+    // An announcement and a service reminder read very differently once you
+    // know which is which, and in a mixed list you cannot tell from the text
+    // alone. The colour and the icon carry that, so the title does not have to.
+    val isAnnouncement = notification.kind == NotificationKind.ANNOUNCEMENT
+    val accent = if (isAnnouncement) {
+        MaterialTheme.colorScheme.tertiary
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val accentContainer = if (isAnnouncement) {
+        MaterialTheme.colorScheme.tertiaryContainer
+    } else {
+        MaterialTheme.colorScheme.primaryContainer
+    }
+
     StyledCard(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -53,13 +70,17 @@ internal fun NotificationHistoryCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(accentContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Notifications,
+                    imageVector = if (isAnnouncement) {
+                        Icons.Default.Campaign
+                    } else {
+                        Icons.Default.Notifications
+                    },
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = accent,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -99,7 +120,7 @@ internal fun NotificationHistoryCard(
                     Text(
                         text = relativeTime,
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                        color = accent.copy(alpha = 0.8f)
                     )
                 }
             }

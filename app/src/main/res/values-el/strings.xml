@@ -821,7 +821,7 @@
     <string name="spreadsheet_file_format">Υποστηριζόμενες μορφές: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->
-    <string name="notifications_title">Υπενθυμίσεις Σέρβις</string>
+    <string name="notifications_title">Ειδοποιήσεις</string>
     <string name="notifications_upcoming_reminders">Επερχόμενες Υπενθυμίσεις Σέρβις</string>
     <string name="notifications_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
     <string name="notifications_reminder_date">Ημερομηνία Υπενθύμισης</string>
@@ -835,11 +835,14 @@
     <string name="notifications_in_days">Σε %d ημέρες</string>
     <string name="notifications_in_weeks">Σε %d εβδομάδα(ες)</string>
     <string name="notifications_in_months">Σε %d μήνα(ες)</string>
-    <string name="notifications_empty_title">Δεν Υπάρχουν Υπενθυμίσεις</string>
-    <string name="notifications_empty_message">Δεν έχετε ρυθμίσει υπενθυμίσεις σέρβις. Προσθέστε ημερομηνίες υπενθύμισης ή στόχους χιλιομέτρων όταν δημιουργείτε έξοδα για να παρακολουθείτε την επερχόμενη συντήρηση.</string>
+    <string name="notifications_empty_title">Τίποτα ακόμη</string>
+    <string name="notifications_empty_message">Εδώ θα βρίσκεις τις υπενθυμίσεις σέρβις που έχεις ορίσει, μαζί με τις ανακοινώσεις που σου στέλνουμε για την εφαρμογή.</string>
     <string name="preferences_view_reminders">Προβολή Υπενθυμίσεων Σέρβις</string>
     <string name="preferences_view_reminders_desc">Δείτε όλες τις επερχόμενες υπενθυμίσεις συντήρησης</string>
     <string name="notifications_active_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
+    <string name="notifications_section_upcoming">Έρχονται</string>
+    <string name="notifications_section_received">Έφτασαν πρόσφατα</string>
+    <string name="notifications_view_all">Δες όλες</string>
     <string name="edit_reminder_title">Επεξεργασία Υπενθύμισης</string>
     <string name="edit_reminder_description">Επεξεργαστείτε τις ρυθμίσεις υπενθύμισης για αυτό το σέρβις. Το αρχικό έξοδο δεν θα τροποποιηθεί.</string>
     <string name="edit_reminder_current_odometer">Τρέχον οδόμετρο: %,d χλμ</string>

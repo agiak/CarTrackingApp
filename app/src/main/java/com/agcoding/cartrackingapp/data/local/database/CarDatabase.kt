@@ -25,7 +25,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class, SyncLinkEntity::class],
-    version = 21,
+    version = 22,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -54,7 +54,8 @@ abstract class CarDatabase : RoomDatabase() {
                         MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
                         MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
                         MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
-                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21
+                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21,
+                        MIGRATION_21_22
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
@@ -361,3 +362,13 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
     }
 }
 
+val MIGRATION_21_22 = object : Migration(21, 22) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Tells an announcement pushed from the server apart from a reminder
+        // the app raised itself, so the notifications screen can label them.
+        // Everything already in the table predates push, hence the default.
+        db.execSQL(
+            "ALTER TABLE notification_history ADD COLUMN type TEXT NOT NULL DEFAULT 'REMINDER'"
+        )
+    }
+}

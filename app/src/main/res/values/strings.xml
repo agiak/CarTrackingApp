@@ -851,7 +851,7 @@
     <string name="spreadsheet_file_format">Supported formats: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->
-    <string name="notifications_title">Service Reminders</string>
+    <string name="notifications_title">Notifications</string>
     <string name="notifications_upcoming_reminders">Upcoming Service Reminders</string>
     <string name="notifications_count">%d active reminder(s)</string>
     <string name="notifications_reminder_date">Reminder Date</string>
@@ -865,11 +865,14 @@
     <string name="notifications_in_days">In %d days</string>
     <string name="notifications_in_weeks">In %d week(s)</string>
     <string name="notifications_in_months">In %d month(s)</string>
-    <string name="notifications_empty_title">No Reminders Set</string>
-    <string name="notifications_empty_message">You don\'t have any service reminders configured. Add reminder dates or mileage targets when creating expenses to track upcoming maintenance.</string>
+    <string name="notifications_empty_title">Nothing here yet</string>
+    <string name="notifications_empty_message">Service reminders you set up appear here, along with any announcements we send about the app.</string>
     <string name="preferences_view_reminders">View Service Reminders</string>
     <string name="preferences_view_reminders_desc">See all upcoming maintenance reminders</string>
     <string name="notifications_active_count">%d active reminder(s)</string>
+    <string name="notifications_section_upcoming">Coming up</string>
+    <string name="notifications_section_received">Recently received</string>
+    <string name="notifications_view_all">See all</string>
     <string name="edit_reminder_title">Edit Reminder</string>
     <string name="edit_reminder_description">Edit reminder settings for this service. The original expense will not be modified.</string>
     <string name="edit_reminder_current_odometer">Current odometer: %,d km</string>

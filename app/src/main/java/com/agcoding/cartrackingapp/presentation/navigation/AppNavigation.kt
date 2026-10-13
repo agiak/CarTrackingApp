@@ -1091,6 +1091,9 @@ fun AppNavigation(
                     },
                     onEditExpense = { expenseId ->
                         navController.navigate(Screen.EditReminder.createRoute(expenseId))
+                    },
+                    onViewAllReceived = {
+                        navController.navigate(Screen.NotificationHistory.route)
                     }
                 )
             }

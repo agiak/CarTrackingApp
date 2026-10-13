@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.agcoding.cartrackingapp.MainActivity
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.NotificationHistoryItem
+import com.agcoding.cartrackingapp.domain.model.NotificationKind
 import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -95,6 +96,12 @@ class NotificationHelper @Inject constructor(
      * still be able to find out what it said.
      */
     fun showPushNotification(title: String, body: String): Boolean {
+        // Filed first, and whatever happens next. An announcement that arrived
+        // is a thing that happened; whether the system was willing to draw it
+        // in the tray is a separate question, and someone who has silenced the
+        // tray should still find the message waiting inside the app.
+        persistNotification(title, body, NotificationKind.ANNOUNCEMENT)
+
         if (!areNotificationsEnabled()) {
             Log.w(TAG, "Cannot show push – notifications disabled")
             return false
@@ -124,7 +131,6 @@ class NotificationHelper @Inject constructor(
 
         return try {
             NotificationManagerCompat.from(context).notify(notificationId, notification)
-            persistNotification(title, body)
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException: notification permission not granted", e)
@@ -242,14 +248,19 @@ class NotificationHelper @Inject constructor(
      * Persists the notification title and description in the local database
      * so the user can later review it in the Notification History screen.
      */
-    private fun persistNotification(title: String, description: String) {
+    private fun persistNotification(
+        title: String,
+        description: String,
+        kind: NotificationKind = NotificationKind.REMINDER
+    ) {
         persistenceScope.launch {
             try {
                 notificationHistoryRepository.insertNotification(
                     NotificationHistoryItem(
                         title = title,
                         description = description,
-                        timestamp = System.currentTimeMillis()
+                        timestamp = System.currentTimeMillis(),
+                        kind = kind
                     )
                 )
                 Log.d(TAG, "Notification persisted to history: $title")

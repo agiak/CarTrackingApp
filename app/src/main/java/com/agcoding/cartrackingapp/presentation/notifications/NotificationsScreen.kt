@@ -35,6 +35,7 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun NotificationsScreen(
     onNavigateBack: () -> Unit,
     onEditExpense: (Long) -> Unit,
+    onViewAllReceived: () -> Unit,
     viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -69,35 +70,41 @@ fun NotificationsScreen(
                 .padding(paddingValues),
             contentAlignment = if (useCenteredLayout) Alignment.TopCenter else Alignment.TopStart
         ) {
-            when (val state = uiState) {
-                is NotificationsUiState.Loading -> {
+            val contentModifier = Modifier
+                .then(
+                    if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                    else Modifier.fillMaxWidth()
+                )
+                .fillMaxSize()
+
+            when {
+                uiState.error != null -> {
+                    ErrorNotificationsState(
+                        message = uiState.error.orEmpty(),
+                        onRetry = { viewModel.retry() },
+                        modifier = contentModifier
+                    )
+                }
+
+                uiState.isLoading -> {
                     Box(
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize(),
+                        modifier = contentModifier,
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 }
 
-                is NotificationsUiState.Empty -> {
-                    EmptyNotificationsState(
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
-                    )
+                // Empty only when both lists are, so an announcement still
+                // shows on a phone with no reminders set up at all.
+                uiState.isEmpty -> {
+                    EmptyNotificationsState(modifier = contentModifier)
                 }
 
-                is NotificationsUiState.Success -> {
+                else -> {
                     NotificationsContent(
-                        reminders = state.reminders,
+                        reminders = uiState.reminders,
+                        received = uiState.received,
                         onToggleReminder = { expenseId, enabled ->
                             viewModel.toggleReminderEnabled(expenseId, enabled)
                         },
@@ -105,26 +112,9 @@ fun NotificationsScreen(
                         onDismissReminder = { expenseId ->
                             viewModel.dismissReminder(expenseId)
                         },
+                        onViewAllReceived = onViewAllReceived,
                         useCenteredLayout = useCenteredLayout,
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
-                    )
-                }
-
-                is NotificationsUiState.Error -> {
-                    ErrorNotificationsState(
-                        message = state.message,
-                        onRetry = { viewModel.retry() },
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
+                        modifier = contentModifier
                     )
                 }
             }
@@ -138,7 +128,8 @@ private fun NotificationsScreenPreview() {
     CarTrackingAppTheme {
         NotificationsScreen(
             onNavigateBack = {},
-            onEditExpense = {}
+            onEditExpense = {},
+            onViewAllReceived = {}
         )
     }
 }
