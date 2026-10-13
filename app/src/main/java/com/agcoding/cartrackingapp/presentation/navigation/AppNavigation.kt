@@ -398,6 +398,9 @@ fun AppNavigation(
                     },
                     onNavigateToPermissionsSettings = {
                         navController.navigate(Screen.PermissionsSettings.route)
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate(Screen.CloudAccountSettings.route)
                     }
                 )
             }
@@ -415,7 +418,10 @@ fun AppNavigation(
                         }
                     },
                     onAddRefill = { carId -> showAddRefillSheet = carId },
-                    onAddExpense = { carId -> navController.navigate(Screen.AddExpense.createRoute(carId)) }
+                    onAddExpense = { carId -> navController.navigate(Screen.AddExpense.createRoute(carId)) },
+                    onNavigateToProfile = {
+                        navController.navigate(Screen.CloudAccountSettings.route)
+                    }
                 )
             }
 
@@ -457,6 +463,12 @@ fun AppNavigation(
                     },
                     onCarStatisticsClick = { carId ->
                         navController.navigate(Screen.CarStatistics.createRoute(carId))
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate(Screen.CloudAccountSettings.route)
+                    },
+                    onNavigateToNotifications = {
+                        navController.navigate(Screen.Notifications.route)
                     }
                 )
             }

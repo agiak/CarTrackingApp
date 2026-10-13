@@ -202,6 +202,9 @@
     <string name="version">Έκδοση</string>
     <string name="storage_mode">Λειτουργία αποθήκευσης</string>
     <string name="offline_first">Offline-first</string>
+    <string name="online_mode">Online</string>
+    <string name="tab_profile_cd">Προφίλ</string>
+    <string name="tab_notifications_cd">Ειδοποιήσεις</string>
     <string name="settings_last_data_modification">Τελευταία αλλαγή δεδομένων</string>
     <string name="never">Ποτέ</string>
 

@@ -226,6 +226,11 @@
     <string name="version">Version</string>
     <string name="storage_mode">Storage Mode</string>
     <string name="offline_first">Offline-first</string>
+    <!-- Replaces "Offline-first" once there is an account: the data no longer
+         only lives on this phone, and the About row should not keep saying it does. -->
+    <string name="online_mode">Online</string>
+    <string name="tab_profile_cd">Profile</string>
+    <string name="tab_notifications_cd">Notifications</string>
     <string name="settings_last_data_modification">Last data change</string>
     <string name="never">Never</string>
 

@@ -36,7 +36,13 @@ import java.util.Locale
 fun HelpAboutCard(
     appVersion: String,
     onViewGuide: () -> Unit,
-    lastDataModifiedAt: Long? = null
+    lastDataModifiedAt: Long? = null,
+    /**
+     * Decides the line under the version. "Offline-first" is a promise about
+     * where the data lives, and once there is an account it stops being true —
+     * so with a session it reads "Online" instead.
+     */
+    isSignedIn: Boolean = false
 ) {
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
@@ -93,7 +99,9 @@ fun HelpAboutCard(
                             )
                         }
                         Text(
-                            text = stringResource(R.string.offline_first),
+                            text = stringResource(
+                                if (isSignedIn) R.string.online_mode else R.string.offline_first
+                            ),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

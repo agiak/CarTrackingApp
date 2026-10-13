@@ -11,6 +11,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
 import com.agcoding.cartrackingapp.data.export.ImportResult
@@ -112,7 +113,9 @@ data class SettingsUiState(
     // Structured summary of the last successful import (JSON or spreadsheet).
     val importSummary: ImportSummary? = null,
     // Epoch millis of the last data modification (null if nothing changed yet).
-    val lastDataModifiedAt: Long? = null
+    val lastDataModifiedAt: Long? = null,
+    /** Whether there is an account, which is what makes the app online. */
+    val isSignedIn: Boolean = false
 )
 
 @HiltViewModel
@@ -129,6 +132,7 @@ class SettingsViewModel @Inject constructor(
     private val notificationHistoryRepository: NotificationHistoryRepository,
     private val notificationHelper: NotificationHelper,
     private val dataMetadataPreferences: DataMetadataPreferences,
+    private val cloudRepository: CloudRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -165,6 +169,12 @@ class SettingsViewModel @Inject constructor(
     )
 
     init {
+        viewModelScope.launch {
+            cloudRepository.state.collect { cloud ->
+                _uiState.value = _uiState.value.copy(isSignedIn = cloud.isSignedIn)
+            }
+        }
+
         // Load saved settings
         viewModelScope.launch {
             settingsPreferences.settingsFlow.collect { settings ->

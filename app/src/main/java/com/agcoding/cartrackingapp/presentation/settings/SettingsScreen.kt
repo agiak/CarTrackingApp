@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
+import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsGroupNavigationCard
@@ -62,6 +64,10 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
+                // Both destinations are already rows further down this screen;
+                // the icons are a shortcut to them, not a second way in.
+                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToCloudAccount) },
+                actions = { NotificationsAction(onClick = onNavigateToNotifications) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
