@@ -230,6 +230,40 @@ class SupabaseClient @Inject constructor() {
         }
     }
 
+    // ── push tokens ───────────────────────────────────────────────────────
+
+    /**
+     * Tells the server this phone can receive push, as this user.
+     *
+     * Keyed on the token rather than on the user, because the token belongs to
+     * the installation: when a second account signs in on the same phone the
+     * row has to *move*, not multiply, or the previous owner keeps receiving
+     * notifications on a device they no longer use.
+     */
+    fun registerDeviceToken(session: CloudSession, token: String, platform: String = "android") {
+        call(
+            method = "POST",
+            path = "/rest/v1/rpc/register_device_token",
+            body = JSONObject()
+                .put("p_token", token)
+                .put("p_platform", platform)
+                .toString(),
+            token = session.accessToken,
+            prefer = "return=minimal",
+        )
+    }
+
+    /** Signing out must also stop the notifications, not just the sync. */
+    fun unregisterDeviceToken(session: CloudSession, token: String) {
+        call(
+            method = "POST",
+            path = "/rest/v1/rpc/unregister_device_token",
+            body = JSONObject().put("p_token", token).toString(),
+            token = session.accessToken,
+            prefer = "return=minimal",
+        )
+    }
+
     // ── plumbing ──────────────────────────────────────────────────────────
 
     /**

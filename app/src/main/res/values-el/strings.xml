@@ -885,6 +885,8 @@
     <!-- Notification Channels -->
     <string name="notification_channel_reminders">Υπενθυμίσεις Σέρβις</string>
     <string name="notification_channel_reminders_desc">Ειδοποιήσεις για επερχόμενες ημερομηνίες σέρβις και υπενθυμίσεις χιλιομέτρων</string>
+    <string name="notification_channel_updates">Ενημερώσεις Caribou</string>
+    <string name="notification_channel_updates_desc">Ανακοινώσεις και νέα που στέλνονται σε όσους έχουν λογαριασμό</string>
 
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">Υπενθύμιση %s</string>

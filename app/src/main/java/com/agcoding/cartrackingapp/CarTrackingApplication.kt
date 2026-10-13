@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.agcoding.cartrackingapp.cloud.push.PushTokenRegistrar
 import com.agcoding.cartrackingapp.data.local.database.DatabaseChangeObserver
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
 import dagger.hilt.android.HiltAndroidApp
@@ -22,11 +23,17 @@ class CarTrackingApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var databaseChangeObserver: DatabaseChangeObserver
 
+    @Inject
+    lateinit var pushTokenRegistrar: PushTokenRegistrar
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
         // Start tracking data modifications (updates the "last modified" timestamp).
         databaseChangeObserver.start()
+        // Watches the session: the server can only push to a device it has
+        // been told about, and it is told here.
+        pushTokenRegistrar.start()
         scheduleReminderChecks()
     }
 

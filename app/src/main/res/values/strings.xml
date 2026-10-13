@@ -81,6 +81,8 @@
     <!-- Notification Channels -->
     <string name="notification_channel_reminders">Service Reminders</string>
     <string name="notification_channel_reminders_desc">Notifications about upcoming service dates and mileage reminders</string>
+    <string name="notification_channel_updates">Caribou updates</string>
+    <string name="notification_channel_updates_desc">Announcements and news sent to everyone with an account</string>
 
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">%s Reminder</string>

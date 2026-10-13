@@ -15,6 +15,7 @@ import com.agcoding.cartrackingapp.cloud.domain.model.CloudState
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncStatus
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
+import com.agcoding.cartrackingapp.cloud.push.PushTokenRegistrar
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,7 @@ class CloudRepositoryImpl @Inject constructor(
     private val sync: CloudSync,
     private val sessions: CloudSessionProvider,
     private val localDataWiper: LocalDataWiper,
+    private val pushTokens: PushTokenRegistrar,
 ) : CloudRepository {
 
     override val state: Flow<CloudState> = store.state
@@ -100,7 +102,14 @@ class CloudRepositoryImpl @Inject constructor(
             throw CloudException(CloudError.UNSYNCED_CHANGES)
         }
 
-        current.session?.let { client.signOut(it.accessToken) }
+        current.session?.let { session ->
+            // Before the token goes: deleting the push registration is an
+            // authenticated call, and a line later there is nothing left to
+            // authenticate it with — the phone would keep buzzing for an
+            // account it is no longer signed into.
+            pushTokens.unregisterBeforeSignOut(session)
+            client.signOut(session.accessToken)
+        }
         store.clearSession()
         sync.reset()
         if (wipeLocalData) localDataWiper.wipe()
