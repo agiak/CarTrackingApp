@@ -13,23 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -52,7 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.cloud.domain.model.CloudMode
 import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
-import com.agcoding.cartrackingapp.presentation.cloud.components.CloudStatusCard
+import com.agcoding.cartrackingapp.presentation.cloud.components.AccountIdentityHero
+import com.agcoding.cartrackingapp.presentation.cloud.components.AccountSignedOutHero
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -142,18 +139,30 @@ fun CloudAccountScreen(
                     if (isTablet) Modifier.fillMaxWidth(0.7f) else Modifier.fillMaxWidth()
                 )
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                CloudStatusCard(
-                    mode = uiState.mode,
-                    lastSyncAt = uiState.cloudState.lastSyncAt,
-                    hasPendingChanges = uiState.cloudState.hasPendingChanges,
-                    dataSyncAvailable = uiState.dataSyncAvailable,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Who you are comes first, at size. Everything below it is a
+                // control, and controls read better once the thing they act on
+                // has been named.
+                if (uiState.cloudState.isSignedIn) {
+                    AccountIdentityHero(
+                        email = uiState.cloudState.session?.email.orEmpty(),
+                        displayName = uiState.displayName,
+                        mode = uiState.mode,
+                        lastSyncAt = uiState.cloudState.lastSyncAt,
+                        hasPendingChanges = uiState.cloudState.hasPendingChanges,
+                        dataSyncAvailable = uiState.dataSyncAvailable,
+                    )
+                } else {
+                    AccountSignedOutHero(
+                        onCreateAccount = { onNavigateToAuth(CloudAuthMode.SignUp) },
+                        onSignIn = { onNavigateToAuth(CloudAuthMode.SignIn) },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
 
                 if (uiState.cloudState.isSignedIn && !uiState.dataSyncAvailable) {
-                    Spacer(modifier = Modifier.height(4.dp))
                     NoticeCard(
                         title = stringResource(R.string.cloud_sync_not_ready_title),
                         body = stringResource(R.string.cloud_sync_not_ready_desc),
@@ -161,7 +170,6 @@ fun CloudAccountScreen(
                 }
 
                 uiState.error?.let { error ->
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = stringResource(error.messageRes()),
                         fontSize = 13.sp,
@@ -170,23 +178,14 @@ fun CloudAccountScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 if (uiState.cloudState.isSignedIn) {
                     SignedInSection(
-                        email = uiState.cloudState.session?.email.orEmpty(),
-                        displayName = uiState.displayName,
                         isBusy = uiState.isBusy,
                         mustChangePassword = uiState.cloudState.session?.mustChangePassword == true,
                         onSyncNow = viewModel::syncNow,
                         onChangePassword = onNavigateToChangePassword,
                         onSignOut = { viewModel.openDialog(CloudAccountDialog.SignOut) },
                         onDeleteAccount = { viewModel.openDialog(CloudAccountDialog.DeleteAccount) },
-                    )
-                } else {
-                    SignedOutSection(
-                        onCreateAccount = { onNavigateToAuth(CloudAuthMode.SignUp) },
-                        onSignIn = { onNavigateToAuth(CloudAuthMode.SignIn) },
                     )
                 }
 
@@ -227,62 +226,7 @@ fun CloudAccountScreen(
 }
 
 @Composable
-private fun SignedOutSection(
-    onCreateAccount: () -> Unit,
-    onSignIn: () -> Unit,
-) {
-    SectionHeader(title = stringResource(R.string.cloud_section_account))
-
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.cloud_pitch_title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.cloud_pitch_body),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Button(
-                onClick = onCreateAccount,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.cloud_sign_up_action))
-            }
-
-            OutlinedButton(
-                onClick = onSignIn,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Login,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.cloud_sign_in_action))
-            }
-        }
-    }
-}
-
-@Composable
 private fun SignedInSection(
-    email: String,
-    displayName: String?,
     isBusy: Boolean,
     mustChangePassword: Boolean,
     onSyncNow: () -> Unit,
@@ -290,34 +234,7 @@ private fun SignedInSection(
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
 ) {
-    SectionHeader(title = stringResource(R.string.cloud_section_account))
-
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.cloud_signed_in_as),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = displayName?.takeIf { it.isNotBlank() } ?: email,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (!displayName.isNullOrBlank()) {
-                Text(
-                    text = email,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-
     if (mustChangePassword) {
-        Spacer(modifier = Modifier.height(4.dp))
         NoticeCard(
             title = stringResource(R.string.cloud_change_password_forced_title),
             body = stringResource(R.string.cloud_change_password_forced_desc),
@@ -383,9 +300,20 @@ private fun SignedInSection(
             enabled = !isBusy,
             trailing = {}
         )
+    }
+
+    // In its own card, and last. Deleting the account is not a sibling of
+    // changing a password — putting it one row below the thing you tap every
+    // week is how it gets tapped by accident.
+    Spacer(modifier = Modifier.height(8.dp))
+
+    StyledCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.18f)
+    ) {
         SettingsRow(
             icon = Icons.Default.DeleteForever,
-            iconBackgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+            iconBackgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
             iconTint = MaterialTheme.colorScheme.error,
             title = stringResource(R.string.cloud_delete_account),
             subtitle = stringResource(R.string.cloud_delete_account_desc),
@@ -502,15 +430,8 @@ private fun ConfirmDialog(
 @Composable
 private fun PreviewCloudAccountSignedOut() {
     CarTrackingAppTheme {
-        Column {
-            CloudStatusCard(
-                mode = CloudMode.OFFLINE_MODE,
-                lastSyncAt = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-            SignedOutSection(onCreateAccount = {}, onSignIn = {})
+        Column(modifier = Modifier.padding(16.dp)) {
+            AccountSignedOutHero(onCreateAccount = {}, onSignIn = {})
         }
     }
 }
@@ -519,10 +440,17 @@ private fun PreviewCloudAccountSignedOut() {
 @Composable
 private fun PreviewCloudAccountSignedIn() {
     CarTrackingAppTheme {
-        Column {
-            SignedInSection(
+        Column(modifier = Modifier.padding(16.dp)) {
+            AccountIdentityHero(
                 email = "anastas@example.com",
                 displayName = "Anastasis",
+                mode = CloudMode.ONLINE,
+                lastSyncAt = 1_760_000_000_000L,
+                hasPendingChanges = false,
+                dataSyncAvailable = true,
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            SignedInSection(
                 isBusy = false,
                 mustChangePassword = false,
                 onSyncNow = {},
