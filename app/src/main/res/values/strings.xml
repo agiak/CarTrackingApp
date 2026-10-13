@@ -1438,4 +1438,18 @@
     <string name="cloud_error_unsynced_changes">There are changes that have not been sent yet. Sync first.</string>
     <string name="cloud_error_unknown">Something went wrong. Try again.</string>
 
+
+    <!-- Account prompt at first launch -->
+    <string name="cloud_mode_account_only_title">Signed in</string>
+    <string name="cloud_mode_account_only_desc">Your account is ready. Nothing is being uploaded yet.</string>
+
+    <string name="onboarding_account_title">With an account, or without?</string>
+    <string name="onboarding_account_subtitle">Both work. Here is the difference.</string>
+    <string name="onboarding_account_online_title">With an account</string>
+    <string name="onboarding_account_online_body">Your cars, refills and expenses are kept on the server as well as on this phone. You get them back if you lose it, and you can use the same data on a second phone.</string>
+    <string name="onboarding_account_offline_title">Without an account</string>
+    <string name="onboarding_account_offline_body">Everything works exactly the same. Your data stays on this phone and nothing ever leaves it — which also means that if you lose the phone, it is gone.</string>
+    <string name="onboarding_account_continue_offline">Continue without an account</string>
+    <string name="onboarding_account_later_hint">You can change your mind at any time, in Settings → Account &amp; sync.</string>
+
 </resources>

@@ -340,6 +340,9 @@ fun AppNavigation(
                             // Never stack a second home entry if this fires again.
                             launchSingleTop = true
                         }
+                    },
+                    onNavigateToAuth = { mode ->
+                        navController.navigate(Screen.CloudAuth.createRoute(mode))
                     }
                 )
             }

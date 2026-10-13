@@ -148,6 +148,7 @@ fun CloudAccountScreen(
                     mode = uiState.mode,
                     lastSyncAt = uiState.cloudState.lastSyncAt,
                     hasPendingChanges = uiState.cloudState.hasPendingChanges,
+                    dataSyncAvailable = uiState.dataSyncAvailable,
                     modifier = Modifier.fillMaxWidth()
                 )
 

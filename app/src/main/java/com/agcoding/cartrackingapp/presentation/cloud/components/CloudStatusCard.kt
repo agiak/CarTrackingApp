@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -53,8 +54,18 @@ fun CloudStatusCard(
     lastSyncAt: Long?,
     modifier: Modifier = Modifier,
     hasPendingChanges: Boolean = false,
+    dataSyncAvailable: Boolean = true,
 ) {
-    val accent = mode.accentColor()
+    // Signed in is not the same as backed up. While the engine moves nothing,
+    // a green tick over "your data is on the server" would be a plain lie, and
+    // the one place a user looks to decide whether their data is safe is the
+    // last place to say something that is not true.
+    val accountOnly = !dataSyncAvailable && mode == CloudMode.ONLINE
+    val accent = if (accountOnly) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        mode.accentColor()
+    }
 
     StyledCard(modifier = modifier) {
         Row(
@@ -78,7 +89,7 @@ fun CloudStatusCard(
                     )
                 } else {
                     Icon(
-                        imageVector = mode.icon(),
+                        imageVector = if (accountOnly) Icons.Default.CloudQueue else mode.icon(),
                         contentDescription = null,
                         modifier = Modifier.size(22.dp),
                         tint = accent
@@ -90,14 +101,20 @@ fun CloudStatusCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(mode.titleRes()),
+                    text = stringResource(
+                        if (accountOnly) R.string.cloud_mode_account_only_title
+                        else mode.titleRes()
+                    ),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = stringResource(mode.descriptionRes()),
+                    text = stringResource(
+                        if (accountOnly) R.string.cloud_mode_account_only_desc
+                        else mode.descriptionRes()
+                    ),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -186,6 +203,21 @@ private fun PreviewCloudStatusCardOnline() {
         CloudStatusCard(
             mode = CloudMode.ONLINE,
             lastSyncAt = 1_760_000_000_000L,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCloudStatusCardAccountOnly() {
+    CarTrackingAppTheme {
+        CloudStatusCard(
+            mode = CloudMode.ONLINE,
+            lastSyncAt = null,
+            dataSyncAvailable = false,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)

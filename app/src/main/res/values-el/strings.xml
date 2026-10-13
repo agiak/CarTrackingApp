@@ -1419,4 +1419,18 @@
     <string name="cloud_error_unsynced_changes">Υπάρχουν αλλαγές που δεν έχουν σταλεί. Κάνε πρώτα συγχρονισμό.</string>
     <string name="cloud_error_unknown">Κάτι πήγε στραβά. Δοκίμασε ξανά.</string>
 
+
+    <!-- Account prompt at first launch -->
+    <string name="cloud_mode_account_only_title">Συνδεδεμένος</string>
+    <string name="cloud_mode_account_only_desc">Ο λογαριασμός σου είναι έτοιμος. Δεν ανεβαίνει τίποτα ακόμη.</string>
+
+    <string name="onboarding_account_title">Με λογαριασμό ή χωρίς;</string>
+    <string name="onboarding_account_subtitle">Και τα δύο δουλεύουν. Να η διαφορά.</string>
+    <string name="onboarding_account_online_title">Με λογαριασμό</string>
+    <string name="onboarding_account_online_body">Τα αυτοκίνητα, οι ανεφοδιασμοί και τα έξοδά σου κρατιούνται και στον διακομιστή, όχι μόνο στο κινητό. Τα βρίσκεις ξανά αν το χάσεις, και τα έχεις και σε δεύτερο κινητό.</string>
+    <string name="onboarding_account_offline_title">Χωρίς λογαριασμό</string>
+    <string name="onboarding_account_offline_body">Όλα δουλεύουν ακριβώς το ίδιο. Τα δεδομένα μένουν σε αυτό το κινητό και δεν φεύγουν ποτέ — που σημαίνει επίσης ότι αν χάσεις το κινητό, χάθηκαν.</string>
+    <string name="onboarding_account_continue_offline">Συνέχεια χωρίς λογαριασμό</string>
+    <string name="onboarding_account_later_hint">Μπορείς να αλλάξεις γνώμη οποτεδήποτε, από Ρυθμίσεις → Λογαριασμός &amp; συγχρονισμός.</string>
+
 </resources>

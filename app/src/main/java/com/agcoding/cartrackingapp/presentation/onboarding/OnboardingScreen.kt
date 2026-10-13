@@ -16,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
 fun OnboardingScreen(
     onOnboardingComplete: () -> Unit,
+    onNavigateToAuth: (CloudAuthMode) -> Unit = {},
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -63,8 +65,17 @@ fun OnboardingScreen(
             is OnboardingState.ShowImportPrompt -> {
                 OnboardingImportPromptScreen(
                     onFinished = {
-                        viewModel.completeOnboarding()
+                        viewModel.onImportPromptFinished()
                     }
+                )
+            }
+
+            is OnboardingState.ShowAccountPrompt -> {
+                OnboardingAccountPromptScreen(
+                    onCreateAccount = { onNavigateToAuth(CloudAuthMode.SignUp) },
+                    onSignIn = { onNavigateToAuth(CloudAuthMode.SignIn) },
+                    onContinueOffline = { viewModel.continueOffline() },
+                    dataSyncAvailable = viewModel.dataSyncAvailable,
                 )
             }
 
