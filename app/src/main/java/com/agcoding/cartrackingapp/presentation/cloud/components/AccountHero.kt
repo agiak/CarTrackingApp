@@ -281,7 +281,19 @@ fun AccountSignedOutHero(
             modifier = Modifier.padding(horizontal = 12.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Above the button, not below it. Telling someone what arrives with an
+        // account only counts as telling them if they read it before deciding.
+        Text(
+            text = stringResource(R.string.cloud_push_note),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = onCreateAccount,

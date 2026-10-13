@@ -1378,6 +1378,9 @@
     <string name="cloud_sign_in_action">Sign in</string>
     <string name="cloud_sign_up_title">Create account</string>
     <string name="cloud_sign_up_subtitle">An email and a password, that is all. There is no confirmation mail to wait for.</string>
+    <!-- Shown before the Create account button, not after it: being told what
+         arrives with an account is only consent if it is read beforehand. -->
+    <string name="cloud_push_note">An account also means the occasional announcement from us about the app. You can switch those off at any time in your phone\'s notification settings.</string>
     <string name="cloud_sign_up_action">Create account</string>
     <string name="cloud_switch_to_sign_up">No account yet? Create one</string>
     <string name="cloud_switch_to_sign_in">Already have an account? Sign in</string>
@@ -1451,7 +1454,7 @@
     <string name="onboarding_account_title">With an account, or without?</string>
     <string name="onboarding_account_subtitle">Both work. Here is the difference.</string>
     <string name="onboarding_account_online_title">With an account</string>
-    <string name="onboarding_account_online_body">Your cars, refills and expenses are kept on the server as well as on this phone. You get them back if you lose it, and you can use the same data on a second phone.</string>
+    <string name="onboarding_account_online_body">Your cars, refills and expenses are kept on the server as well as on this phone. You get them back if you lose it, and you can use the same data on a second phone. You will also get the occasional announcement about the app, which you can switch off in your phone\'s notification settings.</string>
         <string name="onboarding_account_online_body_pending">Today an account only reserves your place. Your cars and records still live on this phone alone, because uploading them is still being built — but when it is ready, everything you already have goes up on its own.</string>
     <string name="onboarding_account_offline_title">Without an account</string>
     <string name="onboarding_account_offline_body">Everything works exactly the same. Your data stays on this phone and nothing ever leaves it — which also means that if you lose the phone, it is gone.</string>
