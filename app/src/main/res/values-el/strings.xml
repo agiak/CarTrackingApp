@@ -843,6 +843,12 @@
     <string name="notifications_section_upcoming">Έρχονται</string>
     <string name="notifications_section_received">Έφτασαν πρόσφατα</string>
     <string name="notifications_view_all">Δες όλες</string>
+
+    <!-- Database Error -->
+    <string name="db_error_title">Απαιτείται ενημέρωση</string>
+    <string name="db_error_message">Τα δεδομένα σου δεν μπορούν να φορτωθούν γιατί η εφαρμογή χρειάζεται ενημέρωση. Κατέβασε την τελευταία έκδοση από το Play Store.</string>
+    <string name="db_error_open_store">Άνοιγμα Play Store</string>
+    <string name="db_error_close">Κλείσιμο εφαρμογής</string>
     <string name="edit_reminder_title">Επεξεργασία Υπενθύμισης</string>
     <string name="edit_reminder_description">Επεξεργαστείτε τις ρυθμίσεις υπενθύμισης για αυτό το σέρβις. Το αρχικό έξοδο δεν θα τροποποιηθεί.</string>
     <string name="edit_reminder_current_odometer">Τρέχον οδόμετρο: %,d χλμ</string>

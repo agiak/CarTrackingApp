@@ -1,6 +1,5 @@
 package com.agcoding.cartrackingapp.data.local.database.entity
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -20,10 +19,14 @@ data class NotificationHistoryEntity(
      * later cannot silently relabel rows already on disk. Rows written before
      * this column existed read back as `REMINDER`, which is what they were.
      */
-    // The literal has to be spelled out: an annotation argument must be a
-    // compile-time constant, and it must match both [TYPE_REMINDER] below and
-    // the DEFAULT in MIGRATION_21_22, or Room's schema check fails at startup.
-    @ColumnInfo(defaultValue = "REMINDER")
+    // Deliberately carries no @ColumnInfo(defaultValue = …). Room treats that
+    // annotation's value as raw SQL, so a text default would have to be
+    // written with its own quotes inside the string — and getting that subtly
+    // wrong makes Room reject the schema at startup, which the user sees as
+    // "Update Required" and a dead app. With no default declared here, Room
+    // skips the comparison entirely; the DEFAULT in MIGRATION_21_22 is only
+    // there to fill the column for rows that already existed, and every
+    // insert from this app goes through the Kotlin default below.
     val type: String = TYPE_REMINDER
 ) {
     companion object {
