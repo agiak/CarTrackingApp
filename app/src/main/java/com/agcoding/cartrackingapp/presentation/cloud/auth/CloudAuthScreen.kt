@@ -33,7 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -50,6 +52,7 @@ import com.agcoding.cartrackingapp.presentation.cloud.components.PasswordField
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.DeviceUtils
 
@@ -72,13 +75,18 @@ fun CloudAuthScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Held here rather than in the ViewModel: it is the animation that is
+    // playing, not the account that is in a state.
+    var celebrating by remember { mutableStateOf(false) }
+
     LaunchedEffect(initialMode) { viewModel.setMode(initialMode) }
 
     LaunchedEffect(uiState.outcome) {
         when (uiState.outcome) {
             CloudAuthOutcome.SignedIn -> {
                 viewModel.consumeOutcome()
-                onSignedIn()
+                // The tick plays first; leaving is what it ends with.
+                celebrating = true
             }
 
             CloudAuthOutcome.MustChangePassword -> {
@@ -280,6 +288,19 @@ fun CloudAuthScreen(
             }
         }
     }
+
+    SuccessOverlay(
+        visible = celebrating,
+        message = stringResource(
+            if (uiState.mode == CloudAuthMode.SignUp) {
+                R.string.cloud_account_created
+            } else {
+                R.string.cloud_signed_in_message
+            }
+        ),
+        supportingText = uiState.email.takeIf { it.isNotBlank() },
+        onFinished = onSignedIn,
+    )
 
     if (uiState.showResetDialog) {
         ResetPasswordDialog(

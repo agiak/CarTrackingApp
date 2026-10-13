@@ -51,6 +51,7 @@ import com.agcoding.cartrackingapp.presentation.cloud.account.CloudAccountScreen
 import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
 import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthScreen
 import com.agcoding.cartrackingapp.presentation.cloud.password.ChangePasswordScreen
+import com.agcoding.cartrackingapp.presentation.cloud.sync.CloudSyncProgressScreen
 import com.agcoding.cartrackingapp.presentation.consumptiongraph.ConsumptionGraphScreen
 import com.agcoding.cartrackingapp.presentation.distancegraph.DistanceGraphScreen
 import com.agcoding.cartrackingapp.presentation.editcar.EditCarScreen
@@ -195,6 +196,9 @@ sealed class Screen(val route: String) {
     object CloudChangePassword : Screen("settings/cloud_account/password/{forced}") {
         fun createRoute(forced: Boolean) = "settings/cloud_account/password/$forced"
     }
+
+    /** The first upload, with its progress bar. */
+    object CloudSync : Screen("cloud/sync")
     object NotificationHistory : Screen("notification_history")
     object Trash : Screen("trash")
 }
@@ -612,7 +616,12 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onSignedIn = {
-                        navController.popBackStack()
+                        // Straight into the upload, replacing this screen:
+                        // going back from a sync in progress should not land
+                        // on a sign-in form for an account already signed in.
+                        navController.navigate(Screen.CloudSync.route) {
+                            popUpTo(Screen.CloudAuth.route) { inclusive = true }
+                        }
                     },
                     onMustChangePassword = {
                         // Replaces the auth screen rather than stacking on it:
@@ -624,6 +633,17 @@ fun AppNavigation(
                         ) {
                             popUpTo(Screen.CloudAuth.route) { inclusive = true }
                         }
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.CloudSync.route,
+                animationConfig = NavigationAnimations.FadeOnly
+            ) {
+                CloudSyncProgressScreen(
+                    onFinished = {
+                        navController.popBackStack()
                     }
                 )
             }

@@ -1400,8 +1400,6 @@
 
     <!-- Sync progress -->
     <string name="cloud_stage_connect">Σύνδεση…</string>
-    <string name="cloud_stage_pull">Λήψη των δεδομένων σου…</string>
-    <string name="cloud_stage_data">Αποστολή των δεδομένων σου…</string>
     <string name="cloud_stage_finish">Ολοκλήρωση…</string>
     <string name="cloud_sync_not_ready_title">Ο συγχρονισμός δεδομένων δεν είναι ακόμη ενεργός</string>
     <string name="cloud_sync_not_ready_desc">Ο λογαριασμός δουλεύει, αλλά τα αυτοκίνητα και οι εγγραφές σου δεν ανεβαίνουν ακόμη.</string>
@@ -1433,5 +1431,31 @@
     <string name="onboarding_account_offline_body">Όλα δουλεύουν ακριβώς το ίδιο. Τα δεδομένα μένουν σε αυτό το κινητό και δεν φεύγουν ποτέ — που σημαίνει επίσης ότι αν χάσεις το κινητό, χάθηκαν.</string>
     <string name="onboarding_account_continue_offline">Συνέχεια χωρίς λογαριασμό</string>
     <string name="onboarding_account_later_hint">Μπορείς να αλλάξεις γνώμη οποτεδήποτε, από Ρυθμίσεις → Λογαριασμός &amp; συγχρονισμός.</string>
+
+
+    <!-- First upload -->
+    <string name="cloud_stage_checking">Βλέπουμε τι υπάρχει ήδη…</string>
+    <string name="cloud_stage_cars">Ανεβαίνουν τα αυτοκίνητά σου…</string>
+    <string name="cloud_stage_trips">Ανεβαίνουν τα ταξίδια σου…</string>
+    <string name="cloud_stage_refills">Ανεβαίνουν οι ανεφοδιασμοί σου…</string>
+    <string name="cloud_stage_expenses">Ανεβαίνουν τα έξοδά σου…</string>
+    <string name="cloud_stage_categories">Ανεβαίνουν οι κατηγορίες σου…</string>
+    <string name="cloud_stage_done">Όλα έτοιμα!</string>
+    <string name="cloud_sync_keep_open">Κράτα την εφαρμογή ανοιχτή, θέλει μόνο λίγα δευτερόλεπτα.</string>
+    <string name="cloud_sync_success_title">Ανέβηκαν όλα! 🎉</string>
+    <string name="cloud_sync_success_body">Τα δεδομένα σου είναι πλέον στον διακομιστή, και από εδώ και πέρα κάθε αλλαγή συγχρονίζεται μόνη της.</string>
+    <string name="cloud_sync_continue">Συνέχεια στην εφαρμογή</string>
+    <string name="cloud_sync_failed_title">Δεν πέρασε</string>
+    <string name="cloud_sync_failed_body">Δεν χάθηκε τίποτα — τα δεδομένα σου είναι ακόμη σε αυτό το κινητό. Δοκίμασε ξανά, ή προσπέρασέ το και συγχρόνισε αργότερα από τις Ρυθμίσεις.</string>
+    <string name="cloud_sync_retry">Δοκίμασε ξανά</string>
+    <string name="cloud_sync_skip">Όχι τώρα</string>
+    <string name="cloud_summary_cars">Αυτοκίνητα</string>
+    <string name="cloud_summary_trips">Ταξίδια</string>
+    <string name="cloud_summary_refills">Ανεφοδιασμοί</string>
+    <string name="cloud_summary_expenses">Έξοδα</string>
+    <string name="cloud_summary_categories">Κατηγορίες</string>
+    <string name="cloud_summary_received">Ήρθαν από τον διακομιστή</string>
+    <string name="cloud_account_created">Ο λογαριασμός δημιουργήθηκε</string>
+    <string name="cloud_signed_in_message">Συνδέθηκες</string>
 
 </resources>

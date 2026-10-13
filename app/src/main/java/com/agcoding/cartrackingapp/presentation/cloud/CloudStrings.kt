@@ -29,8 +29,27 @@ fun CloudError.messageRes(): Int = when (this) {
 
 @StringRes
 fun SyncStage.labelRes(): Int = when (this) {
-    SyncStage.CONNECT -> R.string.cloud_stage_connect
-    SyncStage.PULL -> R.string.cloud_stage_pull
-    SyncStage.DATA -> R.string.cloud_stage_data
-    SyncStage.FINISH -> R.string.cloud_stage_finish
+    SyncStage.CONNECTING -> R.string.cloud_stage_connect
+    SyncStage.CHECKING -> R.string.cloud_stage_checking
+    SyncStage.CARS -> R.string.cloud_stage_cars
+    SyncStage.TRIPS -> R.string.cloud_stage_trips
+    SyncStage.REFILLS -> R.string.cloud_stage_refills
+    SyncStage.EXPENSES -> R.string.cloud_stage_expenses
+    SyncStage.CATEGORIES -> R.string.cloud_stage_categories
+    SyncStage.FINISHING -> R.string.cloud_stage_finish
+    SyncStage.DONE -> R.string.cloud_stage_done
 }
+
+/** The little picture above the stage label on the progress screen. */
+val SyncStage.emoji: String
+    get() = when (this) {
+        SyncStage.CONNECTING -> "☁️"
+        SyncStage.CHECKING -> "🔍"
+        SyncStage.CARS -> "🚗"
+        SyncStage.TRIPS -> "🗺️"
+        SyncStage.REFILLS -> "⛽"
+        SyncStage.EXPENSES -> "🧾"
+        SyncStage.CATEGORIES -> "🏷️"
+        SyncStage.FINISHING -> "✨"
+        SyncStage.DONE -> "✅"
+    }

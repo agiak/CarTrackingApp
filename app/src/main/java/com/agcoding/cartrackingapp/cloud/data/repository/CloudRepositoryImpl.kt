@@ -5,6 +5,7 @@ import com.agcoding.cartrackingapp.cloud.data.network.NetworkMonitor
 import com.agcoding.cartrackingapp.cloud.data.remote.SupabaseClient
 import com.agcoding.cartrackingapp.cloud.data.remote.SupabaseException
 import com.agcoding.cartrackingapp.cloud.data.remote.toCloudException
+import com.agcoding.cartrackingapp.cloud.data.session.CloudSessionProvider
 import com.agcoding.cartrackingapp.cloud.data.session.CloudSessionStore
 import com.agcoding.cartrackingapp.cloud.domain.model.CloudError
 import com.agcoding.cartrackingapp.cloud.domain.model.CloudException
@@ -19,8 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,6 +30,7 @@ class CloudRepositoryImpl @Inject constructor(
     private val store: CloudSessionStore,
     private val networkMonitor: NetworkMonitor,
     private val sync: CloudSync,
+    private val sessions: CloudSessionProvider,
     private val localDataWiper: LocalDataWiper,
 ) : CloudRepository {
 
@@ -51,9 +51,6 @@ class CloudRepositoryImpl @Inject constructor(
                 else -> CloudMode.ONLINE
             }
         }
-
-    /** Serialises token refreshes, so two parallel calls do not both refresh. */
-    private val refreshMutex = Mutex()
 
     override suspend fun signUp(
         email: String,
@@ -144,33 +141,7 @@ class CloudRepositoryImpl @Inject constructor(
         store.saveAccountPromptAnswered(true)
     }
 
-    private suspend fun requireSessionInternal(): CloudSession {
-        val session = store.current().session
-            ?: throw CloudException(CloudError.SESSION_EXPIRED)
-        if (!session.expiresSoon()) return session
-
-        return refreshMutex.withLock {
-            // Another caller may have refreshed while this one waited.
-            val latest = store.current().session
-                ?: throw CloudException(CloudError.SESSION_EXPIRED)
-            if (!latest.expiresSoon()) return@withLock latest
-
-            val refreshed = try {
-                client.refresh(latest.refreshToken)
-            } catch (e: SupabaseException) {
-                // A refresh token is only ever rejected for good: it was
-                // revoked, or it has been used. Keeping it would leave the app
-                // retrying forever, so the session goes.
-                if (e.status == 400 || e.status == 401) {
-                    store.clearSession()
-                    throw CloudException(CloudError.SESSION_EXPIRED, e)
-                }
-                throw e
-            }
-            store.saveSession(refreshed)
-            refreshed
-        }
-    }
+    private suspend fun requireSessionInternal(): CloudSession = sessions.require()
 
     /**
      * Runs the block on IO and makes sure whatever comes out of it is a
@@ -189,11 +160,3 @@ class CloudRepositoryImpl @Inject constructor(
     }
 }
 
-/**
- * Refresh this long before the token actually expires, so a sync that takes a
- * while does not have it die underneath it.
- */
-private const val REFRESH_MARGIN_SECONDS = 120L
-
-private fun CloudSession.expiresSoon(): Boolean =
-    expiresAt - System.currentTimeMillis() / 1000 < REFRESH_MARGIN_SECONDS

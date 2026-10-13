@@ -1419,8 +1419,6 @@
 
     <!-- Sync progress -->
     <string name="cloud_stage_connect">Connecting…</string>
-    <string name="cloud_stage_pull">Fetching your data…</string>
-    <string name="cloud_stage_data">Sending your data…</string>
     <string name="cloud_stage_finish">Finishing…</string>
     <string name="cloud_sync_not_ready_title">Data sync is not switched on yet</string>
     <string name="cloud_sync_not_ready_desc">The account works, but your cars and records are not being uploaded yet.</string>
@@ -1452,5 +1450,31 @@
     <string name="onboarding_account_offline_body">Everything works exactly the same. Your data stays on this phone and nothing ever leaves it — which also means that if you lose the phone, it is gone.</string>
     <string name="onboarding_account_continue_offline">Continue without an account</string>
     <string name="onboarding_account_later_hint">You can change your mind at any time, in Settings → Account &amp; sync.</string>
+
+
+    <!-- First upload -->
+    <string name="cloud_stage_checking">Seeing what’s already there…</string>
+    <string name="cloud_stage_cars">Uploading your cars…</string>
+    <string name="cloud_stage_trips">Uploading your trips…</string>
+    <string name="cloud_stage_refills">Uploading your refills…</string>
+    <string name="cloud_stage_expenses">Uploading your expenses…</string>
+    <string name="cloud_stage_categories">Uploading your categories…</string>
+    <string name="cloud_stage_done">All done!</string>
+    <string name="cloud_sync_keep_open">Keep the app open, it only takes a few seconds.</string>
+    <string name="cloud_sync_success_title">Everything is uploaded! 🎉</string>
+    <string name="cloud_sync_success_body">Your data is on the server now, and from here on every change syncs on its own.</string>
+    <string name="cloud_sync_continue">Continue to the app</string>
+    <string name="cloud_sync_failed_title">That didn’t go through</string>
+    <string name="cloud_sync_failed_body">Nothing was lost — your data is still on this phone. Try again, or skip and sync later from Settings.</string>
+    <string name="cloud_sync_retry">Try again</string>
+    <string name="cloud_sync_skip">Skip for now</string>
+    <string name="cloud_summary_cars">Cars</string>
+    <string name="cloud_summary_trips">Trips</string>
+    <string name="cloud_summary_refills">Refills</string>
+    <string name="cloud_summary_expenses">Expenses</string>
+    <string name="cloud_summary_categories">Categories</string>
+    <string name="cloud_summary_received">Brought from the server</string>
+    <string name="cloud_account_created">Account created</string>
+    <string name="cloud_signed_in_message">Signed in</string>
 
 </resources>

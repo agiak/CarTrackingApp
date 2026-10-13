@@ -51,6 +51,17 @@ interface ExpenseCategoryDao {
     @Query("DELETE FROM expense_categories WHERE id = :id")
     suspend fun deleteCategoryById(id: Long)
 
+    @Query("SELECT * FROM expense_categories WHERE name = :name LIMIT 1")
+    suspend fun getCategoryByName(name: String): ExpenseCategoryEntity?
+
+    /**
+     * Unlike [deleteCategoryByName] this does not spare the built-in
+     * categories: the sync only calls it for a row the server says is gone,
+     * and "gone" does not depend on who created it.
+     */
+    @Query("DELETE FROM expense_categories WHERE name = :name")
+    suspend fun deleteCategoryByNameForSync(name: String)
+
     @Query("SELECT * FROM expense_categories ORDER BY id ASC")
     suspend fun getAllForSync(): List<ExpenseCategoryEntity>
 

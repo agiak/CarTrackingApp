@@ -1,7 +1,7 @@
 package com.agcoding.cartrackingapp.cloud.di
 
 import com.agcoding.cartrackingapp.cloud.data.repository.CloudRepositoryImpl
-import com.agcoding.cartrackingapp.cloud.data.sync.PendingSchemaSync
+import com.agcoding.cartrackingapp.cloud.data.sync.SyncManager
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
 import dagger.Binds
@@ -22,8 +22,7 @@ abstract class CloudModule {
     @Singleton
     abstract fun bindCloudRepository(impl: CloudRepositoryImpl): CloudRepository
 
-    /** Swap [PendingSchemaSync] for SyncManager once the schema is settled. */
     @Binds
     @Singleton
-    abstract fun bindCloudSync(impl: PendingSchemaSync): CloudSync
+    abstract fun bindCloudSync(impl: SyncManager): CloudSync
 }

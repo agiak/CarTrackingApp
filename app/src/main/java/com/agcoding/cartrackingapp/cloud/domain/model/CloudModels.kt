@@ -55,14 +55,34 @@ enum class CloudMode {
 }
 
 /**
- * The named steps of a sync, in order. The onboarding progress bar shows these
- * as text so a first upload reads as progress rather than as a frozen screen.
+ * The named steps of a sync, in order. The onboarding progress bar names the
+ * one it is on, so a first upload reads as progress rather than as a frozen
+ * screen — and so a long step looks like work rather than like a hang.
  */
-enum class SyncStage { CONNECT, PULL, DATA, FINISH }
+enum class SyncStage {
+    CONNECTING,
+    CHECKING,
+    CARS,
+    TRIPS,
+    REFILLS,
+    EXPENSES,
+    CATEGORIES,
+    FINISHING,
+    DONE,
+}
 
 data class SyncProgress(val stage: SyncStage, val fraction: Float)
 
 /** What one round of syncing did, for the "Done!" screen. */
-data class SyncSummary(val pushed: Int = 0, val received: Int = 0) {
+data class SyncSummary(
+    val cars: Int = 0,
+    val trips: Int = 0,
+    val refills: Int = 0,
+    val expenses: Int = 0,
+    val categories: Int = 0,
+    val received: Int = 0,
+) {
+    val pushed: Int get() = cars + trips + refills + expenses + categories
+
     val changedAnything: Boolean get() = pushed > 0 || received > 0
 }
