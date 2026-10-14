@@ -50,6 +50,7 @@ import com.agcoding.cartrackingapp.cloud.domain.model.CloudMode
 import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
 import com.agcoding.cartrackingapp.presentation.cloud.components.AccountIdentityHero
 import com.agcoding.cartrackingapp.presentation.cloud.components.AccountSignedOutHero
+import com.agcoding.cartrackingapp.presentation.cloud.components.DatabaseStatsCard
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -161,6 +162,14 @@ fun CloudAccountScreen(
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
+
+                // Shown signed in or out. Signed out it is the pitch made
+                // concrete — this is the pile that currently exists in one
+                // place only; signed in it is what the backup covers.
+                uiState.stats?.let { stats ->
+                    DatabaseStatsCard(stats = stats)
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
 
                 if (uiState.cloudState.isSignedIn && !uiState.dataSyncAvailable) {
                     NoticeCard(

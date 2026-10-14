@@ -7,6 +7,7 @@ import com.agcoding.cartrackingapp.data.local.database.ALL_MIGRATIONS
 import com.agcoding.cartrackingapp.data.local.database.CarDatabase
 import com.agcoding.cartrackingapp.data.local.database.dao.CarAttachmentDao
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
+import com.agcoding.cartrackingapp.data.local.database.dao.DatabaseStatsDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
@@ -88,5 +89,11 @@ object DatabaseModule {
     @Singleton
     fun provideSyncLinkDao(database: CarDatabase): SyncLinkDao {
         return database.syncLinkDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseStatsDao(database: CarDatabase): DatabaseStatsDao {
+        return database.databaseStatsDao()
     }
 }

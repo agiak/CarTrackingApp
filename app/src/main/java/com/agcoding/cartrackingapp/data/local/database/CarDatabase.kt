@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkDao
 import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkEntity
 import com.agcoding.cartrackingapp.data.local.database.dao.CarAttachmentDao
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
+import com.agcoding.cartrackingapp.data.local.database.dao.DatabaseStatsDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
@@ -37,6 +38,7 @@ abstract class CarDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
     abstract fun notificationHistoryDao(): NotificationHistoryDao
     abstract fun syncLinkDao(): SyncLinkDao
+    abstract fun databaseStatsDao(): DatabaseStatsDao
 
     companion object {
         @Volatile

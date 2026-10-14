@@ -2,12 +2,14 @@ package com.agcoding.cartrackingapp.di
 
 import com.agcoding.cartrackingapp.data.repository.CarAttachmentRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.CarRepositoryImpl
+import com.agcoding.cartrackingapp.data.repository.DatabaseStatsRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.ExpenseRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.NotificationHistoryRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.RefillRepositoryImpl
 import com.agcoding.cartrackingapp.data.repository.TripRepositoryImpl
 import com.agcoding.cartrackingapp.domain.repository.CarAttachmentRepository
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -57,4 +59,10 @@ abstract class RepositoryModule {
     abstract fun bindNotificationHistoryRepository(
         notificationHistoryRepositoryImpl: NotificationHistoryRepositoryImpl
     ): NotificationHistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDatabaseStatsRepository(
+        databaseStatsRepositoryImpl: DatabaseStatsRepositoryImpl
+    ): DatabaseStatsRepository
 }

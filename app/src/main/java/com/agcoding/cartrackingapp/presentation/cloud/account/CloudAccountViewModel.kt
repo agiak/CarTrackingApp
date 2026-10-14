@@ -9,6 +9,8 @@ import com.agcoding.cartrackingapp.cloud.domain.model.CloudState
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncProgress
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
+import com.agcoding.cartrackingapp.domain.model.DatabaseStats
+import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +35,8 @@ data class CloudAccountUiState(
     val message: CloudAccountMessage? = null,
     /** See [CloudSync.movesData]. */
     val dataSyncAvailable: Boolean = true,
+    /** What this phone is holding. Null until the first count arrives. */
+    val stats: DatabaseStats? = null,
 )
 
 enum class CloudAccountMessage { SignedOut, AccountDeleted, Synced, NothingToSync }
@@ -41,6 +45,7 @@ enum class CloudAccountMessage { SignedOut, AccountDeleted, Synced, NothingToSyn
 class CloudAccountViewModel @Inject constructor(
     private val cloudRepository: CloudRepository,
     private val cloudSync: CloudSync,
+    private val databaseStatsRepository: DatabaseStatsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -63,6 +68,13 @@ class CloudAccountViewModel @Inject constructor(
         viewModelScope.launch {
             cloudSync.progress.collect { progress ->
                 _uiState.value = _uiState.value.copy(progress = progress)
+            }
+        }
+        viewModelScope.launch {
+            // Room re-emits on every write, so the counts stay honest while
+            // the screen is open — including right after a sync pulls rows in.
+            databaseStatsRepository.observeStats().collect { stats ->
+                _uiState.value = _uiState.value.copy(stats = stats)
             }
         }
     }

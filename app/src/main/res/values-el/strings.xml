@@ -1338,7 +1338,14 @@
     <string name="settings_group_cloud_subtitle">Κράτα αντίγραφο των δεδομένων σου και χρησιμοποίησέ τα σε δεύτερο κινητό</string>
 
     <string name="cloud_section_account">ΛΟΓΑΡΙΑΣΜΟΣ</string>
+    <string name="cloud_section_data">ΤΑ ΔΕΔΟΜΕΝΑ ΣΟΥ</string>
     <string name="cloud_section_sync">ΣΥΓΧΡΟΝΙΣΜΟΣ</string>
+    <string name="cloud_stats_cars">Αμάξια</string>
+    <string name="cloud_stats_refills">Ανεφοδιασμοί</string>
+    <string name="cloud_stats_expenses">Έξοδα</string>
+    <string name="cloud_stats_trips">Διαδρομές</string>
+    <string name="cloud_stats_total">%1$s εγγραφές σε αυτό το κινητό</string>
+    <string name="cloud_stats_empty">Δεν έχεις καταγράψει τίποτα ακόμη</string>
     <string name="cloud_section_security">ΑΣΦΑΛΕΙΑ</string>
 
     <!-- Status card -->
