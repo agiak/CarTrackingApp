@@ -1516,5 +1516,10 @@
     <string name="cloud_summary_received">Ήρθαν από τον διακομιστή</string>
     <string name="cloud_account_created">Ο λογαριασμός δημιουργήθηκε</string>
     <string name="cloud_signed_in_message">Συνδέθηκες</string>
+    <string name="export_excel">Εξαγωγή Excel</string>
+    <string name="export_excel_failed">Η εξαγωγή Excel απέτυχε: %s</string>
+    <string name="export_json">Εξαγωγή JSON</string>
+    <string name="toggle_quick_pick">Γρήγορη επιλογή</string>
+    <string name="more_categories">Περισσότερα…</string>
 
 </resources>
