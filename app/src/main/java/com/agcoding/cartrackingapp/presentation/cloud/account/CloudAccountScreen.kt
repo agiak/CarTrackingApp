@@ -74,19 +74,32 @@ fun CloudAccountScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAuth: (CloudAuthMode) -> Unit,
     onNavigateToChangePassword: () -> Unit,
+    /**
+     * Signing out puts the user back where they started: account, or no
+     * account? Leaving them here, on a screen that has just stopped describing
+     * them, would make them go and find the way back in on their own.
+     */
+    onSignedOut: () -> Unit = {},
     viewModel: CloudAccountViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val signedOutMessage = stringResource(R.string.cloud_signed_out)
     val deletedMessage = stringResource(R.string.cloud_account_deleted)
     val syncedMessage = stringResource(R.string.cloud_synced)
     val nothingToSyncMessage = stringResource(R.string.cloud_nothing_to_sync)
 
     LaunchedEffect(uiState.message) {
         val text = when (uiState.message) {
-            CloudAccountMessage.SignedOut -> signedOutMessage
+            CloudAccountMessage.SignedOut -> {
+                // No snackbar for this one: the next screen is the feedback,
+                // and showSnackbar holds this coroutine for as long as the
+                // snackbar is up, which would delay the move by seconds.
+                viewModel.consumeMessage()
+                onSignedOut()
+                null
+            }
+
             CloudAccountMessage.AccountDeleted -> deletedMessage
             CloudAccountMessage.Synced -> syncedMessage
             CloudAccountMessage.NothingToSync -> nothingToSyncMessage

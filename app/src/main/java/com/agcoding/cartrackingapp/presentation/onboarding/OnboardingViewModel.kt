@@ -60,12 +60,26 @@ class OnboardingViewModel @Inject constructor(
     private var openedByDeepLink = false
 
     /**
-     * True while this is a genuine first run rather than the one-off account
-     * question shown to someone who installed the app before accounts existed.
-     * That person is already using the app, so finishing their answer must not
-     * drop them into an import step they never asked for.
+     * Whether this pass through the account step should go on to offer an
+     * import.
+     *
+     * True on a genuine first run, and again after a sign-out, because both
+     * are moments when the phone may be about to start from nothing. False for
+     * the one-off account question shown to someone who installed the app
+     * before accounts existed: that person is already using the app, and
+     * dropping them into "do you have a backup?" would be asking about a
+     * problem they do not have.
      */
-    private var isFirstRun = false
+    private var offerImport = false
+
+    /**
+     * Re-entered from the account screen after signing out, rather than opened
+     * as the first screen of the app.
+     *
+     * Kept as a flag because [checkOnboardingStatus] is suspended on DataStore
+     * while the screen asks for this, and either of the two can finish first.
+     */
+    private var restartAtAccount = false
 
     /**
      * Which button sent the user to the auth screen.
@@ -106,9 +120,13 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             val isOnboardingCompleted = onboardingPreferences.isOnboardingCompleted.first()
 
+            // The screen asked for the account step while this was waiting on
+            // DataStore; that answer wins, it is the more specific one.
+            if (restartAtAccount) return@launch
+
             _state.value = when {
                 !isOnboardingCompleted -> {
-                    isFirstRun = true
+                    offerImport = true
                     OnboardingState.ShowGuide
                 }
                 // Everyone gets asked about an account once, including people
@@ -135,6 +153,27 @@ class OnboardingViewModel @Inject constructor(
         if (_state.value is OnboardingState.ShowAccountPrompt) {
             completeOnboarding()
         }
+    }
+
+    /**
+     * Signing out drops the user back here, at the question they answered when
+     * they first installed: account, or no account?
+     *
+     * It is the same question because they are in the same position again, and
+     * leaving them on an account screen that now describes no account would
+     * make them go and find the way back in themselves. The import offer comes
+     * after it for the same reason it does on a first run — a sign-out is the
+     * one moment a user is most likely to be holding a file they want back.
+     *
+     * Overrides whatever [checkOnboardingStatus] decided, and is remembered so
+     * that a decision still in flight cannot undo it.
+     */
+    fun restartAtAccountStep() {
+        if (restartAtAccount) return
+        restartAtAccount = true
+        offerImport = true
+        authMode = null
+        _state.value = OnboardingState.ShowAccountPrompt
     }
 
     fun nextSlide() {
@@ -206,14 +245,9 @@ class OnboardingViewModel @Inject constructor(
         continueAfterAccount()
     }
 
-    /**
-     * Only a first run earns the import step. Someone who has been using the
-     * app for months and is answering the account question for the first time
-     * is not setting up — dropping them into "do you have a backup?" would be
-     * asking about a problem they do not have.
-     */
+    /** See [offerImport] for who gets the import step and who does not. */
     private fun continueAfterAccount() {
-        if (isFirstRun) {
+        if (offerImport) {
             _state.value = OnboardingState.ShowImportPrompt
         } else {
             completeOnboarding()

@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -55,44 +57,103 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import kotlin.math.roundToInt
 
 /**
- * The first upload, watched.
+ * The first sync after signing in or registering, watched.
  *
- * It exists because handing the user's whole history to a server is the one
- * moment where silence is unnerving: the point is not that a percentage is
- * informative, it is that the app is visibly doing the thing it promised.
+ * It exists because handing the user's whole history to a server — or waiting
+ * for it to come back down — is the one moment where silence is unnerving: the
+ * point is not that a percentage is informative, it is that the app is visibly
+ * doing the thing it promised.
+ *
+ * When there is nothing to move, there is nothing to watch, and the screen
+ * says so by being a spinner and then getting out of the way.
  */
 @Composable
 fun CloudSyncProgressScreen(
+    direction: CloudSyncDirection,
     onFinished: () -> Unit,
     viewModel: CloudSyncProgressViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.startOnce() }
+    LaunchedEffect(Unit) { viewModel.startOnce(direction) }
 
-    // Backing out mid-upload would leave half the rows on the server and no
-    // screen watching the rest.
-    BackHandler(enabled = uiState.step == CloudSyncStep.Working) {}
+    // Outside the AnimatedContent on purpose: a LaunchedEffect inside it is
+    // composed again for the outgoing content during a transition, and this
+    // one navigates.
+    LaunchedEffect(uiState.step) {
+        if (uiState.step == CloudSyncStep.Finished) onFinished()
+    }
+
+    // Backing out mid-sync would leave half the rows moved and no screen
+    // watching the rest.
+    BackHandler(
+        enabled = uiState.step == CloudSyncStep.Working ||
+            uiState.step == CloudSyncStep.Finished
+    ) {}
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         AnimatedContent(
-            targetState = uiState.step,
+            // Finished shows the same thing Working does for the moment it
+            // takes to leave; crossfading it with itself would dip to grey.
+            targetState = if (uiState.step == CloudSyncStep.Finished) {
+                CloudSyncStep.Working
+            } else {
+                uiState.step
+            },
             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
             label = "cloud-sync-step"
         ) { step ->
             when (step) {
-                CloudSyncStep.Working -> WorkingPage(uiState)
-                CloudSyncStep.Success -> SuccessPage(uiState.summary, onFinished)
+                // quiet is null until the phone has been counted, and an
+                // uncounted phone gets the spinner: it is the one of the two
+                // that is never wrong.
+                CloudSyncStep.Working, CloudSyncStep.Finished ->
+                    if (uiState.quiet == false) WorkingPage(uiState) else QuietPage()
+
+                CloudSyncStep.Success -> SuccessPage(uiState.direction, uiState.summary, onFinished)
                 CloudSyncStep.Failed -> FailedPage(
+                    direction = uiState.direction,
                     errorRes = uiState.error?.messageRes(),
                     onRetry = viewModel::retry,
                     onSkip = onFinished,
                 )
             }
         }
+    }
+}
+
+/**
+ * The whole screen for a sync with nothing to measure.
+ *
+ * A new account on a phone with no records has nothing to send, and a bar
+ * filling up over zero rows is an animation impersonating a measurement. This
+ * says the one true thing instead: something is happening, wait.
+ */
+@Composable
+private fun QuietPage() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(56.dp),
+            color = AppSuccess.color,
+            strokeWidth = 5.dp,
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = stringResource(R.string.cloud_sync_preparing),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -147,7 +208,7 @@ private fun WorkingPage(uiState: CloudSyncProgressUiState) {
                 Text(text = stage.emoji, fontSize = 36.sp)
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = stringResource(stage.labelRes()),
+                    text = stringResource(stage.labelRes(uiState.direction)),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
@@ -168,7 +229,12 @@ private fun WorkingPage(uiState: CloudSyncProgressUiState) {
 }
 
 @Composable
-private fun SuccessPage(summary: SyncSummary?, onFinished: () -> Unit) {
+private fun SuccessPage(
+    direction: CloudSyncDirection,
+    summary: SyncSummary?,
+    onFinished: () -> Unit,
+) {
+    val isDownload = direction == CloudSyncDirection.Download
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -184,7 +250,13 @@ private fun SuccessPage(summary: SyncSummary?, onFinished: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.cloud_sync_success_title),
+            text = stringResource(
+                if (isDownload) {
+                    R.string.cloud_sync_restored_title
+                } else {
+                    R.string.cloud_sync_success_title
+                }
+            ),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -192,7 +264,13 @@ private fun SuccessPage(summary: SyncSummary?, onFinished: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = stringResource(R.string.cloud_sync_success_body),
+            text = stringResource(
+                if (isDownload) {
+                    R.string.cloud_sync_restored_body
+                } else {
+                    R.string.cloud_sync_success_body
+                }
+            ),
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -260,7 +338,12 @@ private fun SummaryLine(emoji: String, label: String, count: Int) {
 }
 
 @Composable
-private fun FailedPage(errorRes: Int?, onRetry: () -> Unit, onSkip: () -> Unit) {
+private fun FailedPage(
+    direction: CloudSyncDirection,
+    errorRes: Int?,
+    onRetry: () -> Unit,
+    onSkip: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -282,8 +365,16 @@ private fun FailedPage(errorRes: Int?, onRetry: () -> Unit, onSkip: () -> Unit) 
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             // Says plainly that nothing was lost. A failed first upload looks
-            // exactly like a failed save unless the screen rules that out.
-            text = stringResource(R.string.cloud_sync_failed_body),
+            // exactly like a failed save unless the screen rules that out —
+            // and a failed restore looks like an empty account, which is a
+            // worse thing to believe.
+            text = stringResource(
+                if (direction == CloudSyncDirection.Download) {
+                    R.string.cloud_sync_failed_body_down
+                } else {
+                    R.string.cloud_sync_failed_body
+                }
+            ),
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -320,8 +411,39 @@ private fun PreviewCloudSyncWorking() {
     CarTrackingAppTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             WorkingPage(
-                CloudSyncProgressUiState(progress = 0.46f, stage = SyncStage.REFILLS)
+                CloudSyncProgressUiState(
+                    progress = 0.46f,
+                    stage = SyncStage.REFILLS,
+                    quiet = false,
+                )
             )
+        }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 700)
+@Composable
+private fun PreviewCloudSyncDownloading() {
+    CarTrackingAppTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            WorkingPage(
+                CloudSyncProgressUiState(
+                    direction = CloudSyncDirection.Download,
+                    progress = 0.46f,
+                    stage = SyncStage.REFILLS,
+                    quiet = false,
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 700)
+@Composable
+private fun PreviewCloudSyncQuiet() {
+    CarTrackingAppTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            QuietPage()
         }
     }
 }
@@ -331,6 +453,7 @@ private fun PreviewCloudSyncWorking() {
 private fun PreviewCloudSyncSuccess() {
     CarTrackingAppTheme {
         SuccessPage(
+            direction = CloudSyncDirection.Upload,
             summary = SyncSummary(cars = 2, trips = 3, refills = 84, expenses = 19, categories = 12),
             onFinished = {},
         )
@@ -341,6 +464,11 @@ private fun PreviewCloudSyncSuccess() {
 @Composable
 private fun PreviewCloudSyncFailed() {
     CarTrackingAppTheme {
-        FailedPage(errorRes = R.string.cloud_error_no_connection, onRetry = {}, onSkip = {})
+        FailedPage(
+            direction = CloudSyncDirection.Upload,
+            errorRes = R.string.cloud_error_no_connection,
+            onRetry = {},
+            onSkip = {},
+        )
     }
 }

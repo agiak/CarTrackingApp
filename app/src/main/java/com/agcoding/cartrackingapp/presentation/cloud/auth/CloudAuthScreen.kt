@@ -67,7 +67,12 @@ import com.agcoding.cartrackingapp.util.DeviceUtils
 @Composable
 fun CloudAuthScreen(
     onNavigateBack: () -> Unit,
-    onSignedIn: () -> Unit,
+    /**
+     * Told which of the two just happened: what comes next is a first sync,
+     * and a sign-in pulls data down where a sign-up pushes it (or has nothing
+     * to push at all).
+     */
+    onSignedIn: (CloudAuthMode) -> Unit,
     onMustChangePassword: () -> Unit,
     initialMode: CloudAuthMode = CloudAuthMode.SignIn,
     viewModel: CloudAuthViewModel = hiltViewModel(),
@@ -299,7 +304,7 @@ fun CloudAuthScreen(
             }
         ),
         supportingText = uiState.email.takeIf { it.isNotBlank() },
-        onFinished = onSignedIn,
+        onFinished = { onSignedIn(uiState.mode) },
     )
 
     if (uiState.showResetDialog) {

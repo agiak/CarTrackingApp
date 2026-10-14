@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,8 +25,19 @@ fun OnboardingScreen(
     onOnboardingComplete: () -> Unit,
     onNavigateToAuth: (CloudAuthMode) -> Unit = {},
     openedByDeepLink: Boolean = false,
+    /** Opened by a sign-out: straight to the account question. */
+    restartAtAccount: Boolean = false,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
+    // Said during composition and before the state is first read, rather than
+    // from a LaunchedEffect, because a LaunchedEffect runs after composition —
+    // and by then the ViewModel may already have published Completed, which
+    // this screen acts on by navigating away. remember makes it happen once,
+    // in order, ahead of the first value collected below.
+    remember(restartAtAccount) {
+        if (restartAtAccount) viewModel.restartAtAccountStep()
+    }
+
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(openedByDeepLink) {

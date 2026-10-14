@@ -1465,7 +1465,6 @@
     <string name="cloud_sign_out">Sign out</string>
     <string name="cloud_sign_out_desc">Carry on using the app without an account</string>
     <string name="cloud_sign_out_message">You can sign in again at any time. Everything that has been synced stays on the server.</string>
-    <string name="cloud_signed_out">Signed out</string>
     <string name="cloud_delete_account">Delete account</string>
     <string name="cloud_delete_account_desc">Remove the account and everything on the server</string>
     <string name="cloud_delete_account_message">The account and every row it holds on the server are deleted for good. This cannot be undone.</string>
@@ -1516,13 +1515,28 @@
     <string name="cloud_stage_refills">Uploading your refills…</string>
     <string name="cloud_stage_expenses">Uploading your expenses…</string>
     <string name="cloud_stage_categories">Uploading your categories…</string>
+    <!-- The same stages when the data is coming the other way: signing in is a
+         restore, and telling someone their cars are being uploaded describes
+         the opposite of what they are waiting for. -->
+    <string name="cloud_stage_cars_down">Downloading your cars…</string>
+    <string name="cloud_stage_trips_down">Downloading your trips…</string>
+    <string name="cloud_stage_refills_down">Downloading your refills…</string>
+    <string name="cloud_stage_expenses_down">Downloading your expenses…</string>
+    <string name="cloud_stage_categories_down">Downloading your categories…</string>
     <string name="cloud_stage_done">All done!</string>
     <string name="cloud_sync_keep_open">Keep the app open, it only takes a few seconds.</string>
     <string name="cloud_sync_success_title">Everything is uploaded! 🎉</string>
     <string name="cloud_sync_success_body">Your data is on the server now, and from here on every change syncs on its own.</string>
+    <!-- Shown while a new account is being set up on a phone with nothing on
+         it yet: there is nothing to upload, so there is nothing to put a
+         percentage on. -->
+    <string name="cloud_sync_preparing">Setting up your account…</string>
+    <string name="cloud_sync_restored_title">Your data is back! 🎉</string>
+    <string name="cloud_sync_restored_body">Everything on your account is on this phone now, and from here on every change syncs on its own.</string>
     <string name="cloud_sync_continue">Continue to the app</string>
     <string name="cloud_sync_failed_title">That didn’t go through</string>
     <string name="cloud_sync_failed_body">Nothing was lost — your data is still on this phone. Try again, or skip and sync later from Settings.</string>
+    <string name="cloud_sync_failed_body_down">Your account is untouched — nothing has come down to this phone yet. Try again, or skip and sync later from Settings.</string>
     <string name="cloud_sync_retry">Try again</string>
     <string name="cloud_sync_skip">Skip for now</string>
     <string name="cloud_summary_cars">Cars</string>

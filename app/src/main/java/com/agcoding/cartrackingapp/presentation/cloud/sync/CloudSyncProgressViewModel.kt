@@ -7,6 +7,7 @@ import com.agcoding.cartrackingapp.cloud.domain.model.CloudException
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncStage
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncSummary
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
+import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,44 +15,80 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class CloudSyncStep { Working, Success, Failed }
+/**
+ * Which way the data is about to move.
+ *
+ * The sync itself is the same call in both directions, but the screen is not:
+ * telling someone who has just signed in that their cars are being *uploaded*
+ * describes the opposite of what they asked for and the opposite of what they
+ * are waiting to see.
+ */
+enum class CloudSyncDirection { Upload, Download }
+
+enum class CloudSyncStep {
+    Working,
+    Success,
+    Failed,
+
+    /** Done, with nothing to show for it — the screen should just leave. */
+    Finished,
+}
 
 data class CloudSyncProgressUiState(
+    val direction: CloudSyncDirection = CloudSyncDirection.Upload,
     val step: CloudSyncStep = CloudSyncStep.Working,
     /** 0f..1f, and never allowed to go backwards. */
     val progress: Float = 0f,
     val stage: SyncStage = SyncStage.CONNECTING,
     val summary: SyncSummary? = null,
     val error: CloudError? = null,
+    /**
+     * Whether this run has nothing to measure: a spinner for as long as the
+     * call takes, and no bar.
+     *
+     * Null until the phone has been counted, because a bar that appears and
+     * then turns into a spinner is worse than a spinner that stays.
+     */
+    val quiet: Boolean? = null,
 )
 
 /**
- * Drives the first upload.
+ * Drives the first sync after signing in or registering.
  *
- * The bar shows real progress, but never faster than a readable pace. A first
- * upload of a handful of cars finishes in a few hundred milliseconds, and a
- * bar that jumps straight to 100% reads as a glitch rather than as work done —
- * so the displayed value is the smaller of what the sync reports and what the
- * clock allows, and the screen stays up for at least [MIN_SCREEN_MILLIS].
+ * There are two quite different jobs here. Handing a phone full of history to
+ * a server takes long enough to be worth watching, so that gets the paced bar:
+ * the displayed value is the smaller of what the sync reports and what the
+ * clock allows, and the screen stays up for at least [MIN_SCREEN_MILLIS] so
+ * the stage labels can be read.
+ *
+ * A new account on an empty phone is the other job, and it is not the same
+ * one. There is nothing to send, so there is nothing to put a percentage on —
+ * a bar there is an animation pretending to be a measurement. That case gets a
+ * plain spinner, for exactly as long as the call takes, and then leaves.
  */
 @HiltViewModel
 class CloudSyncProgressViewModel @Inject constructor(
     private val cloudSync: CloudSync,
+    private val databaseStatsRepository: DatabaseStatsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CloudSyncProgressUiState())
     val uiState: StateFlow<CloudSyncProgressUiState> = _uiState.asStateFlow()
 
     private var pacing: Job? = null
+    private var work: Job? = null
     private var started = false
+    private var direction = CloudSyncDirection.Upload
 
     /** Safe to call on every composition; only the first one does anything. */
-    fun startOnce() {
+    fun startOnce(direction: CloudSyncDirection) {
         if (started) return
         started = true
+        this.direction = direction
         run()
     }
 
@@ -61,12 +98,44 @@ class CloudSyncProgressViewModel @Inject constructor(
     }
 
     private fun run() {
-        _uiState.value = CloudSyncProgressUiState()
+        pacing?.cancel()
+        work?.cancel()
+        _uiState.value = CloudSyncProgressUiState(
+            direction = direction,
+            // A download has rows coming the other way by definition, so it
+            // never needs counting and its bar can start on the first frame.
+            quiet = if (direction == CloudSyncDirection.Download) false else null,
+        )
 
+        work = viewModelScope.launch {
+            if (direction == CloudSyncDirection.Upload) {
+                val nothingToSend = runCatching {
+                    databaseStatsRepository.observeStats().first().isEmpty
+                }.getOrDefault(false)
+                _uiState.value = _uiState.value.copy(quiet = nothingToSend)
+            }
+            if (_uiState.value.quiet == true) runQuietly() else runWithBar()
+        }
+    }
+
+    /**
+     * One call, one spinner.
+     *
+     * No tick at the end either: the sign-up screen has just played its own,
+     * and a success page reporting that nothing was uploaded is a page about
+     * nothing standing between the user and the app.
+     */
+    private suspend fun runQuietly() {
+        runCatching { cloudSync.syncNow() }.fold(
+            onSuccess = { _uiState.value = _uiState.value.copy(step = CloudSyncStep.Finished) },
+            onFailure = { fail(it) },
+        )
+    }
+
+    private suspend fun runWithBar() {
         val startedAt = System.currentTimeMillis()
         var reported = 0f
 
-        pacing?.cancel()
         pacing = viewModelScope.launch {
             launch {
                 cloudSync.progress
@@ -89,34 +158,33 @@ class CloudSyncProgressViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch {
-            val result = runCatching { cloudSync.syncNow() }
-            result.fold(
-                onSuccess = { summary ->
-                    // Let the bar and its labels play out even if the sync was
-                    // instant. Only on the way to a tick: holding a bar that
-                    // is already going nowhere just delays bad news.
-                    delay(
-                        (MIN_SCREEN_MILLIS - (System.currentTimeMillis() - startedAt))
-                            .coerceAtLeast(0)
-                    )
-                    pacing?.cancel()
-                    _uiState.value = _uiState.value.copy(progress = 1f, stage = SyncStage.DONE)
-                    delay(DONE_PAUSE_MILLIS)
-                    _uiState.value = _uiState.value.copy(
-                        step = CloudSyncStep.Success,
-                        summary = summary,
-                    )
-                },
-                onFailure = { error ->
-                    pacing?.cancel()
-                    _uiState.value = _uiState.value.copy(
-                        step = CloudSyncStep.Failed,
-                        error = (error as? CloudException)?.error ?: CloudError.UNKNOWN,
-                    )
-                }
-            )
-        }
+        runCatching { cloudSync.syncNow() }.fold(
+            onSuccess = { summary ->
+                // Let the bar and its labels play out even if the sync was
+                // instant. Only on the way to a tick: holding a bar that
+                // is already going nowhere just delays bad news.
+                delay(
+                    (MIN_SCREEN_MILLIS - (System.currentTimeMillis() - startedAt))
+                        .coerceAtLeast(0)
+                )
+                pacing?.cancel()
+                _uiState.value = _uiState.value.copy(progress = 1f, stage = SyncStage.DONE)
+                delay(DONE_PAUSE_MILLIS)
+                _uiState.value = _uiState.value.copy(
+                    step = CloudSyncStep.Success,
+                    summary = summary,
+                )
+            },
+            onFailure = { fail(it) },
+        )
+    }
+
+    private fun fail(error: Throwable) {
+        pacing?.cancel()
+        _uiState.value = _uiState.value.copy(
+            step = CloudSyncStep.Failed,
+            error = (error as? CloudException)?.error ?: CloudError.UNKNOWN,
+        )
     }
 
     /**
