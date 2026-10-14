@@ -9,6 +9,7 @@ import com.agcoding.cartrackingapp.cloud.domain.model.CloudState
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncProgress
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
+import com.agcoding.cartrackingapp.data.preferences.OnboardingPreferences
 import com.agcoding.cartrackingapp.domain.model.DatabaseStats
 import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,6 +47,7 @@ class CloudAccountViewModel @Inject constructor(
     private val cloudRepository: CloudRepository,
     private val cloudSync: CloudSync,
     private val databaseStatsRepository: DatabaseStatsRepository,
+    private val onboardingPreferences: OnboardingPreferences,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -123,6 +125,11 @@ class CloudAccountViewModel @Inject constructor(
 
     fun confirmSignOut() = runAccountAction(CloudAccountMessage.SignedOut) { wipe ->
         cloudRepository.signOut(wipeLocalData = wipe)
+        // Written before the screen moves, and on disk rather than in memory,
+        // so that closing the app is not mistaken for an answer: whoever signs
+        // out is back in front of "account, or no account?", and stays there
+        // until they pick one.
+        onboardingPreferences.setAccountStepPending(true)
     }
 
     fun confirmDeleteAccount() = runAccountAction(CloudAccountMessage.AccountDeleted) { wipe ->

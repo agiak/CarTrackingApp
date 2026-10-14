@@ -119,6 +119,7 @@ class OnboardingViewModel @Inject constructor(
     private fun checkOnboardingStatus() {
         viewModelScope.launch {
             val isOnboardingCompleted = onboardingPreferences.isOnboardingCompleted.first()
+            val accountStepPending = onboardingPreferences.isAccountStepPending.first()
 
             // The screen asked for the account step while this was waiting on
             // DataStore; that answer wins, it is the more specific one.
@@ -130,9 +131,21 @@ class OnboardingViewModel @Inject constructor(
                     OnboardingState.ShowGuide
                 }
                 // Everyone gets asked about an account once, including people
-                // who installed the app before there was one to offer.
-                shouldAskAboutAccount() -> OnboardingState.ShowAccountPrompt
-                else -> OnboardingState.Completed
+                // who installed the app before there was one to offer — and
+                // anyone who signed out gets asked again, however long ago
+                // that was and however many times the app has been killed
+                // since. Only the answer clears it.
+                shouldAskAboutAccount() -> {
+                    offerImport = accountStepPending
+                    OnboardingState.ShowAccountPrompt
+                }
+
+                else -> {
+                    // Signed back in from somewhere else, so the question is
+                    // moot; without this the flag would sit there for good.
+                    if (accountStepPending) onboardingPreferences.setAccountStepPending(false)
+                    OnboardingState.Completed
+                }
             }
         }
     }
@@ -140,7 +153,10 @@ class OnboardingViewModel @Inject constructor(
     private suspend fun shouldAskAboutAccount(): Boolean {
         if (openedByDeepLink) return false
         val cloud = cloudRepository.state.first()
-        return !cloud.accountPromptAnswered && !cloud.isSignedIn
+        // An account on the phone answers the question by itself, whatever any
+        // flag says — nobody should be asked to sign in while signed in.
+        if (cloud.isSignedIn) return false
+        return onboardingPreferences.isAccountStepPending.first() || !cloud.accountPromptAnswered
     }
 
     /**
@@ -151,7 +167,9 @@ class OnboardingViewModel @Inject constructor(
     fun onOpenedByDeepLink() {
         openedByDeepLink = true
         if (_state.value is OnboardingState.ShowAccountPrompt) {
-            completeOnboarding()
+            // Stepped over, not answered: the app is on its way somewhere the
+            // user asked for, and the question keeps until next time.
+            completeOnboarding(accountQuestionAnswered = false)
         }
     }
 
@@ -259,9 +277,18 @@ class OnboardingViewModel @Inject constructor(
         completeOnboarding()
     }
 
-    fun completeOnboarding() {
+    /**
+     * @param accountQuestionAnswered false when the account step is being
+     *   stepped over rather than answered, which is what a deep link does. The
+     *   question then survives to be asked the next time the app is opened on
+     *   its own, which is the point of it outliving the process at all.
+     */
+    fun completeOnboarding(accountQuestionAnswered: Boolean = true) {
         viewModelScope.launch {
             onboardingPreferences.setOnboardingCompleted(true)
+            if (accountQuestionAnswered) {
+                onboardingPreferences.setAccountStepPending(false)
+            }
             _state.value = OnboardingState.Completed
         }
     }
