@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "316474162547",
+    "project_id": "cariboo-18927",
+    "storage_bucket": "cariboo-18927.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316474162547:android:41f18e311cb86713b69906",
+        "android_client_info": {
+          "package_name": "com.agcoding.cartrackingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF8jG24X54FmXzFY2lAc7DHUS3EU9Pq2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316474162547:android:30eb88349288d2e7b69906",
+        "android_client_info": {
+          "package_name": "com.agcoding.cartrackingapp.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF8jG24X54FmXzFY2lAc7DHUS3EU9Pq2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

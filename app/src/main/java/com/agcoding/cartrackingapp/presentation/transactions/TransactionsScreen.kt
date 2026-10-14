@@ -63,6 +63,7 @@ import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.presentation.components.ExpenseItemCard
 import com.agcoding.cartrackingapp.presentation.components.RefillItemCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.transactions.model.Transaction
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWithData
@@ -74,6 +75,7 @@ fun TransactionsScreen(
     onTransactionClick: (Transaction) -> Unit,
     onAddRefill: (carId: Long) -> Unit = {},
     onAddExpense: (carId: Long) -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
     val transactions by viewModel.transactions.collectAsStateWithLifecycle()
@@ -154,6 +156,10 @@ fun TransactionsScreen(
         topBar = {
             StyledTopAppBar(
                 title = { Text(stringResource(R.string.nav_transactions)) },
+                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToProfile) },
+                // No notifications icon here on purpose: the date, sort and
+                // filter buttons already fill this side, and a fourth would
+                // squeeze the title on a phone.
                 actions = {
                     if (transactions.isNotEmpty()) {
                         // Date filter — the same year/month picker as the car screens

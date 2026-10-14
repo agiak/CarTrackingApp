@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,12 +41,16 @@ fun ErrorNotificationsState(
                 text = stringResource(R.string.error_loading_data),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.error
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
                 fontSize = 14.sp,
+                // Same reason as the empty state: an error message is the one
+                // text most likely to wrap, and it came out ragged.
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))

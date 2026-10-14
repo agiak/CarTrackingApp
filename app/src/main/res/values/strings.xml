@@ -81,6 +81,8 @@
     <!-- Notification Channels -->
     <string name="notification_channel_reminders">Service Reminders</string>
     <string name="notification_channel_reminders_desc">Notifications about upcoming service dates and mileage reminders</string>
+    <string name="notification_channel_updates">Caribou updates</string>
+    <string name="notification_channel_updates_desc">Announcements and news sent to everyone with an account</string>
 
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">%s Reminder</string>
@@ -126,16 +128,6 @@
     <string name="refills_sorted_by_format">%1$d refills • Sorted by: %2$s</string>
 
     <!-- Onboarding Slides -->
-    <string name="onboarding_welcome_title">Welcome to Fuel Tracker</string>
-    <string name="onboarding_welcome_desc">Track your car expenses, fuel consumption, and maintenance all in one place. Get insights into your driving habits and save money.</string>
-    <string name="onboarding_refills_title">Track Refills</string>
-    <string name="onboarding_refills_desc">Log every fuel refill with details like cost, liters, and distance traveled. Calculate your real-time fuel consumption automatically.</string>
-    <string name="onboarding_service_title">Service &amp; Maintenance</string>
-    <string name="onboarding_service_desc">Keep track of all service visits and maintenance costs. Add notes to remember what was done and when.</string>
-    <string name="onboarding_expenses_title">Other Expenses</string>
-    <string name="onboarding_expenses_desc">Record parking fees, tolls, car washes, insurance, and any other car-related expenses to see your total spending.</string>
-    <string name="onboarding_stats_title">Detailed Statistics</string>
-    <string name="onboarding_stats_desc">View comprehensive charts and graphs showing your consumption trends, costs over time, and distance traveled.</string>
 
     <!-- Onboarding Navigation -->
     <string name="skip">Skip</string>
@@ -144,6 +136,41 @@
     <string name="get_started">Get Started</string>
 
     <!-- Onboarding Import Prompt -->
+    <!-- Onboarding guide: four steps, in the order the user performs them -->
+    <string name="onboarding_step_car_title">Start with your car</string>
+    <string name="onboarding_step_car_desc">Add your car and type in the odometer reading it shows right now. Everything the app calculates is measured from that number.</string>
+    <string name="onboarding_step_car_bullet_1">Use the total distance (ODO), not the trip meter</string>
+    <string name="onboarding_step_car_bullet_2">Type it exactly as it reads — don\'t round it</string>
+
+    <string name="onboarding_step_refill_title">At every fill-up</string>
+    <string name="onboarding_step_refill_desc">Log the litres and what you paid, and enter what the trip meter says. Then reset the trip meter, there at the pump.</string>
+    <string name="onboarding_step_refill_bullet_1">The trip meter is the one that resets, not the total</string>
+    <string name="onboarding_step_refill_bullet_2">Reset it right after every fill-up, every time</string>
+    <string name="onboarding_step_refill_bullet_3">Forget once and that fill-up\'s consumption comes out wrong</string>
+
+    <string name="onboarding_step_costs_title">Everything else it costs</string>
+    <string name="onboarding_step_costs_desc">Service, tyres, insurance, a car wash. Put those in too and you find out what the car actually costs you, not just what the fuel costs.</string>
+    <string name="onboarding_step_costs_bullet_1">Set a reminder on anything that comes round again</string>
+    <string name="onboarding_step_costs_bullet_2">A reminder can count down in days or in kilometres</string>
+
+    <string name="onboarding_step_stats_title">Then watch it add up</string>
+    <string name="onboarding_step_stats_desc">Once a few fill-ups are in, you get your real consumption, cost per kilometre, and where the money is going.</string>
+    <string name="onboarding_step_stats_bullet_1">Two fill-ups are needed before the first consumption figure</string>
+    <string name="onboarding_step_stats_bullet_2">The more consistent you are, the truer the numbers</string>
+
+    <string name="onboarding_meter_odo">ODO</string>
+    <string name="onboarding_meter_trip">TRIP</string>
+    <string name="onboarding_meter_unit_km">km</string>
+    <string name="onboarding_meter_reset">reset</string>
+    <string name="onboarding_meter_reset_hint">Hold the button on the dashboard</string>
+    <string name="onboarding_chip_service">Service</string>
+    <string name="onboarding_chip_wash">Car wash</string>
+    <string name="onboarding_chip_tyres">Tyres</string>
+    <string name="onboarding_chip_insurance">Insurance</string>
+    <string name="onboarding_theme_title">Make it yours</string>
+    <string name="onboarding_theme_subtitle">Pick the look you want. Everything changes as you tap, so you can see it before you decide.</string>
+    <string name="onboarding_theme_changeable">You can change this any time in Settings.</string>
+    <string name="onboarding_continue">Continue</string>
     <string name="onboarding_import_title">Have you used Caribou before?</string>
     <string name="onboarding_import_message">If you already have a backup from Caribou — a JSON or Excel/CSV file — you can import it now to restore your cars, refills and expenses.</string>
     <string name="onboarding_import_yes">Yes, import my data</string>
@@ -160,6 +187,18 @@
     <string name="onboarding_import_stat_expenses">Service &amp; expenses</string>
     <string name="onboarding_import_stat_trips">Trips</string>
     <string name="onboarding_import_stat_reminders">Reminders</string>
+    <string name="onboarding_import_sample_title">No backup, but data of your own?</string>
+    <string name="onboarding_import_sample_desc">Download a template, fill it in, and import it here.</string>
+    <string name="onboarding_import_sample_excel">Excel template</string>
+    <string name="onboarding_import_sample_json">JSON sample</string>
+    <string name="onboarding_import_sample_saved">Saved to your Downloads folder.</string>
+    <string name="onboarding_import_percent">%1$d%%</string>
+    <string name="onboarding_import_step_reading">Opening the file…</string>
+    <string name="onboarding_import_step_cars">Reading cars…</string>
+    <string name="onboarding_import_step_refills">Reading refills…</string>
+    <string name="onboarding_import_step_expenses">Reading expenses…</string>
+    <string name="onboarding_import_step_trips">Reading trips…</string>
+    <string name="onboarding_import_step_finishing">Almost done…</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Location</string>
@@ -226,6 +265,11 @@
     <string name="version">Version</string>
     <string name="storage_mode">Storage Mode</string>
     <string name="offline_first">Offline-first</string>
+    <!-- Replaces "Offline-first" once there is an account: the data no longer
+         only lives on this phone, and the About row should not keep saying it does. -->
+    <string name="online_mode">Online</string>
+    <string name="tab_profile_cd">Profile</string>
+    <string name="tab_notifications_cd">Notifications</string>
     <string name="settings_last_data_modification">Last data change</string>
     <string name="never">Never</string>
 
@@ -844,7 +888,7 @@
     <string name="spreadsheet_file_format">Supported formats: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->
-    <string name="notifications_title">Service Reminders</string>
+    <string name="notifications_title">Notifications</string>
     <string name="notifications_upcoming_reminders">Upcoming Service Reminders</string>
     <string name="notifications_count">%d active reminder(s)</string>
     <string name="notifications_reminder_date">Reminder Date</string>
@@ -858,11 +902,14 @@
     <string name="notifications_in_days">In %d days</string>
     <string name="notifications_in_weeks">In %d week(s)</string>
     <string name="notifications_in_months">In %d month(s)</string>
-    <string name="notifications_empty_title">No Reminders Set</string>
-    <string name="notifications_empty_message">You don\'t have any service reminders configured. Add reminder dates or mileage targets when creating expenses to track upcoming maintenance.</string>
+    <string name="notifications_empty_title">Nothing here yet</string>
+    <string name="notifications_empty_message">Service reminders you set up appear here, along with any announcements we send about the app.</string>
     <string name="preferences_view_reminders">View Service Reminders</string>
     <string name="preferences_view_reminders_desc">See all upcoming maintenance reminders</string>
     <string name="notifications_active_count">%d active reminder(s)</string>
+    <string name="notifications_section_upcoming">Coming up</string>
+    <string name="notifications_section_received">Recently received</string>
+    <string name="notifications_view_all">See all</string>
     <string name="edit_reminder_title">Edit Reminder</string>
     <string name="edit_reminder_description">Edit reminder settings for this service. The original expense will not be modified.</string>
     <string name="edit_reminder_current_odometer">Current odometer: %,d km</string>
@@ -1337,4 +1384,168 @@
     <string name="trip_picker_new">New trip</string>
     <string name="trip_picker_empty">This car has no trips yet. Create one to group its refills.</string>
     <string name="trip_picker_remove">Remove from trip</string>
+
+    <!-- Cloud account &amp; sync -->
+    <string name="settings_group_cloud_title">Account &amp; sync</string>
+    <string name="settings_group_cloud_subtitle">Back up your data and use it on a second phone</string>
+
+    <string name="cloud_section_account">ACCOUNT</string>
+    <string name="cloud_section_data">YOUR DATA</string>
+    <string name="cloud_section_sync">SYNC</string>
+    <string name="cloud_stats_cars">Cars</string>
+    <string name="cloud_stats_refills">Refills</string>
+    <string name="cloud_stats_expenses">Expenses</string>
+    <string name="cloud_stats_trips">Trips</string>
+    <string name="cloud_stats_total">%1$s records on this phone</string>
+    <string name="cloud_stats_empty">Nothing recorded yet</string>
+    <string name="cloud_section_security">SECURITY</string>
+
+    <!-- Status card -->
+    <string name="cloud_mode_offline_title">No account</string>
+    <string name="cloud_mode_offline_desc">Everything is kept on this phone only.</string>
+    <string name="cloud_mode_online_title">Backed up</string>
+    <string name="cloud_mode_online_desc">Your data is on the server as well as on this phone.</string>
+    <string name="cloud_mode_syncing_title">Syncing…</string>
+    <string name="cloud_mode_syncing_desc">Comparing this phone with the server.</string>
+    <string name="cloud_mode_no_internet_title">No internet</string>
+    <string name="cloud_mode_no_internet_desc">Changes will be sent as soon as you are back online.</string>
+    <string name="cloud_mode_sync_error_title">Sync failed</string>
+    <string name="cloud_mode_sync_error_desc">Nothing was lost. It will be tried again.</string>
+    <string name="cloud_last_sync">Last sync: %1$s</string>
+    <string name="cloud_last_sync_never">Not synced yet</string>
+    <string name="cloud_pending_changes">There are changes waiting to be sent</string>
+
+    <!-- Signed out -->
+    <string name="cloud_pitch_title">Keep your data safe</string>
+    <string name="cloud_pitch_body">The app works perfectly well without an account. With one, your cars, refills and expenses are kept on the server too — so you get them back if you lose your phone, and you can use them on a second one.</string>
+
+    <!-- Sign in / create account -->
+    <string name="cloud_sign_in_title">Sign in</string>
+    <string name="cloud_sign_in_subtitle">The email and password of your account.</string>
+    <string name="cloud_sign_in_action">Sign in</string>
+    <string name="cloud_sign_up_title">Create account</string>
+    <string name="cloud_sign_up_subtitle">An email and a password, that is all. There is no confirmation mail to wait for.</string>
+    <!-- Shown before the Create account button, not after it: being told what
+         arrives with an account is only consent if it is read beforehand. -->
+    <string name="cloud_push_note">An account also means the occasional announcement from us about the app. You can switch those off at any time in your phone\'s notification settings.</string>
+    <string name="cloud_sign_up_action">Create account</string>
+    <string name="cloud_switch_to_sign_up">No account yet? Create one</string>
+    <string name="cloud_switch_to_sign_in">Already have an account? Sign in</string>
+    <string name="cloud_email">Email</string>
+    <string name="cloud_password">Password</string>
+    <string name="cloud_password_min">At least 6 characters</string>
+    <string name="cloud_display_name">Your name</string>
+    <string name="cloud_display_name_optional">Optional — only you ever see it</string>
+    <string name="cloud_show_password">Show password</string>
+    <string name="cloud_hide_password">Hide password</string>
+
+    <!-- Forgotten password -->
+    <string name="cloud_forgot_password">Forgot your password?</string>
+    <string name="cloud_reset_title">Reset password</string>
+    <string name="cloud_reset_desc">We will email you a temporary password. Sign in with it and you will be asked to choose a new one.</string>
+    <string name="cloud_reset_action">Send</string>
+    <string name="cloud_reset_sent">If that address has an account, a temporary password is on its way.</string>
+
+    <!-- Change password -->
+    <string name="cloud_change_password_title">Change password</string>
+    <string name="cloud_change_password_desc">Choose a new password for your account</string>
+    <string name="cloud_change_password_action">Save</string>
+    <string name="cloud_change_password_forced_title">Choose a new password</string>
+    <string name="cloud_change_password_forced_desc">You signed in with a temporary password. Choose a real one to carry on.</string>
+    <string name="cloud_new_password">New password</string>
+    <string name="cloud_repeat_password">Repeat password</string>
+    <string name="cloud_passwords_differ">The two passwords are not the same</string>
+
+    <!-- Signed in -->
+    <string name="cloud_signed_in_as">Signed in as</string>
+    <string name="cloud_sync_now">Sync now</string>
+    <string name="cloud_sync_now_desc">Compare this phone with the server right away</string>
+    <string name="cloud_synced">Synced</string>
+    <string name="cloud_nothing_to_sync">Already up to date</string>
+    <string name="cloud_sign_out">Sign out</string>
+    <string name="cloud_sign_out_desc">Carry on using the app without an account</string>
+    <string name="cloud_sign_out_message">You can sign in again at any time. Everything that has been synced stays on the server.</string>
+    <string name="cloud_delete_account">Delete account</string>
+    <string name="cloud_delete_account_desc">Remove the account and everything on the server</string>
+    <string name="cloud_delete_account_message">The account and every row it holds on the server are deleted for good. This cannot be undone.</string>
+    <string name="cloud_delete_account_action">Delete</string>
+    <string name="cloud_account_deleted">Account deleted</string>
+    <string name="cloud_wipe_local">Also remove the data from this phone</string>
+    <string name="cloud_wipe_local_desc">Cars, refills, expenses, trips and attachments. Only offered once a sync has actually completed.</string>
+
+    <!-- Sync progress -->
+    <string name="cloud_stage_connect">Connecting…</string>
+    <string name="cloud_stage_finish">Finishing…</string>
+    <string name="cloud_sync_not_ready_title">Data sync is not switched on yet</string>
+    <string name="cloud_sync_not_ready_desc">The account works, but your cars and records are not being uploaded yet.</string>
+
+    <!-- Cloud errors -->
+    <string name="cloud_error_invalid_credentials">Wrong email or password.</string>
+    <string name="cloud_error_user_exists">There is already an account with this email.</string>
+    <string name="cloud_error_weak_password">The password must be at least 6 characters.</string>
+    <string name="cloud_error_same_password">That is already your password.</string>
+    <string name="cloud_error_email_send_failed">The email could not be sent. Try again in a moment.</string>
+    <string name="cloud_error_invalid_email">That email address does not look right.</string>
+    <string name="cloud_error_rate_limited">Too many attempts. Wait a minute and try again.</string>
+    <string name="cloud_error_session_expired">Your session expired. Sign in again.</string>
+    <string name="cloud_error_no_connection">No internet connection.</string>
+    <string name="cloud_error_unsynced_changes">There are changes that have not been sent yet. Sync first.</string>
+    <string name="cloud_error_unknown">Something went wrong. Try again.</string>
+
+
+    <!-- Account prompt at first launch -->
+    <string name="cloud_mode_account_only_title">Signed in</string>
+    <string name="cloud_mode_account_only_desc">Your account is ready. Nothing is being uploaded yet.</string>
+
+    <string name="onboarding_account_title">With an account, or without?</string>
+    <string name="onboarding_account_subtitle">Both work. Here is the difference.</string>
+    <string name="onboarding_account_online_title">With an account</string>
+    <string name="onboarding_account_online_body">Your cars, refills and expenses are kept on the server as well as on this phone. You get them back if you lose it, and you can use the same data on a second phone. You will also get the occasional announcement about the app, which you can switch off in your phone\'s notification settings.</string>
+        <string name="onboarding_account_online_body_pending">Today an account only reserves your place. Your cars and records still live on this phone alone, because uploading them is still being built — but when it is ready, everything you already have goes up on its own.</string>
+    <string name="onboarding_account_offline_title">Without an account</string>
+    <string name="onboarding_account_offline_body">Everything works exactly the same. Your data stays on this phone and nothing ever leaves it — which also means that if you lose the phone, it is gone.</string>
+    <string name="onboarding_account_continue_offline">Continue without an account</string>
+    <string name="onboarding_account_later_hint">You can change your mind at any time, in Settings → Account &amp; sync.</string>
+
+
+    <!-- First upload -->
+    <string name="cloud_stage_checking">Seeing what’s already there…</string>
+    <string name="cloud_stage_cars">Uploading your cars…</string>
+    <string name="cloud_stage_trips">Uploading your trips…</string>
+    <string name="cloud_stage_refills">Uploading your refills…</string>
+    <string name="cloud_stage_expenses">Uploading your expenses…</string>
+    <string name="cloud_stage_categories">Uploading your categories…</string>
+    <!-- The same stages when the data is coming the other way: signing in is a
+         restore, and telling someone their cars are being uploaded describes
+         the opposite of what they are waiting for. -->
+    <string name="cloud_stage_cars_down">Downloading your cars…</string>
+    <string name="cloud_stage_trips_down">Downloading your trips…</string>
+    <string name="cloud_stage_refills_down">Downloading your refills…</string>
+    <string name="cloud_stage_expenses_down">Downloading your expenses…</string>
+    <string name="cloud_stage_categories_down">Downloading your categories…</string>
+    <string name="cloud_stage_done">All done!</string>
+    <string name="cloud_sync_keep_open">Keep the app open, it only takes a few seconds.</string>
+    <string name="cloud_sync_success_title">Everything is uploaded! 🎉</string>
+    <string name="cloud_sync_success_body">Your data is on the server now, and from here on every change syncs on its own.</string>
+    <!-- Shown while a new account is being set up on a phone with nothing on
+         it yet: there is nothing to upload, so there is nothing to put a
+         percentage on. -->
+    <string name="cloud_sync_preparing">Setting up your account…</string>
+    <string name="cloud_sync_restored_title">Your data is back! 🎉</string>
+    <string name="cloud_sync_restored_body">Everything on your account is on this phone now, and from here on every change syncs on its own.</string>
+    <string name="cloud_sync_continue">Continue to the app</string>
+    <string name="cloud_sync_failed_title">That didn’t go through</string>
+    <string name="cloud_sync_failed_body">Nothing was lost — your data is still on this phone. Try again, or skip and sync later from Settings.</string>
+    <string name="cloud_sync_failed_body_down">Your account is untouched — nothing has come down to this phone yet. Try again, or skip and sync later from Settings.</string>
+    <string name="cloud_sync_retry">Try again</string>
+    <string name="cloud_sync_skip">Skip for now</string>
+    <string name="cloud_summary_cars">Cars</string>
+    <string name="cloud_summary_trips">Trips</string>
+    <string name="cloud_summary_refills">Refills</string>
+    <string name="cloud_summary_expenses">Expenses</string>
+    <string name="cloud_summary_categories">Categories</string>
+    <string name="cloud_summary_received">Brought from the server</string>
+    <string name="cloud_account_created">Account created</string>
+    <string name="cloud_signed_in_message">Signed in</string>
+
 </resources>

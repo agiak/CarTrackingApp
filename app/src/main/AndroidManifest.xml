@@ -125,6 +125,26 @@
                 android:resource="@xml/expense_widget_info" />
         </receiver>
 
+        <!-- Push. Data-only messages are delivered here in every app state,
+             which is what lets them reach the in-app notification history. -->
+        <service
+            android:name=".cloud.push.CaribouMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Only used for messages carrying a `notification` block, e.g. one
+             sent by hand from the Firebase console. Keep the channel id equal
+             to NotificationHelper.CHANNEL_ID_PUSH. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="caribou_updates" />
+
         <!-- FileProvider for secure file sharing -->
         <provider
             android:name="androidx.core.content.FileProvider"

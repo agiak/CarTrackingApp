@@ -51,6 +51,8 @@ import com.agcoding.cartrackingapp.presentation.carlist.components.EmptyState
 import com.agcoding.cartrackingapp.presentation.carlist.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.carlist.components.PermissionsBanner
 import com.agcoding.cartrackingapp.presentation.carlist.components.ReminderBanner
+import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
+import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -64,6 +66,7 @@ fun CarListScreen(
     onAddServiceClick: (Long) -> Unit,
     onNavigateToReminders: () -> Unit,
     onNavigateToPermissionsSettings: () -> Unit,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: CarListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -91,7 +94,11 @@ fun CarListScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             StyledTopAppBar(
-                title = { Text(stringResource(R.string.car_list_title)) }
+                title = { Text(stringResource(R.string.car_list_title)) },
+                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToProfile) },
+                // The reminders screen is what "notifications" means here, and
+                // this screen already knew how to reach it.
+                actions = { NotificationsAction(onClick = onNavigateToReminders) },
             )
         },
         floatingActionButton = {
@@ -298,6 +305,7 @@ private fun CarListScreenContent(
     onAddServiceClick: (Long) -> Unit = {},
     onNavigateToReminders: () -> Unit = {},
     onNavigateToPermissionsSettings: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
     onAddCarClick: () -> Unit = {},
     onDismissBanner: () -> Unit = {},
     onDismissPermissionBanner: () -> Unit = {},
@@ -307,7 +315,11 @@ private fun CarListScreenContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            StyledTopAppBar(title = { Text(stringResource(R.string.car_list_title)) })
+            StyledTopAppBar(
+                title = { Text(stringResource(R.string.car_list_title)) },
+                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToProfile) },
+                actions = { NotificationsAction(onClick = onNavigateToReminders) },
+            )
         },
         floatingActionButton = {
             if (uiState is CarListUiState.Success) {

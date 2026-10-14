@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Palette
@@ -31,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
+import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsGroupNavigationCard
@@ -45,7 +48,8 @@ fun SettingsScreen(
     onNavigateToHelpAbout: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToPermissions: () -> Unit = {},
-    onNavigateToDeveloper: () -> Unit = {}
+    onNavigateToDeveloper: () -> Unit = {},
+    onNavigateToCloudAccount: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -60,6 +64,10 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
+                // Both destinations are already rows further down this screen;
+                // the icons are a shortcut to them, not a second way in.
+                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToCloudAccount) },
+                actions = { NotificationsAction(onClick = onNavigateToNotifications) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
@@ -94,6 +102,15 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_group_data_storage_subtitle),
                     icon = Icons.Outlined.Storage,
                     onClick = onNavigateToDataStorage
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                SettingsGroupNavigationCard(
+                    title = stringResource(R.string.settings_group_cloud_title),
+                    subtitle = stringResource(R.string.settings_group_cloud_subtitle),
+                    icon = Icons.Outlined.CloudSync,
+                    onClick = onNavigateToCloudAccount
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

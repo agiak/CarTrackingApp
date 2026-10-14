@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
+import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
 import com.agcoding.cartrackingapp.data.export.AutoBackupManager
 import com.agcoding.cartrackingapp.data.local.database.DatabaseHealthChecker
 import com.agcoding.cartrackingapp.data.local.database.DatabaseStatus
@@ -50,6 +51,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var autoBackupManager: AutoBackupManager
+
+    @Inject
+    lateinit var cloudSync: CloudSync
 
     private var widgetAction: String? = null
     private var widgetCarId: Long? = null
@@ -135,6 +139,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Pick up whatever was changed on the other phone whenever this one
+        // comes to the front. Harmlessly ignored when signed out or offline.
+        cloudSync.requestSync()
     }
 
     override fun onNewIntent(intent: Intent) {

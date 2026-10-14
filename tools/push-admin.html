@@ -1,0 +1,241 @@
+<!doctype html>
+<!--
+  Caribou — push console.
+
+  Open this file in a browser (double-click it; file:// is fine). It talks
+  straight to the send-push edge function, so there is nothing to deploy and
+  nothing to keep running.
+
+  The admin key is kept in this browser's localStorage, on this machine only.
+  It is never sent anywhere except to the function, so do not open this page
+  on a machine you do not own, and do not screen-share the key field.
+-->
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caribou · Push</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #faf7f2;
+    --panel: #ffffff;
+    --ink: #1c1917;
+    --muted: #78716c;
+    --line: #e7e0d6;
+    --accent: #b45309;
+    --danger: #b91c1c;
+    --ok: #15803d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17140f;
+      --panel: #221d17;
+      --ink: #f5efe6;
+      --muted: #a8a29e;
+      --line: #352e25;
+      --accent: #f59e0b;
+      --danger: #f87171;
+      --ok: #4ade80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 64px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 28px; font-size: 13px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  label { display: block; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+          text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  input, textarea, select {
+    width: 100%; padding: 10px 12px; font: inherit; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+  }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  textarea { resize: vertical; min-height: 92px; }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .count { float: right; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .over { color: var(--danger); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button {
+    flex: 1 1 auto; min-width: 150px; padding: 12px 16px; font: inherit; font-weight: 600;
+    border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
+    color: var(--ink); cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { button.primary { color: #1c1917; } }
+  .preview {
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    background: var(--bg); display: flex; gap: 11px; align-items: flex-start;
+  }
+  .dot { width: 26px; height: 26px; border-radius: 8px; flex: 0 0 auto;
+         background: linear-gradient(135deg, var(--accent), #7c3aed); }
+  .preview b { display: block; font-size: 14px; }
+  .preview span { font-size: 13px; color: var(--muted); white-space: pre-wrap; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; }
+  .result { border-left: 3px solid var(--line); padding-left: 12px; }
+  .result.ok { border-color: var(--ok); }
+  .result.bad { border-color: var(--danger); }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Caribou · Push</h1>
+  <p class="sub">Στέλνει μία ανακοίνωση στις συσκευές που έχουν συνδεδεμένο λογαριασμό.</p>
+
+  <div class="panel">
+    <div class="field">
+      <label for="key">Admin key</label>
+      <input id="key" type="password" autocomplete="off" spellcheck="false"
+             placeholder="PUSH_ADMIN_KEY">
+      <p class="note">Μένει μόνο σε αυτόν τον browser.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="title">Τίτλος <span class="count" id="titleCount">0/120</span></label>
+      <input id="title" maxlength="120" placeholder="Το Caribou 1.2 βγήκε">
+    </div>
+    <div class="field">
+      <label for="body">Κείμενο <span class="count" id="bodyCount">0/1000</span></label>
+      <textarea id="body" maxlength="1000"
+                placeholder="Τα έξοδα συγχρονίζονται πλέον ανάμεσα σε δύο κινητά."></textarea>
+    </div>
+    <div class="field">
+      <label for="preview">Πώς θα φανεί</label>
+      <div class="preview" id="preview">
+        <div class="dot"></div>
+        <div>
+          <b id="pvTitle">—</b>
+          <span id="pvBody"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="email">Δοκιμή σε έναν λογαριασμό</label>
+      <input id="email" type="email" autocomplete="off" spellcheck="false"
+             placeholder="anastas.giakoumatos@gmail.com">
+      <p class="note">
+        Στείλε πρώτα στον εαυτό σου. Ένα push δεν ανακαλείται — μόλις φύγει,
+        κάθεται στις ειδοποιήσεις όλων.
+      </p>
+    </div>
+    <div class="row">
+      <button id="btnTest">Δοκιμή σε εμένα</button>
+      <button id="btnCount">Πόσες συσκευές;</button>
+      <button id="btnAll" class="primary">Αποστολή σε όλους</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <label>Απάντηση</label>
+    <div class="result" id="result"><pre id="out">—</pre></div>
+  </div>
+</main>
+
+<script>
+const FUNCTION_URL =
+  "https://gqinaapwmxkvizehseag.supabase.co/functions/v1/send-push";
+const KEY_STORAGE = "caribou.push.adminKey";
+const EMAIL_STORAGE = "caribou.push.testEmail";
+
+const $ = (id) => document.getElementById(id);
+const keyEl = $("key"), titleEl = $("title"), bodyEl = $("body"), emailEl = $("email");
+const outEl = $("out"), resultEl = $("result");
+
+// Remembering the key is the difference between a tool you use and a tool you
+// avoid because fetching the key is a chore. It stays on this machine.
+try {
+  keyEl.value = localStorage.getItem(KEY_STORAGE) || "";
+  emailEl.value = localStorage.getItem(EMAIL_STORAGE) || "";
+} catch (_) { /* private window: just start empty */ }
+
+const remember = (el, storageKey) => el.addEventListener("input", () => {
+  try { localStorage.setItem(storageKey, el.value); } catch (_) {}
+});
+remember(keyEl, KEY_STORAGE);
+remember(emailEl, EMAIL_STORAGE);
+
+function refresh() {
+  $("titleCount").textContent = `${titleEl.value.length}/120`;
+  $("bodyCount").textContent = `${bodyEl.value.length}/1000`;
+  $("pvTitle").textContent = titleEl.value.trim() || "—";
+  $("pvBody").textContent = bodyEl.value.trim();
+}
+titleEl.addEventListener("input", refresh);
+bodyEl.addEventListener("input", refresh);
+refresh();
+
+function show(state, text) {
+  resultEl.className = "result" + (state ? " " + state : "");
+  outEl.textContent = text;
+}
+
+function busy(on) {
+  for (const id of ["btnTest", "btnCount", "btnAll"]) $(id).disabled = on;
+}
+
+async function send(extra, confirmText) {
+  const adminKey = keyEl.value.trim();
+  const title = titleEl.value.trim();
+  if (!adminKey) return show("bad", "Λείπει το admin key.");
+  if (!title) return show("bad", "Ο τίτλος είναι υποχρεωτικός.");
+  if (confirmText && !confirm(confirmText)) return;
+
+  busy(true);
+  show("", "Αποστολή…");
+  try {
+    const response = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+      body: JSON.stringify({ title, body: bodyEl.value.trim(), ...extra }),
+    });
+    const text = await response.text();
+    let pretty = text;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch (_) {}
+    show(response.ok ? "ok" : "bad", `HTTP ${response.status}\n${pretty}`);
+  } catch (error) {
+    show("bad", "Απέτυχε η κλήση: " + error.message);
+  } finally {
+    busy(false);
+  }
+}
+
+$("btnCount").addEventListener("click", () => {
+  const email = emailEl.value.trim();
+  send(email ? { dry_run: true, only_email: email } : { dry_run: true });
+});
+
+$("btnTest").addEventListener("click", () => {
+  const email = emailEl.value.trim();
+  if (!email) return show("bad", "Γράψε το email του λογαριασμού δοκιμής.");
+  send({ only_email: email });
+});
+
+// The one button that cannot be taken back asks first, and says the number.
+$("btnAll").addEventListener("click", () =>
+  send({}, "Αποστολή σε ΟΛΕΣ τις συνδεδεμένες συσκευές.\n\n«" +
+           titleEl.value.trim() + "»\n\nΔεν ανακαλείται. Συνέχεια;"));
+</script>
+</body>
+</html>

@@ -7,6 +7,9 @@ interface NotificationHistoryRepository {
 
     fun getAllNotifications(): Flow<List<NotificationHistoryItem>>
 
+    /** The newest [limit] entries, for screens that show a preview rather than the archive. */
+    fun getRecentNotifications(limit: Int): Flow<List<NotificationHistoryItem>>
+
     suspend fun insertNotification(item: NotificationHistoryItem): Long
 
     suspend fun deleteAll()

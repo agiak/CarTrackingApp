@@ -5,6 +5,7 @@ package com.agcoding.cartrackingapp.presentation.onboarding
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -57,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.data.export.ImportProgress
+import com.agcoding.cartrackingapp.data.export.ImportStep
 import com.agcoding.cartrackingapp.presentation.settings.ImportSummary
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -86,6 +91,7 @@ fun OnboardingImportPromptScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
+    val importProgress by settingsViewModel.importProgress.collectAsState()
 
     var phase by remember { mutableStateOf(ImportPhase.PROMPT) }
     var summary by remember { mutableStateOf<ImportSummary?>(null) }
@@ -96,6 +102,7 @@ fun OnboardingImportPromptScreen(
     ) { uri ->
         if (uri != null) {
             phase = ImportPhase.IMPORTING
+            settingsViewModel.resetImportProgress()
             // Accept any file; the ViewModel detects JSON vs Excel/CSV and routes it.
             settingsViewModel.importFromFile(uri)
         }
@@ -150,10 +157,15 @@ fun OnboardingImportPromptScreen(
                 when (phase) {
                     ImportPhase.PROMPT -> PromptContent(
                         onImportClick = { filePickerLauncher.launch(arrayOf("*/*")) },
-                        onSkipClick = onFinished
+                        onSkipClick = onFinished,
+                        onDownloadExcelSample = settingsViewModel::generateSampleSpreadsheet,
+                        onDownloadJsonSample = settingsViewModel::generateSampleJson,
+                        isGeneratingSample = uiState.isGeneratingSampleFile,
+                        sampleSaved = uiState.sampleFileSuccess != null,
+                        sampleError = uiState.sampleFileError,
                     )
 
-                    ImportPhase.IMPORTING -> ImportingContent()
+                    ImportPhase.IMPORTING -> ImportingContent(progress = importProgress)
 
                     ImportPhase.SUCCESS -> SuccessContent(
                         summary = summary ?: ImportSummary(),
@@ -174,7 +186,12 @@ fun OnboardingImportPromptScreen(
 @Composable
 private fun PromptContent(
     onImportClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSkipClick: () -> Unit,
+    onDownloadExcelSample: () -> Unit = {},
+    onDownloadJsonSample: () -> Unit = {},
+    isGeneratingSample: Boolean = false,
+    sampleSaved: Boolean = false,
+    sampleError: String? = null,
 ) {
     HeaderIcon(icon = Icons.Default.CloudDownload)
 
@@ -220,17 +237,110 @@ private fun PromptContent(
     ) {
         Text(text = stringResource(R.string.onboarding_import_no))
     }
+
+    Spacer(modifier = Modifier.height(28.dp))
+
+    // For the other half of the audience: people with their records in a
+    // spreadsheet of their own, who do not have a Caribou backup and would
+    // otherwise type several years in by hand. They need to see the columns
+    // before they can fill them, so the template comes first and the import
+    // comes after.
+    Text(
+        text = stringResource(R.string.onboarding_import_sample_title),
+        fontSize = 13.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    Text(
+        text = stringResource(R.string.onboarding_import_sample_desc),
+        fontSize = 12.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        lineHeight = 17.sp
+    )
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        OutlinedButton(
+            onClick = onDownloadExcelSample,
+            enabled = !isGeneratingSample,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(text = stringResource(R.string.onboarding_import_sample_excel), fontSize = 13.sp)
+        }
+        OutlinedButton(
+            onClick = onDownloadJsonSample,
+            enabled = !isGeneratingSample,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(text = stringResource(R.string.onboarding_import_sample_json), fontSize = 13.sp)
+        }
+    }
+
+    // Where it went matters more than what it is called: on most phones the
+    // file lands somewhere the user has to go and find with a file manager.
+    if (sampleSaved || sampleError != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = sampleError ?: stringResource(R.string.onboarding_import_sample_saved),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            color = if (sampleError != null) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
+        )
+    }
 }
 
 @Composable
-private fun ImportingContent() {
+private fun ImportingContent(progress: ImportProgress? = null) {
     Spacer(modifier = Modifier.height(24.dp))
 
-    CircularProgressIndicator(
-        modifier = Modifier.size(64.dp),
-        strokeWidth = 5.dp,
-        color = MaterialTheme.colorScheme.primary
-    )
+    // Determinate once the importer knows how many rows it is dealing with.
+    // Before that — and for a JSON restore, which is one indivisible read —
+    // a spinner is the honest answer rather than a number that is made up.
+    Box(contentAlignment = Alignment.Center) {
+        if (progress != null) {
+            val animated by animateFloatAsState(
+                targetValue = progress.fraction.coerceIn(0f, 1f),
+                animationSpec = tween(400),
+                label = "importProgress"
+            )
+            CircularProgressIndicator(
+                progress = { animated },
+                modifier = Modifier.size(84.dp),
+                strokeWidth = 6.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = stringResource(
+                    R.string.onboarding_import_percent,
+                    (animated * 100).toInt()
+                ),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.size(84.dp),
+                strokeWidth = 6.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
 
     Spacer(modifier = Modifier.height(32.dp))
 
@@ -245,7 +355,8 @@ private fun ImportingContent() {
     Spacer(modifier = Modifier.height(12.dp))
 
     Text(
-        text = stringResource(R.string.onboarding_import_importing_message),
+        text = progress?.let { stringResource(it.step.labelRes()) }
+            ?: stringResource(R.string.onboarding_import_importing_message),
         fontSize = 15.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
@@ -477,4 +588,15 @@ private fun SuccessContentPreview() {
             )
         }
     }
+}
+
+/** The one-line "what is happening now" under the percentage. */
+@androidx.annotation.StringRes
+private fun ImportStep.labelRes(): Int = when (this) {
+    ImportStep.READING -> R.string.onboarding_import_step_reading
+    ImportStep.CARS -> R.string.onboarding_import_step_cars
+    ImportStep.REFILLS -> R.string.onboarding_import_step_refills
+    ImportStep.EXPENSES -> R.string.onboarding_import_step_expenses
+    ImportStep.TRIPS -> R.string.onboarding_import_step_trips
+    ImportStep.FINISHED -> R.string.onboarding_import_step_finishing
 }

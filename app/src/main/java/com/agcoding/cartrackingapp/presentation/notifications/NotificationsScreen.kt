@@ -13,16 +13,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.StyledLargeTopAppBar
 import com.agcoding.cartrackingapp.presentation.notifications.components.EmptyNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.ErrorNotificationsState
 import com.agcoding.cartrackingapp.presentation.notifications.components.NotificationsContent
@@ -33,14 +35,18 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 fun NotificationsScreen(
     onNavigateBack: () -> Unit,
     onEditExpense: (Long) -> Unit,
+    onViewAllReceived: () -> Unit,
     viewModel: NotificationsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            StyledTopAppBar(
+            StyledLargeTopAppBar(
                 title = { Text(stringResource(R.string.notifications_title)) },
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -64,35 +70,41 @@ fun NotificationsScreen(
                 .padding(paddingValues),
             contentAlignment = if (useCenteredLayout) Alignment.TopCenter else Alignment.TopStart
         ) {
-            when (val state = uiState) {
-                is NotificationsUiState.Loading -> {
+            val contentModifier = Modifier
+                .then(
+                    if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
+                    else Modifier.fillMaxWidth()
+                )
+                .fillMaxSize()
+
+            when {
+                uiState.error != null -> {
+                    ErrorNotificationsState(
+                        message = uiState.error.orEmpty(),
+                        onRetry = { viewModel.retry() },
+                        modifier = contentModifier
+                    )
+                }
+
+                uiState.isLoading -> {
                     Box(
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize(),
+                        modifier = contentModifier,
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 }
 
-                is NotificationsUiState.Empty -> {
-                    EmptyNotificationsState(
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
-                    )
+                // Empty only when both lists are, so an announcement still
+                // shows on a phone with no reminders set up at all.
+                uiState.isEmpty -> {
+                    EmptyNotificationsState(modifier = contentModifier)
                 }
 
-                is NotificationsUiState.Success -> {
+                else -> {
                     NotificationsContent(
-                        reminders = state.reminders,
+                        reminders = uiState.reminders,
+                        received = uiState.received,
                         onToggleReminder = { expenseId, enabled ->
                             viewModel.toggleReminderEnabled(expenseId, enabled)
                         },
@@ -100,26 +112,9 @@ fun NotificationsScreen(
                         onDismissReminder = { expenseId ->
                             viewModel.dismissReminder(expenseId)
                         },
+                        onViewAllReceived = onViewAllReceived,
                         useCenteredLayout = useCenteredLayout,
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
-                    )
-                }
-
-                is NotificationsUiState.Error -> {
-                    ErrorNotificationsState(
-                        message = state.message,
-                        onRetry = { viewModel.retry() },
-                        modifier = Modifier
-                            .then(
-                                if (useCenteredLayout) Modifier.fillMaxWidth(0.7f)
-                                else Modifier.fillMaxWidth()
-                            )
-                            .fillMaxSize()
+                        modifier = contentModifier
                     )
                 }
             }
@@ -133,7 +128,8 @@ private fun NotificationsScreenPreview() {
     CarTrackingAppTheme {
         NotificationsScreen(
             onNavigateBack = {},
-            onEditExpense = {}
+            onEditExpense = {},
+            onViewAllReceived = {}
         )
     }
 }

@@ -26,17 +26,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.EuroSymbol
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -55,7 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -294,87 +290,94 @@ private fun SlideContent(
     slideIndex: Int,
     isCurrentPage: Boolean
 ) {
-    val icon = getIconForSlide(slideIndex)
-    val iconColor = getColorForSlide(slideIndex)
+    val accent = when (slide.accent) {
+        SlideAccent.PRIMARY -> MaterialTheme.colorScheme.primary
+        SlideAccent.TERTIARY -> MaterialTheme.colorScheme.tertiary
+        SlideAccent.SECONDARY -> MaterialTheme.colorScheme.secondary
+    }
 
-    // Animate icon appearance
-    val iconScale by animateFloatAsState(
+    val illustrationScale by animateFloatAsState(
         targetValue = if (isCurrentPage) 1f else 0.8f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium
         ),
-        label = "iconScale"
+        label = "illustrationScale"
     )
 
+    // Scrollable, because the steps now carry instructions rather than a
+    // slogan, and three bullets plus a drawing do not fit a small phone in
+    // landscape — on which the old centred column simply clipped.
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Animated Icon
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .scale(iconScale)
-                .clip(RoundedCornerShape(24.dp))
-                .background(iconColor.copy(alpha = 0.1f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(56.dp),
-                tint = iconColor
-            )
+        Box(modifier = Modifier.scale(illustrationScale)) {
+            SlideIllustration(slideIndex = slideIndex, accent = accent)
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        // Title
         Text(
             text = stringResource(slide.titleRes),
-            fontSize = 28.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Description
         Text(
             text = stringResource(slide.descriptionRes),
-            fontSize = 16.sp,
+            fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            lineHeight = 24.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            lineHeight = 22.sp,
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
+
+        if (slide.bulletRes.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                slide.bulletRes.forEach { bullet ->
+                    SlideBullet(text = stringResource(bullet), accent = accent)
+                }
+            }
+        }
     }
 }
 
-private fun getIconForSlide(index: Int): ImageVector {
-    return when (index) {
-        0 -> Icons.Default.DirectionsCar
-        1 -> Icons.Default.LocalGasStation
-        2 -> Icons.Default.Build
-        3 -> Icons.Default.EuroSymbol
-        4 -> Icons.Default.ShowChart
-        else -> Icons.Default.DirectionsCar
-    }
-}
-
-private fun getColorForSlide(index: Int): Color {
-    return when (index) {
-        0 -> Color(0xFF4CAF50) // Green
-        1 -> Color(0xFF2196F3) // Blue
-        2 -> Color(0xFF4CAF50) // Green
-        3 -> Color(0xFFFF9800) // Orange
-        4 -> Color(0xFF9C27B0) // Purple
-        else -> Color(0xFF4CAF50)
+/**
+ * One instruction. Left-aligned on purpose while everything above it is
+ * centred: a centred list of different-length lines has no edge for the eye to
+ * follow, and these are meant to be read as steps, not admired.
+ */
+@Composable
+private fun SlideBullet(text: String, accent: Color) {
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .size(6.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(accent)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = text,
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

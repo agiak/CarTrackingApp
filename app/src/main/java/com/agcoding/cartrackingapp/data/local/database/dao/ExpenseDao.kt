@@ -45,5 +45,13 @@ interface ExpenseDao {
 
     @Query("DELETE FROM expenses WHERE id = :expenseId AND deletedAt IS NOT NULL")
     suspend fun permanentlyDeleteExpense(expenseId: Long)
+
+    // Sync — trashed rows included on purpose; see CarDao.getAllForSync.
+
+    @Query("SELECT * FROM expenses ORDER BY id ASC")
+    suspend fun getAllForSync(): List<ExpenseEntity>
+
+    @Query("DELETE FROM expenses")
+    suspend fun deleteAll()
 }
 
