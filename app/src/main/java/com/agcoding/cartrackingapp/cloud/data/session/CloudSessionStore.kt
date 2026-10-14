@@ -66,7 +66,14 @@ class CloudSessionStore @Inject constructor(
         }
     }
 
-    /** Drops the tokens but keeps lastSyncAt and the prompt answer. */
+    /**
+     * Drops the tokens but keeps lastSyncAt, which is how the app can still
+     * tell that this phone has had an account on it.
+     *
+     * The prompt answer is kept here too, and retracted by signOut rather than
+     * by this: deleting an account also lands here, and someone who has just
+     * deleted theirs does not want to be asked whether they would like one.
+     */
     suspend fun clearSession() {
         context.cloudDataStore.edit { prefs ->
             prefs.remove(Keys.ACCESS_TOKEN)
@@ -82,6 +89,11 @@ class CloudSessionStore @Inject constructor(
 
     suspend fun saveLastSyncAt(epochMillis: Long) {
         context.cloudDataStore.edit { it[Keys.LAST_SYNC_AT] = epochMillis }
+    }
+
+    /** Forgets that this phone ever had an account's data on it. */
+    suspend fun clearLastSyncAt() {
+        context.cloudDataStore.edit { it.remove(Keys.LAST_SYNC_AT) }
     }
 
     suspend fun savePendingChanges(pending: Boolean) {

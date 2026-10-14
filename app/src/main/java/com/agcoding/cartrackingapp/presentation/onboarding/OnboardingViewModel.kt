@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
 import com.agcoding.cartrackingapp.data.preferences.OnboardingPreferences
+import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +45,7 @@ sealed class OnboardingState {
 class OnboardingViewModel @Inject constructor(
     private val onboardingPreferences: OnboardingPreferences,
     private val cloudRepository: CloudRepository,
+    private val databaseStatsRepository: DatabaseStatsRepository,
     cloudSync: CloudSync,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -130,13 +132,16 @@ class OnboardingViewModel @Inject constructor(
                     offerImport = true
                     OnboardingState.ShowGuide
                 }
-                // Everyone gets asked about an account once, including people
-                // who installed the app before there was one to offer — and
-                // anyone who signed out gets asked again, however long ago
-                // that was and however many times the app has been killed
-                // since. Only the answer clears it.
+                // See shouldAskAboutAccount for when the question is owed. It
+                // outlives the process either way: killing the app is not an
+                // answer to it.
                 shouldAskAboutAccount() -> {
-                    offerImport = accountStepPending
+                    // Both reasons for being asked *again* are also reasons to
+                    // offer the import: a sign-out, and an empty phone that
+                    // used to hold records. Someone being asked for the first
+                    // time, with data already on the phone, is not setting up.
+                    offerImport = accountStepPending ||
+                        databaseStatsRepository.observeStats().first().isEmpty
                     OnboardingState.ShowAccountPrompt
                 }
 
@@ -150,13 +155,31 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Whether the account question is still owed.
+     *
+     * Three ways it can be. A sign-out put it back, and the pending flag says
+     * so. It has never been answered at all. Or this phone has had an account
+     * on it and is not signed in to one now — which is read
+     * from the phone's own state rather than from a flag, and so is true
+     * however the phone got there, including from a version of the app that
+     * never wrote the flag.
+     *
+     * That third one terminates because the answer takes it away: choosing to
+     * go without an account forgets the last sync (see
+     * CloudRepository.markAccountPromptAnswered), and signing back in sets it
+     * again on the next sync. Without that it would ask on every launch
+     * forever.
+     */
     private suspend fun shouldAskAboutAccount(): Boolean {
         if (openedByDeepLink) return false
         val cloud = cloudRepository.state.first()
         // An account on the phone answers the question by itself, whatever any
         // flag says — nobody should be asked to sign in while signed in.
         if (cloud.isSignedIn) return false
-        return onboardingPreferences.isAccountStepPending.first() || !cloud.accountPromptAnswered
+        if (onboardingPreferences.isAccountStepPending.first()) return true
+        if (!cloud.accountPromptAnswered) return true
+        return cloud.lastSyncAt != null
     }
 
     /**

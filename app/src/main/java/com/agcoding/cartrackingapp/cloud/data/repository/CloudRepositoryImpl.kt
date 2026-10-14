@@ -111,6 +111,12 @@ class CloudRepositoryImpl @Inject constructor(
             client.signOut(session.accessToken)
         }
         store.clearSession()
+        // Signing in sets this (see adoptSession), and leaving the account has
+        // to take it back. Otherwise one sign-in answers "account, or no
+        // account?" for the rest of the install: the user signs out, is not
+        // signed in and is not asked either, and lands in the app with no data
+        // and no way back to their records but to go looking in Settings.
+        store.saveAccountPromptAnswered(false)
         sync.reset()
         if (wipeLocalData) localDataWiper.wipe()
     }
@@ -128,6 +134,13 @@ class CloudRepositoryImpl @Inject constructor(
 
     override suspend fun markAccountPromptAnswered() {
         store.saveAccountPromptAnswered(true)
+        // Only ever called by "continue without an account", and that answer
+        // settles the matter for a phone that used to have one: the onboarding
+        // check treats "has synced before, and now holds nothing" as a phone
+        // whose records are stranded on a server, and without this the user
+        // would be asked the same question on every launch until they added
+        // their first car.
+        store.clearLastSyncAt()
     }
 
     override suspend fun requireSession(): CloudSession = onIo { requireSessionInternal() }
