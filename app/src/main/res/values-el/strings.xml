@@ -101,16 +101,6 @@
     <string name="refills_sorted_by_format">%1$d ανεφοδιασμοί • Ταξινόμηση: %2$s</string>
 
     <!-- Onboarding Slides -->
-    <string name="onboarding_welcome_title">Καλώς ήρθατε στο Fuel Tracker</string>
-    <string name="onboarding_welcome_desc">Παρακολουθήστε τα έξοδα αυτοκινήτου, την κατανάλωση καυσίμου και τη συντήρηση σε ένα μέρος. Δείτε πληροφορίες για τις συνήθειες οδήγησής σας και εξοικονομήστε χρήματα.</string>
-    <string name="onboarding_refills_title">Καταγραφή ανεφοδιασμών</string>
-    <string name="onboarding_refills_desc">Καταγράψτε κάθε ανεφοδιασμό με λεπτομέρειες όπως κόστος, λίτρα και απόσταση. Υπολογίστε αυτόματα την κατανάλωση καυσίμου.</string>
-    <string name="onboarding_service_title">Σέρβις &amp; Συντήρηση</string>
-    <string name="onboarding_service_desc">Κρατήστε αρχείο όλων των επισκέψεων συνεργείου και των εξόδων συντήρησης. Προσθέστε σημειώσεις για να θυμάστε τι έγινε και πότε.</string>
-    <string name="onboarding_expenses_title">Άλλα έξοδα</string>
-    <string name="onboarding_expenses_desc">Καταγράψτε διόδια, parking, πλυσίματα, ασφάλεια και οποιαδήποτε άλλα έξοδα για να δείτε τη συνολική σας δαπάνη.</string>
-    <string name="onboarding_stats_title">Αναλυτικά στατιστικά</string>
-    <string name="onboarding_stats_desc">Δείτε γραφήματα και στατιστικά για τάσεις κατανάλωσης, κόστη στο χρόνο και απόσταση που διανύθηκε.</string>
 
     <!-- Onboarding Navigation -->
     <string name="skip">Παράλειψη</string>
@@ -119,6 +109,37 @@
     <string name="get_started">Ξεκινήστε</string>
 
     <!-- Onboarding Import Prompt -->
+    <!-- Οδηγός: τέσσερα βήματα, με τη σειρά που τα κάνει ο χρήστης -->
+    <string name="onboarding_step_car_title">Ξεκίνα από το αμάξι σου</string>
+    <string name="onboarding_step_car_desc">Πρόσθεσε το αυτοκίνητό σου και γράψε τα χιλιόμετρα που δείχνει αυτή τη στιγμή το κοντέρ. Από εκείνον τον αριθμό μετράνε όλα όσα υπολογίζει η εφαρμογή.</string>
+    <string name="onboarding_step_car_bullet_1">Τα συνολικά χιλιόμετρα (ODO), όχι την ένδειξη trip</string>
+    <string name="onboarding_step_car_bullet_2">Γράψ\'τα όπως ακριβώς τα δείχνει — χωρίς στρογγυλοποίηση</string>
+
+    <string name="onboarding_step_refill_title">Σε κάθε γέμισμα</string>
+    <string name="onboarding_step_refill_desc">Καταχώρησε λίτρα και ποσό, και βάλε την ένδειξη trip του κοντέρ. Μετά μηδένισε το trip, εκεί στο πρατήριο.</string>
+    <string name="onboarding_step_refill_bullet_1">Το trip είναι αυτό που μηδενίζεται, όχι τα συνολικά</string>
+    <string name="onboarding_step_refill_bullet_2">Μηδένισέ το αμέσως μετά από κάθε γέμισμα, κάθε φορά</string>
+    <string name="onboarding_step_refill_bullet_3">Αν το ξεχάσεις, η κατανάλωση εκείνου του γεμίσματος βγαίνει λάθος</string>
+
+    <string name="onboarding_step_costs_title">Και όλα τα υπόλοιπα έξοδα</string>
+    <string name="onboarding_step_costs_desc">Σέρβις, ελαστικά, ασφάλεια, πλύσιμο. Πέρασε κι αυτά και θα δεις τι σου κοστίζει πραγματικά το αυτοκίνητο, όχι μόνο τι σου κοστίζει η βενζίνη.</string>
+    <string name="onboarding_step_costs_bullet_1">Βάλε υπενθύμιση σε ό,τι επαναλαμβάνεται</string>
+    <string name="onboarding_step_costs_bullet_2">Η υπενθύμιση μετράει είτε μέρες είτε χιλιόμετρα</string>
+
+    <string name="onboarding_step_stats_title">Και μετά δες τι βγαίνει</string>
+    <string name="onboarding_step_stats_desc">Μόλις μπουν μερικά γεμίσματα, βλέπεις την πραγματική σου κατανάλωση, το κόστος ανά χιλιόμετρο και πού πάνε τα λεφτά.</string>
+    <string name="onboarding_step_stats_bullet_1">Χρειάζονται δύο γεμίσματα για την πρώτη μέτρηση κατανάλωσης</string>
+    <string name="onboarding_step_stats_bullet_2">Όσο πιο συνεπής είσαι, τόσο πιο αληθινοί οι αριθμοί</string>
+
+    <string name="onboarding_meter_odo">ODO</string>
+    <string name="onboarding_meter_trip">TRIP</string>
+    <string name="onboarding_meter_unit_km">χλμ</string>
+    <string name="onboarding_meter_reset">μηδενισμός</string>
+    <string name="onboarding_meter_reset_hint">Κράτα πατημένο το κουμπί στο ταμπλό</string>
+    <string name="onboarding_chip_service">Σέρβις</string>
+    <string name="onboarding_chip_wash">Πλύσιμο</string>
+    <string name="onboarding_chip_tyres">Ελαστικά</string>
+    <string name="onboarding_chip_insurance">Ασφάλεια</string>
     <string name="onboarding_theme_title">Κάν\'το δικό σου</string>
     <string name="onboarding_theme_subtitle">Διάλεξε πώς θέλεις να δείχνει. Όλα αλλάζουν καθώς πατάς, ώστε να το δεις πριν αποφασίσεις.</string>
     <string name="onboarding_theme_changeable">Μπορείς να το αλλάξεις όποτε θες από τις Ρυθμίσεις.</string>

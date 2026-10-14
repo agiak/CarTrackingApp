@@ -128,16 +128,6 @@
     <string name="refills_sorted_by_format">%1$d refills • Sorted by: %2$s</string>
 
     <!-- Onboarding Slides -->
-    <string name="onboarding_welcome_title">Welcome to Fuel Tracker</string>
-    <string name="onboarding_welcome_desc">Track your car expenses, fuel consumption, and maintenance all in one place. Get insights into your driving habits and save money.</string>
-    <string name="onboarding_refills_title">Track Refills</string>
-    <string name="onboarding_refills_desc">Log every fuel refill with details like cost, liters, and distance traveled. Calculate your real-time fuel consumption automatically.</string>
-    <string name="onboarding_service_title">Service &amp; Maintenance</string>
-    <string name="onboarding_service_desc">Keep track of all service visits and maintenance costs. Add notes to remember what was done and when.</string>
-    <string name="onboarding_expenses_title">Other Expenses</string>
-    <string name="onboarding_expenses_desc">Record parking fees, tolls, car washes, insurance, and any other car-related expenses to see your total spending.</string>
-    <string name="onboarding_stats_title">Detailed Statistics</string>
-    <string name="onboarding_stats_desc">View comprehensive charts and graphs showing your consumption trends, costs over time, and distance traveled.</string>
 
     <!-- Onboarding Navigation -->
     <string name="skip">Skip</string>
@@ -146,6 +136,37 @@
     <string name="get_started">Get Started</string>
 
     <!-- Onboarding Import Prompt -->
+    <!-- Onboarding guide: four steps, in the order the user performs them -->
+    <string name="onboarding_step_car_title">Start with your car</string>
+    <string name="onboarding_step_car_desc">Add your car and type in the odometer reading it shows right now. Everything the app calculates is measured from that number.</string>
+    <string name="onboarding_step_car_bullet_1">Use the total distance (ODO), not the trip meter</string>
+    <string name="onboarding_step_car_bullet_2">Type it exactly as it reads — don\'t round it</string>
+
+    <string name="onboarding_step_refill_title">At every fill-up</string>
+    <string name="onboarding_step_refill_desc">Log the litres and what you paid, and enter what the trip meter says. Then reset the trip meter, there at the pump.</string>
+    <string name="onboarding_step_refill_bullet_1">The trip meter is the one that resets, not the total</string>
+    <string name="onboarding_step_refill_bullet_2">Reset it right after every fill-up, every time</string>
+    <string name="onboarding_step_refill_bullet_3">Forget once and that fill-up\'s consumption comes out wrong</string>
+
+    <string name="onboarding_step_costs_title">Everything else it costs</string>
+    <string name="onboarding_step_costs_desc">Service, tyres, insurance, a car wash. Put those in too and you find out what the car actually costs you, not just what the fuel costs.</string>
+    <string name="onboarding_step_costs_bullet_1">Set a reminder on anything that comes round again</string>
+    <string name="onboarding_step_costs_bullet_2">A reminder can count down in days or in kilometres</string>
+
+    <string name="onboarding_step_stats_title">Then watch it add up</string>
+    <string name="onboarding_step_stats_desc">Once a few fill-ups are in, you get your real consumption, cost per kilometre, and where the money is going.</string>
+    <string name="onboarding_step_stats_bullet_1">Two fill-ups are needed before the first consumption figure</string>
+    <string name="onboarding_step_stats_bullet_2">The more consistent you are, the truer the numbers</string>
+
+    <string name="onboarding_meter_odo">ODO</string>
+    <string name="onboarding_meter_trip">TRIP</string>
+    <string name="onboarding_meter_unit_km">km</string>
+    <string name="onboarding_meter_reset">reset</string>
+    <string name="onboarding_meter_reset_hint">Hold the button on the dashboard</string>
+    <string name="onboarding_chip_service">Service</string>
+    <string name="onboarding_chip_wash">Car wash</string>
+    <string name="onboarding_chip_tyres">Tyres</string>
+    <string name="onboarding_chip_insurance">Insurance</string>
     <string name="onboarding_theme_title">Make it yours</string>
     <string name="onboarding_theme_subtitle">Pick the look you want. Everything changes as you tap, so you can see it before you decide.</string>
     <string name="onboarding_theme_changeable">You can change this any time in Settings.</string>
