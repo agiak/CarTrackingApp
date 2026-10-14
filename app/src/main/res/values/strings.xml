@@ -146,6 +146,10 @@
     <string name="get_started">Get Started</string>
 
     <!-- Onboarding Import Prompt -->
+    <string name="onboarding_theme_title">Make it yours</string>
+    <string name="onboarding_theme_subtitle">Pick the look you want. Everything changes as you tap, so you can see it before you decide.</string>
+    <string name="onboarding_theme_changeable">You can change this any time in Settings.</string>
+    <string name="onboarding_continue">Continue</string>
     <string name="onboarding_import_title">Have you used Caribou before?</string>
     <string name="onboarding_import_message">If you already have a backup from Caribou — a JSON or Excel/CSV file — you can import it now to restore your cars, refills and expenses.</string>
     <string name="onboarding_import_yes">Yes, import my data</string>

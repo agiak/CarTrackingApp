@@ -67,20 +67,37 @@ fun OnboardingScreen(
                 )
             }
 
-            is OnboardingState.ShowImportPrompt -> {
-                OnboardingImportPromptScreen(
-                    onFinished = {
-                        viewModel.onImportPromptFinished()
+            is OnboardingState.ShowTheme -> {
+                OnboardingThemeScreen(
+                    onContinue = {
+                        viewModel.onThemeChosen()
                     }
                 )
             }
 
             is OnboardingState.ShowAccountPrompt -> {
                 OnboardingAccountPromptScreen(
-                    onCreateAccount = { onNavigateToAuth(CloudAuthMode.SignUp) },
-                    onSignIn = { onNavigateToAuth(CloudAuthMode.SignIn) },
+                    // Told which door was taken before leaving, because the
+                    // answer arrives back as a session, not as a result, and
+                    // a sign-in and a sign-up continue differently.
+                    onCreateAccount = {
+                        viewModel.onAuthRequested(CloudAuthMode.SignUp)
+                        onNavigateToAuth(CloudAuthMode.SignUp)
+                    },
+                    onSignIn = {
+                        viewModel.onAuthRequested(CloudAuthMode.SignIn)
+                        onNavigateToAuth(CloudAuthMode.SignIn)
+                    },
                     onContinueOffline = { viewModel.continueOffline() },
                     dataSyncAvailable = viewModel.dataSyncAvailable,
+                )
+            }
+
+            is OnboardingState.ShowImportPrompt -> {
+                OnboardingImportPromptScreen(
+                    onFinished = {
+                        viewModel.onImportPromptFinished()
+                    }
                 )
             }
 

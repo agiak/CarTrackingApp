@@ -119,6 +119,10 @@
     <string name="get_started">Ξεκινήστε</string>
 
     <!-- Onboarding Import Prompt -->
+    <string name="onboarding_theme_title">Κάν\'το δικό σου</string>
+    <string name="onboarding_theme_subtitle">Διάλεξε πώς θέλεις να δείχνει. Όλα αλλάζουν καθώς πατάς, ώστε να το δεις πριν αποφασίσεις.</string>
+    <string name="onboarding_theme_changeable">Μπορείς να το αλλάξεις όποτε θες από τις Ρυθμίσεις.</string>
+    <string name="onboarding_continue">Συνέχεια</string>
     <string name="onboarding_import_title">Έχετε ξαναχρησιμοποιήσει το Caribou;</string>
     <string name="onboarding_import_message">Αν έχετε ήδη ένα αντίγραφο ασφαλείας από το Caribou — αρχείο JSON ή Excel/CSV — μπορείτε να το εισαγάγετε τώρα για να επαναφέρετε τα αυτοκίνητα, τους ανεφοδιασμούς και τα έξοδά σας.</string>
     <string name="onboarding_import_yes">Ναι, εισαγωγή δεδομένων</string>

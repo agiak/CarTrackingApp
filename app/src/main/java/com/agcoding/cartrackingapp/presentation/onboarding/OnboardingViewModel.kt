@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
 import com.agcoding.cartrackingapp.data.preferences.OnboardingPreferences
+import com.agcoding.cartrackingapp.presentation.cloud.auth.CloudAuthMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,14 +16,27 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The first-run sequence, in order:
+ *
+ *   guide → permissions → theme → account → import → done
+ *
+ * Import comes last on purpose. It is the only step that asks the user to go
+ * and find a file, and nobody goes looking for a file for an app they have not
+ * decided to keep yet. By this point they have seen what it does, granted what
+ * it needs and made it look the way they want.
+ */
 sealed class OnboardingState {
     object Loading : OnboardingState()
     object ShowGuide : OnboardingState()
     object ShowPermissions : OnboardingState()
-    object ShowImportPrompt : OnboardingState()
+
+    /** Pick dark/light and a colour, before seeing any of the app. */
+    object ShowTheme : OnboardingState()
 
     /** "With an account, or without one?" — see [OnboardingAccountPromptScreen]. */
     object ShowAccountPrompt : OnboardingState()
+    object ShowImportPrompt : OnboardingState()
     object Completed : OnboardingState()
 }
 
@@ -45,6 +59,24 @@ class OnboardingViewModel @Inject constructor(
      */
     private var openedByDeepLink = false
 
+    /**
+     * True while this is a genuine first run rather than the one-off account
+     * question shown to someone who installed the app before accounts existed.
+     * That person is already using the app, so finishing their answer must not
+     * drop them into an import step they never asked for.
+     */
+    private var isFirstRun = false
+
+    /**
+     * Which button sent the user to the auth screen.
+     *
+     * Signing in means their data is already on the server and about to come
+     * down, so offering to import a file afterwards would invite them to merge
+     * a stale export into a fresh restore. Registering means the account starts
+     * empty, which is exactly when a file is worth asking about.
+     */
+    private var authMode: CloudAuthMode? = null
+
     private val _state = MutableStateFlow<OnboardingState>(OnboardingState.Loading)
     val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
@@ -64,7 +96,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             cloudRepository.state.collect { cloud ->
                 if (_state.value is OnboardingState.ShowAccountPrompt && cloud.isSignedIn) {
-                    completeOnboarding()
+                    onAccountStepFinished()
                 }
             }
         }
@@ -75,7 +107,10 @@ class OnboardingViewModel @Inject constructor(
             val isOnboardingCompleted = onboardingPreferences.isOnboardingCompleted.first()
 
             _state.value = when {
-                !isOnboardingCompleted -> OnboardingState.ShowGuide
+                !isOnboardingCompleted -> {
+                    isFirstRun = true
+                    OnboardingState.ShowGuide
+                }
                 // Everyone gets asked about an account once, including people
                 // who installed the app before there was one to offer.
                 shouldAskAboutAccount() -> OnboardingState.ShowAccountPrompt
@@ -132,33 +167,62 @@ class OnboardingViewModel @Inject constructor(
     fun onPermissionsHandled() {
         viewModelScope.launch {
             onboardingPreferences.setPermissionsRequested(true)
-            // After permissions we ask returning users whether they want to import
-            // existing data before finishing onboarding.
-            _state.value = OnboardingState.ShowImportPrompt
+            _state.value = OnboardingState.ShowTheme
         }
     }
 
-    /**
-     * The import step is done. The account question comes after it, so the
-     * user has already seen what the app does before being asked whether they
-     * want it backed up.
-     */
-    fun onImportPromptFinished() {
+    /** The theme step has no wrong answer, so it has no skip — only "done". */
+    fun onThemeChosen() {
         viewModelScope.launch {
             if (shouldAskAboutAccount()) {
                 _state.value = OnboardingState.ShowAccountPrompt
             } else {
-                completeOnboarding()
+                continueAfterAccount()
             }
         }
+    }
+
+    /** Remembered before navigating away, so the return can be routed. */
+    fun onAuthRequested(mode: CloudAuthMode) {
+        authMode = mode
     }
 
     /** "Continue without an account" — remembered, so it is asked only once. */
     fun continueOffline() {
         viewModelScope.launch {
             cloudRepository.markAccountPromptAnswered()
+            authMode = null
+            onAccountStepFinished()
+        }
+    }
+
+    private fun onAccountStepFinished() {
+        // A sign-in is a restore; the server is about to fill this phone, and
+        // an import on top of that is a way to end up with everything twice.
+        if (authMode == CloudAuthMode.SignIn) {
+            completeOnboarding()
+            return
+        }
+        continueAfterAccount()
+    }
+
+    /**
+     * Only a first run earns the import step. Someone who has been using the
+     * app for months and is answering the account question for the first time
+     * is not setting up — dropping them into "do you have a backup?" would be
+     * asking about a problem they do not have.
+     */
+    private fun continueAfterAccount() {
+        if (isFirstRun) {
+            _state.value = OnboardingState.ShowImportPrompt
+        } else {
             completeOnboarding()
         }
+    }
+
+    /** The import step is the last one; there is nothing after it to ask. */
+    fun onImportPromptFinished() {
+        completeOnboarding()
     }
 
     fun completeOnboarding() {
@@ -168,4 +232,3 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 }
-
