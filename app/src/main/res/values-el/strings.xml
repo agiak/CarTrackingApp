@@ -160,6 +160,18 @@
     <string name="onboarding_import_stat_expenses">Έξοδα &amp; service</string>
     <string name="onboarding_import_stat_trips">Διαδρομές</string>
     <string name="onboarding_import_stat_reminders">Υπενθυμίσεις</string>
+    <string name="onboarding_import_sample_title">Δεν έχεις backup, αλλά έχεις δικά σου δεδομένα;</string>
+    <string name="onboarding_import_sample_desc">Κατέβασε ένα πρότυπο, συμπλήρωσέ το και ανέβασέ το εδώ.</string>
+    <string name="onboarding_import_sample_excel">Πρότυπο Excel</string>
+    <string name="onboarding_import_sample_json">Δείγμα JSON</string>
+    <string name="onboarding_import_sample_saved">Αποθηκεύτηκε στον φάκελο Λήψεις.</string>
+    <string name="onboarding_import_percent">%1$d%%</string>
+    <string name="onboarding_import_step_reading">Άνοιγμα αρχείου…</string>
+    <string name="onboarding_import_step_cars">Διαβάζω τα αυτοκίνητα…</string>
+    <string name="onboarding_import_step_refills">Διαβάζω τα γεμίσματα…</string>
+    <string name="onboarding_import_step_expenses">Διαβάζω τα έξοδα…</string>
+    <string name="onboarding_import_step_trips">Διαβάζω τις διαδρομές…</string>
+    <string name="onboarding_import_step_finishing">Σχεδόν έτοιμο…</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Τοποθεσία</string>

@@ -14,6 +14,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
+import com.agcoding.cartrackingapp.data.export.ImportProgress
 import com.agcoding.cartrackingapp.data.export.ImportResult
 import com.agcoding.cartrackingapp.data.export.SampleFileResult
 import com.agcoding.cartrackingapp.data.export.SpreadsheetImportManager
@@ -630,6 +631,43 @@ class SettingsViewModel @Inject constructor(
                 }
 
                 is SampleFileResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isGeneratingSampleFile = false,
+                        sampleFileError = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * The JSON counterpart of [generateSampleSpreadsheet]. Both land in
+     * Downloads and both report through the same two state fields, so a screen
+     * offering the pair needs one success handler, not two.
+     */
+    /** Clears a finished import's progress so a retry does not open at 100%. */
+    fun resetImportProgress() = spreadsheetImportManager.resetProgress()
+
+    /** Row-weighted progress of a spreadsheet import; null when none is running. */
+    val importProgress: StateFlow<ImportProgress?> = spreadsheetImportManager.progress
+
+    fun generateSampleJson() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isGeneratingSampleFile = true,
+                sampleFileSuccess = null,
+                sampleFileError = null
+            )
+
+            when (val result = dataExportManager.generateSampleJson()) {
+                is ExportResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isGeneratingSampleFile = false,
+                        sampleFileSuccess = result.filePath
+                    )
+                }
+
+                is ExportResult.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isGeneratingSampleFile = false,
                         sampleFileError = result.message

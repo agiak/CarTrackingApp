@@ -18,6 +18,9 @@ import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -62,6 +65,18 @@ sealed class SpreadsheetImportResult {
         val errors: List<String>
     ) : SpreadsheetImportResult()
 }
+
+/** Which part of the file is being read, for a progress label. */
+enum class ImportStep { READING, CARS, REFILLS, EXPENSES, TRIPS, FINISHED }
+
+/**
+ * How far along an import is.
+ *
+ * [fraction] is weighted by the number of rows in each sheet rather than by
+ * the number of sheets, because a file with four hundred refills and three
+ * cars would otherwise sit at 25% for almost the whole import and then jump.
+ */
+data class ImportProgress(val fraction: Float, val step: ImportStep)
 
 /**
  * Result of sample file generation
@@ -171,6 +186,15 @@ class SpreadsheetImportManager @Inject constructor(
         private val REFILL_TOKEN_REGEX = Regex("""\|""")
     }
 
+    private val _progress = MutableStateFlow<ImportProgress?>(null)
+
+    /** Null until an import starts, and reset to null by [resetProgress]. */
+    val progress: StateFlow<ImportProgress?> = _progress.asStateFlow()
+
+    fun resetProgress() {
+        _progress.value = null
+    }
+
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -182,6 +206,7 @@ class SpreadsheetImportManager @Inject constructor(
      * Data is **added** to existing data, not replaced.
      */
     suspend fun importFromSpreadsheet(uri: Uri): SpreadsheetImportResult = withContext(Dispatchers.IO) {
+        _progress.value = ImportProgress(0f, ImportStep.READING)
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
                 ?: return@withContext SpreadsheetImportResult.Error("Could not open file")
@@ -335,7 +360,23 @@ class SpreadsheetImportManager @Inject constructor(
         var tripsImported = 0
         var remindersConfigured = 0
 
+        // Weighted by the rows each sheet actually holds; see [ImportProgress].
+        val sheetRows = listOf(SHEET_CARS, SHEET_REFILLS, SHEET_EXPENSES, SHEET_TRIPS)
+            .associateWith { name -> workbook.getSheet(name)?.lastRowNum?.coerceAtLeast(0) ?: 0 }
+        val totalRows = sheetRows.values.sum().coerceAtLeast(1)
+        var doneRows = 0
+
+        fun announce(step: ImportStep) {
+            _progress.value = ImportProgress(doneRows.toFloat() / totalRows, step)
+        }
+
+        fun finishedSheet(name: String, next: ImportStep) {
+            doneRows += sheetRows[name] ?: 0
+            announce(next)
+        }
+
         // ── 1. Cars ──────────────────────────────────────────────────────────
+        announce(ImportStep.CARS)
         val existingCars = carRepository.getAllCars().first()
         val carsByLicensePlate = existingCars.associateBy { it.licensePlate.uppercase() }
         val newCarsByLicensePlate = mutableMapOf<String, Long>()
@@ -351,6 +392,8 @@ class SpreadsheetImportManager @Inject constructor(
             }
         }
 
+        finishedSheet(SHEET_CARS, ImportStep.REFILLS)
+
         val allCarsByLicensePlate: Map<String, Long> =
             carsByLicensePlate.mapValues { it.value.id } + newCarsByLicensePlate
 
@@ -365,6 +408,8 @@ class SpreadsheetImportManager @Inject constructor(
             errors.addAll(result.second)
         }
 
+        finishedSheet(SHEET_REFILLS, ImportStep.EXPENSES)
+
         // ── 3. Expenses ──────────────────────────────────────────────────────
         workbook.getSheet(SHEET_EXPENSES)?.let { sheet ->
             val result = importExpensesFromSheet(sheet, allCarsByLicensePlate)
@@ -373,12 +418,16 @@ class SpreadsheetImportManager @Inject constructor(
             errors.addAll(result.second)
         }
 
+        finishedSheet(SHEET_EXPENSES, ImportStep.TRIPS)
+
         // ── 4. Trips ─────────────────────────────────────────────────────────
         workbook.getSheet(SHEET_TRIPS)?.let { sheet ->
             val result = importTripsFromSheet(sheet, allCarsByLicensePlate, refillKeyToId)
             tripsImported = result.first
             errors.addAll(result.second)
         }
+
+        _progress.value = ImportProgress(1f, ImportStep.FINISHED)
 
         return when {
             errors.isEmpty() -> SpreadsheetImportResult.Success(

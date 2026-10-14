@@ -108,6 +108,86 @@ class DataExportManager @Inject constructor(
     }
 
     /**
+     * Write a small, valid JSON file showing the shape an import expects.
+     *
+     * Built from the real [AppDataExport] types and serialised by the same
+     * encoder the export uses, rather than from a hand-written JSON string.
+     * A template typed out by hand goes stale the first time a field is added
+     * and then teaches people a format the importer no longer accepts; this
+     * one cannot drift, because it would stop compiling first.
+     *
+     * The two refills are deliberate: one refill alone produces no
+     * consumption figure, so a single-row sample would demonstrate a file
+     * that imports and then appears to do nothing.
+     */
+    suspend fun generateSampleJson(): ExportResult = withContext(Dispatchers.IO) {
+        try {
+            val now = System.currentTimeMillis()
+            val day = 24L * 60 * 60 * 1000
+
+            val sample = AppDataExport(
+                schemaVersion = EXPORT_SCHEMA_VERSION,
+                exportDate = now,
+                appVersion = BuildConfig.VERSION_NAME,
+                data = ExportedData(
+                    cars = listOf(
+                        ExportedCar(
+                            id = 1,
+                            name = "My car",
+                            licensePlate = "ABC-1234",
+                            currentOdometer = 124580.0,
+                            initialOdometer = 120000.0,
+                            createdAt = now - 30 * day,
+                            updatedAt = now
+                        )
+                    ),
+                    refills = listOf(
+                        ExportedRefill(
+                            id = 1,
+                            carId = 1,
+                            amountPaid = 68.40,
+                            litersAdded = 40.0,
+                            tripDistance = 520.0,
+                            odometerReading = 124060.0,
+                            fuelConsumption = 7.69,
+                            pricePerLiter = 1.71,
+                            timestamp = now - 21 * day,
+                            notes = "Full tank"
+                        ),
+                        ExportedRefill(
+                            id = 2,
+                            carId = 1,
+                            amountPaid = 71.05,
+                            litersAdded = 41.3,
+                            tripDistance = 520.0,
+                            odometerReading = 124580.0,
+                            fuelConsumption = 7.94,
+                            pricePerLiter = 1.72,
+                            timestamp = now - 4 * day,
+                            notes = null
+                        )
+                    ),
+                    expenses = listOf(
+                        ExportedExpense(
+                            id = 1,
+                            carId = 1,
+                            category = "Service",
+                            amount = 180.0,
+                            timestamp = now - 14 * day,
+                            notes = "Oil and filters"
+                        )
+                    )
+                )
+            )
+
+            val fileName = "caribou_import_sample.json"
+            ExportResult.Success(saveToDownloads(fileName, json.encodeToString(sample)))
+        } catch (e: Exception) {
+            ExportResult.Error(e.message ?: "Could not create the sample file")
+        }
+    }
+
+    /**
      * Import data from a JSON file URI
      * This will REPLACE all existing data with the imported data
      */

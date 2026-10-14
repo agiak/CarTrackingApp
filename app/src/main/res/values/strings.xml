@@ -187,6 +187,18 @@
     <string name="onboarding_import_stat_expenses">Service &amp; expenses</string>
     <string name="onboarding_import_stat_trips">Trips</string>
     <string name="onboarding_import_stat_reminders">Reminders</string>
+    <string name="onboarding_import_sample_title">No backup, but data of your own?</string>
+    <string name="onboarding_import_sample_desc">Download a template, fill it in, and import it here.</string>
+    <string name="onboarding_import_sample_excel">Excel template</string>
+    <string name="onboarding_import_sample_json">JSON sample</string>
+    <string name="onboarding_import_sample_saved">Saved to your Downloads folder.</string>
+    <string name="onboarding_import_percent">%1$d%%</string>
+    <string name="onboarding_import_step_reading">Opening the file…</string>
+    <string name="onboarding_import_step_cars">Reading cars…</string>
+    <string name="onboarding_import_step_refills">Reading refills…</string>
+    <string name="onboarding_import_step_expenses">Reading expenses…</string>
+    <string name="onboarding_import_step_trips">Reading trips…</string>
+    <string name="onboarding_import_step_finishing">Almost done…</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Location</string>
