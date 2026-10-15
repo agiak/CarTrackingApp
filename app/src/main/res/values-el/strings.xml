@@ -226,7 +226,7 @@
     <string name="import_unsupported_file">Μη υποστηριζόμενο αρχείο. Επιλέξτε ένα αντίγραφο JSON ή ένα αρχείο Excel/CSV.</string>
     <string name="cancel">Ακύρωση</string>
     <string name="clear_all_data_title">Εκκαθάριση όλων των δεδομένων</string>
-    <string name="clear_all_data_confirm">Αυτό θα διαγράψει μόνιμα όλα τα οχήματα, τους ανεφοδιασμούς και τα έξοδα. Η ενέργεια δεν μπορεί να αναιρεθεί. Είστε σίγουροι;</string>
+    <string name="clear_all_data_confirm">Διαγράφονται όλα τα οχήματα, οι ανεφοδιασμοί, τα έξοδα, οι διαδρομές και τα συνημμένα αυτού του κινητού. Η ενέργεια δεν αναιρείται — κάνε πρώτα εξαγωγή αντιγράφου αν θέλεις να τα κρατήσεις.</string>
     <string name="clear">Εκκαθάριση</string>
     <string name="settings">Ρυθμίσεις</string>
     <string name="notifications_enabled">Οι ειδοποιήσεις ενεργοποιήθηκαν!</string>
@@ -1508,8 +1508,9 @@
     <string name="cloud_delete_account_message">Ο λογαριασμός και όλα τα δεδομένα που κρατάει στον διακομιστή διαγράφονται οριστικά. Δεν αναιρείται.</string>
     <string name="cloud_delete_account_action">Διαγραφή</string>
     <string name="cloud_account_deleted">Ο λογαριασμός διαγράφηκε</string>
-    <string name="cloud_wipe_local">Να αφαιρεθούν και τα δεδομένα από αυτό το κινητό</string>
-    <string name="cloud_wipe_local_desc">Αυτοκίνητα, ανεφοδιασμοί, έξοδα, ταξίδια και συνημμένα. Επιτρέπεται μόνο αφού έχει ολοκληρωθεί ένας συγχρονισμός.</string>
+    <string name="cloud_wipe_local_always">Τα οχήματα, οι ανεφοδιασμοί, τα έξοδα και οι διαδρομές αφαιρούνται από αυτό το κινητό. Παραμένουν στον server και επιστρέφουν με την επόμενη σύνδεση.</string>
+    <string name="cloud_delete_wipe_local">Αδειάζει και αυτό το κινητό. Κάνε πρώτα εξαγωγή αντιγράφου αν θέλεις να κρατήσεις τα δεδομένα σου.</string>
+    <string name="settings_clear_signed_in">Όσο είσαι συνδεδεμένος, το κινητό δείχνει τα δεδομένα του λογαριασμού σου. Για να τα διαγράψεις, διάγραψε τον λογαριασμό από την οθόνη Cloud — ή αποσυνδέσου, που αδειάζει το κινητό και αφήνει το αντίγραφο ασφαλείας άθικτο.</string>
 
     <!-- Sync progress -->
     <string name="cloud_stage_connect">Σύνδεση…</string>

@@ -13,11 +13,18 @@ import javax.inject.Singleton
 /**
  * Removes every trace of the account's data from this phone.
  *
- * Only two things ever call this: deleting the account, where the data is gone
- * from the server too, and signing out when the user explicitly asks for the
- * phone to be left clean. It is never called implicitly — this app works
- * perfectly well with no account at all, so losing the data by signing out of
- * something optional would be an unpleasant surprise.
+ * Three things call it: signing out, deleting the account, and "Clear all
+ * data" in Settings — which is only offered when signed out, because while
+ * signed in what the phone holds is a copy of the account rather than its own
+ * records.
+ *
+ * Clearing `sync_links` in the same transaction as the data is the part that
+ * matters, and the reason everything goes through here. A wipe that leaves
+ * the links behind looks to the next sync like "the user deleted all of
+ * this", and the deletions are pushed — which is how clearing one phone used
+ * to destroy the server copy and, through it, every other device. With the
+ * links gone the server rows are simply unlinked, so the next sync treats
+ * them as rows it has not seen and brings them back.
  *
  * The settings are deliberately untouched: language, theme and the colour
  * palette belong to the device, not to the account.

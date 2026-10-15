@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.cloud.data.repository
 
 import com.agcoding.cartrackingapp.cloud.data.local.LocalDataWiper
+import com.agcoding.cartrackingapp.domain.repository.DatabaseStatsRepository
 import com.agcoding.cartrackingapp.cloud.data.network.NetworkMonitor
 import com.agcoding.cartrackingapp.cloud.data.remote.SupabaseClient
 import com.agcoding.cartrackingapp.cloud.data.remote.SupabaseException
@@ -19,6 +20,7 @@ import com.agcoding.cartrackingapp.cloud.push.PushTokenRegistrar
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
@@ -34,6 +36,7 @@ class CloudRepositoryImpl @Inject constructor(
     private val sessions: CloudSessionProvider,
     private val localDataWiper: LocalDataWiper,
     private val pushTokens: PushTokenRegistrar,
+    private val databaseStats: DatabaseStatsRepository,
 ) : CloudRepository {
 
     override val state: Flow<CloudState> = store.state
@@ -91,12 +94,27 @@ class CloudRepositoryImpl @Inject constructor(
         store.saveSession(session.copy(mustChangePassword = false))
     }
 
-    override suspend fun signOut(wipeLocalData: Boolean) = onIo {
+    /**
+     * Leaves the account, and takes the account's data off the phone with it.
+     *
+     * The wipe is no longer optional. While signed in, what the phone holds is
+     * a copy of the account — so a signed-out phone still showing it is not
+     * "keeping your data", it is a stale copy that the next sign-in has to
+     * reconcile, and which a different account signing in would see. Leaving
+     * the account empties the phone and the user is asked again how they want
+     * to continue, which is the same question a fresh install asks.
+     *
+     * The guard is what keeps this safe, and it only refuses when there is
+     * something real to lose: unsent edits, or records on a phone that has
+     * never completed a sync. An empty database has nothing to strand, so it
+     * must not block the user from leaving.
+     */
+    override suspend fun signOut() = onIo {
         val current = store.current()
         if (current.hasPendingChanges) {
             throw CloudException(CloudError.UNSYNCED_CHANGES)
         }
-        if (wipeLocalData && current.lastSyncAt == null) {
+        if (current.lastSyncAt == null && !databaseStats.observeStats().first().isEmpty) {
             // Nothing has ever reached the server, so "it is safe, it is in
             // the cloud" would simply not be true.
             throw CloudException(CloudError.UNSYNCED_CHANGES)
@@ -118,14 +136,24 @@ class CloudRepositoryImpl @Inject constructor(
         // and no way back to their records but to go looking in Settings.
         store.saveAccountPromptAnswered(false)
         sync.reset()
-        if (wipeLocalData) localDataWiper.wipe()
+        localDataWiper.wipe()
     }
 
-    override suspend fun deleteAccount(wipeLocalData: Boolean) = onIo {
+    /**
+     * Deletes the account on the server, then empties the phone.
+     *
+     * Unconditional for the same reason as signing out, and more so: the rows
+     * on the server are gone, so a local copy left behind is a copy of
+     * something that no longer exists, holding links to rows that cannot come
+     * back. Anyone who wants to keep their records exports them first — the
+     * button is two taps away in Settings.
+     */
+    override suspend fun deleteAccount() = onIo {
         client.deleteAccount(requireSessionInternal())
         store.clearSession()
+        store.saveAccountPromptAnswered(false)
         sync.reset()
-        if (wipeLocalData) localDataWiper.wipe()
+        localDataWiper.wipe()
     }
 
     override suspend fun displayName(): String? = onIo {

@@ -29,8 +29,6 @@ data class CloudAccountUiState(
     val progress: SyncProgress? = null,
     val isBusy: Boolean = false,
     val dialog: CloudAccountDialog? = null,
-    /** The "also wipe this phone" tick inside the open dialog. */
-    val wipeLocalData: Boolean = false,
     val error: CloudError? = null,
     /** A finished action worth a snackbar; consumed by the screen. */
     val message: CloudAccountMessage? = null,
@@ -112,19 +110,15 @@ class CloudAccountViewModel @Inject constructor(
     }
 
     fun openDialog(dialog: CloudAccountDialog) {
-        _uiState.value = _uiState.value.copy(dialog = dialog, wipeLocalData = false, error = null)
+        _uiState.value = _uiState.value.copy(dialog = dialog, error = null)
     }
 
     fun closeDialog() {
-        _uiState.value = _uiState.value.copy(dialog = null, wipeLocalData = false)
+        _uiState.value = _uiState.value.copy(dialog = null)
     }
 
-    fun setWipeLocalData(wipe: Boolean) {
-        _uiState.value = _uiState.value.copy(wipeLocalData = wipe)
-    }
-
-    fun confirmSignOut() = runAccountAction(CloudAccountMessage.SignedOut) { wipe ->
-        cloudRepository.signOut(wipeLocalData = wipe)
+    fun confirmSignOut() = runAccountAction(CloudAccountMessage.SignedOut) {
+        cloudRepository.signOut()
         // Written before the screen moves, and on disk rather than in memory,
         // so that closing the app is not mistaken for an answer: whoever signs
         // out is back in front of "account, or no account?", and stays there
@@ -132,8 +126,8 @@ class CloudAccountViewModel @Inject constructor(
         onboardingPreferences.setAccountStepPending(true)
     }
 
-    fun confirmDeleteAccount() = runAccountAction(CloudAccountMessage.AccountDeleted) { wipe ->
-        cloudRepository.deleteAccount(wipeLocalData = wipe)
+    fun confirmDeleteAccount() = runAccountAction(CloudAccountMessage.AccountDeleted) {
+        cloudRepository.deleteAccount()
     }
 
     /**
@@ -143,17 +137,15 @@ class CloudAccountViewModel @Inject constructor(
      */
     private fun runAccountAction(
         success: CloudAccountMessage,
-        action: suspend (wipe: Boolean) -> Unit,
+        action: suspend () -> Unit,
     ) {
-        val wipe = _uiState.value.wipeLocalData
         _uiState.value = _uiState.value.copy(isBusy = true, error = null)
         viewModelScope.launch {
             try {
-                action(wipe)
+                action()
                 _uiState.value = _uiState.value.copy(
                     isBusy = false,
                     dialog = null,
-                    wipeLocalData = false,
                     displayName = null,
                     message = success,
                 )

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.GridOn
@@ -72,6 +73,7 @@ fun StorageCard(
     isExportingExcel: Boolean = false,
     isImporting: Boolean = false,
     isSpreadsheetImporting: Boolean = false,
+    isSignedIn: Boolean = false,
     onExport: () -> Unit = {},
     onExportExcel: () -> Unit = {},
     onImport: () -> Unit = {},
@@ -172,6 +174,35 @@ fun StorageCard(
         )
 
         Spacer(Modifier.height(dimens.spacing.sectionTop))
+
+        // Signed in, there is no such thing as clearing this phone.
+        //
+        // What the phone holds is a copy of the account, so a local clear is
+        // either undone by the next sync or — as it used to be, before the
+        // sync links were cleared with the data — pushed to the server and
+        // taken out on every other device. Neither is "clear the data on this
+        // phone", so the button is not offered at all: leaving the account is
+        // what empties the phone, and deleting the account is what removes the
+        // records.
+        if (isSignedIn) {
+            Row(verticalAlignment = Alignment.Top) {
+                Icon(
+                    imageVector = Icons.Default.CloudDone,
+                    contentDescription = null,
+                    tint = scheme.contentDisabled,
+                    modifier = Modifier
+                        .padding(top = 1.dp)
+                        .size(17.dp),
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.settings_clear_signed_in),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.contentDisabled,
+                )
+            }
+            return@Column
+        }
 
         // Outlined, not filled: the only irreversible action on the screen
         // should not be the easiest thing on it to hit.

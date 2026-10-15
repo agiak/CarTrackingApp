@@ -252,7 +252,7 @@
     <string name="import_action">Import</string>
     <string name="cancel">Cancel</string>
     <string name="clear_all_data_title">Clear All Data</string>
-    <string name="clear_all_data_confirm">This will permanently delete all your cars, refills, and expenses. This action cannot be undone. Are you sure?</string>
+    <string name="clear_all_data_confirm">Every car, refill, expense, trip and attachment on this phone is deleted. This cannot be undone — export a backup first if you want to keep them.</string>
     <string name="clear">Clear</string>
     <string name="settings">Settings</string>
     <string name="notifications_enabled">Notifications enabled!</string>
@@ -1525,8 +1525,9 @@
     <string name="cloud_delete_account_message">The account and every row it holds on the server are deleted for good. This cannot be undone.</string>
     <string name="cloud_delete_account_action">Delete</string>
     <string name="cloud_account_deleted">Account deleted</string>
-    <string name="cloud_wipe_local">Also remove the data from this phone</string>
-    <string name="cloud_wipe_local_desc">Cars, refills, expenses, trips and attachments. Only offered once a sync has actually completed.</string>
+    <string name="cloud_wipe_local_always">Your cars, refills, expenses and trips are removed from this phone. They stay on the server, and come back when you sign in again.</string>
+    <string name="cloud_delete_wipe_local">This phone is emptied too. Export a backup first if you want to keep your records.</string>
+    <string name="settings_clear_signed_in">While signed in, this phone mirrors your account. To remove your records, delete your account from the Cloud screen — or sign out, which empties this phone and leaves the backup untouched.</string>
 
     <!-- Sync progress -->
     <string name="cloud_stage_connect">Connecting…</string>

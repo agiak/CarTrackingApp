@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.cloud.account
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -226,10 +226,9 @@ fun CloudAccountScreen(
             message = stringResource(R.string.cloud_sign_out_message),
             confirmLabel = stringResource(R.string.cloud_sign_out),
             destructive = false,
+            localDataRes = R.string.cloud_wipe_local_always,
             isBusy = uiState.isBusy,
             errorRes = uiState.error?.messageRes(),
-            wipeLocalData = uiState.wipeLocalData,
-            onWipeLocalDataChange = viewModel::setWipeLocalData,
             onConfirm = viewModel::confirmSignOut,
             onDismiss = viewModel::closeDialog,
         )
@@ -239,10 +238,11 @@ fun CloudAccountScreen(
             message = stringResource(R.string.cloud_delete_account_message),
             confirmLabel = stringResource(R.string.cloud_delete_account_action),
             destructive = true,
+            // Not the sign-out wording: there is no server copy to come back
+            // to once the account is gone.
+            localDataRes = R.string.cloud_delete_wipe_local,
             isBusy = uiState.isBusy,
             errorRes = uiState.error?.messageRes(),
-            wipeLocalData = uiState.wipeLocalData,
-            onWipeLocalDataChange = viewModel::setWipeLocalData,
             onConfirm = viewModel::confirmDeleteAccount,
             onDismiss = viewModel::closeDialog,
         )
@@ -390,10 +390,9 @@ private fun ConfirmDialog(
     message: String,
     confirmLabel: String,
     destructive: Boolean,
+    @StringRes localDataRes: Int,
     isBusy: Boolean,
     errorRes: Int?,
-    wipeLocalData: Boolean,
-    onWipeLocalDataChange: (Boolean) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -404,26 +403,11 @@ private fun ConfirmDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = message, fontSize = 14.sp)
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = wipeLocalData,
-                        onCheckedChange = onWipeLocalDataChange,
-                        enabled = !isBusy
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.cloud_wipe_local),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.cloud_wipe_local_desc),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(localDataRes),
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 errorRes?.let {
                     Text(

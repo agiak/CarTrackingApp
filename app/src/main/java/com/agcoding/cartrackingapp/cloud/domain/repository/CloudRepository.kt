@@ -53,23 +53,32 @@ interface CloudRepository {
     suspend fun changePassword(newPassword: String)
 
     /**
-     * @param wipeLocalData also clears this phone's cars, refills, expenses,
-     *   trips and attachments. Refused unless a sync has actually completed at
-     *   least once, because otherwise the data exists nowhere else.
+     * Leaves the account and clears this phone's cars, refills, expenses,
+     * trips and attachments.
+     *
+     * The wipe is not optional. While signed in the phone holds a copy of the
+     * account, so leaving the account behind with the copy still on the phone
+     * is not "keeping your data" — it is a stale copy for the next sign-in to
+     * reconcile, or for a different account to find. The records stay on the
+     * server and come back when the user signs in again.
+     *
      * @throws com.agcoding.cartrackingapp.cloud.domain.model.CloudException
      *   with [com.agcoding.cartrackingapp.cloud.domain.model.CloudError.UNSYNCED_CHANGES]
-     *   when there are edits that have not reached the server.
+     *   when there are edits that have not reached the server, or when this
+     *   phone holds records and no sync has ever completed. Both are cases
+     *   where the data exists nowhere else.
      */
-    suspend fun signOut(wipeLocalData: Boolean = false)
+    suspend fun signOut()
 
     /**
-     * Deletes the account and, with it, every row it owns on the server.
+     * Deletes the account, every row it owns on the server, and this phone's
+     * copy of them.
      *
-     * @param wipeLocalData also clears this phone. Off by default: deleting
-     *   the account means going back to using the app offline, not throwing
-     *   away the data.
+     * Also unconditional: the server rows are gone, so what would be left
+     * behind is a copy of something that no longer exists. Exporting first is
+     * how a user keeps their records.
      */
-    suspend fun deleteAccount(wipeLocalData: Boolean = false)
+    suspend fun deleteAccount()
 
     /** The name shown in the account screen, or null if none was given. */
     suspend fun displayName(): String?

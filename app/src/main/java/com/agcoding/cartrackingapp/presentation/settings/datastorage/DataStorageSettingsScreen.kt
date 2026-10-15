@@ -278,6 +278,7 @@ fun DataStorageSettingsScreen(
                 isExportingExcel = uiState.isExportingExcel,
                 isImporting = uiState.isImporting,
                 isSpreadsheetImporting = uiState.isSpreadsheetImporting,
+                isSignedIn = uiState.isSignedIn,
                 onExport = { viewModel.exportData() },
                 onExportExcel = { viewModel.exportToExcel() },
                 onImport = { showImportConfirmDialog = true },
