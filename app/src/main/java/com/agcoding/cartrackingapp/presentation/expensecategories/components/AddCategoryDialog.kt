@@ -2,7 +2,7 @@ package com.agcoding.cartrackingapp.presentation.expensecategories.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,7 +28,7 @@ fun AddCategoryDialog(
         title = { Text(stringResource(R.string.add_category)) },
         text = {
             Column {
-                OutlinedTextField(
+                AppTextField(
                     value = categoryName,
                     onValueChange = {
                         categoryName = it

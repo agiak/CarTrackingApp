@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 /** How tall the success sheet stands — enough for the checkmark and its two lines. */
 private val SheetHeight = 280.dp
@@ -34,7 +34,7 @@ fun TripCreatedSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onFinished,
         sheetState = sheetState
     ) {

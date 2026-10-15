@@ -185,6 +185,27 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         onSurface            = contentPrimary,
         surfaceVariant       = backgroundSecondary,
         onSurfaceVariant     = contentSecondary,
+
+        // The surface-container roles, which nothing used to set.
+        //
+        // Material components do not read `surface` — a bottom sheet reaches
+        // for surfaceContainerLow, a dialog and a menu for surfaceContainerHigh,
+        // a navigation bar for surfaceContainer. Left unset they keep the stock
+        // greys from darkColorScheme(), which is why a sheet opened over a
+        // themed screen appeared as a near-black slab while the one screen that
+        // passed its own containerColor looked right.
+        //
+        // They all resolve to the app's own two surfaces: the card colour for
+        // anything that floats above the screen, the quieter one for the two
+        // extremes that are meant to recede.
+        surfaceContainerLowest  = backgroundPrimary,
+        surfaceContainerLow     = backgroundCard,
+        surfaceContainer        = backgroundCard,
+        surfaceContainerHigh    = backgroundCard,
+        surfaceContainerHighest = backgroundSecondary,
+        surfaceBright           = backgroundCard,
+        surfaceDim              = backgroundPrimary,
+
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,
@@ -200,6 +221,27 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         onSurface            = contentPrimary,
         surfaceVariant       = backgroundSecondary,
         onSurfaceVariant     = contentSecondary,
+
+        // The surface-container roles, which nothing used to set.
+        //
+        // Material components do not read `surface` — a bottom sheet reaches
+        // for surfaceContainerLow, a dialog and a menu for surfaceContainerHigh,
+        // a navigation bar for surfaceContainer. Left unset they keep the stock
+        // greys from darkColorScheme(), which is why a sheet opened over a
+        // themed screen appeared as a near-black slab while the one screen that
+        // passed its own containerColor looked right.
+        //
+        // They all resolve to the app's own two surfaces: the card colour for
+        // anything that floats above the screen, the quieter one for the two
+        // extremes that are meant to recede.
+        surfaceContainerLowest  = backgroundPrimary,
+        surfaceContainerLow     = backgroundCard,
+        surfaceContainer        = backgroundCard,
+        surfaceContainerHigh    = backgroundCard,
+        surfaceContainerHighest = backgroundSecondary,
+        surfaceBright           = backgroundCard,
+        surfaceDim              = backgroundPrimary,
+
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,

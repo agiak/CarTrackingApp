@@ -2,23 +2,18 @@ package com.agcoding.cartrackingapp.presentation.refill
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -26,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -37,21 +31,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.AmountInputCard
 import com.agcoding.cartrackingapp.presentation.components.Kpi
 import com.agcoding.cartrackingapp.presentation.components.KpiGrid
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.components.SectionLabel
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.SheetHeader
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.refill.components.VoiceEntrySection
 import com.agcoding.cartrackingapp.util.formatNumber
@@ -60,6 +53,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +78,7 @@ fun AddRefillBottomSheet(
     // Shows the app-wide success confirmation in place of the form, then closes.
     var showSuccess by remember { mutableStateOf(false) }
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = {
             scope.launch {
                 sheetState.hide()
@@ -120,20 +114,12 @@ fun AddRefillBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.add_fuel_refill_title),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                IconButton(onClick = {
+            SheetHeader(
+                title = stringResource(R.string.add_fuel_refill_title),
+                onClose = {
                     scope.launch {
                         sheetState.hide()
                     }.invokeOnCompletion {
@@ -142,15 +128,10 @@ fun AddRefillBottomSheet(
                             onDismiss()
                         }
                     }
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
-                    )
                 }
-            }
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Voice Entry Section
             VoiceEntrySection(
@@ -182,7 +163,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Liters added
-            StyledOutlinedTextField(
+            AppTextField(
                 value = uiState.litersAdded,
                 onValueChange = viewModel::updateLitersAdded,
                 label = { Text(stringResource(R.string.liters_added)) },
@@ -200,7 +181,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Trip distance
-            StyledOutlinedTextField(
+            AppTextField(
                 value = uiState.tripDistance,
                 onValueChange = viewModel::updateTripDistance,
                 label = { Text(stringResource(R.string.trip_distance_km)) },
@@ -253,7 +234,7 @@ fun AddRefillBottomSheet(
             val dateFormat = SimpleDateFormat(stringResource(R.string.date_format_dd_mmm_yyyy), Locale.getDefault())
             val dateText = dateFormat.format(Date(uiState.selectedDateMillis))
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = dateText,
                 onValueChange = { },
                 label = { Text(stringResource(R.string.date)) },
@@ -272,7 +253,7 @@ fun AddRefillBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Notes (optional)
-            StyledOutlinedTextField(
+            AppTextField(
                 value = uiState.notes,
                 onValueChange = viewModel::updateNotes,
                 label = { Text(stringResource(R.string.expense_notes_optional)) },
@@ -287,7 +268,7 @@ fun AddRefillBottomSheet(
             // Location name — reverse-geocoded from the captured GPS position and
             // editable by the user. Shown while capturing or once a position exists.
             if (uiState.location != null || uiState.isLoadingLocation) {
-                StyledOutlinedTextField(
+                AppTextField(
                     value = uiState.locationName,
                     onValueChange = viewModel::updateLocationName,
                     label = { Text(stringResource(R.string.refill_location_name_label)) },

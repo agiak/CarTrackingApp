@@ -218,6 +218,7 @@
     <!-- Settings Dialogs & Buttons -->
     <string name="import_data_title">Εισαγωγή δεδομένων</string>
     <string name="import_data_confirm">Η εισαγωγή θα αντικαταστήσει όλα τα υπάρχοντα δεδομένα. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Θέλετε να συνεχίσετε;</string>
+    <string name="import_formats_supported">Δεκτά: αντίγραφο .json, υπολογιστικό φύλλο .xlsx ή .csv</string>
     <string name="import_action">Εισαγωγή</string>
     <string name="import_unsupported_file">Μη υποστηριζόμενο αρχείο. Επιλέξτε ένα αντίγραφο JSON ή ένα αρχείο Excel/CSV.</string>
     <string name="cancel">Ακύρωση</string>
@@ -871,9 +872,9 @@
     <string name="spreadsheet_import_title">Εισαγωγή από Excel/CSV</string>
     <string name="spreadsheet_import_description">Εισαγωγή αυτοκινήτων, ανεφοδιασμών, εξόδων και ταξιδιών από αρχείο Excel (.xlsx) ή CSV. Προσθέτει νέα δεδομένα χωρίς να αντικαθιστά τα υπάρχοντα.</string>
     <string name="spreadsheet_import_how_to_title">Πώς να χρησιμοποιήσετε</string>
-    <string name="spreadsheet_import_how_to_1">1. Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
-    <string name="spreadsheet_import_how_to_2">2. Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
-    <string name="spreadsheet_import_how_to_3">3. Χρησιμοποιήστε το κουμπί Εισαγωγή για να προσθέσετε τα δεδομένα σας</string>
+    <string name="spreadsheet_import_step_1">Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
+    <string name="spreadsheet_import_step_2">Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
+    <string name="spreadsheet_import_step_3">Χρησιμοποιήστε το κουμπί Εισαγωγή για να προσθέσετε τα δεδομένα σας</string>
     <string name="spreadsheet_import_button">Εισαγωγή Excel/CSV</string>
     <string name="spreadsheet_generate_sample">Λήψη Δείγματος Αρχείου</string>
     <string name="spreadsheet_importing">Εισαγωγή…</string>

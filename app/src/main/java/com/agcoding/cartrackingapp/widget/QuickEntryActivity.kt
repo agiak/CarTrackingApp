@@ -43,7 +43,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
+import com.agcoding.cartrackingapp.presentation.components.appTextFieldColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -318,7 +319,7 @@ fun CarSelector(
             expanded = expanded,
             onExpandedChange = { if (enabled) expanded = !expanded }
         ) {
-            OutlinedTextField(
+            AppTextField(
                 value = selectedCar?.name ?: "",
                 onValueChange = { },
                 readOnly = true,
@@ -331,7 +332,7 @@ fun CarSelector(
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                colors = appTextFieldColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled),
@@ -712,7 +713,7 @@ private fun QuickRefillDialog(
                     }
 
                     // Date field
-                    OutlinedTextField(
+                    AppTextField(
                         value = dateFormatter.format(Date(selectedDate)),
                         onValueChange = { },
                         label = { Text(stringResource(id = R.string.date_label)) },
@@ -732,7 +733,7 @@ private fun QuickRefillDialog(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Liters field
-                    OutlinedTextField(
+                    AppTextField(
                         value = liters,
                         onValueChange = {
                             liters = sanitizeDecimalInput(it)
@@ -751,7 +752,7 @@ private fun QuickRefillDialog(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Cost field
-                    OutlinedTextField(
+                    AppTextField(
                         value = cost,
                         onValueChange = {
                             cost = sanitizeDecimalInput(it)
@@ -770,7 +771,7 @@ private fun QuickRefillDialog(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Distance field
-                    OutlinedTextField(
+                    AppTextField(
                         value = distance,
                         onValueChange = {
                             distance = sanitizeDecimalInput(it)
@@ -1095,7 +1096,7 @@ private fun QuickExpenseDialog(
                     }
 
                     // Date field
-                    OutlinedTextField(
+                    AppTextField(
                         value = dateFormatter.format(Date(selectedDate)),
                         onValueChange = { },
                         label = { Text(stringResource(id = R.string.date_label)) },
@@ -1115,7 +1116,7 @@ private fun QuickExpenseDialog(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Cost field
-                    OutlinedTextField(
+                    AppTextField(
                         value = cost,
                         onValueChange = {
                             cost = sanitizeDecimalInput(it)
@@ -1158,7 +1159,7 @@ private fun QuickExpenseDialog(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Notes field
-                    OutlinedTextField(
+                    AppTextField(
                         value = notes,
                         onValueChange = { notes = it },
                         label = { Text(stringResource(id = R.string.notes_label)) },

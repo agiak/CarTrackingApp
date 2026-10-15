@@ -4,17 +4,24 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
@@ -48,8 +56,11 @@ import com.agcoding.cartrackingapp.presentation.settings.components.ForecastCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsRow
+import com.agcoding.cartrackingapp.presentation.settings.components.SpreadsheetImportCard
 
 import com.agcoding.cartrackingapp.presentation.settings.components.StorageCard
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -179,56 +190,41 @@ fun DataStorageSettingsScreen(
         }
     }
 
-    // Import confirmation dialog
+    // Import confirmation
     if (showImportConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showImportConfirmDialog = false },
-            title = { Text(stringResource(R.string.import_data_title)) },
-            text = {
-                Text(stringResource(R.string.import_data_confirm))
+        AppConfirmDialog(
+            title = stringResource(R.string.import_data_title),
+            message = stringResource(R.string.import_data_confirm),
+            confirmLabel = stringResource(R.string.import_action),
+            dismissLabel = stringResource(R.string.cancel),
+            icon = Icons.Default.Upload,
+            // Replacing everything is destructive even though the word is
+            // "import" — the dialog should look like what it does.
+            destructive = true,
+            onConfirm = {
+                showImportConfirmDialog = false
+                // Accept any file; the ViewModel detects JSON vs Excel/CSV.
+                filePickerLauncher.launch(arrayOf("*/*"))
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showImportConfirmDialog = false
-                        // Accept any file; the ViewModel detects JSON vs Excel/CSV.
-                        filePickerLauncher.launch(arrayOf("*/*"))
-                    }
-                ) {
-                    Text(stringResource(R.string.import_action))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showImportConfirmDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
+            onDismiss = { showImportConfirmDialog = false },
+            extraContent = { ImportFormatsNote() }
         )
     }
 
-    // Clear data confirmation dialog
+    // Clear data confirmation
     if (showClearConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearConfirmDialog = false },
-            title = { Text(stringResource(R.string.clear_all_data_title)) },
-            text = {
-                Text(stringResource(R.string.clear_all_data_confirm))
+        AppConfirmDialog(
+            title = stringResource(R.string.clear_all_data_title),
+            message = stringResource(R.string.clear_all_data_confirm),
+            confirmLabel = stringResource(R.string.clear),
+            dismissLabel = stringResource(R.string.cancel),
+            icon = Icons.Default.DeleteForever,
+            destructive = true,
+            onConfirm = {
+                showClearConfirmDialog = false
+                viewModel.clearAllData()
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showClearConfirmDialog = false
-                        viewModel.clearAllData()
-                    }
-                ) {
-                    Text(stringResource(R.string.clear), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearConfirmDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
+            onDismiss = { showClearConfirmDialog = false }
         )
     }
 
@@ -282,12 +278,22 @@ fun DataStorageSettingsScreen(
                 isExportingExcel = uiState.isExportingExcel,
                 isImporting = uiState.isImporting,
                 isSpreadsheetImporting = uiState.isSpreadsheetImporting,
-                isGeneratingSample = uiState.isGeneratingSampleFile,
                 onExport = { viewModel.exportData() },
                 onExportExcel = { viewModel.exportToExcel() },
                 onImport = { showImportConfirmDialog = true },
-                onGenerateSample = { viewModel.generateSampleSpreadsheet() },
                 onClear = { showClearConfirmDialog = true }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // IMPORT FROM A SPREADSHEET Section
+            SectionHeader(title = stringResource(R.string.settings_section_spreadsheet_import))
+
+            SpreadsheetImportCard(
+                isImporting = uiState.isSpreadsheetImporting,
+                isGeneratingSample = uiState.isGeneratingSampleFile,
+                onImport = { showImportConfirmDialog = true },
+                onGenerateSample = { viewModel.generateSampleSpreadsheet() }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -326,6 +332,43 @@ fun DataStorageSettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+/**
+ * Which files the picker will actually accept.
+ *
+ * The picker is opened with a wildcard MIME type because the ViewModel sniffs
+ * the file rather than trusting what the system claims it is — which means the
+ * picker offers every file on the device and gives the user no hint at all.
+ * This line is that hint, and it belongs on the dialog where the choice is
+ * made rather than in a help section nobody reads first.
+ */
+@Composable
+private fun ImportFormatsNote() {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimens.radius.tile))
+            .background(scheme.backgroundSecondary)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Description,
+            contentDescription = null,
+            tint = scheme.contentSecondary,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = stringResource(R.string.import_formats_supported),
+            style = MaterialTheme.typography.labelMedium,
+            color = scheme.contentSecondary
+        )
     }
 }
 

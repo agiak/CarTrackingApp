@@ -19,7 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
@@ -42,7 +42,7 @@ fun RefillFieldsSection(
             modifier = modifier,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StyledOutlinedTextField(
+            AppTextField(
                 value = amountPaid,
                 onValueChange = onAmountPaidChange,
                 label = { Text(stringResource(R.string.amount_paid_eur)) },
@@ -53,7 +53,7 @@ fun RefillFieldsSection(
                 modifier = Modifier.weight(1f)
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = litersAdded,
                 onValueChange = onLitersAddedChange,
                 label = { Text(stringResource(R.string.liters_added)) },
@@ -72,7 +72,7 @@ fun RefillFieldsSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StyledOutlinedTextField(
+            AppTextField(
                 value = tripDistance,
                 onValueChange = onTripDistanceChange,
                 label = { Text(stringResource(R.string.trip_distance_km)) },
@@ -84,7 +84,7 @@ fun RefillFieldsSection(
                 modifier = Modifier.weight(1f)
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = odometerReading,
                 onValueChange = onOdometerReadingChange,
                 label = { Text(stringResource(R.string.odometer_reading_km)) },
@@ -97,7 +97,7 @@ fun RefillFieldsSection(
         }
     } else {
         // Single column for phones
-        StyledOutlinedTextField(
+        AppTextField(
             value = amountPaid,
             onValueChange = onAmountPaidChange,
             label = { Text(stringResource(R.string.amount_paid_eur)) },
@@ -110,7 +110,7 @@ fun RefillFieldsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        StyledOutlinedTextField(
+        AppTextField(
             value = litersAdded,
             onValueChange = onLitersAddedChange,
             label = { Text(stringResource(R.string.liters_added)) },
@@ -123,7 +123,7 @@ fun RefillFieldsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        StyledOutlinedTextField(
+        AppTextField(
             value = tripDistance,
             onValueChange = onTripDistanceChange,
             label = { Text(stringResource(R.string.trip_distance_km)) },
@@ -137,7 +137,7 @@ fun RefillFieldsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        StyledOutlinedTextField(
+        AppTextField(
             value = odometerReading,
             onValueChange = onOdometerReadingChange,
             label = { Text(stringResource(R.string.odometer_reading_km)) },

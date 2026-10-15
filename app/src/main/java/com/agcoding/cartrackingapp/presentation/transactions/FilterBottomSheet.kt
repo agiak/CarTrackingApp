@@ -34,7 +34,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -65,6 +64,7 @@ import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionWi
 import kotlinx.coroutines.launch
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 @Composable
 internal fun FilterBottomSheet(
@@ -78,7 +78,7 @@ internal fun FilterBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {

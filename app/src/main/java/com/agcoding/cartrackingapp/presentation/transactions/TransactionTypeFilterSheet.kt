@@ -16,7 +16,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -27,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 /**
  * Type filter for a single car's transaction list — the same two chips as the all-cars
@@ -41,7 +41,7 @@ internal fun TransactionTypeFilterSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {

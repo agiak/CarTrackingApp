@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
@@ -92,7 +92,7 @@ fun RefillLocationCard(
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = locationName,
                 onValueChange = onLocationNameChange,
                 placeholder = { Text(stringResource(R.string.refill_location_name_hint)) },

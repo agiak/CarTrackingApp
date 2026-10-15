@@ -53,7 +53,7 @@ import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.AppTextButton
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.components.SegmentedControl
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -193,7 +193,7 @@ fun CloudAuthScreen(
                 )
 
                 if (uiState.mode == CloudAuthMode.SignUp) {
-                    StyledOutlinedTextField(
+                    AppTextField(
                         value = uiState.displayName,
                         onValueChange = viewModel::onDisplayNameChange,
                         modifier = Modifier.fillMaxWidth(),
@@ -209,7 +209,7 @@ fun CloudAuthScreen(
                     )
                 }
 
-                StyledOutlinedTextField(
+                AppTextField(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChange,
                     modifier = Modifier.fillMaxWidth(),
@@ -338,7 +338,7 @@ private fun ResetPasswordDialog(
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                StyledOutlinedTextField(
+                AppTextField(
                     value = email,
                     onValueChange = onEmailChange,
                     modifier = Modifier.fillMaxWidth(),

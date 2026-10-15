@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,7 +28,7 @@ fun RefillDateField(
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     val dateText = dateFormat.format(Date(selectedDateMillis))
 
-    StyledOutlinedTextField(
+    AppTextField(
         value = dateText,
         onValueChange = { },
         label = { Text(stringResource(R.string.date)) },

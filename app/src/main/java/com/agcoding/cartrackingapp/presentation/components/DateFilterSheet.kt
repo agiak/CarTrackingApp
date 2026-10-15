@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -90,13 +88,9 @@ fun DateFilterSheet(
         (availableYears + YearMonth.now().year).distinct().sortedDescending()
     }
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = dimens.radius.sheet, topEnd = dimens.radius.sheet),
-        containerColor = scheme.backgroundCard,
-        scrimColor = Color.Black.copy(alpha = 0.6f),
-        dragHandle = { SheetHandle() },
     ) {
         Column(
             modifier = Modifier
@@ -247,22 +241,6 @@ private fun lastThreeMonths(now: YearMonth): DateFilter {
 @Composable
 private fun SectionGap() = Spacer(Modifier.height(22.dp))
 
-@Composable
-private fun SheetHandle() {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(width = 36.dp, height = 4.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(LocalAppColorScheme.current.contentDisabled),
-        )
-    }
-}
 
 /**
  * A four-across grid of equal cells.

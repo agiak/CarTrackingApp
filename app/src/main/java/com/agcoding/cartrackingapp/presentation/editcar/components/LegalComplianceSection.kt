@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledDatePickerField
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
@@ -80,7 +80,7 @@ fun LegalComplianceSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                StyledOutlinedTextField(
+                AppTextField(
                     value = roadTaxAmount,
                     onValueChange = onRoadTaxAmountChange,
                     label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },
@@ -114,7 +114,7 @@ fun LegalComplianceSection(
                 placeholder = { Text(stringResource(R.string.edit_car_placeholder_select_date)) }
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = roadTaxAmount,
                 onValueChange = onRoadTaxAmountChange,
                 label = { Text(stringResource(R.string.edit_car_field_road_tax_amount_eur)) },

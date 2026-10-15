@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,7 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.SheetHeader
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.components.TonalButton
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -51,6 +50,7 @@ import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.util.sanitizeIntInput
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 /**
  * Adding a car, as a sheet rather than a dialog.
@@ -73,8 +73,6 @@ fun AddCarDialog(
     onConfirm: (name: String, licensePlate: String, odometer: String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scheme = LocalAppColorScheme.current
-    val dimens = LocalAppDimens.current
 
     var name by remember { mutableStateOf("") }
     var licensePlate by remember { mutableStateOf("") }
@@ -82,12 +80,9 @@ fun AddCarDialog(
 
     val complete = name.isNotBlank() && licensePlate.isNotBlank() && odometer.isNotBlank()
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = dimens.radius.sheet, topEnd = dimens.radius.sheet),
-        containerColor = scheme.backgroundCard,
-        scrimColor = Color.Black.copy(alpha = 0.6f),
     ) {
         Column(
             modifier = Modifier
@@ -101,23 +96,15 @@ fun AddCarDialog(
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Column {
-                Text(
-                    text = stringResource(R.string.add_car_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = scheme.contentPrimary,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.add_car_later_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.contentSecondary,
-                )
-            }
+            SheetHeader(
+                title = stringResource(R.string.add_car_title),
+                subtitle = stringResource(R.string.add_car_later_hint),
+                onClose = onDismiss,
+            )
 
             CarPreviewRow(name = name, plate = licensePlate, odometer = odometer)
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text(stringResource(R.string.add_car_field_name)) },
@@ -126,7 +113,7 @@ fun AddCarDialog(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = licensePlate,
                 onValueChange = { licensePlate = it.uppercase() },
                 label = { Text(stringResource(R.string.add_car_field_license_plate)) },
@@ -135,7 +122,7 @@ fun AddCarDialog(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = odometer,
                 onValueChange = { odometer = sanitizeIntInput(it) },
                 label = { Text(stringResource(R.string.add_car_field_odometer)) },

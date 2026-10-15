@@ -30,7 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
@@ -155,7 +155,7 @@ fun CreateTripScreen(
             ) {
                 // Trip Name
                 item {
-                    OutlinedTextField(
+                    AppTextField(
                         value = uiState.tripName,
                         onValueChange = viewModel::onTripNameChanged,
                         label = { Text(stringResource(R.string.trip_name_required_label)) },
@@ -169,7 +169,7 @@ fun CreateTripScreen(
 
                 // Trip Description
                 item {
-                    OutlinedTextField(
+                    AppTextField(
                         value = uiState.tripDescription,
                         onValueChange = viewModel::onTripDescriptionChanged,
                         label = { Text(stringResource(R.string.trip_description_optional_label)) },

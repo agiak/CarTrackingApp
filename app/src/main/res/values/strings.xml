@@ -245,6 +245,7 @@
     <!-- Settings Dialogs & Buttons -->
     <string name="import_data_title">Import Data</string>
     <string name="import_data_confirm">Importing data will replace all existing data. This action cannot be undone. Are you sure you want to continue?</string>
+    <string name="import_formats_supported">Accepted: .json backup, .xlsx or .csv spreadsheet</string>
     <string name="import_action">Import</string>
     <string name="cancel">Cancel</string>
     <string name="clear_all_data_title">Clear All Data</string>
@@ -901,9 +902,9 @@
     <string name="spreadsheet_import_title">Import from Excel/CSV</string>
     <string name="spreadsheet_import_description">Import cars, refills, expenses, and trips from an Excel (.xlsx) or CSV file. This adds new data without replacing existing records.</string>
     <string name="spreadsheet_import_how_to_title">How to use</string>
-    <string name="spreadsheet_import_how_to_1">1. Download the sample file to see the required format</string>
-    <string name="spreadsheet_import_how_to_2">2. Fill in your data following the same column structure</string>
-    <string name="spreadsheet_import_how_to_3">3. Use the Import button to add your data</string>
+    <string name="spreadsheet_import_step_1">Download the sample file to see the required format</string>
+    <string name="spreadsheet_import_step_2">Fill in your data following the same column structure</string>
+    <string name="spreadsheet_import_step_3">Use the Import button to add your data</string>
     <string name="spreadsheet_import_button">Import Excel/CSV</string>
     <string name="spreadsheet_generate_sample">Download Sample File</string>
     <string name="spreadsheet_importing">Importing…</string>

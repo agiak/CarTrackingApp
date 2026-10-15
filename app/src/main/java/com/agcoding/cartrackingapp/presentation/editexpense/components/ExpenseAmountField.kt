@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
@@ -27,7 +27,7 @@ fun ExpenseAmountField(
     onAmountChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    StyledOutlinedTextField(
+    AppTextField(
         value = amount,
         onValueChange = onAmountChange,
         label = { Text(stringResource(R.string.expense_amount_eur)) },

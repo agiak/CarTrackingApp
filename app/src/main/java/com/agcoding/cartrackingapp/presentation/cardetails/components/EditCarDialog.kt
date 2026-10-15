@@ -15,7 +15,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -93,7 +93,7 @@ fun EditCarDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AppTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(stringResource(R.string.edit_car_field_car_name)) },
@@ -102,7 +102,7 @@ fun EditCarDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AppTextField(
                     value = licensePlate,
                     onValueChange = { licensePlate = it.uppercase() },
                     label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
@@ -111,7 +111,7 @@ fun EditCarDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AppTextField(
                     value = odometer,
                     onValueChange = { odometer = sanitizeIntInput(it) },
                     label = { Text(stringResource(R.string.edit_car_field_current_odometer_km)) },
@@ -122,7 +122,7 @@ fun EditCarDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AppTextField(
                     value = tyreSize,
                     onValueChange = { tyreSize = it },
                     label = { Text(stringResource(R.string.tyre_size_optional)) },
@@ -131,7 +131,7 @@ fun EditCarDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                AppTextField(
                     value = licenseExpiration,
                     onValueChange = { licenseExpiration = it },
                     label = { Text(stringResource(R.string.license_expiration_optional)) },
@@ -149,7 +149,7 @@ fun EditCarDialog(
                 )
 
                 // KTEO Expiration Date
-                OutlinedTextField(
+                AppTextField(
                     value = kteoExpirationDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
                     label = { Text(stringResource(R.string.kteo_expiration_date)) },
@@ -167,7 +167,7 @@ fun EditCarDialog(
                 )
 
                 // Last Service Date
-                OutlinedTextField(
+                AppTextField(
                     value = lastServiceDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
                     label = { Text(stringResource(R.string.edit_car_field_last_service_date)) },
@@ -185,7 +185,7 @@ fun EditCarDialog(
                 )
 
                 // Insurance Expiration Date
-                OutlinedTextField(
+                AppTextField(
                     value = insuranceExpirationDate?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
                     label = { Text(stringResource(R.string.edit_car_field_insurance_expiration_date)) },

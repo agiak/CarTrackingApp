@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +47,10 @@ private val ButtonHeight = 52.dp
  * it. Beside it, the button changes width mid-tap and the label can wrap; in
  * place, the button is a fixed shape that is either asking to be pressed or
  * visibly working.
+ *
+ * @param destructive fills with the error colour instead of the accent, for
+ *   the irreversible confirmations — clearing all data, deleting a car. The
+ *   accent means "this is the thing to do"; these are not.
  */
 @Composable
 fun PrimaryButton(
@@ -54,12 +59,17 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isBusy: Boolean = false,
+    destructive: Boolean = false,
     icon: ImageVector? = null,
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
     // A busy button is not a disabled one, but it must not be pressed twice.
     val clickable = enabled && !isBusy
+    val container = if (destructive) scheme.statusError else scheme.actionPrimary
+    // White on the error red as well: actionContent is whatever reads on the
+    // accent, which is not guaranteed to read on red.
+    val content = if (destructive) Color.White else scheme.actionContent
 
     Box(
         contentAlignment = Alignment.Center,
@@ -67,14 +77,14 @@ fun PrimaryButton(
             .fillMaxWidth()
             .height(ButtonHeight)
             .clip(RoundedCornerShape(dimens.radius.button + 2.dp))
-            .background(scheme.actionPrimary)
+            .background(container)
             .clickable(enabled = clickable, onClick = onClick)
             .alpha(if (enabled) 1f else 0.4f),
     ) {
         if (isBusy) {
             CircularProgressIndicator(
                 strokeWidth = 2.dp,
-                color = scheme.actionContent,
+                color = content,
                 modifier = Modifier.size(18.dp),
             )
         } else {
@@ -83,7 +93,7 @@ fun PrimaryButton(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = scheme.actionContent,
+                        tint = content,
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(8.dp))
@@ -91,7 +101,7 @@ fun PrimaryButton(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleSmall,
-                    color = scheme.actionContent,
+                    color = content,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -57,9 +57,9 @@ import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
  * the app only measures two — data and cache — and inventing a third would be
  * drawing a number nobody computed.
  *
- * The four backup actions become a 2x2 grid of tiles. They were text buttons
- * in two rows, which at four across read as a toolbar; as tiles each one has
- * room for its icon and a label that does not truncate in Greek.
+ * The three ways data moves in and out become a row of tiles. They were text
+ * buttons in two rows, which read as a toolbar; as tiles each one has room for
+ * its icon and a label that does not truncate in Greek.
  *
  * Clearing everything is kept apart from them, outlined rather than filled, in
  * the error colour. It is the one irreversible thing on the screen and it
@@ -72,17 +72,14 @@ fun StorageCard(
     isExportingExcel: Boolean = false,
     isImporting: Boolean = false,
     isSpreadsheetImporting: Boolean = false,
-    isGeneratingSample: Boolean = false,
     onExport: () -> Unit = {},
     onExportExcel: () -> Unit = {},
     onImport: () -> Unit = {},
-    onGenerateSample: () -> Unit = {},
     onClear: () -> Unit = {}
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
-    val anyBusy = isExporting || isExportingExcel || isImporting ||
-        isSpreadsheetImporting || isGeneratingSample
+    val anyBusy = isExporting || isExportingExcel || isImporting || isSpreadsheetImporting
 
     Column(modifier = Modifier.fillMaxWidth()) {
         StyledCard(modifier = Modifier.fillMaxWidth()) {
@@ -136,6 +133,10 @@ fun StorageCard(
         )
         Spacer(Modifier.height(12.dp))
 
+        // Three, not four. Generating a sample spreadsheet was the fourth
+        // tile, and it is not a backup action — it is step one of importing
+        // one, which is what the card below this one is about. Sitting here it
+        // read as a fourth way to move data out of the app.
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             ActionTile(
                 icon = Icons.Default.Upload,
@@ -153,9 +154,6 @@ fun StorageCard(
                 enabled = !anyBusy,
                 onClick = onExportExcel,
             )
-        }
-        Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             ActionTile(
                 icon = Icons.Default.Download,
                 label = stringResource(R.string.import_action),
@@ -163,14 +161,6 @@ fun StorageCard(
                 isBusy = isImporting || isSpreadsheetImporting,
                 enabled = !anyBusy,
                 onClick = onImport,
-            )
-            ActionTile(
-                icon = Icons.Default.GridOn,
-                label = stringResource(R.string.spreadsheet_generate_sample),
-                busyLabel = stringResource(R.string.spreadsheet_generating),
-                isBusy = isGeneratingSample,
-                enabled = !anyBusy,
-                onClick = onGenerateSample,
             )
         }
 
@@ -304,12 +294,12 @@ private fun RowScope.ActionTile(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .weight(1f)
-            .height(74.dp)
+            .height(78.dp)
             .clip(RoundedCornerShape(dimens.radius.tile))
             .background(scheme.backgroundCard)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled || isBusy) 1f else 0.4f)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 6.dp),
     ) {
         if (isBusy) {
             CircularProgressIndicator(
@@ -328,7 +318,7 @@ private fun RowScope.ActionTile(
         Spacer(Modifier.height(6.dp))
         Text(
             text = if (isBusy) busyLabel else label,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             color = scheme.contentPrimary,
             textAlign = TextAlign.Center,
             maxLines = 2,
