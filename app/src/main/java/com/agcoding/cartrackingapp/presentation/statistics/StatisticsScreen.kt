@@ -51,6 +51,7 @@ import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
 import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.statistics.components.CarsByCostCard
 import com.agcoding.cartrackingapp.presentation.statistics.components.CostDonutCard
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
@@ -145,14 +146,13 @@ fun StatisticsScreen(
                         )
                     },
                     perCarBreakdownCards = {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            state.statistics.perCarStatistics.forEach { carStats ->
-                                PerCarBreakdownCard(
-                                    carStats = carStats,
-                                    onClick = { onCarStatisticsClick(carStats.car.id) }
-                                )
-                            }
-                        }
+                        // One ranked list instead of a card per car. Six
+                        // figures about one car are a summary; the same six
+                        // about four cars are a spreadsheet.
+                        CarsByCostCard(
+                            cars = state.statistics.perCarStatistics,
+                            onCarClick = onCarStatisticsClick,
+                        )
                     },
                     monthlyTrendCards = {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -572,102 +572,6 @@ private fun MonthlyTrendCard(
 }
 
 
-@Composable
-private fun PerCarBreakdownCard(
-    carStats: com.agcoding.cartrackingapp.domain.model.CarStatistics,
-    onClick: () -> Unit
-) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Car name and license plate
-            Text(
-                text = carStats.car.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = carStats.car.licensePlate,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            // Three-column grid for stats
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Column 1
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.total_cost_label),
-                        value = carStats.totalCost.formatMoney()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.refills_label),
-                        value = "${carStats.totalRefills}"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.consumption_label),
-                        value = "${carStats.averageConsumption.formatNumber(1)} L/100km"
-                    )
-                }
-
-                // Column 2
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.distance_label),
-                        value = "${carStats.totalDistance.formatNumber(0)} km"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.service_label),
-                        value = carStats.serviceExpensesCost.formatMoney()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.other_label),
-                        value = carStats.otherExpensesCost.formatMoney()
-                    )
-                }
-
-                // Column 3
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.cost_per_km_short),
-                        value = carStats.costPerKilometer.formatMoney(3)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.services_short),
-                        value = "${carStats.serviceExpenseCount}"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.others_short),
-                        value = "${carStats.otherExpenseCount}"
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ============================================
-// Preview Composables
-// ============================================
-
-@Preview(name = "Statistics Screen - Light", showBackground = true, showSystemUi = true)
 @Composable
 private fun PreviewStatisticsScreen() {
     val mockStats = GlobalStatistics(
