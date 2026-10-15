@@ -36,10 +36,20 @@ data class AppColorScheme(
 fun buildColorScheme(brand: BrandTokens, isDark: Boolean): AppColorScheme =
     if (isDark) darkScheme(brand) else lightScheme(brand)
 
+/**
+ * The surfaces are tinted with the brand's own primary, on the same ladder as
+ * every other palette, rather than taken from the neutral ramp.
+ *
+ * The neutrals are near-grey by design — #F9F9FB over #F0EFF3 — so a brand
+ * palette built from them had a grey background and a white card, and looked
+ * identical whichever of the two brands was chosen. Every other palette in the
+ * app tints its surfaces with the colour the user picked; these two are not a
+ * special case.
+ */
 private fun lightScheme(b: BrandTokens) = AppColorScheme(
-    backgroundPrimary      = b.neutral50,
-    backgroundSecondary    = b.neutral100,
-    backgroundCard         = Color.White,
+    backgroundPrimary      = b.primary400.tintWithWhite(LIGHT_BG_TINT),
+    backgroundSecondary    = b.primary400.tintWithWhite(LIGHT_SEC_TINT),
+    backgroundCard         = b.primary400.tintWithWhite(LIGHT_CARD_TINT),
     backgroundOverlay      = Color.Black.copy(alpha = 0.4f),
     contentPrimary         = b.neutral900,
     contentSecondary       = b.neutral600,
@@ -49,7 +59,11 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
     actionContent          = Color.White,
     actionSecondary        = b.primary50,
     actionSecondaryContent = b.primary600,
-    borderDefault          = b.neutral200,
+    // From the primary, like the surfaces it outlines. The neutral ramp is
+    // warm (#D3D1C7), which on a tinted card reads as a muddy edge rather
+    // than a hairline — and since every card carries one now, that edge is
+    // everywhere.
+    borderDefault          = b.primary400.copy(alpha = 0.12f),
     borderFocused          = b.primary400,
     borderStrong           = b.neutral600,
     statusSuccess          = b.success400,
@@ -60,13 +74,11 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
     statusWarningSubtle    = b.warning400.copy(alpha = 0.12f),
 )
 
+/** See [lightScheme]: the same ladder, mixed towards black instead of white. */
 private fun darkScheme(b: BrandTokens) = AppColorScheme(
-    backgroundPrimary      = b.neutral900,
-    // Same reasoning as the tinted palettes: these composite over the
-    // background, and 8% of a light neutral is not a surface anyone can
-    // make out behind a text field.
-    backgroundSecondary    = b.neutral600.copy(alpha = 0.38f),
-    backgroundCard         = b.neutral100.copy(alpha = 0.16f),
+    backgroundPrimary      = b.primary400.tintWithBlack(DARK_BG_TINT),
+    backgroundSecondary    = b.primary400.tintWithBlack(DARK_SEC_TINT),
+    backgroundCard         = b.primary400.tintWithBlack(DARK_CARD_TINT),
     backgroundOverlay      = Color.Black.copy(alpha = 0.6f),
     contentPrimary         = b.neutral50,
     contentSecondary       = b.neutral200,
@@ -76,7 +88,9 @@ private fun darkScheme(b: BrandTokens) = AppColorScheme(
     actionContent          = Color.White,
     actionSecondary        = b.primary800,
     actionSecondaryContent = b.primary200,
-    borderDefault          = b.neutral600.copy(alpha = 0.4f),
+    // Lighter than in light mode: a 12% line disappears against a dark
+    // surface, where the eye has far less contrast to work with.
+    borderDefault          = b.primary200.copy(alpha = 0.22f),
     borderFocused          = b.primary400,
     borderStrong           = b.neutral400,
     statusSuccess          = b.success300,
@@ -148,7 +162,11 @@ fun buildAppColorSchemeFromPrimary(primary: Color, isDark: Boolean): AppColorSch
         AppColorScheme(
             backgroundPrimary      = primary.tintWithWhite(LIGHT_BG_TINT),
             backgroundSecondary    = primary.tintWithWhite(LIGHT_SEC_TINT),
-            backgroundCard         = Color.White,
+            // Not Color.White. LIGHT_CARD_TINT was declared above and then
+            // never used, so every card in light mode came out pure white on
+            // a tinted background — the one surface in the app that ignored
+            // the palette the user picked.
+            backgroundCard         = primary.tintWithWhite(LIGHT_CARD_TINT),
             backgroundOverlay      = Color.Black.copy(alpha = 0.4f),
             contentPrimary         = LIGHT_CONTENT_PRIMARY,
             contentSecondary       = LIGHT_CONTENT_SECONDARY,
