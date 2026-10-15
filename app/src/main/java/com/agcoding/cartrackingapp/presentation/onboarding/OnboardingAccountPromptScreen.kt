@@ -17,16 +17,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
-import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +36,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.AppTextButton
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
-import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
+import com.agcoding.cartrackingapp.presentation.components.TonalButton
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.DeviceUtils
 
@@ -63,6 +63,7 @@ fun OnboardingAccountPromptScreen(
     dataSyncAvailable: Boolean = true,
 ) {
     val isTablet = DeviceUtils.isTablet()
+    val scheme = LocalAppColorScheme.current
 
     Box(
         modifier = Modifier
@@ -97,69 +98,52 @@ fun OnboardingAccountPromptScreen(
             // nothing, an account does not yet keep anything safe, and this is
             // the screen where the user is deciding — the worst possible place
             // to promise a backup that is not happening.
+            // Two identical cards are two equal options, and these are not
+            // equal — one of them is what the screen is recommending. The
+            // account card is tinted with the accent to say so, except while
+            // the sync engine moves nothing, when there is nothing to
+            // recommend and it goes neutral along with its wording.
             ChoiceCard(
-                icon = if (dataSyncAvailable) Icons.Default.CloudQueue else Icons.Default.Info,
+                icon = if (dataSyncAvailable) Icons.Default.CloudDone else Icons.Default.Info,
                 accent = if (dataSyncAvailable) {
-                    AppSuccess.color
+                    scheme.actionPrimary
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    scheme.contentSecondary
                 },
                 title = stringResource(R.string.onboarding_account_online_title),
                 body = stringResource(
                     if (dataSyncAvailable) R.string.onboarding_account_online_body
                     else R.string.onboarding_account_online_body_pending
                 ),
+                highlighted = dataSyncAvailable,
             )
 
             ChoiceCard(
                 icon = Icons.Default.PhoneAndroid,
-                accent = MaterialTheme.colorScheme.onSurfaceVariant,
+                accent = scheme.contentSecondary,
                 title = stringResource(R.string.onboarding_account_offline_title),
                 body = stringResource(R.string.onboarding_account_offline_body),
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Button(
+            PrimaryButton(
+                label = stringResource(R.string.cloud_sign_up_action),
                 onClick = onCreateAccount,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                Icon(
-                    Icons.Default.PersonAdd,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.cloud_sign_up_action),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+                icon = Icons.Default.PersonAdd,
+            )
 
-            OutlinedButton(
+            TonalButton(
+                label = stringResource(R.string.cloud_sign_in_action),
                 onClick = onSignIn,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Login,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.cloud_sign_in_action), fontSize = 16.sp)
-            }
+                icon = Icons.AutoMirrored.Filled.Login,
+            )
 
-            TextButton(
+            AppTextButton(
+                label = stringResource(R.string.onboarding_account_continue_offline),
                 onClick = onContinueOffline,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.onboarding_account_continue_offline), fontSize = 15.sp)
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Text(
                 text = stringResource(R.string.onboarding_account_later_hint),
@@ -179,8 +163,13 @@ private fun ChoiceCard(
     accent: Color,
     title: String,
     body: String,
+    highlighted: Boolean = false,
 ) {
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
+    val scheme = LocalAppColorScheme.current
+    StyledCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (highlighted) scheme.actionSecondary else scheme.backgroundCard,
+    ) {
         Row(modifier = Modifier.padding(16.dp)) {
             Box(
                 modifier = Modifier
