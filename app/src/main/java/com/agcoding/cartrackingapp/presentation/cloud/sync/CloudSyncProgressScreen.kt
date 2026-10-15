@@ -11,6 +11,32 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudOff
+import com.agcoding.cartrackingapp.presentation.components.AppTextButton
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Route
+import androidx.compose.material.icons.filled.Sell
+import com.agcoding.cartrackingapp.presentation.components.GroupedDivider
+import com.agcoding.cartrackingapp.presentation.components.GroupedListContainer
+import com.agcoding.cartrackingapp.presentation.components.GroupedRow
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import com.agcoding.cartrackingapp.presentation.components.ProgressRing
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,13 +49,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,7 +71,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncStage
 import com.agcoding.cartrackingapp.cloud.domain.model.SyncSummary
-import com.agcoding.cartrackingapp.presentation.cloud.emoji
 import com.agcoding.cartrackingapp.presentation.cloud.labelRes
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -157,44 +180,38 @@ private fun QuietPage() {
     }
 }
 
+/** The five tables that actually move rows, in the order the sync walks them. */
+private val DATA_STAGES = listOf(
+    SyncStage.CARS,
+    SyncStage.TRIPS,
+    SyncStage.REFILLS,
+    SyncStage.EXPENSES,
+    SyncStage.CATEGORIES,
+)
+
 @Composable
 private fun WorkingPage(uiState: CloudSyncProgressUiState) {
     // A second smoothing pass on top of the ViewModel's pacing: the state
     // updates in 40 ms steps, and tweening between them is what turns a
-    // sequence of jumps into a bar that moves.
+    // sequence of jumps into a ring that moves.
     val progress by animateFloatAsState(
         targetValue = uiState.progress,
         animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
         label = "cloud-sync-progress"
     )
+    val scheme = LocalAppColorScheme.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 32.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 28.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "${(progress * 100).roundToInt()}%",
-            fontSize = 64.sp,
-            fontWeight = FontWeight.Bold,
-            color = AppSuccess.color
-        )
+        ProgressRing(progress = progress)
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp),
-            color = AppSuccess.color,
-            trackColor = AppSuccess.color.copy(alpha = 0.15f),
-            strokeCap = StrokeCap.Round,
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         AnimatedContent(
             targetState = uiState.stage,
@@ -204,26 +221,99 @@ private fun WorkingPage(uiState: CloudSyncProgressUiState) {
             },
             label = "cloud-sync-stage"
         ) { stage ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = stage.emoji, fontSize = 36.sp)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(stage.labelRes(uiState.direction)),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Text(
+                text = stringResource(stage.labelRes(uiState.direction)),
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center,
+                color = scheme.contentPrimary,
+            )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = stringResource(R.string.cloud_sync_keep_open),
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = scheme.contentSecondary,
+        )
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // The ring says how far; this says what. Together they answer the two
+        // questions anyone staring at a sync has, and the list is also the
+        // reassurance that something specific is happening rather than a bar
+        // filling for its own sake.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            DATA_STAGES.forEach { stage ->
+                StageRow(
+                    label = stringResource(stage.labelRes(uiState.direction)),
+                    state = when {
+                        uiState.stage.ordinal > stage.ordinal -> StageState.Done
+                        uiState.stage.ordinal == stage.ordinal -> StageState.Active
+                        else -> StageState.Pending
+                    },
+                )
+            }
+        }
+    }
+}
+
+private enum class StageState { Pending, Active, Done }
+
+@Composable
+private fun StageRow(label: String, state: StageState) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimens.radius.button))
+            // Only the row being worked on gets a surface. Giving every row
+            // one would make the list a stack of identical cards, which is
+            // exactly the thing the active row needs to stand out from.
+            .background(if (state == StageState.Active) scheme.backgroundCard else Color.Transparent)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(18.dp),
+        ) {
+            when (state) {
+                StageState.Done -> Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = scheme.statusSuccess,
+                    modifier = Modifier.size(18.dp),
+                )
+                StageState.Active -> CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    color = scheme.actionPrimary,
+                    modifier = Modifier.size(15.dp),
+                )
+                StageState.Pending -> Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(scheme.borderDefault),
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = when (state) {
+                StageState.Pending -> scheme.contentDisabled
+                else -> scheme.contentPrimary
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -257,8 +347,7 @@ private fun SuccessPage(
                     R.string.cloud_sync_success_title
                 }
             ),
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -278,62 +367,44 @@ private fun SuccessPage(
 
         if (summary != null && summary.changedAnything) {
             Spacer(modifier = Modifier.height(24.dp))
-            StyledCard(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    SummaryLine("🚗", stringResource(R.string.cloud_summary_cars), summary.cars)
-                    SummaryLine("🗺️", stringResource(R.string.cloud_summary_trips), summary.trips)
-                    SummaryLine("⛽", stringResource(R.string.cloud_summary_refills), summary.refills)
-                    SummaryLine("🧾", stringResource(R.string.cloud_summary_expenses), summary.expenses)
-                    SummaryLine("🏷️", stringResource(R.string.cloud_summary_categories), summary.categories)
-                    if (summary.received > 0) {
-                        SummaryLine("📥", stringResource(R.string.cloud_summary_received), summary.received)
-                    }
+            // Icon tiles rather than emoji: an emoji is whatever the phone's
+            // font decides it is, which on this screen meant five different
+            // drawing styles in one card.
+            GroupedListContainer {
+                val lines = listOf(
+                    Triple(Icons.Default.DirectionsCar, R.string.cloud_summary_cars, summary.cars),
+                    Triple(Icons.Default.Route, R.string.cloud_summary_trips, summary.trips),
+                    Triple(Icons.Default.LocalGasStation, R.string.cloud_summary_refills, summary.refills),
+                    Triple(Icons.Default.Receipt, R.string.cloud_summary_expenses, summary.expenses),
+                    Triple(Icons.Default.Sell, R.string.cloud_summary_categories, summary.categories),
+                    Triple(Icons.Default.Download, R.string.cloud_summary_received, summary.received),
+                ).filter { it.third > 0 }
+
+                lines.forEachIndexed { index, (icon, labelRes, count) ->
+                    if (index > 0) GroupedDivider()
+                    GroupedRow(
+                        title = stringResource(labelRes),
+                        icon = icon,
+                        trailing = {
+                            Text(
+                                text = count.toString(),
+                                style = AppNumbers.compact,
+                                color = LocalAppColorScheme.current.contentPrimary,
+                            )
+                        },
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
+        PrimaryButton(
+            label = stringResource(R.string.cloud_sync_continue),
             onClick = onFinished,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.cloud_sync_continue),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        )
 
         Spacer(modifier = Modifier.height(48.dp))
-    }
-}
-
-@Composable
-private fun SummaryLine(emoji: String, label: String, count: Int) {
-    if (count == 0) return
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = emoji, fontSize = 18.sp)
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = count.toString(),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
@@ -344,6 +415,8 @@ private fun FailedPage(
     onRetry: () -> Unit,
     onSkip: () -> Unit,
 ) {
+    val scheme = LocalAppColorScheme.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -351,16 +424,31 @@ private fun FailedPage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "😕", fontSize = 48.sp)
+        // An icon tile rather than an emoji. "\uD83D\uDE15" renders as a different
+        // drawing on every phone, and on a failure screen the one thing that
+        // must not look improvised is the failure.
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(96.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(scheme.categoryService.copy(alpha = 0.16f)),
+        ) {
+            Icon(
+                imageVector = Icons.Default.CloudOff,
+                contentDescription = null,
+                tint = scheme.categoryService,
+                modifier = Modifier.size(44.dp),
+            )
+        }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = stringResource(R.string.cloud_sync_failed_title),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = scheme.contentPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -383,25 +471,23 @@ private fun FailedPage(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(it),
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.error
+                color = scheme.categoryService
             )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
+        PrimaryButton(
+            label = stringResource(R.string.cloud_sync_retry),
             onClick = onRetry,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(stringResource(R.string.cloud_sync_retry), fontSize = 16.sp)
-        }
-        TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.cloud_sync_skip))
-        }
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        AppTextButton(
+            label = stringResource(R.string.cloud_sync_skip),
+            onClick = onSkip,
+        )
     }
 }
 
