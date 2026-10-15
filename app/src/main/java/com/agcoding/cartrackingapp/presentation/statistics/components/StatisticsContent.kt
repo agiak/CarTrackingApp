@@ -1,8 +1,12 @@
 package com.agcoding.cartrackingapp.presentation.statistics.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,16 +26,16 @@ import androidx.compose.material.icons.filled.AutoGraph
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.QueryStats
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,8 +47,12 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
+import com.agcoding.cartrackingapp.presentation.components.IconTile
+import com.agcoding.cartrackingapp.presentation.components.RowAccent
+import com.agcoding.cartrackingapp.presentation.components.SectionHeaderRow
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 
 /**
  * StatisticsContent component that wraps the statistics display.
@@ -275,43 +283,31 @@ private fun MonthlyTrendsSectionHeader(
 @Composable
 private fun SectionHeader(
     title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    @Suppress("UNUSED_PARAMETER") icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        )
-    }
+    // The icon and the rule under it are gone. Both were repeated above every
+    // section, so neither distinguished one section from another, and the rule
+    // in particular drew a line the cards below it already implied.
+    SectionHeaderRow(title = title, modifier = modifier)
 }
 
 // ============================================
-// Analysis Buttons Grid
+// Explore
 // ============================================
 
 /**
- * Compact grid of analysis shortcut buttons.
- * - Yearly Comparison + Car Comparison (if available) on the same row.
- * - Fuel Forecast (if enabled) on the row below, full-width.
+ * The four ways to dig further: compare periods, compare cars, forecast fuel,
+ * read the insights.
+ *
+ * They used to be small outlined buttons in a row, which made them read as
+ * secondary controls on a screen full of data. They are the only doors on this
+ * screen, so they get a 2x2 grid of real tiles - each with its icon, its name
+ * and a line saying what it answers, because "Compare periods" on its own does
+ * not tell a first-time reader what they would get.
+ *
+ * A tile is absent, not disabled, when its screen has nothing to show: car
+ * comparison with one car would be a door to an empty room.
  */
 @Composable
 private fun AnalysisButtonsGrid(
@@ -321,156 +317,108 @@ private fun AnalysisButtonsGrid(
     onInsightsClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    // Nothing to show – return early
-    if (onPeriodComparisonClick == null && onCarComparisonClick == null && onFuelForecastClick == null && onInsightsClick == null) return
+    val tiles = buildList {
+        onPeriodComparisonClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.AutoMirrored.Filled.CompareArrows,
+                    title = stringResource(R.string.period_comparison_title),
+                    subtitle = stringResource(R.string.cost_analysis),
+                    accent = RowAccent.Primary,
+                    onClick = it,
+                )
+            )
+        }
+        onCarComparisonClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.Default.DirectionsCar,
+                    title = stringResource(R.string.car_comparison_title),
+                    subtitle = stringResource(R.string.per_car_breakdown),
+                    accent = RowAccent.Other,
+                    onClick = it,
+                )
+            )
+        }
+        onFuelForecastClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.Default.AutoGraph,
+                    title = stringResource(R.string.fuel_forecast_title),
+                    subtitle = stringResource(R.string.avg_consumption),
+                    accent = RowAccent.Success,
+                    onClick = it,
+                )
+            )
+        }
+        onInsightsClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.Default.Insights,
+                    title = stringResource(R.string.insights_title),
+                    subtitle = stringResource(R.string.overall_summary),
+                    accent = RowAccent.Service,
+                    onClick = it,
+                )
+            )
+        }
+    }
+    if (tiles.isEmpty()) return
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // First row: Yearly Comparison + Car Comparison (each shown when available)
-        if (onPeriodComparisonClick != null || onCarComparisonClick != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Yearly Comparison
-                if (onPeriodComparisonClick != null) {
-                    OutlinedButton(
-                        onClick = onPeriodComparisonClick,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                            contentColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Text(
-                            text = stringResource(R.string.period_comparison_button),
-                            fontSize = 12.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-
-                // Car Comparison
-                if (onCarComparisonClick != null) {
-                    OutlinedButton(
-                        onClick = onCarComparisonClick,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
-                            contentColor = MaterialTheme.colorScheme.tertiary
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Text(
-                            text = stringResource(R.string.car_comparison_button),
-                            fontSize = 12.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
+        tiles.chunked(2).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                row.forEach { tile -> ExploreTileCard(tile) }
+                // One tile on the last row keeps its half of the width rather
+                // than stretching into a banner.
+                if (row.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+    }
+}
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Fuel Forecast
-            if (onFuelForecastClick != null) {
-                OutlinedButton(
-                    onClick = onFuelForecastClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                        contentColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.QueryStats,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Text(
-                        text = stringResource(R.string.view_fuel_forecast),
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
+private data class ExploreTile(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val accent: RowAccent,
+    val onClick: () -> Unit,
+)
 
-            // Smart Insights
-            if (onInsightsClick != null) {
-                OutlinedButton(
-                    onClick = onInsightsClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Insights,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Text(
-                        text = stringResource(R.string.insights_title),
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
+@Composable
+private fun RowScope.ExploreTileCard(tile: ExploreTile) {
+    val scheme = LocalAppColorScheme.current
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .heightIn(min = 118.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(scheme.backgroundCard)
+            .clickable(onClick = tile.onClick)
+            .padding(14.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        IconTile(icon = tile.icon, accent = tile.accent)
+        Spacer(Modifier.height(10.dp))
+        Column {
+            Text(
+                text = tile.title,
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.contentPrimary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = tile.subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.contentSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
