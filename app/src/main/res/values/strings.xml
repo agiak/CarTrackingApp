@@ -585,7 +585,7 @@
     <string name="refill_details_fuel_refill">Fuel refill</string>
     <string name="refill_details_consumption_under">%1$s%% under average</string>
     <string name="refill_details_consumption_over">%1$s%% over average</string>
-    <string name="refill_details_consumption_on_par">On the car's average</string>
+    <string name="refill_details_consumption_on_par">Matches the car average</string>
     <string name="unknown_car">Unknown Car</string>
     <string name="total_amount_paid">Total Amount Paid</string>
     <string name="metric_fuel_volume">Fuel Volume</string>
