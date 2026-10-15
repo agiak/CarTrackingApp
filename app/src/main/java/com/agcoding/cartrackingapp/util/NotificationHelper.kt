@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.agcoding.cartrackingapp.MainActivity
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.NotificationHistoryItem
+import com.agcoding.cartrackingapp.domain.model.NotificationKind
 import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +42,16 @@ class NotificationHelper @Inject constructor(
 ) {
     companion object {
         const val CHANNEL_ID_REMINDERS = "car_reminders"
+
+        /**
+         * Separate from reminders so the two can be silenced independently:
+         * a user who turns off news from us should not thereby lose the
+         * notification telling them their insurance expires on Friday. Kept in
+         * step by hand with `default_notification_channel_id` in the manifest.
+         */
+        const val CHANNEL_ID_PUSH = "caribou_updates"
         const val NOTIFICATION_ID_REMINDER_BASE = 1000
+        private const val NOTIFICATION_ID_PUSH_BASE = 5000
         private const val NOTIFICATION_ID_TEST = 9999
         private const val TAG = "NotificationHelper"
     }
@@ -64,8 +74,68 @@ class NotificationHelper @Inject constructor(
             setShowBadge(true)
         }
 
+        // DEFAULT rather than HIGH: a message from us is worth seeing, not
+        // worth interrupting whatever the phone is doing.
+        val pushChannel = NotificationChannel(
+            CHANNEL_ID_PUSH,
+            context.getString(R.string.notification_channel_updates),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.notification_channel_updates_desc)
+            setShowBadge(true)
+        }
+
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(reminderChannel)
+        notificationManager.createNotificationChannel(pushChannel)
+    }
+
+    /**
+     * Shows a message pushed from the server, and files it in the in-app
+     * history like any other notification — a user who swiped one away should
+     * still be able to find out what it said.
+     */
+    fun showPushNotification(title: String, body: String): Boolean {
+        // Filed first, and whatever happens next. An announcement that arrived
+        // is a thing that happened; whether the system was willing to draw it
+        // in the tray is a separate question, and someone who has silenced the
+        // tray should still find the message waiting inside the app.
+        persistNotification(title, body, NotificationKind.ANNOUNCEMENT)
+
+        if (!areNotificationsEnabled()) {
+            Log.w(TAG, "Cannot show push – notifications disabled")
+            return false
+        }
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        // A distinct id per notification, so two messages do not replace one
+        // another; the time is the cheapest thing that is different each time.
+        val notificationId = NOTIFICATION_ID_PUSH_BASE +
+            (System.currentTimeMillis() % 1000).toInt()
+        val pendingIntent = PendingIntent.getActivity(
+            context, notificationId, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID_PUSH)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        return try {
+            NotificationManagerCompat.from(context).notify(notificationId, notification)
+            true
+        } catch (e: SecurityException) {
+            Log.e(TAG, "SecurityException: notification permission not granted", e)
+            false
+        }
     }
 
     /**
@@ -178,14 +248,19 @@ class NotificationHelper @Inject constructor(
      * Persists the notification title and description in the local database
      * so the user can later review it in the Notification History screen.
      */
-    private fun persistNotification(title: String, description: String) {
+    private fun persistNotification(
+        title: String,
+        description: String,
+        kind: NotificationKind = NotificationKind.REMINDER
+    ) {
         persistenceScope.launch {
             try {
                 notificationHistoryRepository.insertNotification(
                     NotificationHistoryItem(
                         title = title,
                         description = description,
-                        timestamp = System.currentTimeMillis()
+                        timestamp = System.currentTimeMillis(),
+                        kind = kind
                     )
                 )
                 Log.d(TAG, "Notification persisted to history: $title")

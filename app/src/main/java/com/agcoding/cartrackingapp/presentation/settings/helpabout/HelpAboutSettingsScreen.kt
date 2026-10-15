@@ -159,7 +159,8 @@ fun HelpAboutSettingsScreen(
                 HelpAboutCard(
                     appVersion = uiState.appVersion,
                     onViewGuide = onViewGuide,
-                    lastDataModifiedAt = uiState.lastDataModifiedAt
+                    lastDataModifiedAt = uiState.lastDataModifiedAt,
+                    isSignedIn = uiState.isSignedIn
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

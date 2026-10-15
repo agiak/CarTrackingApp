@@ -101,16 +101,6 @@
     <string name="refills_sorted_by_format">%1$d ανεφοδιασμοί • Ταξινόμηση: %2$s</string>
 
     <!-- Onboarding Slides -->
-    <string name="onboarding_welcome_title">Καλώς ήρθατε στο Fuel Tracker</string>
-    <string name="onboarding_welcome_desc">Παρακολουθήστε τα έξοδα αυτοκινήτου, την κατανάλωση καυσίμου και τη συντήρηση σε ένα μέρος. Δείτε πληροφορίες για τις συνήθειες οδήγησής σας και εξοικονομήστε χρήματα.</string>
-    <string name="onboarding_refills_title">Καταγραφή ανεφοδιασμών</string>
-    <string name="onboarding_refills_desc">Καταγράψτε κάθε ανεφοδιασμό με λεπτομέρειες όπως κόστος, λίτρα και απόσταση. Υπολογίστε αυτόματα την κατανάλωση καυσίμου.</string>
-    <string name="onboarding_service_title">Σέρβις &amp; Συντήρηση</string>
-    <string name="onboarding_service_desc">Κρατήστε αρχείο όλων των επισκέψεων συνεργείου και των εξόδων συντήρησης. Προσθέστε σημειώσεις για να θυμάστε τι έγινε και πότε.</string>
-    <string name="onboarding_expenses_title">Άλλα έξοδα</string>
-    <string name="onboarding_expenses_desc">Καταγράψτε διόδια, parking, πλυσίματα, ασφάλεια και οποιαδήποτε άλλα έξοδα για να δείτε τη συνολική σας δαπάνη.</string>
-    <string name="onboarding_stats_title">Αναλυτικά στατιστικά</string>
-    <string name="onboarding_stats_desc">Δείτε γραφήματα και στατιστικά για τάσεις κατανάλωσης, κόστη στο χρόνο και απόσταση που διανύθηκε.</string>
 
     <!-- Onboarding Navigation -->
     <string name="skip">Παράλειψη</string>
@@ -119,6 +109,41 @@
     <string name="get_started">Ξεκινήστε</string>
 
     <!-- Onboarding Import Prompt -->
+    <!-- Οδηγός: τέσσερα βήματα, με τη σειρά που τα κάνει ο χρήστης -->
+    <string name="onboarding_step_car_title">Ξεκίνα από το αμάξι σου</string>
+    <string name="onboarding_step_car_desc">Πρόσθεσε το αυτοκίνητό σου και γράψε τα χιλιόμετρα που δείχνει αυτή τη στιγμή το κοντέρ. Από εκείνον τον αριθμό μετράνε όλα όσα υπολογίζει η εφαρμογή.</string>
+    <string name="onboarding_step_car_bullet_1">Τα συνολικά χιλιόμετρα (ODO), όχι την ένδειξη trip</string>
+    <string name="onboarding_step_car_bullet_2">Γράψ\'τα όπως ακριβώς τα δείχνει — χωρίς στρογγυλοποίηση</string>
+
+    <string name="onboarding_step_refill_title">Σε κάθε γέμισμα</string>
+    <string name="onboarding_step_refill_desc">Καταχώρησε λίτρα και ποσό, και βάλε την ένδειξη trip του κοντέρ. Μετά μηδένισε το trip, εκεί στο πρατήριο.</string>
+    <string name="onboarding_step_refill_bullet_1">Το trip είναι αυτό που μηδενίζεται, όχι τα συνολικά</string>
+    <string name="onboarding_step_refill_bullet_2">Μηδένισέ το αμέσως μετά από κάθε γέμισμα, κάθε φορά</string>
+    <string name="onboarding_step_refill_bullet_3">Αν το ξεχάσεις, η κατανάλωση εκείνου του γεμίσματος βγαίνει λάθος</string>
+
+    <string name="onboarding_step_costs_title">Και όλα τα υπόλοιπα έξοδα</string>
+    <string name="onboarding_step_costs_desc">Σέρβις, ελαστικά, ασφάλεια, πλύσιμο. Πέρασε κι αυτά και θα δεις τι σου κοστίζει πραγματικά το αυτοκίνητο, όχι μόνο τι σου κοστίζει η βενζίνη.</string>
+    <string name="onboarding_step_costs_bullet_1">Βάλε υπενθύμιση σε ό,τι επαναλαμβάνεται</string>
+    <string name="onboarding_step_costs_bullet_2">Η υπενθύμιση μετράει είτε μέρες είτε χιλιόμετρα</string>
+
+    <string name="onboarding_step_stats_title">Και μετά δες τι βγαίνει</string>
+    <string name="onboarding_step_stats_desc">Μόλις μπουν μερικά γεμίσματα, βλέπεις την πραγματική σου κατανάλωση, το κόστος ανά χιλιόμετρο και πού πάνε τα λεφτά.</string>
+    <string name="onboarding_step_stats_bullet_1">Χρειάζονται δύο γεμίσματα για την πρώτη μέτρηση κατανάλωσης</string>
+    <string name="onboarding_step_stats_bullet_2">Όσο πιο συνεπής είσαι, τόσο πιο αληθινοί οι αριθμοί</string>
+
+    <string name="onboarding_meter_odo">ODO</string>
+    <string name="onboarding_meter_trip">TRIP</string>
+    <string name="onboarding_meter_unit_km">χλμ</string>
+    <string name="onboarding_meter_reset">μηδενισμός</string>
+    <string name="onboarding_meter_reset_hint">Κράτα πατημένο το κουμπί στο ταμπλό</string>
+    <string name="onboarding_chip_service">Σέρβις</string>
+    <string name="onboarding_chip_wash">Πλύσιμο</string>
+    <string name="onboarding_chip_tyres">Ελαστικά</string>
+    <string name="onboarding_chip_insurance">Ασφάλεια</string>
+    <string name="onboarding_theme_title">Κάν\'το δικό σου</string>
+    <string name="onboarding_theme_subtitle">Διάλεξε πώς θέλεις να δείχνει. Όλα αλλάζουν καθώς πατάς, ώστε να το δεις πριν αποφασίσεις.</string>
+    <string name="onboarding_theme_changeable">Μπορείς να το αλλάξεις όποτε θες από τις Ρυθμίσεις.</string>
+    <string name="onboarding_continue">Συνέχεια</string>
     <string name="onboarding_import_title">Έχετε ξαναχρησιμοποιήσει το Caribou;</string>
     <string name="onboarding_import_message">Αν έχετε ήδη ένα αντίγραφο ασφαλείας από το Caribou — αρχείο JSON ή Excel/CSV — μπορείτε να το εισαγάγετε τώρα για να επαναφέρετε τα αυτοκίνητα, τους ανεφοδιασμούς και τα έξοδά σας.</string>
     <string name="onboarding_import_yes">Ναι, εισαγωγή δεδομένων</string>
@@ -135,6 +160,18 @@
     <string name="onboarding_import_stat_expenses">Έξοδα &amp; service</string>
     <string name="onboarding_import_stat_trips">Διαδρομές</string>
     <string name="onboarding_import_stat_reminders">Υπενθυμίσεις</string>
+    <string name="onboarding_import_sample_title">Δεν έχεις backup, αλλά έχεις δικά σου δεδομένα;</string>
+    <string name="onboarding_import_sample_desc">Κατέβασε ένα πρότυπο, συμπλήρωσέ το και ανέβασέ το εδώ.</string>
+    <string name="onboarding_import_sample_excel">Πρότυπο Excel</string>
+    <string name="onboarding_import_sample_json">Δείγμα JSON</string>
+    <string name="onboarding_import_sample_saved">Αποθηκεύτηκε στον φάκελο Λήψεις.</string>
+    <string name="onboarding_import_percent">%1$d%%</string>
+    <string name="onboarding_import_step_reading">Άνοιγμα αρχείου…</string>
+    <string name="onboarding_import_step_cars">Διαβάζω τα αυτοκίνητα…</string>
+    <string name="onboarding_import_step_refills">Διαβάζω τα γεμίσματα…</string>
+    <string name="onboarding_import_step_expenses">Διαβάζω τα έξοδα…</string>
+    <string name="onboarding_import_step_trips">Διαβάζω τις διαδρομές…</string>
+    <string name="onboarding_import_step_finishing">Σχεδόν έτοιμο…</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Τοποθεσία</string>
@@ -202,6 +239,9 @@
     <string name="version">Έκδοση</string>
     <string name="storage_mode">Λειτουργία αποθήκευσης</string>
     <string name="offline_first">Offline-first</string>
+    <string name="online_mode">Online</string>
+    <string name="tab_profile_cd">Προφίλ</string>
+    <string name="tab_notifications_cd">Ειδοποιήσεις</string>
     <string name="settings_last_data_modification">Τελευταία αλλαγή δεδομένων</string>
     <string name="never">Ποτέ</string>
 
@@ -818,7 +858,7 @@
     <string name="spreadsheet_file_format">Υποστηριζόμενες μορφές: .xlsx, .csv</string>
 
     <!-- Notifications Screen -->
-    <string name="notifications_title">Υπενθυμίσεις Σέρβις</string>
+    <string name="notifications_title">Ειδοποιήσεις</string>
     <string name="notifications_upcoming_reminders">Επερχόμενες Υπενθυμίσεις Σέρβις</string>
     <string name="notifications_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
     <string name="notifications_reminder_date">Ημερομηνία Υπενθύμισης</string>
@@ -832,11 +872,20 @@
     <string name="notifications_in_days">Σε %d ημέρες</string>
     <string name="notifications_in_weeks">Σε %d εβδομάδα(ες)</string>
     <string name="notifications_in_months">Σε %d μήνα(ες)</string>
-    <string name="notifications_empty_title">Δεν Υπάρχουν Υπενθυμίσεις</string>
-    <string name="notifications_empty_message">Δεν έχετε ρυθμίσει υπενθυμίσεις σέρβις. Προσθέστε ημερομηνίες υπενθύμισης ή στόχους χιλιομέτρων όταν δημιουργείτε έξοδα για να παρακολουθείτε την επερχόμενη συντήρηση.</string>
+    <string name="notifications_empty_title">Τίποτα ακόμη</string>
+    <string name="notifications_empty_message">Εδώ θα βρίσκεις τις υπενθυμίσεις σέρβις που έχεις ορίσει, μαζί με τις ανακοινώσεις που σου στέλνουμε για την εφαρμογή.</string>
     <string name="preferences_view_reminders">Προβολή Υπενθυμίσεων Σέρβις</string>
     <string name="preferences_view_reminders_desc">Δείτε όλες τις επερχόμενες υπενθυμίσεις συντήρησης</string>
     <string name="notifications_active_count">%d ενεργή(ές) υπενθύμιση(εις)</string>
+    <string name="notifications_section_upcoming">Έρχονται</string>
+    <string name="notifications_section_received">Έφτασαν πρόσφατα</string>
+    <string name="notifications_view_all">Δες όλες</string>
+
+    <!-- Database Error -->
+    <string name="db_error_title">Απαιτείται ενημέρωση</string>
+    <string name="db_error_message">Τα δεδομένα σου δεν μπορούν να φορτωθούν γιατί η εφαρμογή χρειάζεται ενημέρωση. Κατέβασε την τελευταία έκδοση από το Play Store.</string>
+    <string name="db_error_open_store">Άνοιγμα Play Store</string>
+    <string name="db_error_close">Κλείσιμο εφαρμογής</string>
     <string name="edit_reminder_title">Επεξεργασία Υπενθύμισης</string>
     <string name="edit_reminder_description">Επεξεργαστείτε τις ρυθμίσεις υπενθύμισης για αυτό το σέρβις. Το αρχικό έξοδο δεν θα τροποποιηθεί.</string>
     <string name="edit_reminder_current_odometer">Τρέχον οδόμετρο: %,d χλμ</string>
@@ -882,6 +931,8 @@
     <!-- Notification Channels -->
     <string name="notification_channel_reminders">Υπενθυμίσεις Σέρβις</string>
     <string name="notification_channel_reminders_desc">Ειδοποιήσεις για επερχόμενες ημερομηνίες σέρβις και υπενθυμίσεις χιλιομέτρων</string>
+    <string name="notification_channel_updates">Ενημερώσεις Caribou</string>
+    <string name="notification_channel_updates_desc">Ανακοινώσεις και νέα που στέλνονται σε όσους έχουν λογαριασμό</string>
 
     <!-- Pre-Expiry Notifications -->
     <string name="notification_reminder_title">Υπενθύμιση %s</string>
@@ -1318,4 +1369,165 @@
     <string name="trip_picker_new">Νέο ταξίδι</string>
     <string name="trip_picker_empty">Αυτό το αυτοκίνητο δεν έχει ταξίδια ακόμη. Δημιούργησε ένα για να ομαδοποιήσεις τους ανεφοδιασμούς του.</string>
     <string name="trip_picker_remove">Αφαίρεση από το ταξίδι</string>
+
+    <!-- Cloud account &amp; sync -->
+    <string name="settings_group_cloud_title">Λογαριασμός &amp; συγχρονισμός</string>
+    <string name="settings_group_cloud_subtitle">Κράτα αντίγραφο των δεδομένων σου και χρησιμοποίησέ τα σε δεύτερο κινητό</string>
+
+    <string name="cloud_section_account">ΛΟΓΑΡΙΑΣΜΟΣ</string>
+    <string name="cloud_section_data">ΤΑ ΔΕΔΟΜΕΝΑ ΣΟΥ</string>
+    <string name="cloud_section_sync">ΣΥΓΧΡΟΝΙΣΜΟΣ</string>
+    <string name="cloud_stats_cars">Αμάξια</string>
+    <string name="cloud_stats_refills">Ανεφοδιασμοί</string>
+    <string name="cloud_stats_expenses">Έξοδα</string>
+    <string name="cloud_stats_trips">Διαδρομές</string>
+    <string name="cloud_stats_total">%1$s εγγραφές σε αυτό το κινητό</string>
+    <string name="cloud_stats_empty">Δεν έχεις καταγράψει τίποτα ακόμη</string>
+    <string name="cloud_section_security">ΑΣΦΑΛΕΙΑ</string>
+
+    <!-- Status card -->
+    <string name="cloud_mode_offline_title">Χωρίς λογαριασμό</string>
+    <string name="cloud_mode_offline_desc">Όλα μένουν μόνο σε αυτό το κινητό.</string>
+    <string name="cloud_mode_online_title">Ασφαλές αντίγραφο</string>
+    <string name="cloud_mode_online_desc">Τα δεδομένα σου είναι και στον διακομιστή, όχι μόνο εδώ.</string>
+    <string name="cloud_mode_syncing_title">Συγχρονισμός…</string>
+    <string name="cloud_mode_syncing_desc">Γίνεται σύγκριση με τον διακομιστή.</string>
+    <string name="cloud_mode_no_internet_title">Χωρίς ιντερνέτ</string>
+    <string name="cloud_mode_no_internet_desc">Οι αλλαγές θα σταλούν μόλις ξανασυνδεθείς.</string>
+    <string name="cloud_mode_sync_error_title">Ο συγχρονισμός απέτυχε</string>
+    <string name="cloud_mode_sync_error_desc">Δεν χάθηκε τίποτα. Θα ξαναδοκιμαστεί.</string>
+    <string name="cloud_last_sync">Τελευταίος συγχρονισμός: %1$s</string>
+    <string name="cloud_last_sync_never">Δεν έχει γίνει συγχρονισμός ακόμη</string>
+    <string name="cloud_pending_changes">Υπάρχουν αλλαγές που δεν έχουν σταλεί</string>
+
+    <!-- Signed out -->
+    <string name="cloud_push_note">Ο λογαριασμός σημαίνει επίσης ότι θα λαμβάνεις πού και πού μια ανακοίνωση για την εφαρμογή. Μπορείς να τις απενεργοποιήσεις όποτε θες, από τις ρυθμίσεις ειδοποιήσεων του κινητού.</string>
+    <string name="cloud_pitch_title">Κράτα τα δεδομένα σου ασφαλή</string>
+    <string name="cloud_pitch_body">Η εφαρμογή δουλεύει μια χαρά χωρίς λογαριασμό. Με λογαριασμό, τα αυτοκίνητα, οι ανεφοδιασμοί και τα έξοδά σου κρατιούνται και στον διακομιστή — ώστε να τα βρεις αν χάσεις το κινητό, και να τα έχεις και σε δεύτερο.</string>
+
+    <!-- Sign in / create account -->
+    <string name="cloud_sign_in_title">Σύνδεση</string>
+    <string name="cloud_sign_in_subtitle">Το email και ο κωδικός του λογαριασμού σου.</string>
+    <string name="cloud_sign_in_action">Σύνδεση</string>
+    <string name="cloud_sign_up_title">Νέος λογαριασμός</string>
+    <string name="cloud_sign_up_subtitle">Μόνο ένα email κι ένας κωδικός. Δεν χρειάζεται να περιμένεις email επιβεβαίωσης.</string>
+    <string name="cloud_sign_up_action">Δημιουργία λογαριασμού</string>
+    <string name="cloud_switch_to_sign_up">Δεν έχεις λογαριασμό; Δημιούργησε έναν</string>
+    <string name="cloud_switch_to_sign_in">Έχεις ήδη λογαριασμό; Συνδέσου</string>
+    <string name="cloud_email">Email</string>
+    <string name="cloud_password">Κωδικός</string>
+    <string name="cloud_password_min">Τουλάχιστον 6 χαρακτήρες</string>
+    <string name="cloud_display_name">Το όνομά σου</string>
+    <string name="cloud_display_name_optional">Προαιρετικό — το βλέπεις μόνο εσύ</string>
+    <string name="cloud_show_password">Εμφάνιση κωδικού</string>
+    <string name="cloud_hide_password">Απόκρυψη κωδικού</string>
+
+    <!-- Forgotten password -->
+    <string name="cloud_forgot_password">Ξέχασες τον κωδικό σου;</string>
+    <string name="cloud_reset_title">Επαναφορά κωδικού</string>
+    <string name="cloud_reset_desc">Θα σου στείλουμε με email έναν προσωρινό κωδικό. Συνδέσου με αυτόν και θα σου ζητηθεί να διαλέξεις καινούργιο.</string>
+    <string name="cloud_reset_action">Αποστολή</string>
+    <string name="cloud_reset_sent">Αν υπάρχει λογαριασμός με αυτή τη διεύθυνση, ο προσωρινός κωδικός έρχεται.</string>
+
+    <!-- Change password -->
+    <string name="cloud_change_password_title">Αλλαγή κωδικού</string>
+    <string name="cloud_change_password_desc">Διάλεξε καινούργιο κωδικό για τον λογαριασμό σου</string>
+    <string name="cloud_change_password_action">Αποθήκευση</string>
+    <string name="cloud_change_password_forced_title">Διάλεξε καινούργιο κωδικό</string>
+    <string name="cloud_change_password_forced_desc">Συνδέθηκες με προσωρινό κωδικό. Διάλεξε έναν κανονικό για να συνεχίσεις.</string>
+    <string name="cloud_new_password">Νέος κωδικός</string>
+    <string name="cloud_repeat_password">Επανάληψη κωδικού</string>
+    <string name="cloud_passwords_differ">Οι δύο κωδικοί δεν είναι ίδιοι</string>
+
+    <!-- Signed in -->
+    <string name="cloud_signed_in_as">Συνδεδεμένος ως</string>
+    <string name="cloud_sync_now">Συγχρονισμός τώρα</string>
+    <string name="cloud_sync_now_desc">Σύγκριση με τον διακομιστή αμέσως</string>
+    <string name="cloud_synced">Ο συγχρονισμός ολοκληρώθηκε</string>
+    <string name="cloud_nothing_to_sync">Δεν υπήρχαν αλλαγές</string>
+    <string name="cloud_sign_out">Αποσύνδεση</string>
+    <string name="cloud_sign_out_desc">Συνέχισε να χρησιμοποιείς την εφαρμογή χωρίς λογαριασμό</string>
+    <string name="cloud_sign_out_message">Μπορείς να ξανασυνδεθείς οποτεδήποτε. Ό,τι έχει συγχρονιστεί μένει στον διακομιστή.</string>
+    <string name="cloud_delete_account">Διαγραφή λογαριασμού</string>
+    <string name="cloud_delete_account_desc">Αφαίρεση του λογαριασμού και όλων όσων είναι στον διακομιστή</string>
+    <string name="cloud_delete_account_message">Ο λογαριασμός και όλα τα δεδομένα που κρατάει στον διακομιστή διαγράφονται οριστικά. Δεν αναιρείται.</string>
+    <string name="cloud_delete_account_action">Διαγραφή</string>
+    <string name="cloud_account_deleted">Ο λογαριασμός διαγράφηκε</string>
+    <string name="cloud_wipe_local">Να αφαιρεθούν και τα δεδομένα από αυτό το κινητό</string>
+    <string name="cloud_wipe_local_desc">Αυτοκίνητα, ανεφοδιασμοί, έξοδα, ταξίδια και συνημμένα. Επιτρέπεται μόνο αφού έχει ολοκληρωθεί ένας συγχρονισμός.</string>
+
+    <!-- Sync progress -->
+    <string name="cloud_stage_connect">Σύνδεση…</string>
+    <string name="cloud_stage_finish">Ολοκλήρωση…</string>
+    <string name="cloud_sync_not_ready_title">Ο συγχρονισμός δεδομένων δεν είναι ακόμη ενεργός</string>
+    <string name="cloud_sync_not_ready_desc">Ο λογαριασμός δουλεύει, αλλά τα αυτοκίνητα και οι εγγραφές σου δεν ανεβαίνουν ακόμη.</string>
+
+    <!-- Cloud errors -->
+    <string name="cloud_error_invalid_credentials">Λάθος email ή κωδικός.</string>
+    <string name="cloud_error_user_exists">Υπάρχει ήδη λογαριασμός με αυτό το email.</string>
+    <string name="cloud_error_weak_password">Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.</string>
+    <string name="cloud_error_same_password">Αυτός είναι ήδη ο κωδικός σου.</string>
+    <string name="cloud_error_email_send_failed">Το email δεν μπόρεσε να σταλεί. Δοκίμασε ξανά σε λίγο.</string>
+    <string name="cloud_error_invalid_email">Αυτή η διεύθυνση email δεν μοιάζει σωστή.</string>
+    <string name="cloud_error_rate_limited">Πολλές προσπάθειες. Περίμενε ένα λεπτό και ξαναδοκίμασε.</string>
+    <string name="cloud_error_session_expired">Η σύνδεσή σου έληξε. Συνδέσου ξανά.</string>
+    <string name="cloud_error_no_connection">Δεν υπάρχει σύνδεση στο ιντερνέτ.</string>
+    <string name="cloud_error_unsynced_changes">Υπάρχουν αλλαγές που δεν έχουν σταλεί. Κάνε πρώτα συγχρονισμό.</string>
+    <string name="cloud_error_unknown">Κάτι πήγε στραβά. Δοκίμασε ξανά.</string>
+
+
+    <!-- Account prompt at first launch -->
+    <string name="cloud_mode_account_only_title">Συνδεδεμένος</string>
+    <string name="cloud_mode_account_only_desc">Ο λογαριασμός σου είναι έτοιμος. Δεν ανεβαίνει τίποτα ακόμη.</string>
+
+    <string name="onboarding_account_title">Με λογαριασμό ή χωρίς;</string>
+    <string name="onboarding_account_subtitle">Και τα δύο δουλεύουν. Να η διαφορά.</string>
+    <string name="onboarding_account_online_title">Με λογαριασμό</string>
+    <string name="onboarding_account_online_body">Τα αυτοκίνητα, οι ανεφοδιασμοί και τα έξοδά σου κρατιούνται και στον διακομιστή, όχι μόνο στο κινητό. Τα βρίσκεις ξανά αν το χάσεις, και τα έχεις και σε δεύτερο κινητό. Θα λαμβάνεις επίσης πού και πού μια ανακοίνωση για την εφαρμογή, που μπορείς να απενεργοποιήσεις από τις ρυθμίσεις ειδοποιήσεων του κινητού.</string>
+        <string name="onboarding_account_online_body_pending">Προς το παρόν ο λογαριασμός απλώς κρατάει τη θέση σου. Τα αυτοκίνητα και οι εγγραφές σου μένουν ακόμη μόνο σε αυτό το κινητό, γιατί το ανέβασμα φτιάχνεται ακόμη — αλλά μόλις είναι έτοιμο, ό,τι έχεις ήδη ανεβαίνει μόνο του.</string>
+    <string name="onboarding_account_offline_title">Χωρίς λογαριασμό</string>
+    <string name="onboarding_account_offline_body">Όλα δουλεύουν ακριβώς το ίδιο. Τα δεδομένα μένουν σε αυτό το κινητό και δεν φεύγουν ποτέ — που σημαίνει επίσης ότι αν χάσεις το κινητό, χάθηκαν.</string>
+    <string name="onboarding_account_continue_offline">Συνέχεια χωρίς λογαριασμό</string>
+    <string name="onboarding_account_later_hint">Μπορείς να αλλάξεις γνώμη οποτεδήποτε, από Ρυθμίσεις → Λογαριασμός &amp; συγχρονισμός.</string>
+
+
+    <!-- First upload -->
+    <string name="cloud_stage_checking">Βλέπουμε τι υπάρχει ήδη…</string>
+    <string name="cloud_stage_cars">Ανεβαίνουν τα αυτοκίνητά σου…</string>
+    <string name="cloud_stage_trips">Ανεβαίνουν τα ταξίδια σου…</string>
+    <string name="cloud_stage_refills">Ανεβαίνουν οι ανεφοδιασμοί σου…</string>
+    <string name="cloud_stage_expenses">Ανεβαίνουν τα έξοδά σου…</string>
+    <string name="cloud_stage_categories">Ανεβαίνουν οι κατηγορίες σου…</string>
+    <string name="cloud_stage_cars_down">Κατεβαίνουν τα αυτοκίνητά σου…</string>
+    <string name="cloud_stage_trips_down">Κατεβαίνουν τα ταξίδια σου…</string>
+    <string name="cloud_stage_refills_down">Κατεβαίνουν οι ανεφοδιασμοί σου…</string>
+    <string name="cloud_stage_expenses_down">Κατεβαίνουν τα έξοδά σου…</string>
+    <string name="cloud_stage_categories_down">Κατεβαίνουν οι κατηγορίες σου…</string>
+    <string name="cloud_stage_done">Όλα έτοιμα!</string>
+    <string name="cloud_sync_keep_open">Κράτα την εφαρμογή ανοιχτή, θέλει μόνο λίγα δευτερόλεπτα.</string>
+    <string name="cloud_sync_success_title">Ανέβηκαν όλα! 🎉</string>
+    <string name="cloud_sync_success_body">Τα δεδομένα σου είναι πλέον στον διακομιστή, και από εδώ και πέρα κάθε αλλαγή συγχρονίζεται μόνη της.</string>
+    <string name="cloud_sync_preparing">Ετοιμάζουμε τον λογαριασμό σου…</string>
+    <string name="cloud_sync_restored_title">Τα δεδομένα σου επέστρεψαν! 🎉</string>
+    <string name="cloud_sync_restored_body">Ό,τι υπάρχει στον λογαριασμό σου βρίσκεται πλέον σε αυτό το κινητό, και από εδώ και πέρα κάθε αλλαγή συγχρονίζεται μόνη της.</string>
+    <string name="cloud_sync_continue">Συνέχεια στην εφαρμογή</string>
+    <string name="cloud_sync_failed_title">Δεν πέρασε</string>
+    <string name="cloud_sync_failed_body">Δεν χάθηκε τίποτα — τα δεδομένα σου είναι ακόμη σε αυτό το κινητό. Δοκίμασε ξανά, ή προσπέρασέ το και συγχρόνισε αργότερα από τις Ρυθμίσεις.</string>
+    <string name="cloud_sync_failed_body_down">Ο λογαριασμός σου είναι μια χαρά — απλώς δεν κατέβηκε ακόμη τίποτα σε αυτό το κινητό. Δοκίμασε ξανά, ή προσπέρασέ το και συγχρόνισε αργότερα από τις Ρυθμίσεις.</string>
+    <string name="cloud_sync_retry">Δοκίμασε ξανά</string>
+    <string name="cloud_sync_skip">Όχι τώρα</string>
+    <string name="cloud_summary_cars">Αυτοκίνητα</string>
+    <string name="cloud_summary_trips">Ταξίδια</string>
+    <string name="cloud_summary_refills">Ανεφοδιασμοί</string>
+    <string name="cloud_summary_expenses">Έξοδα</string>
+    <string name="cloud_summary_categories">Κατηγορίες</string>
+    <string name="cloud_summary_received">Ήρθαν από τον διακομιστή</string>
+    <string name="cloud_account_created">Ο λογαριασμός δημιουργήθηκε</string>
+    <string name="cloud_signed_in_message">Συνδέθηκες</string>
+    <string name="export_excel">Εξαγωγή Excel</string>
+    <string name="export_excel_failed">Η εξαγωγή Excel απέτυχε: %s</string>
+    <string name="export_json">Εξαγωγή JSON</string>
+    <string name="toggle_quick_pick">Γρήγορη επιλογή</string>
+    <string name="more_categories">Περισσότερα…</string>
+
 </resources>

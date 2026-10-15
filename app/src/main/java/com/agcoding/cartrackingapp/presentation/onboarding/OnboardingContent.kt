@@ -1,56 +1,79 @@
 package com.agcoding.cartrackingapp.presentation.onboarding
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.agcoding.cartrackingapp.R
 
 /**
- * Data class representing a single onboarding slide.
- * Keep resources as IDs so we can localize and resolve them in Composables.
+ * Which theme colour a slide is drawn in.
+ *
+ * An enum rather than a literal colour: the slides used to be hard-coded
+ * green/blue/orange/purple, which clashed with whatever palette the user had
+ * chosen and looked like a different app's onboarding.
+ */
+enum class SlideAccent { PRIMARY, TERTIARY, SECONDARY }
+
+/**
+ * A single onboarding slide.
+ *
+ * [bulletRes] is where the actual instructions live. The description says what
+ * the step is for; the bullets say what to do, in the order you do it. Keeping
+ * them apart is what lets the description stay short enough to be read.
  */
 data class OnboardingSlide(
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
-    val iconResId: Int? = null, // For drawable resources
-    val iconVector: ImageVector? = null, // For vector icons
-    val iconColor: Color = Color.Unspecified
+    val bulletRes: List<Int> = emptyList(),
+    val accent: SlideAccent = SlideAccent.PRIMARY,
 )
 
 /**
- * Onboarding slides content - easily extensible.
+ * The guide: four steps, in the order the user will actually do them.
+ *
+ * It is deliberately not a feature tour. Two things in this app give wrong
+ * answers if nobody explains them — the starting odometer reading, and
+ * resetting the trip meter at every refill — and a guide that lists features
+ * while leaving those two unsaid produces a user whose consumption figures are
+ * quietly wrong. Those two get a step each; everything else shares the other
+ * two.
  */
 object OnboardingContent {
     val slides = listOf(
         OnboardingSlide(
-            titleRes = R.string.onboarding_welcome_title,
-            descriptionRes = R.string.onboarding_welcome_desc,
-            iconResId = null,
-            iconColor = Color(0xFF4CAF50)
+            titleRes = R.string.onboarding_step_car_title,
+            descriptionRes = R.string.onboarding_step_car_desc,
+            bulletRes = listOf(
+                R.string.onboarding_step_car_bullet_1,
+                R.string.onboarding_step_car_bullet_2,
+            ),
+            accent = SlideAccent.PRIMARY,
         ),
         OnboardingSlide(
-            titleRes = R.string.onboarding_refills_title,
-            descriptionRes = R.string.onboarding_refills_desc,
-            iconResId = null,
-            iconColor = Color(0xFF2196F3)
+            titleRes = R.string.onboarding_step_refill_title,
+            descriptionRes = R.string.onboarding_step_refill_desc,
+            bulletRes = listOf(
+                R.string.onboarding_step_refill_bullet_1,
+                R.string.onboarding_step_refill_bullet_2,
+                R.string.onboarding_step_refill_bullet_3,
+            ),
+            accent = SlideAccent.TERTIARY,
         ),
         OnboardingSlide(
-            titleRes = R.string.onboarding_service_title,
-            descriptionRes = R.string.onboarding_service_desc,
-            iconResId = null,
-            iconColor = Color(0xFF4CAF50)
+            titleRes = R.string.onboarding_step_costs_title,
+            descriptionRes = R.string.onboarding_step_costs_desc,
+            bulletRes = listOf(
+                R.string.onboarding_step_costs_bullet_1,
+                R.string.onboarding_step_costs_bullet_2,
+            ),
+            accent = SlideAccent.SECONDARY,
         ),
         OnboardingSlide(
-            titleRes = R.string.onboarding_expenses_title,
-            descriptionRes = R.string.onboarding_expenses_desc,
-            iconResId = null,
-            iconColor = Color(0xFFFF9800)
+            titleRes = R.string.onboarding_step_stats_title,
+            descriptionRes = R.string.onboarding_step_stats_desc,
+            bulletRes = listOf(
+                R.string.onboarding_step_stats_bullet_1,
+                R.string.onboarding_step_stats_bullet_2,
+            ),
+            accent = SlideAccent.PRIMARY,
         ),
-        OnboardingSlide(
-            titleRes = R.string.onboarding_stats_title,
-            descriptionRes = R.string.onboarding_stats_desc,
-            iconResId = null,
-            iconColor = Color(0xFF9C27B0)
-        )
     )
 }

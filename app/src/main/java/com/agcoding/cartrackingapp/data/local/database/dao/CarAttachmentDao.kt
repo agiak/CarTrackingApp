@@ -32,5 +32,13 @@ interface CarAttachmentDao {
 
     @Query("SELECT * FROM car_attachments WHERE id = :id")
     suspend fun getAttachmentById(id: Long): CarAttachmentEntity?
+
+    /**
+     * Attachments are never uploaded — they stay on the phone — but they still
+     * belong to the cars they hang off, so wiping the account's local data
+     * takes them with it.
+     */
+    @Query("DELETE FROM car_attachments")
+    suspend fun deleteAll()
 }
 

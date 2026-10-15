@@ -46,6 +46,8 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
+import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
@@ -71,6 +73,9 @@ fun StatisticsScreen(
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     /** Opens the dedicated statistics screen for one car from the per-car breakdown. */
     onCarStatisticsClick: (carId: Long) -> Unit = {},
+    /** Only wired when this is the tab; as a pushed screen the slot holds Back. */
+    onNavigateToProfile: (() -> Unit)? = null,
+    onNavigateToNotifications: (() -> Unit)? = null,
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -83,6 +88,9 @@ fun StatisticsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = { Text(stringResource(R.string.statistics)) },
                 navigationIcon = {
+                    // Back wins the slot when there is somewhere to go back to:
+                    // this screen is both a tab and a pushed destination, and a
+                    // pushed screen without a Back is a trap.
                     if (onNavigateBack != null) {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
@@ -90,6 +98,13 @@ fun StatisticsScreen(
                                 contentDescription = stringResource(R.string.back)
                             )
                         }
+                    } else if (onNavigateToProfile != null) {
+                        ProfileNavigationIcon(onClick = onNavigateToProfile)
+                    }
+                },
+                actions = {
+                    if (onNavigateToNotifications != null) {
+                        NotificationsAction(onClick = onNavigateToNotifications)
                     }
                 }
             )

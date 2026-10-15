@@ -10,6 +10,7 @@ import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkDao
 import com.agcoding.cartrackingapp.cloud.data.local.SyncLinkEntity
 import com.agcoding.cartrackingapp.data.local.database.dao.CarAttachmentDao
 import com.agcoding.cartrackingapp.data.local.database.dao.CarDao
+import com.agcoding.cartrackingapp.data.local.database.dao.DatabaseStatsDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseCategoryDao
 import com.agcoding.cartrackingapp.data.local.database.dao.ExpenseDao
 import com.agcoding.cartrackingapp.data.local.database.dao.FuelRefillDao
@@ -25,7 +26,7 @@ import com.agcoding.cartrackingapp.data.local.database.entity.TripEntity
 
 @Database(
     entities = [CarEntity::class, FuelRefillEntity::class, ExpenseEntity::class, ExpenseCategoryEntity::class, CarAttachmentEntity::class, TripEntity::class, NotificationHistoryEntity::class, SyncLinkEntity::class],
-    version = 21,
+    version = 22,
     exportSchema = false
 )
 abstract class CarDatabase : RoomDatabase() {
@@ -37,6 +38,7 @@ abstract class CarDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
     abstract fun notificationHistoryDao(): NotificationHistoryDao
     abstract fun syncLinkDao(): SyncLinkDao
+    abstract fun databaseStatsDao(): DatabaseStatsDao
 
     companion object {
         @Volatile
@@ -49,13 +51,7 @@ abstract class CarDatabase : RoomDatabase() {
                     CarDatabase::class.java,
                     "car_tracking_database"
                 )
-                    .addMigrations(
-                        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-                        MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
-                        MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
-                        MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
-                        MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21
-                    )
+                    .addMigrations(*ALL_MIGRATIONS)
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                     .also { INSTANCE = it }
@@ -361,3 +357,35 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
     }
 }
 
+val MIGRATION_21_22 = object : Migration(21, 22) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Tells an announcement pushed from the server apart from a reminder
+        // the app raised itself, so the notifications screen can label them.
+        // Everything already in the table predates push, hence the default.
+        db.execSQL(
+            "ALTER TABLE notification_history ADD COLUMN type TEXT NOT NULL DEFAULT 'REMINDER'"
+        )
+    }
+}
+
+/**
+ * Every migration, in one place.
+ *
+ * This exists because the database is built twice — once by Hilt for the app
+ * and once by [CarDatabase.getInstance] for the home-screen widget — and each
+ * builder used to carry its own hand-written list. Adding a migration to one
+ * and not the other does not fail the build: it fails on the user's phone, at
+ * launch, with "A migration from N to N+1 was required but not found", which
+ * the app reports as "Update Required" and no update can fix.
+ *
+ * Declared last in the file on purpose: top-level properties initialise in
+ * source order, so every MIGRATION_* above must already exist by this point.
+ */
+val ALL_MIGRATIONS: Array<Migration> = arrayOf(
+    MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
+    MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
+    MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13,
+    MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
+    MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21,
+    MIGRATION_21_22
+)

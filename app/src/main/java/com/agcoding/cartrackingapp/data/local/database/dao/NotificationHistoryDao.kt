@@ -13,6 +13,9 @@ interface NotificationHistoryDao {
     @Query("SELECT * FROM notification_history ORDER BY timestamp DESC")
     fun getAllNotifications(): Flow<List<NotificationHistoryEntity>>
 
+    @Query("SELECT * FROM notification_history ORDER BY timestamp DESC LIMIT :limit")
+    fun getRecentNotifications(limit: Int): Flow<List<NotificationHistoryEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationHistoryEntity): Long
 

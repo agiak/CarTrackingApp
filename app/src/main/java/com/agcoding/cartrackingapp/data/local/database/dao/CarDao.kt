@@ -71,4 +71,17 @@ interface CarDao {
 
     @Query("DELETE FROM cars WHERE id = :carId AND deletedAt IS NOT NULL")
     suspend fun permanentlyDeleteCar(carId: Long)
+
+    // Sync
+    //
+    // Unlike every other query here these two ignore `deletedAt`. The sync has
+    // to see the trashed rows: if it only ever saw the live ones, a car in the
+    // trash would look to it like a car the user deleted, and it would be
+    // removed everywhere the moment it reached another device.
+
+    @Query("SELECT * FROM cars ORDER BY id ASC")
+    suspend fun getAllForSync(): List<CarEntity>
+
+    @Query("DELETE FROM cars")
+    suspend fun deleteAll()
 }

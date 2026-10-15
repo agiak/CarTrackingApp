@@ -8,6 +8,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    // Both read app/google-services.json at build time; without that file the
+    // build fails on purpose rather than shipping an app that cannot reach
+    // Firebase.
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 // ---------------------------------------------------------------------------
@@ -355,6 +360,15 @@ configurations.all {
 }
 
 dependencies {
+    // Firebase. The BoM is a platform() so every firebase-* artifact below
+    // resolves to one mutually tested set of versions.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    // Crashlytics needs Analytics present to attribute a crash to a session;
+    // without it the dashboard reports crashes but no crash-free-users figure.
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
+
     // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

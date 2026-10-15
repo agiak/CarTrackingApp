@@ -19,6 +19,12 @@ class NotificationHistoryRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getRecentNotifications(limit: Int): Flow<List<NotificationHistoryItem>> {
+        return dao.getRecentNotifications(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override suspend fun insertNotification(item: NotificationHistoryItem): Long {
         return dao.insertNotification(item.toEntity())
     }

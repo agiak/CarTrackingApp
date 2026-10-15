@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,7 +45,7 @@ class SupabaseClient @Inject constructor() {
             method = "POST",
             path = "/functions/v1/signup",
             body = JSONObject()
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("password", password)
                 .put("display_name", displayName)
                 .toString(),
@@ -57,7 +58,10 @@ class SupabaseClient @Inject constructor() {
             call(
                 method = "POST",
                 path = "/auth/v1/token?grant_type=password",
-                body = JSONObject().put("email", email).put("password", password).toString(),
+                body = JSONObject()
+                    .put("email", email.normalizedEmail())
+                    .put("password", password)
+                    .toString(),
             )
         )
     )
@@ -102,7 +106,7 @@ class SupabaseClient @Inject constructor() {
             path = "/functions/v1/password-reset",
             body = JSONObject()
                 .put("action", "request")
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("lang", language)
                 .toString(),
         )
@@ -115,7 +119,7 @@ class SupabaseClient @Inject constructor() {
             path = "/functions/v1/password-reset",
             body = JSONObject()
                 .put("action", "redeem")
-                .put("email", email)
+                .put("email", email.normalizedEmail())
                 .put("password", password)
                 .toString(),
         )
@@ -214,7 +218,7 @@ class SupabaseClient @Inject constructor() {
         ids.chunked(DELETE_BATCH).forEach { batch ->
             val url = tableUrl(table)
                 .addQueryParameter("user_id", "eq.${session.userId}")
-                .addQueryParameter(keyColumn, batch.joinToString(",", "in.(", ")") { "\"$it\"" })
+                .addQueryParameter(keyColumn, batch.joinToString(",", "in.(", ")") { quoted(it) })
                 .build()
             request(
                 method = "PATCH",
@@ -226,7 +230,69 @@ class SupabaseClient @Inject constructor() {
         }
     }
 
+    // ── push tokens ───────────────────────────────────────────────────────
+
+    /**
+     * Tells the server this phone can receive push, as this user.
+     *
+     * Keyed on the token rather than on the user, because the token belongs to
+     * the installation: when a second account signs in on the same phone the
+     * row has to *move*, not multiply, or the previous owner keeps receiving
+     * notifications on a device they no longer use.
+     */
+    fun registerDeviceToken(session: CloudSession, token: String, platform: String = "android") {
+        call(
+            method = "POST",
+            path = "/rest/v1/rpc/register_device_token",
+            body = JSONObject()
+                .put("p_token", token)
+                .put("p_platform", platform)
+                .toString(),
+            token = session.accessToken,
+            prefer = "return=minimal",
+        )
+    }
+
+    /** Signing out must also stop the notifications, not just the sync. */
+    fun unregisterDeviceToken(session: CloudSession, token: String) {
+        call(
+            method = "POST",
+            path = "/rest/v1/rpc/unregister_device_token",
+            body = JSONObject().put("p_token", token).toString(),
+            token = session.accessToken,
+            prefer = "return=minimal",
+        )
+    }
+
     // ── plumbing ──────────────────────────────────────────────────────────
+
+    /**
+     * The address as the account is actually stored under.
+     *
+     * The `signup` edge function trims and lower-cases before creating the
+     * user, so anything that does not do the same here is looking for an
+     * account under a name nobody has. A keyboard that capitalises the first
+     * letter, or an autofill that hands over a trailing space, would otherwise
+     * create `Me@x.gr` and then fail to sign into it — with "wrong password"
+     * as the only explanation offered.
+     *
+     * [java.util.Locale.ROOT] because in Turkish locales `I` lower-cases to a
+     * dotless `ı`, which would turn a valid address into a different one on
+     * exactly the phones least likely to be testing this.
+     */
+    private fun String.normalizedEmail(): String = trim().lowercase(Locale.ROOT)
+
+    /**
+     * One value of a PostgREST `in.(…)` list.
+     *
+     * The quotes are what let a value contain a comma or a parenthesis, so a
+     * value that contains a quote of its own has to escape it — and the
+     * backslash that does the escaping has to be escaped first. Without this,
+     * deleting a category called `Service "A"` sends a filter the server
+     * cannot parse, and every sync from then on fails on the same row.
+     */
+    private fun quoted(value: String): String =
+        "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
     private fun tableUrl(table: String): HttpUrl.Builder =
         (SupabaseConfig.URL + "/rest/v1/" + table).toHttpUrl().newBuilder()
