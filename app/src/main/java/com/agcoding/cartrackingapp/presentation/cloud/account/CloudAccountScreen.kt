@@ -56,7 +56,11 @@ import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
+import com.agcoding.cartrackingapp.presentation.components.GroupedDivider
+import com.agcoding.cartrackingapp.presentation.components.GroupedListContainer
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsRow
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.DeviceUtils
 
@@ -266,7 +270,7 @@ private fun SignedInSection(
     Spacer(modifier = Modifier.height(8.dp))
     SectionHeader(title = stringResource(R.string.cloud_section_sync))
 
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
+    GroupedListContainer {
         SettingsRow(
             icon = Icons.Default.Sync,
             iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
@@ -295,7 +299,7 @@ private fun SignedInSection(
     Spacer(modifier = Modifier.height(8.dp))
     SectionHeader(title = stringResource(R.string.cloud_section_security))
 
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
+    GroupedListContainer {
         SettingsRow(
             icon = Icons.Default.Lock,
             iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
@@ -312,6 +316,7 @@ private fun SignedInSection(
                 )
             }
         )
+        GroupedDivider()
         SettingsRow(
             icon = Icons.AutoMirrored.Filled.Logout,
             iconBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -329,14 +334,15 @@ private fun SignedInSection(
     // week is how it gets tapped by accident.
     Spacer(modifier = Modifier.height(8.dp))
 
+    val rose = LocalAppColorScheme.current.categoryService
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.18f)
+        containerColor = rose.copy(alpha = 0.12f)
     ) {
         SettingsRow(
             icon = Icons.Default.DeleteForever,
-            iconBackgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
-            iconTint = MaterialTheme.colorScheme.error,
+            iconBackgroundColor = rose.copy(alpha = 0.18f),
+            iconTint = rose,
             title = stringResource(R.string.cloud_delete_account),
             subtitle = stringResource(R.string.cloud_delete_account_desc),
             onClick = onDeleteAccount,
