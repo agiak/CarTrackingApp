@@ -182,7 +182,10 @@ fun OnboardingGuideScreen(
                         .clip(RoundedCornerShape(4.dp))
                         .background(
                             if (isSelected) {
-                                MaterialTheme.colorScheme.primary
+                                // The current slide's own accent, so the dots
+                                // are part of the slide rather than a fixed
+                                // strip of brand colour underneath it.
+                                slides[pagerState.currentPage].accent.toColor()
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                             }
@@ -222,7 +225,9 @@ fun OnboardingGuideScreen(
                             )
                         }
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
@@ -252,10 +257,14 @@ fun OnboardingGuideScreen(
                         onComplete()
                     }
                 },
-                modifier = Modifier.weight(if (currentSlideIndex > 0) 1f else 2f),
+                modifier = Modifier
+                    .weight(if (currentSlideIndex > 0) 1f else 2f)
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    // The button belongs to the slide too, so finishing the
+                    // guide is the same colour as the slide that offers it.
+                    containerColor = slides[pagerState.currentPage].accent.toColor()
                 )
             ) {
                 AnimatedContent(
@@ -284,17 +293,28 @@ fun OnboardingGuideScreen(
     }
 }
 
+/**
+ * A slide's accent as a colour.
+ *
+ * One function rather than a `when` inside each composable that needs it: the
+ * dots, the finish button, the illustration and the bullet markers all have to
+ * agree, and three copies of the same mapping is three chances for one of them
+ * to be left behind.
+ */
+@Composable
+private fun SlideAccent.toColor(): Color = when (this) {
+    SlideAccent.PRIMARY -> MaterialTheme.colorScheme.primary
+    SlideAccent.TERTIARY -> MaterialTheme.colorScheme.tertiary
+    SlideAccent.SECONDARY -> MaterialTheme.colorScheme.secondary
+}
+
 @Composable
 private fun SlideContent(
     slide: OnboardingSlide,
     slideIndex: Int,
     isCurrentPage: Boolean
 ) {
-    val accent = when (slide.accent) {
-        SlideAccent.PRIMARY -> MaterialTheme.colorScheme.primary
-        SlideAccent.TERTIARY -> MaterialTheme.colorScheme.tertiary
-        SlideAccent.SECONDARY -> MaterialTheme.colorScheme.secondary
-    }
+    val accent = slide.accent.toColor()
 
     val illustrationScale by animateFloatAsState(
         targetValue = if (isCurrentPage) 1f else 0.8f,

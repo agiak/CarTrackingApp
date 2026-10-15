@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
@@ -197,7 +198,7 @@ fun PermissionsScreen(
 
                     // Title
                     Text(
-                        text = "App Permissions",
+                        text = stringResource(R.string.onboarding_permissions_title),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground,
@@ -207,9 +208,9 @@ fun PermissionsScreen(
                     // Subtitle
                     Text(
                         text = if (allPermissionsGranted)
-                            "All permissions have been granted!"
+                            stringResource(R.string.onboarding_permissions_all_granted)
                         else
-                            "To provide the best experience, we need a few permissions",
+                            stringResource(R.string.onboarding_permissions_subtitle),
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -370,9 +371,20 @@ fun PermissionsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Where the user is in the first run. Four steps is short enough
+            // that saying so turns an open-ended setup into a countable one.
+            Text(
+                text = stringResource(R.string.onboarding_step_of_format, 1, 4),
+                style = AppNumbers.tag,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             // Title
             Text(
-                text = "App Permissions",
+                text = stringResource(R.string.onboarding_permissions_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -384,9 +396,9 @@ fun PermissionsScreen(
             // Subtitle
             Text(
                 text = if (allPermissionsGranted)
-                    "All permissions have been granted!"
+                    stringResource(R.string.onboarding_permissions_all_granted)
                 else
-                    "To provide the best experience, we need a few permissions",
+                    stringResource(R.string.onboarding_permissions_subtitle),
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
