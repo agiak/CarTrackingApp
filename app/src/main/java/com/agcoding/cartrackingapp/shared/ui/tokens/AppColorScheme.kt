@@ -62,8 +62,11 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
 
 private fun darkScheme(b: BrandTokens) = AppColorScheme(
     backgroundPrimary      = b.neutral900,
-    backgroundSecondary    = b.neutral600.copy(alpha = 0.25f),
-    backgroundCard         = b.neutral100.copy(alpha = 0.08f),
+    // Same reasoning as the tinted palettes: these composite over the
+    // background, and 8% of a light neutral is not a surface anyone can
+    // make out behind a text field.
+    backgroundSecondary    = b.neutral600.copy(alpha = 0.38f),
+    backgroundCard         = b.neutral100.copy(alpha = 0.16f),
     backgroundOverlay      = Color.Black.copy(alpha = 0.6f),
     contentPrimary         = b.neutral50,
     contentSecondary       = b.neutral200,
@@ -91,9 +94,15 @@ private const val LIGHT_BG_TINT     = 0.20f
 private const val LIGHT_CARD_TINT   = LIGHT_BG_TINT * 0.40f   // 0.08f
 private const val LIGHT_SEC_TINT    = LIGHT_BG_TINT * 1.20f   // 0.24f
 
-private const val DARK_BG_TINT      = 0.20f
-private const val DARK_CARD_TINT    = DARK_BG_TINT * 0.60f    // 0.12f
-private const val DARK_SEC_TINT     = DARK_BG_TINT * 1.30f    // 0.26f
+// tintWithBlack mixes the primary with black, so a SMALLER number is darker.
+// The dark card used to be 0.12 against a 0.20 background — that is a card
+// darker than the surface it sits on, an inverted ladder. It survived while
+// cards carried a blended tint and a visible border; now that fields, tiles
+// and grouped lists are all flat fills, a card that is darker than its
+// background is a card nobody can see. The three steps go up, not down.
+private const val DARK_BG_TINT      = 0.16f
+private const val DARK_CARD_TINT    = 0.30f
+private const val DARK_SEC_TINT     = 0.44f
 
 private val LIGHT_CONTENT_PRIMARY   = Color(0xFF1A1C1E)
 private val LIGHT_CONTENT_SECONDARY = Color(0xFF44474F)

@@ -60,6 +60,22 @@ object AppNumbers {
         fontFeatureSettings = TabularFigures,
     )
 
+    /**
+     * A figure being typed, in the amount card.
+     *
+     * Smaller than the hero: a hero is read from across the room, but this one
+     * sits above a keyboard with the field, its label and its unit around it,
+     * and at 40sp a four-figure amount ran out of card.
+     */
+    val input = TextStyle(
+        fontFamily = NumberFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.8).sp,
+        fontFeatureSettings = TabularFigures,
+    )
+
     /** Centre of the donut. */
     val donut = TextStyle(
         fontFamily = NumberFamily,

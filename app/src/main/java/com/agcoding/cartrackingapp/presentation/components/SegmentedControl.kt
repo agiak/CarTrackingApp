@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -89,7 +90,10 @@ private fun RowScope.Segment(label: String, selected: Boolean, onClick: () -> Un
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .weight(1f)
-            .fillMaxWidth()
+            // Height as well as width: without it a segment is only as tall as
+            // its label, so the selected pill floats at the top of the track
+            // and leaves an empty band under it.
+            .fillMaxHeight()
             .clip(RoundedCornerShape(11.dp))
             .background(container)
             .clickable(onClick = onClick)

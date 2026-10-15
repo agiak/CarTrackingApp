@@ -95,7 +95,7 @@ fun StorageCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = storageInfo.formattedTotalSize,
-                    style = AppNumbers.hero,
+                    style = AppNumbers.donut,
                     color = scheme.contentPrimary,
                     maxLines = 1,
                 )
@@ -304,7 +304,7 @@ private fun RowScope.ActionTile(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .weight(1f)
-            .height(92.dp)
+            .height(74.dp)
             .clip(RoundedCornerShape(dimens.radius.tile))
             .background(scheme.backgroundCard)
             .clickable(enabled = enabled, onClick = onClick)
@@ -315,17 +315,17 @@ private fun RowScope.ActionTile(
             CircularProgressIndicator(
                 strokeWidth = 2.dp,
                 color = scheme.actionPrimary,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(19.dp),
             )
         } else {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = scheme.actionPrimary,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(19.dp),
             )
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = if (isBusy) busyLabel else label,
             style = MaterialTheme.typography.labelLarge,

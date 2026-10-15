@@ -103,7 +103,7 @@ fun AmountInputCard(
                     if (value.isEmpty()) {
                         Text(
                             text = placeholder,
-                            style = AppNumbers.summary,
+                            style = AppNumbers.input,
                             color = scheme.contentDisabled,
                             maxLines = 1,
                         )
@@ -111,7 +111,7 @@ fun AmountInputCard(
                     BasicTextField(
                         value = value,
                         onValueChange = onValueChange,
-                        textStyle = AppNumbers.summary.copy(color = scheme.contentPrimary),
+                        textStyle = AppNumbers.input.copy(color = scheme.contentPrimary),
                         cursorBrush = SolidColor(scheme.actionPrimary),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

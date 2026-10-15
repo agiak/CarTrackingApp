@@ -4,6 +4,8 @@ package com.agcoding.cartrackingapp.presentation.carlist.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -90,6 +92,11 @@ fun AddCarDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                // Three fields, a preview row and two buttons do not fit a
+                // sheet on a short phone, and with the keyboard up they fit on
+                // none: without this the odometer field and both buttons are
+                // simply below the bottom of the screen.
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
