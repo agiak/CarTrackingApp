@@ -36,6 +36,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
+import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.presentation.carlist.components.CarCard
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
 import com.agcoding.cartrackingapp.presentation.settings.components.AppearanceCard
 import com.agcoding.cartrackingapp.presentation.settings.components.ColorPaletteCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -138,6 +141,33 @@ fun OnboardingThemeScreen(
                 ColorPaletteCard(
                     selectedPalette = selectedPalette,
                     onPaletteSelected = settingsViewModel::updateColorPalette
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // A real card from the app, themed live. Swatches show what a
+                // colour is; this shows what the app will look like, which is
+                // the question actually being answered here — and it is the
+                // screen the user is about to spend all their time on.
+                SectionLabel(stringResource(R.string.onboarding_theme_preview_label))
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                CarCard(
+                    car = Car(
+                        id = -1L,
+                        name = stringResource(R.string.onboarding_theme_preview_car),
+                        licensePlate = "\u0399\u0396\u03a7-4821",
+                        currentOdometer = 145678.0,
+                        initialOdometer = 20000.0,
+                        totalCost = 15432.50,
+                        totalDistance = 125678.0,
+                        averageConsumption = 6.5,
+                        isDefault = true,
+                    ),
+                    onClick = {},
+                    onAddRefillClick = {},
+                    onAddServiceClick = {},
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

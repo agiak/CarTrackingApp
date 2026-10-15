@@ -60,6 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.Kpi
+import com.agcoding.cartrackingapp.presentation.components.KpiGrid
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.ProgressRing
 import com.agcoding.cartrackingapp.data.export.ImportProgress
 import com.agcoding.cartrackingapp.data.export.ImportStep
 import com.agcoding.cartrackingapp.presentation.settings.ImportSummary
@@ -318,21 +322,11 @@ private fun ImportingContent(progress: ImportProgress? = null) {
                 animationSpec = tween(400),
                 label = "importProgress"
             )
-            CircularProgressIndicator(
-                progress = { animated },
-                modifier = Modifier.size(84.dp),
-                strokeWidth = 6.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = stringResource(
-                    R.string.onboarding_import_percent,
-                    (animated * 100).toInt()
-                ),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            // The same ring as the first sync. Importing a file and pulling an
+            // account down are the same wait from the user's side, and they
+            // happen one after the other on a first run; two different
+            // treatments would read as two different kinds of operation.
+            ProgressRing(progress = animated, diameter = 150.dp, thickness = 10.dp)
         } else {
             CircularProgressIndicator(
                 modifier = Modifier.size(84.dp),
@@ -346,8 +340,7 @@ private fun ImportingContent(progress: ImportProgress? = null) {
 
     Text(
         text = stringResource(R.string.onboarding_import_importing_title),
-        fontSize = 22.sp,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Center
     )
@@ -403,8 +396,7 @@ private fun SuccessContent(
 
     Text(
         text = stringResource(R.string.onboarding_import_success_title),
-        fontSize = 28.sp,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.displaySmall,
         color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Center
     )
@@ -428,60 +420,23 @@ private fun SuccessContent(
 
     if (stats.isNotEmpty()) {
         Spacer(modifier = Modifier.height(28.dp))
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            stats.forEach { (labelRes, count) ->
-                StatPill(count = count, label = stringResource(labelRes))
-            }
-        }
+        // A grid rather than a row of centred pills. These are the first
+        // figures the user will ever see from their own data, and they are
+        // about to meet the same grid on the statistics screen — so this is
+        // also where that layout gets introduced.
+        KpiGrid(
+            items = stats.map { (labelRes, count) ->
+                Kpi(label = stringResource(labelRes), value = count.toString())
+            },
+        )
     }
 
     Spacer(modifier = Modifier.height(40.dp))
 
-    Button(
+    PrimaryButton(
+        label = stringResource(R.string.onboarding_import_continue),
         onClick = onContinue,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-    ) {
-        Text(
-            text = stringResource(R.string.onboarding_import_continue),
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun StatPill(
-    count: Int,
-    label: String
-) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 6.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-            .padding(horizontal = 20.dp, vertical = 14.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = count.toString(),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = label,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
+    )
 }
 
 @Composable

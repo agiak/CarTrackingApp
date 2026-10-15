@@ -138,6 +138,8 @@
     <string name="onboarding_meter_reset_hint">Κράτα πατημένο το κουμπί στο ταμπλό</string>
     <string name="onboarding_meter_use_this">Αυτό να χρησιμοποιείς</string>
     <string name="onboarding_permissions_title">Δικαιώματα εφαρμογής</string>
+    <string name="onboarding_theme_preview_label">Προεπισκόπηση</string>
+    <string name="onboarding_theme_preview_car">Toyota Corolla</string>
     <string name="onboarding_permissions_subtitle">Για να λειτουργεί σωστά, το Caribou χρειάζεται μερικά δικαιώματα</string>
     <string name="onboarding_permissions_all_granted">Δόθηκαν όλα τα δικαιώματα</string>
     <string name="onboarding_step_of_format">ΒΗΜΑ %1$d ΑΠΟ %2$d</string>

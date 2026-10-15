@@ -165,6 +165,8 @@
     <string name="onboarding_meter_reset_hint">Hold the button on the dashboard</string>
     <string name="onboarding_meter_use_this">Use this one</string>
     <string name="onboarding_permissions_title">App permissions</string>
+    <string name="onboarding_theme_preview_label">Preview</string>
+    <string name="onboarding_theme_preview_car">Toyota Corolla</string>
     <string name="onboarding_permissions_subtitle">To work properly, Caribou needs a few permissions</string>
     <string name="onboarding_permissions_all_granted">All permissions have been granted</string>
     <string name="onboarding_step_of_format">STEP %1$d OF %2$d</string>
