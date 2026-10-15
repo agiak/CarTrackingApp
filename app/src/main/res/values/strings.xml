@@ -1017,6 +1017,7 @@
     <string name="car_comparison_select_cars_title">Select two cars to compare</string>
     <string name="car_comparison_car_1">Car 1</string>
     <string name="car_comparison_car_2">Car 2</string>
+    <string name="car_comparison_select_car">Select a car</string>
     <string name="car_comparison_same_car_error">Please select two different cars</string>
     <string name="car_comparison_overall_winner">Overall, %1$s is more economical based on cost per kilometer.</string>
     <string name="car_comparison_cost_per_km_insight">%1$s is %2$s more expensive per km than %3$s</string>
@@ -1024,6 +1025,8 @@
     <string name="car_comparison_maintenance_insight">%1$s costs %2$s more per year in maintenance than %3$s</string>
     <string name="car_comparison_equal_performance">Both cars have similar performance metrics</string>
     <string name="car_comparison_most_economical">Most Economical: %1$s</string>
+    <string name="car_comparison_most_economical_label">Most economical</string>
+    <string name="car_comparison_not_enough_records">Not enough records yet: %1$s</string>
     <string name="car_comparison_least_economical">Least Economical: %1$s</string>
     <string name="car_comparison_best_performer">This car performs best in overall cost efficiency.</string>
     <string name="car_comparison_needs_attention">This car may need attention to reduce costs.</string>
@@ -1399,6 +1402,7 @@
     <string name="period_comparison_no_data">Neither period has any records. Pick different periods.</string>
     <string name="period_comparison_one_sided">Only one of the two periods has records, so every difference is the whole amount.</string>
     <string name="period_comparison_records">Records</string>
+    <string name="period_comparison_record_count">%1$d records</string>
     <string name="period_comparison_button">Compare periods</string>
     <string name="period_comparison_all_cars">All cars</string>
     <string name="period_comparison_cars_selected">%1$d cars</string>

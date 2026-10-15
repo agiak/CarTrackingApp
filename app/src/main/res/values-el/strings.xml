@@ -1023,6 +1023,7 @@
     <string name="car_comparison_select_cars_title">Επιλέξτε δύο αυτοκίνητα για σύγκριση</string>
     <string name="car_comparison_car_1">Αυτοκίνητο 1</string>
     <string name="car_comparison_car_2">Αυτοκίνητο 2</string>
+    <string name="car_comparison_select_car">Επίλεξε όχημα</string>
     <string name="car_comparison_same_car_error">Παρακαλώ επιλέξτε δύο διαφορετικά αυτοκίνητα</string>
     <string name="car_comparison_overall_winner">Συνολικά, το %1$s είναι πιο οικονομικό βάσει κόστους ανά χιλιόμετρο.</string>
     <string name="car_comparison_cost_per_km_insight">Το %1$s είναι %2$s πιο ακριβό ανά km από το %3$s</string>
@@ -1030,6 +1031,8 @@
     <string name="car_comparison_maintenance_insight">Το %1$s κοστίζει %2$s περισσότερο το χρόνο σε συντήρηση από το %3$s</string>
     <string name="car_comparison_equal_performance">Και τα δύο αυτοκίνητα έχουν παρόμοιες επιδόσεις</string>
     <string name="car_comparison_most_economical">Πιο Οικονομικό: %1$s</string>
+    <string name="car_comparison_most_economical_label">Πιο οικονομικό</string>
+    <string name="car_comparison_not_enough_records">Δεν υπάρχουν αρκετές εγγραφές ακόμα: %1$s</string>
     <string name="car_comparison_least_economical">Λιγότερο Οικονομικό: %1$s</string>
     <string name="car_comparison_best_performer">Αυτό το αυτοκίνητο έχει τις καλύτερες επιδόσεις στη συνολική αποδοτικότητα κόστους.</string>
     <string name="car_comparison_needs_attention">Αυτό το αυτοκίνητο μπορεί να χρειάζεται προσοχή για μείωση του κόστους.</string>
@@ -1384,6 +1387,7 @@
     <string name="period_comparison_no_data">Καμία από τις δύο περιόδους δεν έχει εγγραφές. Διάλεξε άλλες περιόδους.</string>
     <string name="period_comparison_one_sided">Μόνο η μία από τις δύο περιόδους έχει εγγραφές, οπότε κάθε διαφορά είναι ολόκληρο το ποσό.</string>
     <string name="period_comparison_records">Εγγραφές</string>
+    <string name="period_comparison_record_count">%1$d εγγραφές</string>
     <string name="period_comparison_button">Σύγκριση περιόδων</string>
     <string name="period_comparison_all_cars">Όλα τα αυτοκίνητα</string>
     <string name="period_comparison_cars_selected">%1$d αυτοκίνητα</string>

@@ -2,26 +2,25 @@
 
 package com.agcoding.cartrackingapp.presentation.periodcomparison
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,23 +34,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.DateFilter
+import com.agcoding.cartrackingapp.presentation.components.AppFilterChip
 import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
+import com.agcoding.cartrackingapp.presentation.components.FilterChipRow
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.util.formatMoney
 import java.time.Month
 import java.time.format.TextStyle
@@ -107,14 +110,6 @@ fun FleetComparisonScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = viewModel::swapPeriods) {
-                        Icon(
-                            imageVector = Icons.Default.SwapVert,
-                            contentDescription = stringResource(R.string.period_comparison_swap)
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
@@ -131,7 +126,7 @@ fun FleetComparisonScreen(
                 selectedCarIds = selectedCarIds,
                 onCarToggled = viewModel::toggleCar,
                 onAllSelected = viewModel::clearCarFilter,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(bottom = 10.dp)
             )
 
             LazyColumn(
@@ -144,7 +139,8 @@ fun FleetComparisonScreen(
                     primaryFilter = primaryFilter,
                     secondaryFilter = secondaryFilter,
                     onEditPrimary = { editingSide = ComparisonSide.PRIMARY },
-                    onEditSecondary = { editingSide = ComparisonSide.SECONDARY }
+                    onEditSecondary = { editingSide = ComparisonSide.SECONDARY },
+                    onSwap = viewModel::swapPeriods
                 )
 
                 if (comparison.hasData && monthlyBreakdown.hasData) {
@@ -197,40 +193,17 @@ private fun CarFilterChips(
     // With a single car there is nothing to choose between.
     if (cars.size <= 1) return
 
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        FilterChip(
+    FilterChipRow(modifier = modifier) {
+        AppFilterChip(
+            label = stringResource(R.string.filter_all),
             selected = selectedCarIds.isEmpty(),
-            onClick = onAllSelected,
-            label = { Text(stringResource(R.string.filter_all)) },
-            leadingIcon = if (selectedCarIds.isEmpty()) {
-                {
-                    Icon(
-                        Icons.Default.DirectionsCar,
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                    )
-                }
-            } else null
+            onClick = onAllSelected
         )
         cars.forEach { car ->
-            val isSelected = car.id in selectedCarIds
-            FilterChip(
-                selected = isSelected,
-                onClick = { onCarToggled(car.id) },
-                label = { Text(car.name) },
-                leadingIcon = if (isSelected) {
-                    {
-                        Icon(
-                            Icons.Default.DirectionsCar,
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null
+            AppFilterChip(
+                label = car.name,
+                selected = car.id in selectedCarIds,
+                onClick = { onCarToggled(car.id) }
             )
         }
     }
@@ -242,6 +215,12 @@ private fun CarFilterChips(
  * Whole-year periods are grouped into quarters to keep the table short; as soon as the
  * user narrows either period to specific months, the rows switch to those months — with
  * twelve quarters' worth of empty rows there would be nothing to see otherwise.
+ *
+ * Three columns of money became two bars per row. The question this card answers is
+ * not "what was March" — that figure is in the table above — it is "which months are
+ * the expensive ones, and did that shape change". A column of right-aligned euro
+ * amounts hides that; two bars drawn against the same scale show it without the eye
+ * doing arithmetic. The figures stay on the ends of the bars, so nothing is lost.
  */
 @Composable
 private fun MonthlyBreakdownCard(
@@ -250,6 +229,7 @@ private fun MonthlyBreakdownCard(
     secondaryFilter: DateFilter,
     modifier: Modifier = Modifier
 ) {
+    val scheme = LocalAppColorScheme.current
     val byQuarter = primaryFilter.months.isEmpty() && secondaryFilter.months.isEmpty()
     val locale = Locale.getDefault()
     val rows = remember(breakdown, byQuarter, locale) {
@@ -257,78 +237,117 @@ private fun MonthlyBreakdownCard(
     }
     if (rows.isEmpty()) return
 
+    // One scale for every bar on the card. Scaling each row to its own maximum
+    // would make a 40 € month and a 400 € month draw the same width.
+    val max = rows.maxOf { maxOf(it.primary, it.secondary) }
+
     StyledCard(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(R.string.period_comparison_monthly_breakdown),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.contentPrimary
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = stringResource(R.string.date_filter_month),
-                    modifier = Modifier.weight(1f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BreakdownLegend(
+                    label = dateFilterLabel(primaryFilter),
+                    color = scheme.actionPrimary
                 )
-                Text(
-                    text = dateFilterLabel(primaryFilter),
-                    modifier = Modifier.weight(1.2f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.End,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = dateFilterLabel(secondaryFilter),
-                    modifier = Modifier.weight(1.2f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.End,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Spacer(modifier = Modifier.width(16.dp))
+                BreakdownLegend(
+                    label = dateFilterLabel(secondaryFilter),
+                    color = scheme.contentDisabled
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            rows.forEach { row ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
+            rows.forEachIndexed { index, row ->
+                if (index > 0) Spacer(modifier = Modifier.height(12.dp))
+                Row(verticalAlignment = Alignment.Top) {
                     Text(
                         text = row.label,
+                        modifier = Modifier.width(34.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = scheme.contentSecondary,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Column(
                         modifier = Modifier.weight(1f),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = row.primary.formatMoney(0),
-                        modifier = Modifier.weight(1.2f),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.End,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = row.secondary.formatMoney(0),
-                        modifier = Modifier.weight(1.2f),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.End,
-                        maxLines = 1
-                    )
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        BreakdownBar(
+                            value = row.primary,
+                            max = max,
+                            color = scheme.actionPrimary
+                        )
+                        BreakdownBar(
+                            value = row.secondary,
+                            max = max,
+                            color = scheme.contentDisabled
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BreakdownLegend(label: String, color: Color) {
+    val scheme = LocalAppColorScheme.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(width = 14.dp, height = 4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = scheme.contentSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun BreakdownBar(value: Double, max: Double, color: Color) {
+    val scheme = LocalAppColorScheme.current
+    val fraction = if (max > 0.0) (value / max).toFloat().coerceIn(0f, 1f) else 0f
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(scheme.backgroundSecondary)
+        ) {
+            if (fraction > 0f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(fraction)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(color)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = value.formatMoney(0),
+            modifier = Modifier.width(62.dp),
+            style = AppNumbers.tag,
+            color = if (value > 0.0) scheme.contentPrimary else scheme.contentDisabled,
+            textAlign = TextAlign.End,
+            maxLines = 1
+        )
     }
 }
 
