@@ -1,18 +1,14 @@
 package com.agcoding.cartrackingapp.presentation.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 
 
@@ -2432,148 +2428,13 @@ fun CarTrackingAppTheme(
     colorPalette: ColorPalette = ColorPalette.SYSTEM,
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
-
-    val colorScheme = when (colorPalette) {
-        ColorPalette.SYSTEM -> {
-            // Use system dynamic colors on Android 12+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            } else {
-                // Fallback to default blue palette on older Android versions
-                if (darkTheme) DefaultBlueDarkColorScheme else DefaultBlueLightColorScheme
-            }
-        }
-        ColorPalette.DEFAULT_BLUE -> {
-            if (darkTheme) DefaultBlueDarkColorScheme else DefaultBlueLightColorScheme
-        }
-        ColorPalette.SUNSET_ORANGE -> {
-            if (darkTheme) SunsetOrangeDarkColorScheme else SunsetOrangeLightColorScheme
-        }
-        ColorPalette.FOREST_GREEN -> {
-            if (darkTheme) ForestGreenDarkColorScheme else ForestGreenLightColorScheme
-        }
-        ColorPalette.ROYAL_PURPLE -> {
-            if (darkTheme) RoyalPurpleDarkColorScheme else RoyalPurpleLightColorScheme
-        }
-        ColorPalette.OCEAN_TEAL -> {
-            if (darkTheme) OceanTealDarkColorScheme else OceanTealLightColorScheme
-        }
-        ColorPalette.CRIMSON_RED -> {
-            if (darkTheme) CrimsonRedDarkColorScheme else CrimsonRedLightColorScheme
-        }
-        ColorPalette.AMBER_GOLD -> {
-            if (darkTheme) AmberGoldDarkColorScheme else AmberGoldLightColorScheme
-        }
-        ColorPalette.DEEP_INDIGO -> {
-            if (darkTheme) DeepIndigoDarkColorScheme else DeepIndigoLightColorScheme
-        }
-        ColorPalette.SLATE_GRAY -> {
-            if (darkTheme) SlateGrayDarkColorScheme else SlateGrayLightColorScheme
-        }
-        ColorPalette.ROSE_PINK -> {
-            if (darkTheme) RosePinkDarkColorScheme else RosePinkLightColorScheme
-        }
-        ColorPalette.MINT_BREEZE -> {
-            if (darkTheme) MintBreezeDarkColorScheme else MintBreezeLightColorScheme
-        }
-        ColorPalette.LAVENDER_DREAM -> {
-            if (darkTheme) LavenderDreamDarkColorScheme else LavenderDreamLightColorScheme
-        }
-        ColorPalette.CORAL_SUNSET -> {
-            if (darkTheme) CoralSunsetDarkColorScheme else CoralSunsetLightColorScheme
-        }
-        ColorPalette.EMERALD_FOREST -> {
-            if (darkTheme) EmeraldForestDarkColorScheme else EmeraldForestLightColorScheme
-        }
-        ColorPalette.ELECTRIC_CYAN -> {
-            if (darkTheme) ElectricCyanDarkColorScheme else ElectricCyanLightColorScheme
-        }
-        ColorPalette.MIDNIGHT_BLACK -> {
-            if (darkTheme) MidnightBlackDarkColorScheme else MidnightBlackLightColorScheme
-        }
-        ColorPalette.ICE_WHITE -> {
-            if (darkTheme) IceWhiteDarkColorScheme else IceWhiteLightColorScheme
-        }
-        ColorPalette.NEON_MAGENTA -> {
-            if (darkTheme) NeonMagentaDarkColorScheme else NeonMagentaLightColorScheme
-        }
-        ColorPalette.DARK_OLIVE -> {
-            if (darkTheme) DarkOliveDarkColorScheme else DarkOliveLightColorScheme
-        }
-        ColorPalette.VOLCANIC_ASH -> {
-            if (darkTheme) VolcanicAshDarkColorScheme else VolcanicAshLightColorScheme
-        }
-        ColorPalette.SUNSET_FIRE -> {
-            if (darkTheme) SunsetFireDarkColorScheme else SunsetFireLightColorScheme
-        }
-        ColorPalette.TROPICAL_PARADISE -> {
-            if (darkTheme) TropicalParadiseDarkColorScheme else TropicalParadiseLightColorScheme
-        }
-        ColorPalette.ROYAL_GOLD -> {
-            if (darkTheme) RoyalGoldDarkColorScheme else RoyalGoldLightColorScheme
-        }
-        ColorPalette.BERRY_BLAST -> {
-            if (darkTheme) BerryBlastDarkColorScheme else BerryBlastLightColorScheme
-        }
-        ColorPalette.NEON_NIGHT -> {
-            if (darkTheme) NeonNightDarkColorScheme else NeonNightLightColorScheme
-        }
-        ColorPalette.AUTUMN_HARVEST -> {
-            if (darkTheme) AutumnHarvestDarkColorScheme else AutumnHarvestLightColorScheme
-        }
-        ColorPalette.ARCTIC_FROST -> {
-            if (darkTheme) ArcticFrostDarkColorScheme else ArcticFrostLightColorScheme
-        }
-        ColorPalette.CHERRY_BLOSSOM -> {
-            if (darkTheme) CherryBlossomDarkColorScheme else CherryBlossomLightColorScheme
-        }
-        ColorPalette.EMERALD_SEA -> {
-            if (darkTheme) EmeraldSeaDarkColorScheme else EmeraldSeaLightColorScheme
-        }
-        ColorPalette.GOLDEN_HOUR -> {
-            if (darkTheme) GoldenHourDarkColorScheme else GoldenHourLightColorScheme
-        }
-        ColorPalette.NEON_LIME -> {
-            if (darkTheme) NeonLimeDarkColorScheme else NeonLimeLightColorScheme
-        }
-        ColorPalette.HOT_LAVA -> {
-            if (darkTheme) HotLavaDarkColorScheme else HotLavaLightColorScheme
-        }
-        ColorPalette.CYBER_PINK -> {
-            if (darkTheme) CyberPinkDarkColorScheme else CyberPinkLightColorScheme
-        }
-        ColorPalette.OCEAN_SUNSET -> {
-            if (darkTheme) OceanSunsetDarkColorScheme else OceanSunsetLightColorScheme
-        }
-        ColorPalette.FOREST_AMBER -> {
-            if (darkTheme) ForestAmberDarkColorScheme else ForestAmberLightColorScheme
-        }
-        ColorPalette.SAPPHIRE_ROSE -> {
-            if (darkTheme) SapphireRoseDarkColorScheme else SapphireRoseLightColorScheme
-        }
-        ColorPalette.ELECTRIC_VIOLET -> {
-            if (darkTheme) ElectricVioletDarkColorScheme else ElectricVioletLightColorScheme
-        }
-        ColorPalette.CANDY_CRUSH -> {
-            if (darkTheme) CandyCrushDarkColorScheme else CandyCrushLightColorScheme
-        }
-        ColorPalette.MIDNIGHT_SUN -> {
-            if (darkTheme) MidnightSunDarkColorScheme else MidnightSunLightColorScheme
-        }
-        ColorPalette.STRAWBERRY_MINT -> {
-            if (darkTheme) StrawberryMintDarkColorScheme else StrawberryMintLightColorScheme
-        }
-    }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography
-    ) {
-        // Apply tinted background globally using Surface
+    // Previews only. The app itself calls AppTheme from MainActivity; this
+    // delegates to it so that what a preview shows is what ships, rather than
+    // a second design system that drifts quietly away from the first.
+    AppTheme(colorPalette = colorPalette, isDark = darkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = colorScheme.background
+            color = MaterialTheme.colorScheme.background,
         ) {
             content()
         }
