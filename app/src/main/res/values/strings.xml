@@ -316,6 +316,12 @@
     <string name="settings_section_data_storage">DATA &amp; STORAGE</string>
     <string name="settings_section_help_about">HELP &amp; ABOUT</string>
     <string name="settings_section_developer_options">DEVELOPER OPTIONS</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_section_privacy">Privacy</string>
+    <string name="theme_name_system">System</string>
+    <string name="theme_name_light">Light</string>
+    <string name="theme_name_dark">Dark</string>
 
     <!-- Settings Groups Navigation -->
     <string name="settings_group_appearance_title">Appearance &amp; Localization</string>

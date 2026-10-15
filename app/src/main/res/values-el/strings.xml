@@ -286,6 +286,12 @@
     <string name="settings_section_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
     <string name="settings_section_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
     <string name="settings_section_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
+    <string name="settings_section_general">Γενικά</string>
+    <string name="settings_section_data">Δεδομένα</string>
+    <string name="settings_section_privacy">Απόρρητο</string>
+    <string name="theme_name_system">Συστήματος</string>
+    <string name="theme_name_light">Φωτεινό</string>
+    <string name="theme_name_dark">Σκοτεινό</string>
 
     <!-- Settings Groups Navigation -->
     <string name="settings_group_appearance_title">Εμφάνιση &amp; Τοπικοποίηση</string>
