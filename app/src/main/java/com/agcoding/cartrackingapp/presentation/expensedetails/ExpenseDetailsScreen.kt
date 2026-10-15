@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,7 +18,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,7 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.expensedetails.components.ExpenseDetailsContent
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -99,6 +99,9 @@ fun ExpenseDetailsScreen(
                 ExpenseDetailsContent(
                     expense = state.expense,
                     carName = state.carName,
+                    carPlate = state.carPlate,
+                    onEdit = onEditExpense,
+                    onDelete = { viewModel.showDeleteDialog() },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
@@ -109,44 +112,42 @@ fun ExpenseDetailsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(paddingValues)
+                        .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(state.message)
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = LocalAppColorScheme.current.contentSecondary
+                    )
                 }
             }
         }
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.hideDeleteDialog() },
-            title = { Text(stringResource(R.string.delete_expense_title)) },
-            text = { Text(stringResource(R.string.delete_expense_confirm)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.hideDeleteDialog()
-                        scope.launch {
-                            val result = snackbarHostState.showSnackbar(
-                                message = context.getString(R.string.expense_deleted),
-                                actionLabel = context.getString(R.string.undo),
-                                duration = SnackbarDuration.Long
-                            )
-                            if (result == SnackbarResult.Dismissed) {
-                                viewModel.deleteExpense(onSuccess = onNavigateBack)
-                            }
-                        }
+        AppConfirmDialog(
+            title = stringResource(R.string.delete_expense_title),
+            message = stringResource(R.string.delete_expense_confirm),
+            confirmLabel = stringResource(R.string.delete),
+            dismissLabel = stringResource(R.string.cancel),
+            icon = Icons.Default.Delete,
+            destructive = true,
+            onConfirm = {
+                viewModel.hideDeleteDialog()
+                scope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.expense_deleted),
+                        actionLabel = context.getString(R.string.undo),
+                        duration = SnackbarDuration.Long
+                    )
+                    if (result == SnackbarResult.Dismissed) {
+                        viewModel.deleteExpense(onSuccess = onNavigateBack)
                     }
-                ) {
-                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
+            onDismiss = { viewModel.hideDeleteDialog() }
         )
     }
 }

@@ -582,6 +582,10 @@
 
     <!-- Refill Details -->
     <string name="refill_details_title">Refill Details</string>
+    <string name="refill_details_fuel_refill">Fuel refill</string>
+    <string name="refill_details_consumption_under">%1$s%% under average</string>
+    <string name="refill_details_consumption_over">%1$s%% over average</string>
+    <string name="refill_details_consumption_on_par">On the car's average</string>
     <string name="unknown_car">Unknown Car</string>
     <string name="total_amount_paid">Total Amount Paid</string>
     <string name="metric_fuel_volume">Fuel Volume</string>
@@ -599,6 +603,7 @@
 
     <!-- Expense Details -->
     <string name="expense_details_title">Expense Details</string>
+    <string name="expense_details_car">Car</string>
     <string name="edit">Edit</string>
     <string name="delete_expense_title">Delete Expense</string>
     <string name="delete_expense_confirm">Are you sure you want to delete this expense?</string>

@@ -552,6 +552,10 @@
 
     <!-- Refill Details -->
     <string name="refill_details_title">Λεπτομέρειες ανεφοδιασμού</string>
+    <string name="refill_details_fuel_refill">Ανεφοδιασμός</string>
+    <string name="refill_details_consumption_under">%1$s%% κάτω από τον μέσο όρο</string>
+    <string name="refill_details_consumption_over">%1$s%% πάνω από τον μέσο όρο</string>
+    <string name="refill_details_consumption_on_par">Στον μέσο όρο του οχήματος</string>
     <string name="unknown_car">Άγνωστο αυτοκίνητο</string>
     <string name="total_amount_paid">Συνολικό ποσό πληρωμής</string>
     <string name="metric_fuel_volume">Όγκος καυσίμου</string>
@@ -569,6 +573,7 @@
 
     <!-- Expense Details -->
     <string name="expense_details_title">Λεπτομέρειες εξόδου</string>
+    <string name="expense_details_car">Όχημα</string>
     <string name="edit">Επεξεργασία</string>
     <string name="delete_expense_title">Διαγραφή εξόδου</string>
     <string name="delete_expense_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το έξοδο;</string>

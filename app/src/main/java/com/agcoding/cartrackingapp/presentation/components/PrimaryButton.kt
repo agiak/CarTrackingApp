@@ -114,6 +114,11 @@ fun PrimaryButton(
  * The second choice next to a [PrimaryButton] — Cancel, Sign in beside Create
  * account. Same size and shape, on the quiet surface, so a pair of them reads
  * as one control with two halves rather than as two unrelated buttons.
+ *
+ * @param contentColor recolours the label and icon while the container stays
+ *   quiet. Delete beside Edit is the case it exists for: both are secondary
+ *   actions, so neither should be filled, but only one of them is irreversible
+ *   and that difference has to be visible.
  */
 @Composable
 fun TonalButton(
@@ -122,9 +127,11 @@ fun TonalButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     icon: ImageVector? = null,
+    contentColor: Color? = null,
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
+    val content = contentColor ?: scheme.contentPrimary
 
     Box(
         contentAlignment = Alignment.Center,
@@ -141,7 +148,7 @@ fun TonalButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = scheme.contentPrimary,
+                    tint = content,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
@@ -149,7 +156,7 @@ fun TonalButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.titleSmall,
-                color = scheme.contentPrimary,
+                color = content,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

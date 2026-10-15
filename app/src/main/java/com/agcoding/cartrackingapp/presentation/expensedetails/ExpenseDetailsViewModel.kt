@@ -22,7 +22,9 @@ sealed class ExpenseDetailsUiState {
     object Loading : ExpenseDetailsUiState()
     data class Success(
         val expense: Expense,
-        val carName: String
+        val carName: String,
+        /** Shown beside the name on the details row, so two cars of the same model are told apart. */
+        val carPlate: String? = null
     ) : ExpenseDetailsUiState()
     data class Error(val message: String) : ExpenseDetailsUiState()
 }
@@ -48,7 +50,8 @@ class ExpenseDetailsViewModel @Inject constructor(
                     if (car != null) {
                         ExpenseDetailsUiState.Success(
                             expense = expense,
-                            carName = car.name
+                            carName = car.name,
+                            carPlate = car.licensePlate.takeIf { it.isNotBlank() }
                         )
                     } else {
                         ExpenseDetailsUiState.Error("Car not found")

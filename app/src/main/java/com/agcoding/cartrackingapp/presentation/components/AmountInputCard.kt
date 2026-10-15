@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -37,7 +36,6 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
-import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 
 /**
  * The figure a form is really about: the amount of an expense, the cost of a
@@ -70,11 +68,14 @@ fun AmountInputCard(
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
 
+    // A hairline at rest, like every other field in the app. Transparent, this
+    // card was a block of surface colour on a card — the one field on the form
+    // that most needs to look like a field had the least edge of any of them.
     val borderColor by animateColorAsState(
         targetValue = when {
-            isError -> scheme.categoryService
+            isError -> scheme.statusError
             focused -> scheme.actionPrimary
-            else -> Color.Transparent
+            else -> scheme.borderDefault
         },
         animationSpec = tween(150),
         label = "amountBorder",
@@ -85,7 +86,7 @@ fun AmountInputCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(dimens.radius.card))
-                .background(scheme.backgroundCard)
+                .background(scheme.backgroundSecondary)
                 .border(
                     BorderStroke(1.5.dp, borderColor),
                     RoundedCornerShape(dimens.radius.card),
@@ -134,7 +135,7 @@ fun AmountInputCard(
             Text(
                 text = errorText,
                 style = MaterialTheme.typography.bodySmall,
-                color = scheme.categoryService,
+                color = scheme.statusError,
                 modifier = Modifier.padding(start = 4.dp),
             )
         }
