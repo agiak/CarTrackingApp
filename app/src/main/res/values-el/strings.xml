@@ -1334,6 +1334,11 @@
     <string name="date_filter_month">Μήνας</string>
     <string name="date_filter_all_time">Όλη η περίοδος</string>
     <string name="date_filter_all_months">Όλοι οι μήνες</string>
+    <string name="date_filter_quick">Γρήγορη επιλογή</string>
+    <string name="date_filter_this_month">Αυτόν τον μήνα</string>
+    <string name="date_filter_last_three_months">Τελευταίοι 3 μήνες</string>
+    <string name="date_filter_this_year">Φέτος</string>
+    <string name="date_filter_reset">Επαναφορά</string>
 
     <!-- Unified transactions list -->
     <string name="transactions_section_header">Συναλλαγές (%1$d)</string>

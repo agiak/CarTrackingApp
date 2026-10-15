@@ -1349,6 +1349,11 @@
     <string name="date_filter_month">Month</string>
     <string name="date_filter_all_time">All time</string>
     <string name="date_filter_all_months">All months</string>
+    <string name="date_filter_quick">Quick</string>
+    <string name="date_filter_this_month">This month</string>
+    <string name="date_filter_last_three_months">Last 3 months</string>
+    <string name="date_filter_this_year">This year</string>
+    <string name="date_filter_reset">Reset</string>
 
     <!-- Unified transactions list -->
     <string name="transactions_section_header">Transactions (%1$d)</string>
