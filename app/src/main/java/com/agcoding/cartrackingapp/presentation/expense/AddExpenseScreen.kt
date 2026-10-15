@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.AmountInputCard
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
@@ -258,6 +260,23 @@ fun AddExpenseScreen(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // The amount leads. On a form of eight identical fields the
+                // one the whole screen exists to capture looked exactly like
+                // the notes box; it is now the first thing a thumb reaches.
+                AmountInputCard(
+                    value = amount,
+                    onValueChange = viewModel::updateAmount,
+                    label = stringResource(R.string.expense_amount_label),
+                    suffix = "\u20ac",
+                    placeholder = stringResource(R.string.amount_placeholder),
+                    isError = amountError != null,
+                    errorText = amountError,
+                    visualTransformation = ThousandsSeparatorTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 CategorySelector(
                     selectedCategory = category,
                     quickPickCategories = quickPickCategories,
@@ -267,23 +286,6 @@ fun AddExpenseScreen(
                     onSelectCategory = viewModel::selectCategory,
                     onToggleDropdown = viewModel::toggleDropdown,
                     onDismissDropdown = viewModel::dismissDropdown,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                StyledOutlinedTextField(
-                    value = amount,
-                    onValueChange = viewModel::updateAmount,
-                    label = { Text(stringResource(R.string.expense_amount_eur)) },
-                    placeholder = { Text(stringResource(R.string.amount_placeholder)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    visualTransformation = ThousandsSeparatorTransformation(),
-                    singleLine = true,
-                    isError = amountError != null,
-                    supportingText = amountError?.let { error ->
-                        { Text(error) }
-                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -331,7 +333,8 @@ fun AddExpenseScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
+                PrimaryButton(
+                    label = stringResource(R.string.save_expense),
                     onClick = {
                         viewModel.saveExpense(
                             onSuccess = { showSuccess = true },
@@ -342,19 +345,9 @@ fun AddExpenseScreen(
                             }
                         )
                     },
-                    enabled = !isSaving && category.isNotBlank() && amount.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    Text(stringResource(R.string.save_expense))
-                }
+                    enabled = category.isNotBlank() && amount.isNotBlank(),
+                    isBusy = isSaving,
+                )
             }
         }
 

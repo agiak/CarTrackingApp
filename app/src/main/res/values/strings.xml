@@ -511,6 +511,7 @@
     <string name="expense_category_hint">Select or type a category</string>
     <string name="expense_show_categories">Show categories</string>
     <string name="expense_amount_eur">Amount (€)</string>
+    <string name="expense_amount_label">Amount</string>
     <string name="expense_notes_optional">Notes (optional)</string>
     <string name="expense_notes_hint">Add any notes...</string>
     <string name="save_expense">Save Expense</string>

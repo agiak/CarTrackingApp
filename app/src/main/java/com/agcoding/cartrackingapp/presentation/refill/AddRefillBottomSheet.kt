@@ -46,6 +46,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
+import com.agcoding.cartrackingapp.presentation.components.AmountInputCard
+import com.agcoding.cartrackingapp.presentation.components.Kpi
+import com.agcoding.cartrackingapp.presentation.components.KpiGrid
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
 import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.refill.components.VoiceEntrySection
@@ -160,19 +165,17 @@ fun AddRefillBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Amount paid
-            StyledOutlinedTextField(
+            // What it cost is the figure this form is for, and the one most
+            // often typed while holding a receipt at the pump.
+            AmountInputCard(
                 value = uiState.amountPaid,
                 onValueChange = viewModel::updateAmountPaid,
-                label = { Text(stringResource(R.string.amount_paid_eur)) },
-                placeholder = { Text(stringResource(R.string.amount_paid_hint)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                visualTransformation = ThousandsSeparatorTransformation(),
-                singleLine = true,
+                label = stringResource(R.string.amount_paid_eur),
+                suffix = "\u20ac",
+                placeholder = stringResource(R.string.amount_paid_hint),
                 isError = uiState.fieldErrors.containsKey("cost"),
-                supportingText = uiState.fieldErrors["cost"]?.let { error ->
-                    { Text(error) }
-                },
+                errorText = uiState.fieldErrors["cost"],
+                visualTransformation = ThousandsSeparatorTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -325,41 +328,32 @@ fun AddRefillBottomSheet(
                     (liters / distance) * 100.0
                 } else null
 
-                StyledCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    border = null
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.calculated),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(
-                                R.string.price_per_liter_format,
-                                pricePerLiter.formatNumber(3)
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                        if (consumption != null) {
-                            Text(
-                                text = stringResource(
-                                    R.string.fuel_consumption_format,
-                                    consumption.formatNumber(2)
-                                ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                // These are not inputs, so they stop looking like a filled
+                // field and become figures: the same KPI grid the statistics
+                // screens use, which is where the user will meet them again.
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SectionLabel(stringResource(R.string.calculated))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    KpiGrid(
+                        items = buildList {
+                            add(
+                                Kpi(
+                                    label = stringResource(R.string.price_per_liter_label),
+                                    value = pricePerLiter.formatNumber(3),
+                                    unit = "\u20ac/L",
+                                )
                             )
-                        }
-                    }
+                            if (consumption != null) {
+                                add(
+                                    Kpi(
+                                        label = stringResource(R.string.consumption_label),
+                                        value = consumption.formatNumber(2),
+                                        unit = "L/100",
+                                    )
+                                )
+                            }
+                        },
+                    )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -376,26 +370,14 @@ fun AddRefillBottomSheet(
             }
 
             // Save button
-            Button(
-                onClick = {
-                    viewModel.saveRefill(onSuccess = { showSuccess = true })
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isSaving &&
-                        uiState.amountPaid.isNotBlank() &&
+            PrimaryButton(
+                label = stringResource(R.string.save_refill),
+                onClick = { viewModel.saveRefill(onSuccess = { showSuccess = true }) },
+                enabled = uiState.amountPaid.isNotBlank() &&
                         uiState.litersAdded.isNotBlank() &&
-                        uiState.tripDistance.isNotBlank()
-            ) {
-                if (uiState.isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(stringResource(R.string.save_refill))
-            }
+                        uiState.tripDistance.isNotBlank(),
+                isBusy = uiState.isSaving,
+            )
         }
         }
     }

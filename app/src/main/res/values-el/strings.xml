@@ -481,6 +481,7 @@
     <string name="expense_category_hint">Επιλέξτε ή πληκτρολογήστε κατηγορία</string>
     <string name="expense_show_categories">Εμφάνιση κατηγοριών</string>
     <string name="expense_amount_eur">Ποσό (€)</string>
+    <string name="expense_amount_label">Ποσό</string>
     <string name="expense_notes_optional">Σημειώσεις (προαιρετικό)</string>
     <string name="expense_notes_hint">Προσθέστε σημειώσεις…</string>
     <string name="save_expense">Αποθήκευση εξόδου</string>
