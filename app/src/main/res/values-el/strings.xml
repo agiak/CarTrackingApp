@@ -136,6 +136,9 @@
     <string name="onboarding_meter_unit_km">χλμ</string>
     <string name="onboarding_meter_reset">μηδενισμός</string>
     <string name="onboarding_meter_reset_hint">Κράτα πατημένο το κουμπί στο ταμπλό</string>
+    <string name="onboarding_meter_use_this">Αυτό να χρησιμοποιείς</string>
+    <string name="onboarding_reminder_in_days">σε 30 ημέρες</string>
+    <string name="onboarding_reminder_in_km">σε 1.250 km</string>
     <string name="onboarding_chip_service">Σέρβις</string>
     <string name="onboarding_chip_wash">Πλύσιμο</string>
     <string name="onboarding_chip_tyres">Ελαστικά</string>

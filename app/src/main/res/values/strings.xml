@@ -163,6 +163,9 @@
     <string name="onboarding_meter_unit_km">km</string>
     <string name="onboarding_meter_reset">reset</string>
     <string name="onboarding_meter_reset_hint">Hold the button on the dashboard</string>
+    <string name="onboarding_meter_use_this">Use this one</string>
+    <string name="onboarding_reminder_in_days">in 30 days</string>
+    <string name="onboarding_reminder_in_km">in 1.250 km</string>
     <string name="onboarding_chip_service">Service</string>
     <string name="onboarding_chip_wash">Car wash</string>
     <string name="onboarding_chip_tyres">Tyres</string>
