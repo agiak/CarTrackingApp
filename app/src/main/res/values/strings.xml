@@ -456,6 +456,11 @@
     <string name="car_list_no_cars_title">No cars added yet</string>
     <string name="car_list_no_cars_desc">Add your first car to start tracking fuel expenses</string>
     <string name="car_list_add_car_cd">Add car</string>
+    <string name="car_list_meta_tracked">%1$s km tracked</string>
+    <plurals name="car_list_vehicles_count">
+        <item quantity="one">%1$d vehicle</item>
+        <item quantity="other">%1$d vehicles</item>
+    </plurals>
 
     <!-- Add Car Dialog -->
     <string name="add_car_title">Add New Car</string>
@@ -476,6 +481,7 @@
     <string name="car_card_total_cost">Total Cost</string>
     <string name="car_card_distance">Distance</string>
     <string name="car_card_avg_consumption">Avg. Consumption</string>
+    <string name="car_card_cost_per_km">Cost / km</string>
     <string name="car_card_km_format">%1$s km</string>
     <string name="car_card_currency_eur_format">%1$s €</string>
     <string name="car_card_consumption_format">%1$s L/100km</string>

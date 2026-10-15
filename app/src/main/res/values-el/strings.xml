@@ -426,6 +426,11 @@
     <string name="car_list_no_cars_title">Δεν έχουν προστεθεί αυτοκίνητα</string>
     <string name="car_list_no_cars_desc">Προσθέστε το πρώτο σας αυτοκίνητο για να ξεκινήσετε την παρακολούθηση των εξόδων</string>
     <string name="car_list_add_car_cd">Προσθήκη αυτοκινήτου</string>
+    <string name="car_list_meta_tracked">%1$s km συνολικά</string>
+    <plurals name="car_list_vehicles_count">
+        <item quantity="one">%1$d όχημα</item>
+        <item quantity="other">%1$d οχήματα</item>
+    </plurals>
 
     <!-- Add Car Dialog -->
     <string name="add_car_title">Προσθήκη νέου αυτοκινήτου</string>
@@ -446,6 +451,7 @@
     <string name="car_card_total_cost">Συνολικό κόστος</string>
     <string name="car_card_distance">Απόσταση</string>
     <string name="car_card_avg_consumption">Μ.Ο. κατανάλωση</string>
+    <string name="car_card_cost_per_km">Κόστος / km</string>
     <string name="car_card_km_format">%1$s km</string>
     <string name="car_card_currency_eur_format">%1$s €</string>
     <string name="car_card_consumption_format">%1$s L/100km</string>

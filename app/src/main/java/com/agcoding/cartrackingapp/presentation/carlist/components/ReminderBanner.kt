@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +46,8 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.usecase.expense.ReminderInfo
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,46 +156,58 @@ fun ReminderBanner(
                 }
             }
         ) {
+            val scheme = LocalAppColorScheme.current
+            val dimens = LocalAppDimens.current
+
             StyledCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onClick),
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                // The accent at low opacity, not the accent itself: this is a
+                // nudge sitting above the user's cars, and a solid block of
+                // the brand colour would outrank the thing it interrupts.
+                containerColor = scheme.actionSecondary,
                 border = null
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left side: Icon
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(dimens.radius.iconTile))
+                            .background(scheme.actionPrimary)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = null,
+                            tint = scheme.actionContent,
+                            modifier = Modifier.size(19.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    // Center: Text content (takes remaining space)
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.reminder_banner_title),
                             style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = scheme.contentPrimary
                         )
                         Text(
                             text = message,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            color = scheme.contentSecondary
                         )
                     }
 
-                    // Right side: Close button and chevron
+                    // No chevron beside the ×: the whole banner is the target,
+                    // and two affordances a thumb-width apart, one of which
+                    // makes it go away, is a bad place to be imprecise.
                     IconButton(
                         onClick = {
                             isVisible = false
@@ -207,17 +221,10 @@ fun ReminderBanner(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.dismiss),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(20.dp)
+                            tint = scheme.contentSecondary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
-
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = stringResource(R.string.view_reminders),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
                 }
             }
         }
