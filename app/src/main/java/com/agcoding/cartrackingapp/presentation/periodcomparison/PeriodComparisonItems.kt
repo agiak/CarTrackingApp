@@ -19,8 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,6 +39,7 @@ import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.PeriodComparison
 import com.agcoding.cartrackingapp.domain.model.PeriodMetric
 import com.agcoding.cartrackingapp.domain.model.PeriodMetricKey
+import com.agcoding.cartrackingapp.presentation.components.AutoSizeText
 import com.agcoding.cartrackingapp.presentation.components.GroupedDivider
 import com.agcoding.cartrackingapp.presentation.components.GroupedListContainer
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
@@ -95,22 +95,22 @@ fun LazyListScope.periodComparisonItems(
         }
     }
 
-    item(key = "metrics_header") {
-        MetricsHeaderRow(
-            primaryLabel = dateFilterLabel(primaryFilter),
-            secondaryLabel = dateFilterLabel(secondaryFilter)
-        )
-    }
-
-    // One card holding every metric, rather than a card each. A comparison is
-    // read across and down — the eye needs the A column to line up from row to
-    // row, and eight separate cards with eight sets of rounded corners between
-    // them is the one layout that stops it doing that.
+    // One table: a header naming the three columns, then one line per metric.
+    // Each metric used to take two lines — its name, then its figures — which
+    // meant the A column restarted its alignment every row and the thing a
+    // comparison is for, reading down a column, did not work.
     item(key = "metrics") {
-        GroupedListContainer {
-            comparison.metrics.forEachIndexed { index, metric ->
-                if (index > 0) GroupedDivider(startInset = false)
-                PeriodMetricRow(metric = metric)
+        Column {
+            MetricsHeaderRow(
+                primaryLabel = dateFilterLabel(primaryFilter),
+                secondaryLabel = dateFilterLabel(secondaryFilter)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            GroupedListContainer {
+                comparison.metrics.forEachIndexed { index, metric ->
+                    if (index > 0) GroupedDivider(startInset = false)
+                    PeriodMetricRow(metric = metric)
+                }
             }
         }
     }
@@ -142,128 +142,129 @@ private fun PeriodPickers(
 ) {
     val scheme = LocalAppColorScheme.current
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         PeriodPickerCard(
             label = stringResource(R.string.period_comparison_primary),
             accent = scheme.actionPrimary,
             filter = primaryFilter,
             transactionCount = primaryCount,
-            onClick = onEditPrimary
+            onClick = onEditPrimary,
+            modifier = Modifier.weight(1f)
         )
         if (onSwap != null) {
-            SwapRow(onSwap = onSwap)
+            SwapButton(onSwap = onSwap)
         } else {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.width(10.dp))
         }
         PeriodPickerCard(
             label = stringResource(R.string.period_comparison_secondary),
             accent = scheme.contentPrimary,
             filter = secondaryFilter,
             transactionCount = secondaryCount,
-            onClick = onEditSecondary
+            onClick = onEditSecondary,
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
+/**
+ * One side of the comparison.
+ *
+ * Side by side rather than stacked, because that is how the table below reads
+ * them: A is the left column there and the left card here. Stacked, the card
+ * order and the column order disagreed and the eye had to translate.
+ */
 @Composable
 private fun PeriodPickerCard(
     label: String,
     accent: Color,
     filter: DateFilter,
     transactionCount: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(dimens.radius.card))
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(dimens.radius.tile))
             .background(scheme.backgroundCard)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
-        // A stub of colour rather than a coloured heading: the label has to
-        // stay readable, and the accent is what ties this card to its column
-        // in the table below.
-        Box(
-            modifier = Modifier
-                .size(width = 3.dp, height = 34.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(accent)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(width = 10.dp, height = 3.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(accent)
+            )
+            Spacer(modifier = Modifier.width(7.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 color = scheme.contentSecondary,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = dateFilterLabel(filter),
-                style = MaterialTheme.typography.titleMedium,
-                color = scheme.contentPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = dateFilterLabel(filter),
+            style = MaterialTheme.typography.titleSmall,
+            color = scheme.contentPrimary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = stringResource(R.string.period_comparison_record_count, transactionCount),
             style = AppNumbers.tag,
             color = scheme.contentSecondary,
-            textAlign = TextAlign.End,
             maxLines = 1
         )
     }
 }
 
-/** The line between the two periods, with the exchange on it. */
+/** The exchange, between the two cards it exchanges. */
 @Composable
-private fun SwapRow(onSwap: () -> Unit) {
+private fun SwapButton(onSwap: () -> Unit) {
     val scheme = LocalAppColorScheme.current
-    val dimens = LocalAppDimens.current
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(46.dp)
+            .padding(horizontal = 8.dp)
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(scheme.actionSecondary)
+            .clickable(onClick = onSwap)
     ) {
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = dimens.size.divider,
-            color = scheme.borderDefault
-        )
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(scheme.actionSecondary)
-                .clickable(onClick = onSwap)
-        ) {
-            Icon(
-                imageVector = Icons.Default.SwapVert,
-                contentDescription = stringResource(R.string.period_comparison_swap),
-                tint = scheme.actionPrimary,
-                modifier = Modifier.size(19.dp)
-            )
-        }
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = dimens.size.divider,
-            color = scheme.borderDefault
+        Icon(
+            imageVector = Icons.Default.SwapHoriz,
+            contentDescription = stringResource(R.string.period_comparison_swap),
+            tint = scheme.actionPrimary,
+            modifier = Modifier.size(20.dp)
         )
     }
 }
 
-/** Names the three columns once, so every metric row below can stay bare numbers. */
+/**
+ * The four column widths, declared once.
+ *
+ * The header and every row read from the same four numbers, which is the only
+ * way the columns actually line up — and lining up is the entire point of a
+ * comparison table.
+ */
+private const val COL_METRIC = 1.25f
+private const val COL_VALUE = 1f
+private const val COL_DELTA = 0.85f
+
+/** Names the four columns once, so every metric row below can stay bare numbers. */
 @Composable
 private fun MetricsHeaderRow(primaryLabel: String, secondaryLabel: String) {
     val scheme = LocalAppColorScheme.current
@@ -272,73 +273,96 @@ private fun MetricsHeaderRow(primaryLabel: String, secondaryLabel: String) {
             .fillMaxWidth()
             .padding(top = 8.dp, start = 16.dp, end = 16.dp)
     ) {
+        Spacer(modifier = Modifier.weight(COL_METRIC))
         Text(
             text = primaryLabel,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(COL_VALUE),
             style = MaterialTheme.typography.labelMedium,
             color = scheme.actionPrimary,
+            textAlign = TextAlign.End,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = secondaryLabel,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(COL_VALUE),
             style = MaterialTheme.typography.labelMedium,
             color = scheme.contentPrimary,
+            textAlign = TextAlign.End,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = stringResource(R.string.period_comparison_difference),
-            modifier = Modifier.weight(1.2f),
+            modifier = Modifier.weight(COL_DELTA),
             style = MaterialTheme.typography.labelMedium,
             color = scheme.contentSecondary,
             textAlign = TextAlign.End,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
 
+/**
+ * One metric, on one line.
+ *
+ * It used to take two: the name, then the three figures under it. That made
+ * the table twice as long and, worse, restarted the column alignment on every
+ * row — eight metrics meant eight separate little three-column layouts rather
+ * than one table you can read down.
+ */
 @Composable
 private fun PeriodMetricRow(metric: PeriodMetric) {
     val scheme = LocalAppColorScheme.current
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text(
-                text = metricLabel(metric.key),
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.contentSecondary
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = formatMetric(metric.key, metric.primary),
-                    modifier = Modifier.weight(1f),
-                    style = AppNumbers.compact,
-                    color = scheme.actionPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = formatMetric(metric.key, metric.secondary),
-                    modifier = Modifier.weight(1f),
-                    style = AppNumbers.compact,
-                    color = scheme.contentPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                DeltaCell(metric = metric, modifier = Modifier.weight(1.2f))
-            }
-        }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 13.dp)
+    ) {
+        Text(
+            text = metricLabel(metric.key),
+            modifier = Modifier.weight(COL_METRIC),
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.contentSecondary,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        AutoSizeText(
+            text = formatMetric(metric.key, metric.primary),
+            style = AppNumbers.compact,
+            color = scheme.actionPrimary,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(COL_VALUE)
+                .padding(start = 6.dp)
+        )
+        AutoSizeText(
+            text = formatMetric(metric.key, metric.secondary),
+            style = AppNumbers.compact,
+            color = scheme.contentPrimary,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(COL_VALUE)
+                .padding(start = 6.dp)
+        )
+        DeltaCell(
+            metric = metric,
+            modifier = Modifier
+                .weight(COL_DELTA)
+                .padding(start = 6.dp)
+        )
     }
 }
 
 /**
- * The difference between the two periods: the absolute change on top, the relative
- * change below.
+ * The difference between the two periods, as a percentage with an arrow.
+ *
+ * The absolute change went: on one line there is no room for both, and the
+ * percentage is the one that answers "is this a lot" without knowing the
+ * units. The absolute figures are the two columns to its left.
  *
  * Only the rate metrics are coloured — see [PeriodMetric.lowerIsBetter] for why a
  * smaller total is not automatically good news.
@@ -354,38 +378,31 @@ private fun DeltaCell(metric: PeriodMetric, modifier: Modifier = Modifier) {
         null -> scheme.contentSecondary
     }
 
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = when (metric.direction) {
-                    ComparisonDirection.UP -> Icons.AutoMirrored.Filled.TrendingUp
-                    ComparisonDirection.DOWN -> Icons.AutoMirrored.Filled.TrendingDown
-                    ComparisonDirection.FLAT -> Icons.AutoMirrored.Filled.TrendingFlat
-                },
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = signed(metric.delta, formatMetric(metric.key, metric.delta)),
-                style = AppNumbers.tag,
-                color = tint,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Icon(
+            imageVector = when (metric.direction) {
+                ComparisonDirection.UP -> Icons.AutoMirrored.Filled.TrendingUp
+                ComparisonDirection.DOWN -> Icons.AutoMirrored.Filled.TrendingDown
+                ComparisonDirection.FLAT -> Icons.AutoMirrored.Filled.TrendingFlat
+            },
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(modifier = Modifier.width(3.dp))
         Text(
             text = metric.percentChange
-                ?.let { signed(it, "${it.formatNumber(1)}%") }
-                ?: stringResource(R.string.period_comparison_no_baseline),
-            style = MaterialTheme.typography.labelSmall,
-            color = scheme.contentSecondary,
+                ?.let { signed(it, "${it.formatNumber(0)}%") }
+                ?: "—",
+            style = AppNumbers.tag,
+            color = tint,
             textAlign = TextAlign.End,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

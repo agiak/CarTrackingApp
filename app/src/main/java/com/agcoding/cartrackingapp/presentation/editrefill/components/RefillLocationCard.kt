@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,8 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import com.agcoding.cartrackingapp.presentation.components.AppTextField
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryOther
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
@@ -45,71 +50,87 @@ fun RefillLocationCard(
     modifier: Modifier = Modifier,
     isLoading: Boolean = false
 ) {
-    StyledCard(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.secondaryContainer
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    // The app's card surface, not secondaryContainer. On the accent tint the
+    // field inside sat on a coloured block and stopped reading as a field,
+    // which is the only thing in here anyone needs to touch.
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimens.radius.card))
+            .background(scheme.backgroundCard)
+            .padding(14.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = stringResource(R.string.location),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.location),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-                TextButton(onClick = onRefreshLocation, enabled = !isLoading) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.MyLocation,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.update))
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = stringResource(R.string.location),
+                    tint = scheme.categoryOther,
+                    modifier = Modifier.size(19.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.location),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = scheme.contentPrimary
+                )
             }
-
-            Spacer(modifier = Modifier.size(8.dp))
-
-            AppTextField(
-                value = locationName,
-                onValueChange = onLocationNameChange,
-                placeholder = { Text(stringResource(R.string.refill_location_name_hint)) },
-                singleLine = true,
-                enabled = !isLoading,
-                supportingText = when {
-                    isLoading -> {
-                        { Text(stringResource(R.string.location_detecting)) }
-                    }
-                    !hasLocation && locationName.isBlank() -> {
-                        { Text(stringResource(R.string.no_location)) }
-                    }
-                    else -> null
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(dimens.radius.button))
+                    .clickable(enabled = !isLoading, onClick = onRefreshLocation)
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(15.dp),
+                        strokeWidth = 2.dp,
+                        color = scheme.actionPrimary
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.MyLocation,
+                        contentDescription = null,
+                        tint = scheme.actionPrimary,
+                        modifier = Modifier.size(17.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.update),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = scheme.actionPrimary
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        AppTextField(
+            value = locationName,
+            onValueChange = onLocationNameChange,
+            placeholder = { Text(stringResource(R.string.refill_location_name_hint)) },
+            singleLine = true,
+            enabled = !isLoading,
+            supportingText = when {
+                isLoading -> {
+                    { Text(stringResource(R.string.location_detecting)) }
+                }
+                !hasLocation && locationName.isBlank() -> {
+                    { Text(stringResource(R.string.no_location)) }
+                }
+                else -> null
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

@@ -37,6 +37,9 @@
     <string name="filter_by_car">Filter by Car</string>
     <string name="select_cars_to_filter">Select one or more cars to view their statistics</string>
     <string name="apply">Apply</string>
+    <string name="select_all">Select all</string>
+    <string name="car_filter_selected_count">%1$d of %2$d selected</string>
+    <string name="car_filter_need_one">Select at least one car</string>
     <string name="all_cars">All Cars</string>
     <string name="cars_selected">%1$d cars selected</string>
 
@@ -545,6 +548,11 @@
 
     <!-- Edit Refill Screen -->
     <string name="edit_refill_title">Edit Refill</string>
+    <string name="edit_discard">Discard</string>
+    <string name="edit_save_changes">Save changes</string>
+    <string name="edit_refill_previous_odometer">Previous refill: %1$s km</string>
+    <string name="edit_refill_odometer_mismatch">Expected %1$s km from the trip distance</string>
+    <string name="edit_expense_category_locked">To change the category, delete this expense and add a new one.</string>
     <string name="amount_paid_eur">Amount Paid (€)</string>
     <string name="amount_paid_hint">e.g., 65.50</string>
     <string name="liters_added">Liters Added</string>
@@ -1116,6 +1124,10 @@
     <string name="fuel_forecast_screen_description">View predicted fuel costs and efficiency for next month based on your historical refill data. These predictions use Holt\'s Linear Exponential Smoothing algorithm to analyze trends in your fuel consumption patterns.</string>
     <string name="forecast_explanation">Based on %1$d months of historical data, here are the predicted values for next month:</string>
     <string name="forecast_cost_per_km">Cost per km</string>
+    <string name="forecast_next_month">Next month</string>
+    <string name="forecast_based_on_months">Based on %1$d months of historical data</string>
+    <string name="forecast_confidence">Confidence</string>
+    <string name="forecast_confidence_value">%1$d%% · %2$s</string>
     <string name="forecast_cost_per_km_explanation">This is how much you\'ll spend on fuel per kilometer driven next month. A lower value means better fuel economy. The algorithm analyzes your refill patterns to predict this cost.</string>
     <string name="forecast_efficiency">Fuel Efficiency</string>
     <string name="forecast_efficiency_explanation">This is your predicted fuel consumption in liters per 100 kilometers. Lower values indicate more efficient fuel usage. This prediction helps you spot changes in your driving habits or vehicle performance.</string>

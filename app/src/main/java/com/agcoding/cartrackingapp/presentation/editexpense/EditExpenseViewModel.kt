@@ -4,14 +4,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Expense
+import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -19,13 +23,27 @@ import javax.inject.Inject
 
 sealed class EditExpenseUiState {
     object Loading : EditExpenseUiState()
-    data class Success(val category: String) : EditExpenseUiState()
+
+    /**
+     * The category cannot be edited here — changing it would move the expense
+     * between the service and other totals, which is a different operation
+     * from correcting an amount — so it is shown rather than offered, with the
+     * car it belongs to beside it.
+     */
+    data class Success(
+        val category: String,
+        val carName: String = "",
+        val carPlate: String = ""
+    ) : EditExpenseUiState()
+
     data class Error(val message: String) : EditExpenseUiState()
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class EditExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
+    carRepository: CarRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -48,16 +66,53 @@ class EditExpenseViewModel @Inject constructor(
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
+    private val _isDirty = MutableStateFlow(false)
+    val isDirty: StateFlow<Boolean> = _isDirty.asStateFlow()
+
+    /**
+     * Whether anything differs from the expense as it was loaded.
+     *
+     * Compared against the loaded values rather than tracked with per-field
+     * flags, so typing a change and then typing it back correctly leaves Save
+     * quiet again.
+     */
+    private fun markDirty() {
+        val expense = currentExpense ?: return
+        _isDirty.value = _amount.value != expense.amount.toString().replace('.', ',') ||
+            _notes.value != (expense.notes ?: "") ||
+            _selectedDate.value != expense.timestamp
+    }
+
+    /** Puts the form back the way it was loaded. */
+    fun discardChanges() {
+        val expense = currentExpense ?: return
+        _amount.value = expense.amount.toString().replace('.', ',')
+        _notes.value = expense.notes ?: ""
+        _selectedDate.value = expense.timestamp
+        _isDirty.value = false
+    }
+
     val uiState: StateFlow<EditExpenseUiState> = expenseRepository.getExpenseById(expenseId)
-        .map { expense ->
+        .flatMapLatest { expense ->
             if (expense == null) {
-                EditExpenseUiState.Error("Expense not found")
+                flowOf(EditExpenseUiState.Error("Expense not found"))
             } else {
+                // Only seed the fields the first time; a later emission (the
+                // save writing back) must not overwrite what is being typed.
+                if (currentExpense?.id != expense.id) {
+                    _amount.value = expense.amount.toString().replace('.', ',')
+                    _notes.value = expense.notes ?: ""
+                    _selectedDate.value = expense.timestamp
+                    _isDirty.value = false
+                }
                 currentExpense = expense
-                _amount.value = expense.amount.toString().replace('.', ',')
-                _notes.value = expense.notes ?: ""
-                _selectedDate.value = expense.timestamp
-                EditExpenseUiState.Success(category = expense.category)
+                carRepository.getCarById(expense.carId).map { car ->
+                    EditExpenseUiState.Success(
+                        category = expense.category,
+                        carName = car?.name.orEmpty(),
+                        carPlate = car?.licensePlate.orEmpty()
+                    )
+                }
             }
         }
         .stateIn(
@@ -69,14 +124,17 @@ class EditExpenseViewModel @Inject constructor(
     fun updateAmount(newAmount: String) {
         // Keep only digits and a single ',' decimal separator (grouping is visual only).
         _amount.value = sanitizeDecimalInput(newAmount)
+        markDirty()
     }
 
     fun updateNotes(newNotes: String) {
         _notes.value = newNotes
+        markDirty()
     }
 
     fun updateDate(newDate: Long) {
         _selectedDate.value = newDate
+        markDirty()
     }
 
     fun showDatePicker() {
@@ -112,6 +170,8 @@ class EditExpenseViewModel @Inject constructor(
                 )
 
                 expenseRepository.updateExpense(updatedExpense)
+                currentExpense = updatedExpense
+                _isDirty.value = false
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.message ?: "Failed to update expense")

@@ -38,6 +38,9 @@
     <string name="filter_by_car">Ανά αυτοκίνητο</string>
     <string name="select_cars_to_filter">Επιλέξτε ένα ή περισσότερα αυτοκίνητα για να δείτε τα στατιστικά τους</string>
     <string name="apply">Εφαρμογή</string>
+    <string name="select_all">Επιλογή όλων</string>
+    <string name="car_filter_selected_count">%1$d από %2$d επιλεγμένα</string>
+    <string name="car_filter_need_one">Επίλεξε τουλάχιστον ένα όχημα</string>
     <string name="all_cars">Όλα τα αυτοκίνητα</string>
     <string name="cars_selected">%1$d αυτοκίνητα επιλεγμένα</string>
 
@@ -515,6 +518,11 @@
 
     <!-- Edit Refill Screen -->
     <string name="edit_refill_title">Επεξεργασία ανεφοδιασμού</string>
+    <string name="edit_discard">Απόρριψη</string>
+    <string name="edit_save_changes">Αποθήκευση αλλαγών</string>
+    <string name="edit_refill_previous_odometer">Προηγούμενος ανεφοδιασμός: %1$s km</string>
+    <string name="edit_refill_odometer_mismatch">Αναμενόταν %1$s km από την απόσταση διαδρομής</string>
+    <string name="edit_expense_category_locked">Για αλλαγή κατηγορίας, διάγραψε το έξοδο και πρόσθεσε νέο.</string>
     <string name="amount_paid_eur">Ποσό πληρωμής (€)</string>
     <string name="amount_paid_hint">π.χ., 65.50</string>
     <string name="liters_added">Λίτρα που προστέθηκαν</string>
@@ -1122,6 +1130,10 @@
     <string name="fuel_forecast_screen_description">Δείτε τις προβλέψεις για το κόστος καυσίμου και την κατανάλωση του επόμενου μήνα με βάση τα ιστορικά δεδομένα ανεφοδιασμού. Οι προβλέψεις αυτές χρησιμοποιούν τον αλγόριθμο Holt\'s Linear Exponential Smoothing για την ανάλυση των τάσεων στην κατανάλωση καυσίμου.</string>
     <string name="forecast_explanation">Με βάση %1$d μήνες ιστορικών δεδομένων, οι προβλεπόμενες τιμές για τον επόμενο μήνα είναι:</string>
     <string name="forecast_cost_per_km">Κόστος ανά km</string>
+    <string name="forecast_next_month">Τον επόμενο μήνα</string>
+    <string name="forecast_based_on_months">Με βάση %1$d μήνες ιστορικών δεδομένων</string>
+    <string name="forecast_confidence">Αξιοπιστία</string>
+    <string name="forecast_confidence_value">%1$d%% · %2$s</string>
     <string name="forecast_cost_per_km_explanation">Αυτό είναι το ποσό που θα ξοδέψετε σε καύσιμο ανά χιλιόμετρο τον επόμενο μήνα. Χαμηλότερη τιμή σημαίνει καλύτερη οικονομία καυσίμου. Ο αλγόριθμος αναλύει τα πρότυπα ανεφοδιασμού σας για να προβλέψει αυτό το κόστος.</string>
     <string name="forecast_efficiency">Κατανάλωση</string>
     <string name="forecast_efficiency_explanation">Αυτή είναι η προβλεπόμενη κατανάλωση καυσίμου σε λίτρα ανά 100 χιλιόμετρα. Χαμηλότερες τιμές υποδεικνύουν πιο αποδοτική χρήση καυσίμου. Αυτή η πρόβλεψη σας βοηθά να εντοπίσετε αλλαγές στις συνήθειες οδήγησης ή στην απόδοση του οχήματος.</string>

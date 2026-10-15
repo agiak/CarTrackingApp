@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,7 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.AutoSizeText
 import com.agcoding.cartrackingapp.presentation.components.CostSegment
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -41,6 +44,10 @@ import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import kotlin.math.roundToInt
+
+/** The ring's outer size and band width; the hole between them holds the total. */
+private val DONUT_SIZE = 200.dp
+private val DONUT_STROKE = 22.dp
 
 /**
  * Where all the money went, in one card.
@@ -80,28 +87,42 @@ fun CostDonutCard(
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Donut(segments = segments, track = scheme.backgroundSecondary)
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    // The hole in the ring, less a margin so a long total stops
+                    // short of the stroke instead of touching it. Without a
+                    // bound the total simply drew across the ring: at 24sp
+                    // "154.611,52 €" is wider than the 156dp hole, and the
+                    // figure sat on top of the fuel and service arcs.
+                    modifier = Modifier.width(DONUT_SIZE - DONUT_STROKE * 2 - 16.dp),
+                ) {
                     Text(
                         text = stringResource(R.string.total_cost),
                         style = MaterialTheme.typography.labelLarge,
                         color = scheme.contentSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Spacer(Modifier.height(2.dp))
-                    Text(
+                    AutoSizeText(
                         text = totalCost.formatMoney(),
                         style = AppNumbers.donut,
                         color = scheme.contentPrimary,
-                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     if (costPerKilometer > 0) {
                         Spacer(Modifier.height(2.dp))
-                        Text(
+                        AutoSizeText(
                             text = stringResource(
                                 R.string.cost_per_km_format,
                                 costPerKilometer.formatNumber(2),
                             ),
                             style = MaterialTheme.typography.labelLarge,
                             color = scheme.contentSecondary,
+                            minFontSize = 9.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
@@ -133,8 +154,8 @@ fun CostDonutCard(
 private fun Donut(segments: List<CostSegment>, track: Color) {
     val total = segments.sumOf { it.value }
 
-    Canvas(modifier = Modifier.size(200.dp)) {
-        val strokeWidth = 22.dp.toPx()
+    Canvas(modifier = Modifier.size(DONUT_SIZE)) {
+        val strokeWidth = DONUT_STROKE.toPx()
         val diameter = size.minDimension - strokeWidth
         val topLeft = Offset((size.width - diameter) / 2f, (size.height - diameter) / 2f)
         val arcSize = Size(diameter, diameter)

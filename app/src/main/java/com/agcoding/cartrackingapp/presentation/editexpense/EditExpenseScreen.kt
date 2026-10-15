@@ -14,6 +14,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.editexpense.components.EditExpenseContent
 import kotlinx.coroutines.launch
@@ -49,6 +51,7 @@ fun EditExpenseScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
+    val isDirty by viewModel.isDirty.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -79,7 +82,9 @@ fun EditExpenseScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = LocalAppColorScheme.current.actionPrimary
+                    )
                 }
             }
 
@@ -102,6 +107,10 @@ fun EditExpenseScreen(
                         notes = notes,
                         onNotesChange = viewModel::updateNotes,
                         isSaving = isSaving,
+                        carName = state.carName,
+                        carPlate = state.carPlate,
+                        isDirty = isDirty,
+                        onDiscard = viewModel::discardChanges,
                         onSaveClick = {
                             viewModel.updateExpense(
                                 onSuccess = { showSuccess = true },
@@ -117,7 +126,7 @@ fun EditExpenseScreen(
                                 if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
                                 else Modifier.fillMaxWidth()
                             )
-                            .padding(horizontal = if (isTablet) 24.dp else 16.dp)
+                            .padding(horizontal = if (isTablet) 24.dp else 18.dp)
                     )
                 }
 
@@ -159,7 +168,11 @@ fun EditExpenseScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(state.message)
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = LocalAppColorScheme.current.contentSecondary
+                    )
                 }
             }
         }
