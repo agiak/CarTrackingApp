@@ -27,6 +27,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
@@ -378,7 +379,6 @@ fun AttachmentsScreen(
     }
 }
 
-@Preview(showBackground = true)
 
 /**
  * Where a file goes.
@@ -390,6 +390,7 @@ fun AttachmentsScreen(
  * already reads as "put something here", and unlike a FAB it can say so in
  * words without being a button in the way of the list.
  */
+@Preview(showBackground = true)
 @Composable
 private fun DropZone(onClick: () -> Unit) {
     val accent = MaterialTheme.colorScheme.primary

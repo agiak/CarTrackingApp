@@ -14,15 +14,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 
 /**
  * The app's card.
  *
- * Flat, on the palette's card surface, with a generous radius. There is no
- * shadow and no border: the redesign separates surfaces by tone and by corner
- * radius rather than by elevation, so a screen of six cards reads as six
- * panels of one object instead of six sheets of paper at different heights.
+ * Flat, on the palette's card surface, with a generous radius and no shadow:
+ * the redesign separates surfaces by tone and by corner radius rather than by
+ * elevation, so a screen of six cards reads as six panels of one object
+ * instead of six sheets of paper at different heights.
+ *
+ * Tone alone was not enough in the dark palettes, where card and screen are a
+ * shade apart, so a card on the default surface also gets a hairline in the
+ * palette's border colour. A card given its own [containerColor] (an accent
+ * card) already stands out and keeps no border unless one is passed.
  *
  * @param tintAlpha kept so the existing call sites still compile; it no longer
  *   does anything. The old card blended the outline colour into the surface to
@@ -42,6 +48,11 @@ fun StyledCard(
         containerColor = containerColor ?: MaterialTheme.colorScheme.surface,
     )
     val elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    val resolvedBorder = border ?: if (containerColor == null) {
+        BorderStroke(1.dp, LocalAppColorScheme.current.borderDefault)
+    } else {
+        null
+    }
 
     if (onClick != null) {
         Card(
@@ -50,7 +61,7 @@ fun StyledCard(
             shape = shape,
             colors = colors,
             elevation = elevation,
-            border = border,
+            border = resolvedBorder,
             content = content
         )
     } else {
@@ -59,7 +70,7 @@ fun StyledCard(
             shape = shape,
             colors = colors,
             elevation = elevation,
-            border = border,
+            border = resolvedBorder,
             content = content
         )
     }

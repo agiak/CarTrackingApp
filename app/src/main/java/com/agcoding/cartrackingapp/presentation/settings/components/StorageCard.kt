@@ -296,6 +296,7 @@ private fun RowScope.ActionTile(
             .weight(1f)
             .height(78.dp)
             .clip(RoundedCornerShape(dimens.radius.tile))
+            .border(1.dp, scheme.borderDefault, RoundedCornerShape(dimens.radius.tile))
             .background(scheme.backgroundCard)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled || isBusy) 1f else 0.4f)

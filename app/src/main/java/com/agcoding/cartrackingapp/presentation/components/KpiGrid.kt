@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +68,7 @@ fun KpiGrid(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(dimens.radius.groupedList))
+            .border(1.dp, scheme.borderDefault, RoundedCornerShape(dimens.radius.groupedList))
             .background(scheme.borderDefault),
     ) {
         items.chunked(columns).forEach { rowItems ->

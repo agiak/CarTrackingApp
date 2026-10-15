@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,6 +96,8 @@ fun GroupedListContainer(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(dimens.radius.groupedList))
+            // The same hairline as StyledCard: in the dark palettes tone alone barely separates a card from the screen.
+            .border(1.dp, LocalAppColorScheme.current.borderDefault, RoundedCornerShape(dimens.radius.groupedList))
             .background(MaterialTheme.colorScheme.surface),
         content = content,
     )

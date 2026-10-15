@@ -36,10 +36,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.agcoding.cartrackingapp.debug" />
+                  <option name="mobileSdkAppId" value="1:316474162547:android:30eb88349288d2e7b69906" />
+                  <option name="projectId" value="cariboo-18927" />
+                  <option name="projectNumber" value="316474162547" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

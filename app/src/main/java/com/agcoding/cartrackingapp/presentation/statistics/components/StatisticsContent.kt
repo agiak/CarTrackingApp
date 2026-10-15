@@ -1,6 +1,7 @@
 package com.agcoding.cartrackingapp.presentation.statistics.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -396,6 +397,7 @@ private fun RowScope.ExploreTileCard(tile: ExploreTile) {
             .weight(1f)
             .heightIn(min = 118.dp)
             .clip(RoundedCornerShape(20.dp))
+            .border(1.dp, scheme.borderDefault, RoundedCornerShape(20.dp))
             .background(scheme.backgroundCard)
             .clickable(onClick = tile.onClick)
             .padding(14.dp),
