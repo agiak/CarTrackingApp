@@ -58,6 +58,7 @@ import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.shared.ui.tokens.categoryFuel
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatMoneyPer
 import com.agcoding.cartrackingapp.util.formatNumber
