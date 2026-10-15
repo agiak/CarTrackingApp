@@ -300,6 +300,11 @@
     <string name="last_tire_change">Last Tire Change</string>
     <string name="tire_brand_model">Tire Brand / Model</string>
     <string name="tire_dimensions">Tire Dimensions</string>
+    <string name="car_chip_kteo">KTEO</string>
+    <string name="car_chip_insurance">Insurance</string>
+    <string name="car_chip_emissions">Emissions</string>
+    <string name="car_chip_road_tax">Road tax</string>
+    <string name="car_chip_tyres">Tyres</string>
     <string name="tire_installation_date">Tire Installation Date</string>
     <string name="tyre_size_legacy">Tyre Size (Legacy)</string>
     <string name="recent_expenses">Recent Expenses</string>

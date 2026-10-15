@@ -1,11 +1,7 @@
-@file:OptIn(ExperimentalLayoutApi::class)
-
 package com.agcoding.cartrackingapp.presentation.cardetails.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,25 +21,37 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.DateFilter
 import com.agcoding.cartrackingapp.domain.model.PeriodStatistics
 import com.agcoding.cartrackingapp.presentation.components.DateFilterButton
+import com.agcoding.cartrackingapp.presentation.components.Kpi
+import com.agcoding.cartrackingapp.presentation.components.KpiGrid
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
- * Statistics for the period the user picked — all time, a year, or a single month.
+ * What this car cost over a period the user chooses — all time, a year, a
+ * single month.
  *
- * The date chip in the header opens the shared date filter sheet, the same control
- * used on every other screen that filters by date.
+ * The date control in the header is the shared chip, so it now reads as the
+ * active period rather than as a button labelled "filter", and carries an x
+ * when something is selected. That matters most here, where a surprisingly
+ * small total is far more likely to be a forgotten filter than a cheap month.
  */
 @Composable
 fun PeriodStatisticsCard(
     statistics: PeriodStatistics,
     onDateFilterClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClearDateFilter: (() -> Unit)? = null,
 ) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
     StyledCard(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(18.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -52,167 +59,117 @@ fun PeriodStatisticsCard(
             ) {
                 Text(
                     text = stringResource(R.string.period_statistics_title),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.titleSmall,
+                    color = scheme.contentPrimary,
                 )
                 DateFilterButton(
                     filter = statistics.filter,
-                    onClick = onDateFilterClick
+                    onClick = onDateFilterClick,
+                    onClear = onClearDateFilter,
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
 
             if (!statistics.hasData) {
                 Text(
                     text = stringResource(R.string.period_no_data),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scheme.contentSecondary,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
                 return@Column
             }
 
-            // Headline figure — what the period cost in total.
             Text(
                 text = stringResource(R.string.stat_total_spent),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.labelLarge,
+                color = scheme.contentSecondary,
             )
+            Spacer(Modifier.height(2.dp))
             Text(
+                // Between a tile figure and a hero one: this card is a section
+                // of the screen, not the screen's answer, so it must not
+                // outshout the car's own total spending above it.
                 text = statistics.totalCost.formatMoney(),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                style = AppNumbers.hero.copy(fontSize = 30.sp, lineHeight = 36.sp),
+                color = scheme.actionPrimary,
+                maxLines = 1,
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
+            HorizontalDivider(thickness = dimens.size.divider, color = scheme.borderDefault)
+            Spacer(Modifier.height(14.dp))
 
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                maxItemsInEachRow = 2
-            ) {
-                val cellModifier = Modifier.weight(1f)
-
-                PeriodStat(
-                    label = stringResource(R.string.fuel_cost),
-                    value = statistics.fuelCost.formatMoney(),
-                    caption = stringResource(R.string.refills_section_header, statistics.refillCount),
-                    modifier = cellModifier
-                )
-                PeriodStat(
-                    label = stringResource(R.string.expenses),
-                    value = statistics.expensesCost.formatMoney(),
-                    caption = stringResource(R.string.services_section_header, statistics.expenseCount),
-                    modifier = cellModifier
-                )
-                PeriodStat(
-                    label = stringResource(R.string.distance),
-                    value = "${statistics.totalDistance.toInt().formatNumber()} km",
-                    modifier = cellModifier
-                )
-                PeriodStat(
-                    label = stringResource(R.string.stat_liters),
-                    value = "${statistics.totalLiters.formatNumber(1)} L",
-                    modifier = cellModifier
-                )
-                PeriodStat(
-                    label = stringResource(R.string.avg_consumption),
-                    value = if (statistics.averageConsumption > 0) {
-                        "${statistics.averageConsumption.formatNumber(1)} L/100km"
-                    } else "-",
-                    modifier = cellModifier
-                )
-                PeriodStat(
-                    label = stringResource(R.string.cost_per_km),
-                    value = if (statistics.costPerKilometer > 0) {
-                        statistics.costPerKilometer.formatMoney()
-                    } else "-",
-                    modifier = cellModifier
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PeriodStat(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    caption: String? = null
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1
-        )
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1
-        )
-        if (caption != null) {
-            Text(
-                text = caption,
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
+            KpiGrid(
+                items = listOf(
+                    Kpi(
+                        // The count rides along with the label rather than as a
+                        // caption under the value: "Fuel cost (12)" is one line
+                        // and keeps every cell in the grid the same height.
+                        label = stringResource(R.string.fuel_cost) +
+                            " (${statistics.refillCount})",
+                        value = statistics.fuelCost.formatMoney(),
+                    ),
+                    Kpi(
+                        label = stringResource(R.string.expenses) +
+                            " (${statistics.expenseCount})",
+                        value = statistics.expensesCost.formatMoney(),
+                    ),
+                    Kpi(
+                        label = stringResource(R.string.distance),
+                        value = statistics.totalDistance.toInt().toLong().formatNumber(),
+                        unit = "km",
+                    ),
+                    Kpi(
+                        label = stringResource(R.string.stat_liters),
+                        value = statistics.totalLiters.formatNumber(1),
+                        unit = "L",
+                    ),
+                    Kpi(
+                        label = stringResource(R.string.avg_consumption),
+                        value = if (statistics.averageConsumption > 0) {
+                            statistics.averageConsumption.formatNumber(1)
+                        } else {
+                            stringResource(R.string.not_available)
+                        },
+                        unit = if (statistics.averageConsumption > 0) "L/100" else null,
+                    ),
+                    Kpi(
+                        label = stringResource(R.string.cost_per_km),
+                        value = if (statistics.costPerKilometer > 0) {
+                            statistics.costPerKilometer.formatMoney()
+                        } else {
+                            stringResource(R.string.not_available)
+                        },
+                    ),
+                ),
             )
         }
     }
 }
 
-// ============================================
-// Preview Composables
-// ============================================
-
-private val sampleStatistics = PeriodStatistics(
-    filter = DateFilter.of(year = 2025, month = 3),
-    totalCost = 742.5,
-    fuelCost = 512.5,
-    expensesCost = 230.0,
-    totalDistance = 1840.0,
-    totalLiters = 128.4,
-    averageConsumption = 6.98,
-    averagePricePerLiter = 1.72,
-    costPerKilometer = 0.40,
-    refillCount = 4,
-    expenseCount = 2
-)
-
-@Preview(name = "Period statistics", showBackground = true, widthDp = 400)
+@Preview(showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewPeriodStatisticsCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        PeriodStatisticsCard(statistics = sampleStatistics, onDateFilterClick = {})
-    }
-}
-
-@Preview(name = "Period statistics - empty", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewPeriodStatisticsCardEmpty() {
-    CarTrackingAppTheme(darkTheme = false) {
-        PeriodStatisticsCard(
-            statistics = PeriodStatistics(filter = DateFilter.of(year = 2024)),
-            onDateFilterClick = {}
-        )
-    }
-}
-
-@Preview(name = "Period statistics - dark", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewPeriodStatisticsCardDark() {
+private fun PeriodStatisticsCardPreview() {
     CarTrackingAppTheme(darkTheme = true) {
-        PeriodStatisticsCard(statistics = sampleStatistics, onDateFilterClick = {})
+        Column(Modifier.padding(18.dp)) {
+            PeriodStatisticsCard(
+                statistics = PeriodStatistics(
+                    filter = DateFilter.of(2026, 10),
+                    totalCost = 988.46,
+                    fuelCost = 463.0,
+                    expensesCost = 525.46,
+                    refillCount = 6,
+                    expenseCount = 3,
+                    totalDistance = 1840.0,
+                    totalLiters = 136.4,
+                    averageConsumption = 7.4,
+                    costPerKilometer = 0.54,
+                ),
+                onDateFilterClick = {},
+                onClearDateFilter = {},
+            )
+        }
     }
 }

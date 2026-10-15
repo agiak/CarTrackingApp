@@ -1,6 +1,8 @@
 package com.agcoding.cartrackingapp.presentation.cardetails.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,173 +11,159 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EuroSymbol
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
+import com.agcoding.cartrackingapp.presentation.components.CostSegment
+import com.agcoding.cartrackingapp.presentation.components.SectionHeaderRow
+import com.agcoding.cartrackingapp.presentation.components.StackedCostBar
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryFuel
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryOther
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
+import com.agcoding.cartrackingapp.util.formatNumber
+import kotlin.math.roundToInt
 
+/**
+ * Everything this car has cost, and the shape of it.
+ *
+ * Three figures side by side is a list of numbers; the same three as a bar is
+ * a proportion, which is the question actually being asked — not "how much was
+ * fuel" but "is fuel most of it". The percentage on each row is there because
+ * a bar can be read to about ten percent by eye and no better, and the
+ * difference between 38% and 44% of a five-figure total is real money.
+ *
+ * The heading sits outside the card with the total beside it, so the total is
+ * readable while scrolling past without the card having to be tall enough to
+ * hold a hero number of its own.
+ */
 @Composable
 fun TotalSpendingCard(statistics: CarStatistics) {
-    val totalSpending = statistics.totalCost + statistics.serviceExpensesCost + statistics.otherExpensesCost
+    val scheme = LocalAppColorScheme.current
 
-    StyledCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.EuroSymbol,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.total_spending),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = totalSpending.formatMoney(),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+    val fuel = statistics.totalCost
+    val service = statistics.serviceExpensesCost
+    val other = statistics.otherExpensesCost
+    val total = fuel + service + other
 
-            Spacer(modifier = Modifier.height(16.dp))
+    val rows = listOf(
+        CostSegment(fuel, scheme.categoryFuel, stringResource(R.string.fuel)),
+        CostSegment(service, scheme.categoryService, stringResource(R.string.service)),
+        CostSegment(other, scheme.categoryOther, stringResource(R.string.other)),
+    )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                SpendingBreakdown(
-                    label = stringResource(R.string.fuel),
-                    amount = statistics.totalCost
-                )
-                SpendingBreakdown(
-                    label = stringResource(R.string.service),
-                    amount = statistics.serviceExpensesCost
-                )
-                SpendingBreakdown(
-                    label = stringResource(R.string.other),
-                    amount = statistics.otherExpensesCost
-                )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SectionHeaderRow(
+                title = stringResource(R.string.total_spending),
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = stringResource(
+                    R.string.car_card_currency_eur_format,
+                    total.formatNumber(2),
+                ),
+                style = AppNumbers.value,
+                color = scheme.actionPrimary,
+                maxLines = 1,
+            )
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        StyledCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                StackedCostBar(segments = rows)
+                Spacer(Modifier.height(14.dp))
+                rows.forEachIndexed { index, row ->
+                    if (index > 0) Spacer(Modifier.height(10.dp))
+                    SpendingRow(row = row, total = total)
+                }
             }
         }
     }
 }
 
 @Composable
-fun SpendingBreakdown(label: String, amount: Double) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun SpendingRow(row: CostSegment, total: Double) {
+    val scheme = LocalAppColorScheme.current
+    // Guarded rather than letting 0/0 produce NaN, which formats as "NaN%".
+    val share = if (total > 0) (row.value / total * 100).roundToInt() else 0
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(width = 18.dp, height = 4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(row.color),
+        )
+        Spacer(Modifier.width(10.dp))
         Text(
-            text = label,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = row.label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.contentSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
         Text(
-            text = amount.formatMoney(),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
+            text = stringResource(
+                R.string.car_card_currency_eur_format,
+                row.value.formatNumber(2),
+            ),
+            style = AppNumbers.compact,
+            color = scheme.contentPrimary,
+            maxLines = 1,
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = "$share%",
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.contentDisabled,
+            maxLines = 1,
         )
     }
 }
 
-// ============================================
-// Preview Composables
-// ============================================
-
-@Preview(name = "Total Spending Card - Light", showBackground = true, widthDp = 400)
+@Preview(showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewTotalSpendingCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        TotalSpendingCard(
-            statistics = CarStatistics(
-                car = Car(
-                    id = 1,
-                    name = "Toyota Corolla",
-                    licensePlate = "ABC-1234",
-                    currentOdometer = 45000.0,
-                    initialOdometer = 0.0
-                ),
-                totalRefills = 120,
-                averageConsumption = 6.5,
-                totalCost = 8500.0,
-                totalDistance = 45000.0,
-                costPerKilometer = 0.19,
-                serviceExpensesCost = 1200.0,
-                serviceExpenseCount = 8,
-                otherExpensesCost = 300.0,
-                otherExpenseCount = 5,
-                averagePricePerLiter = 1.65,
-                totalLiters = 5200.0,
-                recentRefills = emptyList()
-            )
-        )
-    }
-}
-
-@Preview(name = "Total Spending Card - Dark", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewTotalSpendingCardDark() {
+private fun TotalSpendingCardPreview() {
     CarTrackingAppTheme(darkTheme = true) {
-        TotalSpendingCard(
-            statistics = CarStatistics(
-                car = Car(
-                    id = 1,
-                    name = "BMW 320i",
-                    licensePlate = "XYZ-5678",
-                    currentOdometer = 82000.0,
-                    initialOdometer = 0.0
-                ),
-                totalRefills = 200,
-                averageConsumption = 7.8,
-                totalCost = 15000.0,
-                totalDistance = 82000.0,
-                costPerKilometer = 0.25,
-                serviceExpensesCost = 2500.0,
-                serviceExpenseCount = 15,
-                otherExpensesCost = 800.0,
-                otherExpenseCount = 10,
-                averagePricePerLiter = 1.70,
-                totalLiters = 8800.0,
-                recentRefills = emptyList()
+        Column(Modifier.padding(18.dp)) {
+            TotalSpendingCard(
+                CarStatistics(
+                    car = Car(
+                        id = 1, name = "Toyota Corolla", licensePlate = "ΙΖΧ-4821",
+                        currentOdometer = 145678.0, initialOdometer = 20000.0,
+                    ),
+                    totalRefills = 501,
+                    averageConsumption = 6.5,
+                    totalCost = 15432.50,
+                    totalDistance = 125678.0,
+                    costPerKilometer = 0.19,
+                    serviceExpensesCost = 4200.0,
+                    serviceExpenseCount = 18,
+                    otherExpensesCost = 980.0,
+                    otherExpenseCount = 11,
+                    averagePricePerLiter = 1.65,
+                    totalLiters = 5200.0,
+                    recentRefills = emptyList(),
+                )
             )
-        )
-    }
-}
-
-@Preview(name = "Spending Breakdown Item", showBackground = true)
-@Composable
-private fun PreviewSpendingBreakdown() {
-    CarTrackingAppTheme(darkTheme = false) {
-        SpendingBreakdown(
-            label = "Fuel",
-            amount = 8500.0
-        )
+        }
     }
 }

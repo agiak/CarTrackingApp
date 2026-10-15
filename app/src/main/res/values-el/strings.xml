@@ -270,6 +270,11 @@
     <string name="last_tire_change">Τελευταία αλλαγή ελαστικών</string>
     <string name="tire_brand_model">Μάρκα / Μοντέλο ελαστικών</string>
     <string name="tire_dimensions">Διαστάσεις ελαστικών</string>
+    <string name="car_chip_kteo">ΚΤΕΟ</string>
+    <string name="car_chip_insurance">Ασφάλεια</string>
+    <string name="car_chip_emissions">Καυσαέρια</string>
+    <string name="car_chip_road_tax">Τέλη</string>
+    <string name="car_chip_tyres">Ελαστικά</string>
     <string name="tire_installation_date">Ημερομηνία τοποθέτησης ελαστικών</string>
     <string name="tyre_size_legacy">Μέγεθος ελαστικών (παλιό)</string>
     <string name="recent_expenses">Πρόσφατα έξοδα</string>
