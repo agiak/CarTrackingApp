@@ -13,12 +13,12 @@ import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
-internal fun getSeverityBackgroundColor(severity: AnomalySeverity): Color {
-    return when (severity) {
-        AnomalySeverity.LOW -> MaterialTheme.colorScheme.surfaceVariant
-        AnomalySeverity.MEDIUM -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-        AnomalySeverity.HIGH -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-    }
+internal fun getSeverityBackgroundColor(@Suppress("UNUSED_PARAMETER") severity: AnomalySeverity): Color {
+    // Every card is the ordinary card surface now, whatever its severity.
+    // Tinting the whole card turned a screenful of insights into coloured
+    // stripes, which made the list harder to read while telling the user
+    // something the badge on each card already says precisely.
+    return MaterialTheme.colorScheme.surface
 }
 
 @Preview(showBackground = true)

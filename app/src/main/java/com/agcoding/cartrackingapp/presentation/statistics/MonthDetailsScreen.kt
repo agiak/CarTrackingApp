@@ -5,6 +5,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import com.agcoding.cartrackingapp.presentation.components.HeroSummaryCard
+import com.agcoding.cartrackingapp.presentation.components.Kpi
+import com.agcoding.cartrackingapp.presentation.components.KpiGrid
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -309,113 +315,121 @@ fun MonthDetailsScreen(
 
 @Composable
 private fun MonthSummaryCard(state: MonthDetailsUiState.Success) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+    val scheme = LocalAppColorScheme.current
+    val ink = scheme.actionContent
+    val unavailable = stringResource(R.string.not_available)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        HeroSummaryCard(
+            label = stringResource(R.string.total_spending),
+            value = stringResource(R.string.currency_eur_format, state.totalCost.formatNumber(2)),
         ) {
-            Text(
-                text = stringResource(R.string.monthly_summary),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Total spending
+            // Fuel against everything else, in the on-accent colour at two
+            // opacities. The month's data separates refills from expenses but
+            // not service from other, so this is a two-way split and says so
+            // rather than inventing a third band.
+            Spacer(modifier = Modifier.height(14.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.total_spending),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = stringResource(R.string.currency_eur_format, state.totalCost.formatNumber(2)),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+                if (state.refillsCost > 0) {
+                    Box(
+                        modifier = Modifier
+                            .weight(state.refillsCost.toFloat())
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(ink)
+                    )
+                }
+                if (state.expensesCost > 0) {
+                    Box(
+                        modifier = Modifier
+                            .weight(state.expensesCost.toFloat())
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(ink.copy(alpha = 0.45f))
+                    )
+                }
+                if (state.refillsCost <= 0 && state.expensesCost <= 0) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(ink.copy(alpha = 0.18f))
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Breakdown
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                HeroLegend(
                     label = stringResource(R.string.fuel),
-                    value = stringResource(R.string.currency_eur_format, state.refillsCost.formatNumber(2)),
-                    icon = Icons.Default.LocalGasStation,
-                    iconTint = MaterialTheme.colorScheme.primary
+                    value = stringResource(
+                        R.string.currency_eur_format,
+                        state.refillsCost.formatNumber(0)
+                    ),
+                    color = ink,
                 )
-                StatItem(
+                HeroLegend(
                     label = stringResource(R.string.expenses),
-                    value = stringResource(R.string.currency_eur_format, state.expensesCost.formatNumber(2)),
-                    icon = Icons.Default.Receipt,
-                    iconTint = MaterialTheme.colorScheme.secondary
+                    value = stringResource(
+                        R.string.currency_eur_format,
+                        state.expensesCost.formatNumber(0)
+                    ),
+                    color = ink.copy(alpha = 0.45f),
                 )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.liters_label),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = stringResource(R.string.liters_format, state.totalLiters.formatNumber(1)),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                Column {
-                    Text(
-                        text = stringResource(R.string.distance),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = stringResource(R.string.kilometers_format, state.totalDistance.formatNumber(0)),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                Column {
-                    Text(
-                        text = stringResource(R.string.consumption_label),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = if (state.averageConsumption > 0)
-                            stringResource(
-                                R.string.consumption_l_per_100km_format,
-                                state.averageConsumption.formatNumber(1)
-                            )
-                        else stringResource(R.string.not_available),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        KpiGrid(
+            columns = 3,
+            items = listOf(
+                Kpi(
+                    label = stringResource(R.string.liters_label),
+                    value = state.totalLiters.formatNumber(1),
+                    unit = "L",
+                ),
+                Kpi(
+                    label = stringResource(R.string.distance),
+                    value = state.totalDistance.formatNumber(0),
+                    unit = "km",
+                ),
+                Kpi(
+                    label = stringResource(R.string.consumption_label),
+                    value = if (state.averageConsumption > 0) {
+                        state.averageConsumption.formatNumber(1)
+                    } else {
+                        unavailable
+                    },
+                    unit = if (state.averageConsumption > 0) "L/100" else null,
+                ),
+            ),
+        )
+    }
+}
+
+/** A swatch, a name and a figure, drawn on the accent fill. */
+@Composable
+private fun HeroLegend(label: String, value: String, color: androidx.compose.ui.graphics.Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = "$label $value",
+            style = MaterialTheme.typography.labelLarge,
+            color = LocalAppColorScheme.current.actionContent.copy(alpha = 0.85f),
+            maxLines = 1,
+        )
     }
 }
 

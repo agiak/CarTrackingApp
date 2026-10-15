@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ForecastResult
+import com.agcoding.cartrackingapp.presentation.components.HeroSummaryCard
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.statistics.CarSpecificInsights
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastUiState
@@ -76,24 +77,34 @@ private fun FuelForecastCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Car name
-            Text(
-                text = forecast.carName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            // Explanation text
-            Text(
-                text = stringResource(
-                    R.string.forecast_explanation,
-                    forecast.costPerKmForecast?.dataPointsUsed ?: 0
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                fontSize = 12.sp
-            )
+            // What the whole card is for, said once and loudly: the cost per
+            // kilometre this car is heading towards. Everything below is the
+            // working behind it. Without a figure at the top the card opened
+            // with the car's name and an explanatory sentence, so the forecast
+            // itself was the third thing on a screen called Fuel forecast.
+            val costForecast = forecast.costPerKmForecast
+            if (costForecast != null) {
+                HeroSummaryCard(
+                    label = forecast.carName,
+                    value = costForecast.predictedNextValue.formatNumber(2),
+                    trailing = stringResource(R.string.currency_per_km),
+                    caption = stringResource(
+                        R.string.forecast_explanation,
+                        costForecast.dataPointsUsed
+                    ),
+                )
+            } else {
+                Text(
+                    text = forecast.carName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.forecast_explanation, 0),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             // Low data warning
             if (forecast.showLowDataWarning) {
