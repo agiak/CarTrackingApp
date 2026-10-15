@@ -15,8 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,25 +40,29 @@ import com.agcoding.cartrackingapp.shared.ui.tokens.categoryOther
 import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 
 /**
- * One record in the list: a refill or an expense.
+ * One record in the list: a refill, a service, or another expense.
  *
- * The date is a tile on the left rather than a line of text, which is what
- * lets the day grouping go away entirely. The old screen inserted a header row
- * for every day that had records; on a month with activity most days that is
- * more headers than records, and the headers are the part nobody reads. A
- * column of date tiles gives the same scanning structure without spending a
- * row on it.
+ * The tile on the left is the kind of record, not its date. The date tile
+ * carried a day number and a weekday in a column of other day numbers, which
+ * is the one thing in the row that is almost never what you are looking for —
+ * scrolling a month of records, "is this fuel or a service" is answered dozens
+ * of times and "was it the 4th or the 11th" hardly ever. The category was a
+ * 6dp dot in the corner of that tile, which is as much as a dot can say.
  *
- * The category is a 6dp dot on the tile, not a coloured icon or a tinted card.
- * At this density a tinted card per row turns the list into stripes, and the
- * thing the eye is actually following down the page is the amount on the
- * right.
+ * So the tile is now the category's own icon in the category's own colour —
+ * the same pump, wrench and receipt the details screens and the cost bar use —
+ * and the date moves into the subtitle beside the car and the time, where it
+ * is still there to be read but is not taking the row's most prominent
+ * position.
+ *
+ * The tint stays on the tile rather than on the card. At this density a tinted
+ * card per row turns the list into stripes, and the thing the eye follows down
+ * the page is the amount on the right.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TransactionCard(
-    day: String,
-    weekday: String,
+    icon: ImageVector,
     title: String,
     subtitle: String,
     amount: String,
@@ -74,7 +83,7 @@ fun TransactionCard(
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 12.dp),
     ) {
-        DateTile(day = day, weekday = weekday, accent = accent)
+        CategoryTile(icon = icon, accent = accent)
 
         Spacer(Modifier.width(14.dp))
 
@@ -119,42 +128,27 @@ fun TransactionCard(
     }
 }
 
+/**
+ * What kind of record this is.
+ *
+ * A square rather than the 50x56 the date tile needed, so the row is shorter
+ * and more of them fit on a screen. The glyph sits on its own colour at low
+ * alpha: full strength, three of these in a column read as three buttons.
+ */
 @Composable
-private fun DateTile(day: String, weekday: String, accent: Color) {
-    val scheme = LocalAppColorScheme.current
+private fun CategoryTile(icon: ImageVector, accent: Color) {
     Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(width = 50.dp, height = 56.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(scheme.backgroundSecondary),
+            .size(44.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(accent.copy(alpha = 0.16f)),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-        ) {
-            Text(
-                text = day,
-                style = AppNumbers.tile,
-                color = scheme.contentPrimary,
-                maxLines = 1,
-            )
-            Text(
-                text = weekday,
-                style = MaterialTheme.typography.labelMedium,
-                color = scheme.contentSecondary,
-                maxLines = 1,
-            )
-        }
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(5.dp)
-                .size(6.dp)
-                .clip(CircleShape)
-                .background(accent),
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(21.dp),
         )
     }
 }
@@ -184,26 +178,26 @@ private fun TransactionCardPreview() {
             modifier = Modifier.padding(18.dp),
         ) {
             TransactionCard(
-                day = "04", weekday = "ΚΥΡ",
+                icon = Icons.Default.LocalGasStation,
                 title = "Ανεφοδιασμός",
-                subtitle = "Toyota Corolla · 17:17",
+                subtitle = "4 Οκτ · Toyota Corolla · 17:17",
                 amount = "96,20 €",
                 accent = scheme.categoryFuel,
                 tags = listOf("69,9 L", "700 km", "10,0 L/100"),
                 onClick = {},
             )
             TransactionCard(
-                day = "28", weekday = "ΤΡΙ",
+                icon = Icons.Default.Build,
                 title = "Μεγάλο σέρβις",
-                subtitle = "VW Golf · 09:40",
+                subtitle = "28 Σεπ · VW Golf · 09:40",
                 amount = "286,00 €",
                 accent = scheme.categoryService,
                 onClick = {},
             )
             TransactionCard(
-                day = "12", weekday = "ΣΑΒ",
+                icon = Icons.Default.Receipt,
                 title = "Πλύσιμο",
-                subtitle = "Toyota Corolla · 13:02",
+                subtitle = "12 Σεπ · Toyota Corolla · 13:02",
                 amount = "15,00 €",
                 accent = scheme.categoryOther,
                 onClick = {},

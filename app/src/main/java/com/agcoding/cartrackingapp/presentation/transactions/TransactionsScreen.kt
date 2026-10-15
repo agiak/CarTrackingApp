@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FilterList
@@ -278,24 +279,34 @@ private fun TransactionsContent(
                         items = transactions,
                         key = { "${it.transaction.type.name}_${it.transaction.id}" }
                     ) { data ->
+                        // Fuel, service and other: the same three the cost bar
+                        // and the details screens are coloured by, so a row's
+                        // tile means the same thing wherever it is met.
+                        val isService = data is TransactionWithData.ExpenseTransaction &&
+                            ExpenseCategories.isServiceCategory(data.expense.category)
                         val accent = when {
-                            data is TransactionWithData.ExpenseTransaction &&
-                                ExpenseCategories.isServiceCategory(data.expense.category) ->
-                                scheme.categoryService
-                            data is TransactionWithData.ExpenseTransaction -> scheme.categoryOther
-                            else -> scheme.categoryFuel
+                            data is TransactionWithData.RefillTransaction -> scheme.categoryFuel
+                            isService -> scheme.categoryService
+                            else -> scheme.categoryOther
+                        }
+                        val icon = when {
+                            data is TransactionWithData.RefillTransaction ->
+                                Icons.Default.LocalGasStation
+                            isService -> Icons.Default.Build
+                            else -> Icons.Default.Receipt
                         }
                         val stamp = data.transaction.timestamp.toStamp()
 
                         TransactionCard(
-                            day = stamp.day,
-                            weekday = stamp.weekday,
+                            icon = icon,
                             title = when (data) {
                                 is TransactionWithData.RefillTransaction ->
                                     stringResource(R.string.add_refill)
                                 is TransactionWithData.ExpenseTransaction -> data.expense.category
                             },
-                            subtitle = "${data.transaction.carName} · ${stamp.time}",
+                            // The date left the tile, so it joins the line that
+                            // already says which car and at what time.
+                            subtitle = "${stamp.date} · ${data.transaction.carName} · ${stamp.time}",
                             amount = stringResource(
                                 R.string.car_card_currency_eur_format,
                                 data.transaction.amount.formatNumber(2),
@@ -399,16 +410,21 @@ private fun EmptyTransactions(
 
 // ── dates ────────────────────────────────────────────────────────────────
 
-private data class Stamp(val day: String, val weekday: String, val time: String)
+private data class Stamp(val date: String, val time: String)
 
+/**
+ * "4 Oct" and "17:17".
+ *
+ * The day and weekday the date tile used are gone with it; a row's subtitle
+ * wants a date somebody would say out loud, and the weekday was only ever
+ * there because the tile had a second line to fill.
+ */
 private fun Long.toStamp(zone: ZoneId = ZoneId.systemDefault()): Stamp {
     val at = Instant.ofEpochMilli(this).atZone(zone)
     val locale = Locale.getDefault()
+    val month = at.month.getDisplayName(java.time.format.TextStyle.SHORT, locale)
     return Stamp(
-        day = "%02d".format(locale, at.dayOfMonth),
-        weekday = at.dayOfWeek
-            .getDisplayName(java.time.format.TextStyle.SHORT, locale)
-            .uppercase(locale),
+        date = "${at.dayOfMonth} $month",
         time = "%02d:%02d".format(locale, at.hour, at.minute),
     )
 }
