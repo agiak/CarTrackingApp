@@ -445,6 +445,7 @@
 
     <!-- Add Car Dialog -->
     <string name="add_car_title">Προσθήκη νέου αυτοκινήτου</string>
+    <string name="add_car_later_hint">Ελαστικά, ΚΤΕΟ και άλλα στοιχεία μπορούν να μπουν αργότερα.</string>
     <string name="add_car_action">Προσθήκη</string>
     <string name="add_car_field_name">Όνομα αυτοκινήτου</string>
     <string name="add_car_field_license_plate">Πινακίδα</string>

@@ -475,6 +475,7 @@
 
     <!-- Add Car Dialog -->
     <string name="add_car_title">Add New Car</string>
+    <string name="add_car_later_hint">Tyres, KTEO and other details can be added later.</string>
     <string name="add_car_action">Add</string>
     <string name="add_car_field_name">Car Name</string>
     <string name="add_car_field_license_plate">License Plate</string>

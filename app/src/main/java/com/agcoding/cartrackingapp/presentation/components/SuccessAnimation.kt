@@ -185,13 +185,14 @@ fun SuccessAnimation(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            SuccessCheckmark(onAnimationEnd = onFinished)
+            SuccessCheckmark(size = 112.dp, onAnimationEnd = onFinished)
 
             Text(
                 text = message,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 22.dp)
             )
 
             if (supportingText != null) {
@@ -234,7 +235,10 @@ fun SuccessOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.97f))
+            // The screen's background, not a card surface: this covers the
+            // display edge to edge, and a card colour at full width reads as a
+            // card that has lost its edges rather than as a new screen.
+            .background(MaterialTheme.colorScheme.background)
             .clickable(interactionSource = blocker, indication = null) { },
         contentAlignment = Alignment.Center
     ) {
