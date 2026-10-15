@@ -45,10 +45,14 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.GlobalStatistics
 import com.agcoding.cartrackingapp.domain.model.MonthlyTrend
+import com.agcoding.cartrackingapp.presentation.components.Kpi
+import com.agcoding.cartrackingapp.presentation.components.KpiGrid
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
 import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.statistics.components.CarsByCostCard
+import com.agcoding.cartrackingapp.presentation.statistics.components.CostDonutCard
 import com.agcoding.cartrackingapp.presentation.statistics.components.StatisticsContent
 import com.agcoding.cartrackingapp.presentation.statistics.components.SummaryCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -142,14 +146,13 @@ fun StatisticsScreen(
                         )
                     },
                     perCarBreakdownCards = {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            state.statistics.perCarStatistics.forEach { carStats ->
-                                PerCarBreakdownCard(
-                                    carStats = carStats,
-                                    onClick = { onCarStatisticsClick(carStats.car.id) }
-                                )
-                            }
-                        }
+                        // One ranked list instead of a card per car. Six
+                        // figures about one car are a summary; the same six
+                        // about four cars are a spreadsheet.
+                        CarsByCostCard(
+                            cars = state.statistics.perCarStatistics,
+                            onCarClick = onCarStatisticsClick,
+                        )
                     },
                     monthlyTrendCards = {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -189,156 +192,97 @@ private fun SummarySection(
     onRefillsGraphClick: () -> Unit,
     onTripAnalyticsClick: () -> Unit = {}
 ) {
+    // The three cards that used to hold the total, the breakdown and the
+    // expense counts are now one ring: they were three pieces of a single
+    // answer, and keeping them apart made the reader assemble it by scrolling.
+    val fuelCost = (statistics.totalCost - statistics.totalExpensesCost).coerceAtLeast(0.0)
+    val unavailable = stringResource(R.string.not_available)
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // First row - Total cost and consumption
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SummaryCard(
-                icon = Icons.Default.EuroSymbol,
-                title = stringResource(R.string.total_cost),
-                value = statistics.totalCost.formatMoney(),
-                subtitle = stringResource(R.string.fuel_plus_expenses),
-                modifier = Modifier.weight(1f),
-                onClick = onCostGraphClick
-            )
-            SummaryCard(
-                icon = Icons.AutoMirrored.Filled.TrendingUp,
-                title = stringResource(R.string.avg_consumption),
-                value = "${statistics.averageConsumption.formatNumber(1)} L/100km",
-                modifier = Modifier.weight(1f),
-                onClick = onConsumptionGraphClick
-            )
-        }
+        CostDonutCard(
+            totalCost = statistics.totalCost,
+            costPerKilometer = statistics.costPerKilometer,
+            fuel = fuelCost,
+            service = statistics.totalServiceExpenses,
+            other = statistics.totalOtherExpenses,
+            serviceCount = statistics.serviceExpenseCount,
+            otherCount = statistics.otherExpenseCount,
+        )
 
-        // Second row - Distance and refills
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SummaryCard(
-                icon = Icons.Default.Route,
-                title = stringResource(R.string.total_distance),
-                value = "${statistics.totalDistance.formatNumber(0)} km",
-                modifier = Modifier.weight(1f),
-                onClick = onDistanceGraphClick
-            )
-            SummaryCard(
-                icon = Icons.Default.LocalGasStation,
-                title = stringResource(R.string.total_refills),
-                value = "${statistics.totalRefills}",
-                modifier = Modifier.weight(1f),
-                onClick = onRefillsGraphClick
-            )
-        }
-
-        // Third row - Cost per Kilometer
-        if (statistics.costPerKilometer > 0) {
-            SummaryCard(
-                icon = Icons.Default.EuroSymbol,
-                title = stringResource(R.string.cost_per_kilometer),
-                value = statistics.costPerKilometer.formatMoneyPer("km"),
-                subtitle = stringResource(R.string.average_cost_subtitle),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        // Cost Breakdown Section
-        if (statistics.totalExpensesCost > 0) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.cost_breakdown),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            CostBreakdownCard(statistics)
-        }
-
-        // Expense Statistics
-        if (statistics.totalExpenseCount > 0) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.expenses_overview),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                ExpenseCard(
-                    title = stringResource(R.string.service),
-                    cost = statistics.totalServiceExpenses,
-                    count = statistics.serviceExpenseCount,
-                    modifier = Modifier.weight(1f)
+        // Every cell that has a graph behind it carries a chevron. The four
+        // graph screens had no entry point of their own before this - they
+        // were reached by tapping a summary card that gave no sign it was
+        // tappable.
+        KpiGrid(
+            items = buildList {
+                add(
+                    Kpi(
+                        label = stringResource(R.string.total_distance),
+                        value = statistics.totalDistance.formatNumber(0),
+                        unit = "km",
+                        onClick = onDistanceGraphClick,
+                    )
                 )
-                ExpenseCard(
-                    title = stringResource(R.string.other),
-                    cost = statistics.totalOtherExpenses,
-                    count = statistics.otherExpenseCount,
-                    modifier = Modifier.weight(1f)
+                add(
+                    Kpi(
+                        label = stringResource(R.string.avg_consumption),
+                        value = if (statistics.averageConsumption > 0) {
+                            statistics.averageConsumption.formatNumber(1)
+                        } else {
+                            unavailable
+                        },
+                        unit = if (statistics.averageConsumption > 0) "L/100" else null,
+                        onClick = onConsumptionGraphClick,
+                    )
                 )
-            }
-        }
-
-        // Trips Statistics Section
-        if (statistics.totalTrips > 0) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.trips_overview),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                add(
+                    Kpi(
+                        label = stringResource(R.string.total_refills),
+                        value = statistics.totalRefills.toString(),
+                        onClick = onRefillsGraphClick,
+                    )
                 )
-                androidx.compose.material3.TextButton(onClick = onTripAnalyticsClick) {
-                    Text(
-                        text = stringResource(R.string.trips_overview_show_all),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 13.sp
+                add(
+                    Kpi(
+                        label = stringResource(R.string.cost_per_kilometer),
+                        value = if (statistics.costPerKilometer > 0) {
+                            statistics.costPerKilometer.formatNumber(2)
+                        } else {
+                            unavailable
+                        },
+                        unit = if (statistics.costPerKilometer > 0) "\u20ac" else null,
+                        onClick = onCostGraphClick,
+                    )
+                )
+                // Trips are a feature not every user touches; two empty cells
+                // would say the app expected something of them.
+                if (statistics.totalTrips > 0) {
+                    add(
+                        Kpi(
+                            label = stringResource(R.string.total_trips_stat),
+                            value = statistics.totalTrips.toString(),
+                            unit = "${statistics.tripDistance.formatNumber(0)} km",
+                            onClick = onTripAnalyticsClick,
+                        )
+                    )
+                    add(
+                        Kpi(
+                            label = stringResource(R.string.trip_avg_consumption_stat),
+                            value = if (statistics.tripAverageConsumption > 0) {
+                                statistics.tripAverageConsumption.formatNumber(1)
+                            } else {
+                                unavailable
+                            },
+                            unit = if (statistics.tripAverageConsumption > 0) "L/100" else null,
+                            onClick = onTripAnalyticsClick,
+                        )
                     )
                 }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                TripStatsCard(
-                    title = stringResource(R.string.total_trips_stat),
-                    value = "${statistics.totalTrips}",
-                    subtitle = pluralStringResource(R.plurals.refills_count, statistics.tripRefillCount, statistics.tripRefillCount),
-                    modifier = Modifier.weight(1f)
-                )
-                TripStatsCard(
-                    title = stringResource(R.string.trip_distance_stat),
-                    value = "${statistics.tripDistance.formatNumber(0)} km",
-                    subtitle = stringResource(
-                        R.string.percentage_of_total,
-                        "${(if (statistics.totalDistance > 0) (statistics.tripDistance / statistics.totalDistance) * 100 else 0.0).formatNumber(1)}%"
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            if (statistics.tripAverageConsumption > 0) {
-                TripStatsCard(
-                    title = stringResource(R.string.trip_avg_consumption_stat),
-                    value = "${statistics.tripAverageConsumption.formatNumber(1)} L/100km",
-                    subtitle = stringResource(R.string.trip_avg_consumption_subtitle),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+            },
+        )
     }
 }
 
@@ -628,102 +572,6 @@ private fun MonthlyTrendCard(
 }
 
 
-@Composable
-private fun PerCarBreakdownCard(
-    carStats: com.agcoding.cartrackingapp.domain.model.CarStatistics,
-    onClick: () -> Unit
-) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Car name and license plate
-            Text(
-                text = carStats.car.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = carStats.car.licensePlate,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            // Three-column grid for stats
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Column 1
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.total_cost_label),
-                        value = carStats.totalCost.formatMoney()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.refills_label),
-                        value = "${carStats.totalRefills}"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.consumption_label),
-                        value = "${carStats.averageConsumption.formatNumber(1)} L/100km"
-                    )
-                }
-
-                // Column 2
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.distance_label),
-                        value = "${carStats.totalDistance.formatNumber(0)} km"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.service_label),
-                        value = carStats.serviceExpensesCost.formatMoney()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.other_label),
-                        value = carStats.otherExpensesCost.formatMoney()
-                    )
-                }
-
-                // Column 3
-                Column(modifier = Modifier.weight(1f)) {
-                    StatItem(
-                        label = stringResource(R.string.cost_per_km_short),
-                        value = carStats.costPerKilometer.formatMoney(3)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.services_short),
-                        value = "${carStats.serviceExpenseCount}"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    StatItem(
-                        label = stringResource(R.string.others_short),
-                        value = "${carStats.otherExpenseCount}"
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ============================================
-// Preview Composables
-// ============================================
-
-@Preview(name = "Statistics Screen - Light", showBackground = true, showSystemUi = true)
 @Composable
 private fun PreviewStatisticsScreen() {
     val mockStats = GlobalStatistics(

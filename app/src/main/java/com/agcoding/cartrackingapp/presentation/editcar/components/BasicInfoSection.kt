@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
@@ -48,7 +48,7 @@ fun BasicInfoSection(
             modifier = Modifier.padding(top = 16.dp)
         )
 
-        StyledOutlinedTextField(
+        AppTextField(
             value = name,
             onValueChange = onNameChange,
             label = { Text(stringResource(R.string.edit_car_field_car_name)) },
@@ -63,7 +63,7 @@ fun BasicInfoSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                StyledOutlinedTextField(
+                AppTextField(
                     value = licensePlate,
                     onValueChange = { onLicensePlateChange(it.uppercase()) },
                     label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
@@ -72,7 +72,7 @@ fun BasicInfoSection(
                     modifier = Modifier.weight(1f)
                 )
 
-                StyledOutlinedTextField(
+                AppTextField(
                     value = odometer,
                     onValueChange = { newValue ->
                         if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
@@ -88,7 +88,7 @@ fun BasicInfoSection(
                 )
             }
         } else {
-            StyledOutlinedTextField(
+            AppTextField(
                 value = licensePlate,
                 onValueChange = { onLicensePlateChange(it.uppercase()) },
                 label = { Text(stringResource(R.string.edit_car_field_license_plate)) },
@@ -97,7 +97,7 @@ fun BasicInfoSection(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = odometer,
                 onValueChange = { newValue ->
                     if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {

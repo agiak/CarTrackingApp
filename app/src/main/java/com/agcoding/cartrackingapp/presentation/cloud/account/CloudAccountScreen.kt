@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.cloud.account
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,7 +56,11 @@ import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
+import com.agcoding.cartrackingapp.presentation.components.GroupedDivider
+import com.agcoding.cartrackingapp.presentation.components.GroupedListContainer
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsRow
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.util.DeviceUtils
 
@@ -222,10 +226,9 @@ fun CloudAccountScreen(
             message = stringResource(R.string.cloud_sign_out_message),
             confirmLabel = stringResource(R.string.cloud_sign_out),
             destructive = false,
+            localDataRes = R.string.cloud_wipe_local_always,
             isBusy = uiState.isBusy,
             errorRes = uiState.error?.messageRes(),
-            wipeLocalData = uiState.wipeLocalData,
-            onWipeLocalDataChange = viewModel::setWipeLocalData,
             onConfirm = viewModel::confirmSignOut,
             onDismiss = viewModel::closeDialog,
         )
@@ -235,10 +238,11 @@ fun CloudAccountScreen(
             message = stringResource(R.string.cloud_delete_account_message),
             confirmLabel = stringResource(R.string.cloud_delete_account_action),
             destructive = true,
+            // Not the sign-out wording: there is no server copy to come back
+            // to once the account is gone.
+            localDataRes = R.string.cloud_delete_wipe_local,
             isBusy = uiState.isBusy,
             errorRes = uiState.error?.messageRes(),
-            wipeLocalData = uiState.wipeLocalData,
-            onWipeLocalDataChange = viewModel::setWipeLocalData,
             onConfirm = viewModel::confirmDeleteAccount,
             onDismiss = viewModel::closeDialog,
         )
@@ -266,7 +270,7 @@ private fun SignedInSection(
     Spacer(modifier = Modifier.height(8.dp))
     SectionHeader(title = stringResource(R.string.cloud_section_sync))
 
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
+    GroupedListContainer {
         SettingsRow(
             icon = Icons.Default.Sync,
             iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
@@ -295,7 +299,7 @@ private fun SignedInSection(
     Spacer(modifier = Modifier.height(8.dp))
     SectionHeader(title = stringResource(R.string.cloud_section_security))
 
-    StyledCard(modifier = Modifier.fillMaxWidth()) {
+    GroupedListContainer {
         SettingsRow(
             icon = Icons.Default.Lock,
             iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
@@ -312,6 +316,7 @@ private fun SignedInSection(
                 )
             }
         )
+        GroupedDivider()
         SettingsRow(
             icon = Icons.AutoMirrored.Filled.Logout,
             iconBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -329,14 +334,15 @@ private fun SignedInSection(
     // week is how it gets tapped by accident.
     Spacer(modifier = Modifier.height(8.dp))
 
+    val rose = LocalAppColorScheme.current.categoryService
     StyledCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.18f)
+        containerColor = rose.copy(alpha = 0.12f)
     ) {
         SettingsRow(
             icon = Icons.Default.DeleteForever,
-            iconBackgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
-            iconTint = MaterialTheme.colorScheme.error,
+            iconBackgroundColor = rose.copy(alpha = 0.18f),
+            iconTint = rose,
             title = stringResource(R.string.cloud_delete_account),
             subtitle = stringResource(R.string.cloud_delete_account_desc),
             onClick = onDeleteAccount,
@@ -384,10 +390,9 @@ private fun ConfirmDialog(
     message: String,
     confirmLabel: String,
     destructive: Boolean,
+    @StringRes localDataRes: Int,
     isBusy: Boolean,
     errorRes: Int?,
-    wipeLocalData: Boolean,
-    onWipeLocalDataChange: (Boolean) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -398,26 +403,11 @@ private fun ConfirmDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = message, fontSize = 14.sp)
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = wipeLocalData,
-                        onCheckedChange = onWipeLocalDataChange,
-                        enabled = !isBusy
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.cloud_wipe_local),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.cloud_wipe_local_desc),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(localDataRes),
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 errorRes?.let {
                     Text(

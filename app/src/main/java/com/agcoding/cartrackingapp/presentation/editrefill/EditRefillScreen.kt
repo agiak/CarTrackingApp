@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.editrefill.components.EditRefillContent
 
@@ -45,6 +46,7 @@ fun EditRefillScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDatePicker by viewModel.showDatePicker.collectAsState()
+    val isDirty by viewModel.isDirty.collectAsState()
     val scrollState = rememberScrollState()
 
     // Shows the app-wide success confirmation before navigating back.
@@ -75,7 +77,9 @@ fun EditRefillScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = LocalAppColorScheme.current.actionPrimary
+                )
             }
         } else {
             // Use centered content with max width on tablets for better form usability
@@ -109,12 +113,18 @@ fun EditRefillScreen(
                     },
                     errorMessage = uiState.errorMessage,
                     isTablet = isTablet,
+                    carName = uiState.carName,
+                    carPlate = uiState.carPlate,
+                    previousOdometer = uiState.previousOdometer,
+                    expectedOdometer = uiState.expectedOdometer,
+                    isDirty = isDirty,
+                    onDiscard = viewModel::discardChanges,
                     modifier = Modifier
                         .then(
                             if (isTablet) Modifier.fillMaxWidth(0.7f) // 70% width on tablets
                             else Modifier.fillMaxWidth()
                         )
-                        .padding(horizontal = if (isTablet) 24.dp else 24.dp)
+                        .padding(horizontal = if (isTablet) 24.dp else 18.dp)
                         .padding(bottom = 32.dp)
                 )
             }

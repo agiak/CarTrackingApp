@@ -26,11 +26,20 @@ import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -164,17 +173,6 @@ fun AttachmentsScreen(
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { filePickerLauncher.launch("*/*") },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.attach_file)
-                )
-            }
-        }
     ) { paddingValues ->
         if (attachments.isEmpty()) {
             // Empty state
@@ -222,11 +220,10 @@ fun AttachmentsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Text(
-                        text = stringResource(R.string.attached_files_count, attachments.size),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    DropZone(onClick = { filePickerLauncher.launch("*/*") })
+                    Spacer(Modifier.height(16.dp))
+                    SectionLabel(
+                        stringResource(R.string.attached_files_count, attachments.size)
                     )
                     Spacer(Modifier.height(4.dp))
                 }
@@ -318,7 +315,7 @@ fun AttachmentsScreen(
             title = { Text(stringResource(R.string.rename_attachment)) },
             text = {
                 Column {
-                    OutlinedTextField(
+                    AppTextField(
                         value = newFileName,
                         onValueChange = {
                             newFileName = it
@@ -382,7 +379,60 @@ fun AttachmentsScreen(
     }
 }
 
+
+/**
+ * Where a file goes.
+ *
+ * It replaces the floating action button, which on this screen was the wrong
+ * shape of control: a FAB is a circle in a corner with an icon in it, and
+ * "attach a file" is not something anyone guesses from a plus sign on a screen
+ * of documents. A dashed outline is the one visual convention everybody
+ * already reads as "put something here", and unlike a FAB it can say so in
+ * words without being a button in the way of the list.
+ */
 @Preview(showBackground = true)
+@Composable
+private fun DropZone(onClick: () -> Unit) {
+    val accent = MaterialTheme.colorScheme.primary
+    val shape = RoundedCornerShape(20.dp)
+    val stroke = with(LocalDensity.current) { 1.5.dp.toPx() }
+    val dash = with(LocalDensity.current) { 7.dp.toPx() }
+    val gap = with(LocalDensity.current) { 6.dp.toPx() }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(112.dp)
+            .clip(shape)
+            .drawBehind {
+                drawRoundRect(
+                    color = accent,
+                    style = Stroke(
+                        width = stroke,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, gap)),
+                    ),
+                    cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx()),
+                )
+            }
+            .clickable(onClick = onClick),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(26.dp),
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.attach_file),
+            style = MaterialTheme.typography.titleSmall,
+            color = accent,
+        )
+    }
+}
+
 @Composable
 private fun AttachmentsScreenPreview() {
     CarTrackingAppTheme {

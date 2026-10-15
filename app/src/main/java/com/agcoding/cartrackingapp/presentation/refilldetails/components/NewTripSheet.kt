@@ -13,8 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 /**
  * Creates a trip for the refill at hand.
@@ -52,7 +52,7 @@ fun NewTripSheet(
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
@@ -74,7 +74,7 @@ fun NewTripSheet(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            OutlinedTextField(
+            AppTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text(stringResource(R.string.trip_name_required_label)) },
@@ -82,7 +82,7 @@ fun NewTripSheet(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
+            AppTextField(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text(stringResource(R.string.trip_description_optional_label)) },
@@ -137,7 +137,7 @@ private fun PreviewNewTripSheetContent() {
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            OutlinedTextField(
+            AppTextField(
                 value = "Summer 2026",
                 onValueChange = {},
                 label = { Text(stringResource(R.string.trip_name_required_label)) },

@@ -63,32 +63,40 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import androidx.compose.material.icons.filled.Info
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 
+/**
+ * The green "Granted" pill.
+ *
+ * It draws nothing when the permission is missing. The old badge said "Not
+ * granted" in red directly above a button offering to grant it — the same fact
+ * twice, once as an alarm and once as a fix, and the alarm is the half that
+ * cannot be acted on. What is left is a row that is either quietly settled or
+ * visibly asking.
+ */
 @Composable
 internal fun PermissionStatusBadge(isGranted: Boolean) {
-    val color = if (isGranted) AppSuccess.color
-    else MaterialTheme.colorScheme.error
+    if (!isGranted) return
+
+    val scheme = LocalAppColorScheme.current
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(color.copy(alpha = 0.12f))
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+            .background(scheme.statusSuccessSubtle)
+            .padding(horizontal = 9.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(6.dp)
-                .clip(RoundedCornerShape(50))
-                .background(color)
+        Icon(
+            imageVector = Icons.Default.Check,
+            contentDescription = null,
+            tint = scheme.statusSuccess,
+            modifier = Modifier.size(12.dp)
         )
-        Spacer(modifier = Modifier.width(6.dp))
+        Spacer(modifier = Modifier.width(5.dp))
         Text(
-            text = stringResource(
-                if (isGranted) R.string.granted else R.string.not_granted
-            ),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = color
+            text = stringResource(R.string.granted),
+            style = MaterialTheme.typography.labelSmall,
+            color = scheme.statusSuccess
         )
     }
 }

@@ -30,7 +30,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -64,6 +63,7 @@ import com.agcoding.cartrackingapp.presentation.components.DateFilterSheet
 import com.agcoding.cartrackingapp.presentation.components.dateFilterLabel
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 enum class MonthlyTrendsSortBy(val labelRes: Int) {
     TIME(R.string.sort_time),
@@ -293,7 +293,7 @@ fun MonthlyTrendsScreen(
 
         // Filter bottom sheet (portrait only)
         if (showFilterSheet) {
-            ModalBottomSheet(
+            AppBottomSheet(
                 onDismissRequest = { showFilterSheet = false },
                 sheetState = sheetState
             ) {

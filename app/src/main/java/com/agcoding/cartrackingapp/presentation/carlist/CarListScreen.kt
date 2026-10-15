@@ -5,19 +5,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,9 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -51,13 +56,13 @@ import com.agcoding.cartrackingapp.presentation.carlist.components.EmptyState
 import com.agcoding.cartrackingapp.presentation.carlist.components.ErrorState
 import com.agcoding.cartrackingapp.presentation.carlist.components.PermissionsBanner
 import com.agcoding.cartrackingapp.presentation.carlist.components.ReminderBanner
-import com.agcoding.cartrackingapp.presentation.components.NotificationsAction
-import com.agcoding.cartrackingapp.presentation.components.ProfileNavigationIcon
-import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.HeaderIconButton
+import com.agcoding.cartrackingapp.presentation.components.ScreenHeader
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.util.formatNumber
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarListScreen(
     onCarClick: (Long) -> Unit,
@@ -89,30 +94,123 @@ fun CarListScreen(
     // Shows the app-wide success confirmation after a car is added.
     var showSuccess by remember { mutableStateOf(false) }
 
+    CarListContent(
+        uiState = uiState,
+        showPermissionBanner = showPermissionBanner,
+        hasReminders = (uiState as? CarListUiState.Success)?.reminderInfo != null,
+        onCarClick = onCarClick,
+        onAddRefillClick = onAddRefillClick,
+        onAddServiceClick = onAddServiceClick,
+        onNavigateToReminders = onNavigateToReminders,
+        onNavigateToPermissionsSettings = onNavigateToPermissionsSettings,
+        onNavigateToProfile = onNavigateToProfile,
+        onAddCarClick = { viewModel.showAddCarDialog() },
+        onDismissBanner = { viewModel.dismissBannerForToday() },
+        onDismissPermissionBanner = { viewModel.dismissPermissionBanner() },
+        snackbarHostState = snackbarHostState,
+    )
+
+    if (showAddCarDialog) {
+        AddCarDialog(
+            onDismiss = { viewModel.hideAddCarDialog() },
+            onConfirm = { name, plate, odometer ->
+                viewModel.addCar(name, plate, odometer) { showSuccess = true }
+            }
+        )
+    }
+
+    SuccessOverlay(
+        visible = showSuccess,
+        message = stringResource(R.string.car_added_successfully),
+        onFinished = { showSuccess = false }
+    )
+}
+
+/**
+ * Everything the screen draws, with no ViewModel in sight so the previews can
+ * reach it.
+ *
+ * The title is an item in the list rather than a top app bar. On a phone the
+ * cars are the screen; a pinned bar would spend 56dp saying "My Cars" to
+ * somebody who is looking straight at their cars. Scrolled away, that height
+ * belongs to the content, and the title is still the first thing you see when
+ * you arrive or scroll back.
+ */
+@Composable
+private fun CarListContent(
+    uiState: CarListUiState,
+    showPermissionBanner: Boolean,
+    hasReminders: Boolean,
+    onCarClick: (Long) -> Unit,
+    onAddRefillClick: (Long) -> Unit,
+    onAddServiceClick: (Long) -> Unit,
+    onNavigateToReminders: () -> Unit,
+    onNavigateToPermissionsSettings: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onAddCarClick: () -> Unit,
+    onDismissBanner: () -> Unit,
+    onDismissPermissionBanner: () -> Unit,
+    snackbarHostState: SnackbarHostState? = null,
+) {
+    val dimens = LocalAppDimens.current
+    val margin = dimens.spacing.screenHorizontal
+
+    val cars = (uiState as? CarListUiState.Success)?.cars.orEmpty()
+    val meta = if (cars.isEmpty()) {
+        null
+    } else {
+        val vehicles = pluralStringResource(
+            R.plurals.car_list_vehicles_count, cars.size, cars.size,
+        )
+        val tracked = stringResource(
+            R.string.car_list_meta_tracked,
+            cars.sumOf { it.totalDistance }.formatNumber(0),
+        )
+        "$vehicles · $tracked"
+    }
+
+    // The lists already inset their content by the screen margin, so the
+    // header is told not to add its own there; the states that are plain
+    // Columns get the default.
+    val header: @Composable (Dp) -> Unit = { horizontalPadding ->
+        ScreenHeader(
+            title = stringResource(R.string.car_list_title),
+            meta = meta,
+            horizontalPadding = horizontalPadding,
+            actions = {
+                HeaderIconButton(
+                    icon = Icons.Default.Notifications,
+                    contentDescription = stringResource(R.string.tab_notifications_cd),
+                    onClick = onNavigateToReminders,
+                    showDot = hasReminders,
+                )
+                HeaderIconButton(
+                    icon = Icons.Default.AccountCircle,
+                    contentDescription = stringResource(R.string.tab_profile_cd),
+                    onClick = onNavigateToProfile,
+                )
+            },
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            StyledTopAppBar(
-                title = { Text(stringResource(R.string.car_list_title)) },
-                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToProfile) },
-                // The reminders screen is what "notifications" means here, and
-                // this screen already knew how to reach it.
-                actions = { NotificationsAction(onClick = onNavigateToReminders) },
-            )
-        },
+        snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
         floatingActionButton = {
             if (uiState is CarListUiState.Success) {
-                FloatingActionButton(
+                ExtendedFloatingActionButton(
+                    onClick = onAddCarClick,
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
-                    onClick = { viewModel.showAddCarDialog() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.car_list_add_car_cd)
-                    )
-                }
+                    shape = RoundedCornerShape(dimens.radius.fab),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                        )
+                    },
+                    text = { Text(stringResource(R.string.car_list_add_car)) },
+                )
             }
         }
     ) { paddingValues ->
@@ -123,24 +221,29 @@ fun CarListScreen(
         ) {
             when (val state = uiState) {
                 is CarListUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        header(margin)
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
                 }
 
                 is CarListUiState.Empty -> {
-                    // Show permission banner above empty state
                     Column(modifier = Modifier.fillMaxSize()) {
+                        header(margin)
                         if (showPermissionBanner) {
                             PermissionsBanner(
                                 onClick = onNavigateToPermissionsSettings,
-                                onDismiss = { viewModel.dismissPermissionBanner() },
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                onDismiss = onDismissPermissionBanner,
+                                modifier = Modifier.padding(horizontal = margin, vertical = 8.dp)
                             )
                         }
                         EmptyState(
                             modifier = Modifier
                                 .weight(1f)
                                 .align(Alignment.CenterHorizontally),
-                            onAddCarClick = { viewModel.showAddCarDialog() }
+                            onAddCarClick = onAddCarClick
                         )
                     }
                 }
@@ -148,14 +251,22 @@ fun CarListScreen(
                 is CarListUiState.Success -> {
                     val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
                     val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
-                    val useGrid = isTablet || isLandscape
                     val gridColumns = when {
                         isTablet -> 3
                         isLandscape -> 2
                         else -> 1
                     }
+                    // The FAB is an extended one now, so it is both taller and
+                    // wider than the old circle; the list has to clear it or
+                    // the last car sits permanently half-covered.
+                    val contentPadding = PaddingValues(
+                        start = margin,
+                        end = margin,
+                        top = 0.dp,
+                        bottom = dimens.spacing.fabSafeBottom,
+                    )
 
-                    if (useGrid && gridColumns > 1) {
+                    if (gridColumns > 1) {
                         val gridState = rememberLazyGridState()
                         LaunchedEffect(Unit) { gridState.scrollToItem(0) }
 
@@ -163,29 +274,27 @@ fun CarListScreen(
                             columns = GridCells.Fixed(gridColumns),
                             state = gridState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(
-                                start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            contentPadding = contentPadding,
+                            horizontalArrangement = Arrangement.spacedBy(dimens.spacing.cardGap),
+                            verticalArrangement = Arrangement.spacedBy(dimens.spacing.cardGap)
                         ) {
-                            // Permission banner – spans full width
+                            item(span = { GridItemSpan(gridColumns) }) { header(0.dp) }
+
                             if (showPermissionBanner) {
-                                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(gridColumns) }) {
+                                item(span = { GridItemSpan(gridColumns) }) {
                                     PermissionsBanner(
                                         onClick = onNavigateToPermissionsSettings,
-                                        onDismiss = { viewModel.dismissPermissionBanner() }
+                                        onDismiss = onDismissPermissionBanner
                                     )
                                 }
                             }
 
-                            // Reminder banner – spans full width
                             state.reminderInfo?.let { reminderInfo ->
-                                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(gridColumns) }) {
+                                item(span = { GridItemSpan(gridColumns) }) {
                                     ReminderBanner(
                                         reminderInfo = reminderInfo,
                                         onClick = onNavigateToReminders,
-                                        onDismiss = { viewModel.dismissBannerForToday() }
+                                        onDismiss = onDismissBanner
                                     )
                                 }
                             }
@@ -206,28 +315,26 @@ fun CarListScreen(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(
-                                start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp
-                            ),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            contentPadding = contentPadding,
+                            verticalArrangement = Arrangement.spacedBy(dimens.spacing.cardGap)
                         ) {
-                            // Permission banner
+                            item { header(0.dp) }
+
                             if (showPermissionBanner) {
                                 item {
                                     PermissionsBanner(
                                         onClick = onNavigateToPermissionsSettings,
-                                        onDismiss = { viewModel.dismissPermissionBanner() }
+                                        onDismiss = onDismissPermissionBanner
                                     )
                                 }
                             }
 
-                            // Reminder banner
                             state.reminderInfo?.let { reminderInfo ->
                                 item {
                                     ReminderBanner(
                                         reminderInfo = reminderInfo,
                                         onClick = onNavigateToReminders,
-                                        onDismiss = { viewModel.dismissBannerForToday() }
+                                        onDismiss = onDismissBanner
                                     )
                                 }
                             }
@@ -245,175 +352,85 @@ fun CarListScreen(
                 }
 
                 is CarListUiState.Error -> {
-                    ErrorState(
-                        message = state.message,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-        }
-
-        if (showAddCarDialog) {
-            AddCarDialog(
-                onDismiss = { viewModel.hideAddCarDialog() },
-                onConfirm = { name, plate, odometer ->
-                    viewModel.addCar(name, plate, odometer) { showSuccess = true }
-                }
-            )
-        }
-
-        SuccessOverlay(
-            visible = showSuccess,
-            message = stringResource(R.string.car_added_successfully),
-            onFinished = { showSuccess = false }
-        )
-    }
-}
-
-// ============================================
-// Preview Data Provider
-// ============================================
-
-private class CarListUiStateProvider : PreviewParameterProvider<CarListUiState> {
-    override val values: Sequence<CarListUiState> = sequenceOf(
-        CarListUiState.Loading,
-        CarListUiState.Empty,
-        CarListUiState.Success(
-            cars = listOf(
-                Car(id = 1, name = "Toyota Corolla", licensePlate = "ABC-1234",
-                    currentOdometer = 45000.0, initialOdometer = 0.0, averageConsumption = 6.5,
-                    totalRefills = 120, totalCost = 8500.0, totalDistance = 45000.0)
-            ),
-            reminderInfo = null
-        ),
-        CarListUiState.Error("Failed to load cars.")
-    )
-}
-
-// ============================================
-// Preview Composables
-// ============================================
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CarListScreenContent(
-    uiState: CarListUiState,
-    showPermissionBanner: Boolean = false,
-    showAddCarDialog: Boolean = false,
-    onCarClick: (Long) -> Unit = {},
-    onAddRefillClick: (Long) -> Unit = {},
-    onAddServiceClick: (Long) -> Unit = {},
-    onNavigateToReminders: () -> Unit = {},
-    onNavigateToPermissionsSettings: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {},
-    onAddCarClick: () -> Unit = {},
-    onDismissBanner: () -> Unit = {},
-    onDismissPermissionBanner: () -> Unit = {},
-    onDismissDialog: () -> Unit = {},
-    onConfirmAddCar: (String, String, String) -> Unit = { _, _, _ -> }
-) {
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            StyledTopAppBar(
-                title = { Text(stringResource(R.string.car_list_title)) },
-                navigationIcon = { ProfileNavigationIcon(onClick = onNavigateToProfile) },
-                actions = { NotificationsAction(onClick = onNavigateToReminders) },
-            )
-        },
-        floatingActionButton = {
-            if (uiState is CarListUiState.Success) {
-                FloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    onClick = onAddCarClick
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                }
-            }
-        }
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            when (val state = uiState) {
-                is CarListUiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                is CarListUiState.Empty -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        if (showPermissionBanner) {
-                            PermissionsBanner(
-                                onClick = onNavigateToPermissionsSettings,
-                                onDismiss = onDismissPermissionBanner,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                        EmptyState(
-                            modifier = Modifier.weight(1f).align(Alignment.CenterHorizontally),
-                            onAddCarClick = onAddCarClick
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        header(margin)
+                        ErrorState(
+                            message = state.message,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     }
                 }
-                is CarListUiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (showPermissionBanner) {
-                            item {
-                                PermissionsBanner(
-                                    onClick = onNavigateToPermissionsSettings,
-                                    onDismiss = onDismissPermissionBanner
-                                )
-                            }
-                        }
-                        state.reminderInfo?.let { ri ->
-                            item {
-                                ReminderBanner(reminderInfo = ri, onClick = onNavigateToReminders, onDismiss = onDismissBanner)
-                            }
-                        }
-                        items(items = state.cars, key = { it.id }) { car ->
-                            CarCard(car = car, onClick = { onCarClick(car.id) },
-                                onAddRefillClick = { onAddRefillClick(car.id) },
-                                onAddServiceClick = { onAddServiceClick(car.id) })
-                        }
-                    }
-                }
-                is CarListUiState.Error -> ErrorState(message = state.message, modifier = Modifier.align(Alignment.Center))
             }
         }
-        if (showAddCarDialog) {
-            AddCarDialog(onDismiss = onDismissDialog, onConfirm = onConfirmAddCar)
-        }
     }
 }
 
-@Preview(name = "Loading State", showBackground = true, showSystemUi = true)
+// ── previews ─────────────────────────────────────────────────────────────
+
+private fun previewCars() = listOf(
+    Car(
+        id = 1, name = "Toyota Corolla", licensePlate = "ΙΖΧ-4821",
+        currentOdometer = 145678.0, initialOdometer = 20000.0, averageConsumption = 6.5,
+        totalRefills = 501, totalCost = 15432.50, totalDistance = 125678.0, isDefault = true,
+    ),
+    Car(
+        id = 2, name = "VW Golf", licensePlate = "ΑΒΕ-1190",
+        currentOdometer = 243286.0, initialOdometer = 180000.0, averageConsumption = 7.8,
+        totalRefills = 472, totalCost = 21980.0, totalDistance = 63286.0,
+    ),
+    Car(
+        id = 3, name = "Tesla Model 3", licensePlate = "",
+        currentOdometer = 5000.0, initialOdometer = 5000.0, averageConsumption = 0.0,
+        totalRefills = 0, totalCost = 0.0, totalDistance = 0.0,
+    ),
+)
+
 @Composable
-private fun PreviewCarListScreenLoading() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarListScreenContent(uiState = CarListUiState.Loading)
-    }
+private fun PreviewScreen(uiState: CarListUiState, permissionBanner: Boolean = false) {
+    CarListContent(
+        uiState = uiState,
+        showPermissionBanner = permissionBanner,
+        hasReminders = (uiState as? CarListUiState.Success)?.reminderInfo != null,
+        onCarClick = {}, onAddRefillClick = {}, onAddServiceClick = {},
+        onNavigateToReminders = {}, onNavigateToPermissionsSettings = {},
+        onNavigateToProfile = {}, onAddCarClick = {},
+        onDismissBanner = {}, onDismissPermissionBanner = {},
+    )
 }
 
-@Preview(name = "Empty State - Permission Banner", showBackground = true, showSystemUi = true)
+@Preview(name = "My Cars — dark", showBackground = true, showSystemUi = true)
 @Composable
-private fun PreviewCarListScreenEmptyWithBanner() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarListScreenContent(uiState = CarListUiState.Empty, showPermissionBanner = true)
-    }
-}
-
-@Preview(name = "Success - Permission Banner", showBackground = true, showSystemUi = true)
-@Composable
-private fun PreviewCarListScreenSuccessWithBanner() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarListScreenContent(
-            uiState = CarListUiState.Success(
-                cars = listOf(Car(id = 1, name = "Toyota Corolla", licensePlate = "ABC-1234",
-                    currentOdometer = 45000.0, initialOdometer = 0.0, averageConsumption = 6.5,
-                    totalRefills = 120, totalCost = 8500.0, totalDistance = 45000.0)),
-                reminderInfo = ReminderInfo(dateBasedCount = 1, mileageBasedCount = 0)
-            ),
-            showPermissionBanner = true
+private fun PreviewCarListDark() {
+    CarTrackingAppTheme(darkTheme = true) {
+        PreviewScreen(
+            CarListUiState.Success(
+                cars = previewCars(),
+                reminderInfo = ReminderInfo(dateBasedCount = 1, mileageBasedCount = 1),
+            )
         )
+    }
+}
+
+@Preview(name = "My Cars — light", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewCarListLight() {
+    CarTrackingAppTheme(darkTheme = false) {
+        PreviewScreen(CarListUiState.Success(cars = previewCars(), reminderInfo = null))
+    }
+}
+
+@Preview(name = "My Cars — empty", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewCarListEmpty() {
+    CarTrackingAppTheme(darkTheme = true) {
+        PreviewScreen(CarListUiState.Empty, permissionBanner = true)
+    }
+}
+
+@Preview(name = "My Cars — loading", showBackground = true, showSystemUi = true)
+@Composable
+private fun PreviewCarListLoading() {
+    CarTrackingAppTheme(darkTheme = true) {
+        PreviewScreen(CarListUiState.Loading)
     }
 }

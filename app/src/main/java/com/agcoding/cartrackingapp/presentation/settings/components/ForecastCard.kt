@@ -55,19 +55,10 @@ fun ForecastCard(
                 }
             )
 
-            // Helper text
-            if (forecastingEnabled) {
-                Text(
-                    text = stringResource(R.string.forecasting_description),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    lineHeight = 16.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 12.dp)
-                )
-            }
+            // The row's own subtitle already carries forecasting_description.
+            // It used to be repeated here as "helper text" whenever the switch
+            // was on, so turning the feature on printed the same sentence
+            // twice, one under the other.
         }
     }
 }

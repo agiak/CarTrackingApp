@@ -44,7 +44,8 @@ fun AppTheme(
                 AppColorScheme(
                     backgroundPrimary      = m3.background,
                     backgroundSecondary    = m3.surfaceVariant,
-                    backgroundCard         = m3.surface,
+                    // m3.surface is the background colour itself, so cards on it vanished.
+                    backgroundCard         = m3.surfaceContainer,
                     backgroundOverlay      = Color.Black.copy(alpha = if (isDark) 0.6f else 0.4f),
                     contentPrimary         = m3.onBackground,
                     contentSecondary       = m3.onSurfaceVariant,
@@ -54,7 +55,8 @@ fun AppTheme(
                     actionContent          = m3.onPrimary,
                     actionSecondary        = m3.primaryContainer,
                     actionSecondaryContent = m3.onPrimaryContainer,
-                    borderDefault          = m3.outline,
+                    // outline is Material's strong border; every card now carries this one.
+                    borderDefault          = m3.outlineVariant,
                     borderFocused          = m3.primary,
                     borderStrong           = m3.outline,
                     statusSuccess          = if (isDark) Color(0xFF5DCAA5) else Color(0xFF1D9E75),

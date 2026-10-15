@@ -1,375 +1,391 @@
 package com.agcoding.cartrackingapp.presentation.statistics.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.ForecastResult
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
 import com.agcoding.cartrackingapp.presentation.statistics.CarSpecificInsights
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastUiState
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
 import com.agcoding.cartrackingapp.util.formatNumber
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
- * Displays fuel forecast section with predictions per car.
+ * What next month is likely to cost, for one car.
  *
- * Shows:
- * - Cost per km forecast
- * - Fuel efficiency forecast
- * - Trend indicators
- * - Confidence levels
- * - Low data warnings
+ * The screen used to stack every car's forecast one under the other, each in a
+ * card that opened with a hero figure, repeated the same figure in a row
+ * beneath it, and then printed a paragraph of trend prose with an emoji in it.
+ * Three cars meant three of those, and a prediction nobody could compare
+ * against another.
+ *
+ * One car at a time now, chosen with a chip — the screen's own question is
+ * "what about *this* car" — and the forecast is two readouts side by side with
+ * a trend pill each, over one confidence bar. The trend prose moves into the
+ * tips, which is where advice belongs.
  */
 @Composable
 fun FuelForecastSection(
-    forecasts: List<FuelForecastUiState>,
-    modifier: Modifier = Modifier
-) {
-    if (forecasts.isEmpty()) return
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
-        forecasts.forEach { forecast ->
-            FuelForecastCard(forecast = forecast)
-        }
-    }
-}
-
-/**
- * Individual car forecast card.
- */
-@Composable
-private fun FuelForecastCard(
     forecast: FuelForecastUiState,
     modifier: Modifier = Modifier
 ) {
-    StyledCard(
-        modifier = modifier.fillMaxWidth()
-    ) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val months = maxOf(
+        forecast.costPerKmForecast?.dataPointsUsed ?: 0,
+        forecast.efficiencyForecast?.dataPointsUsed ?: 0
+    )
+
+    Column(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .clip(RoundedCornerShape(dimens.radius.card))
+                .background(scheme.backgroundCard)
+                .padding(18.dp)
         ) {
-            // Car name
+            Text(
+                text = stringResource(R.string.forecast_next_month),
+                style = MaterialTheme.typography.labelLarge,
+                color = scheme.contentSecondary
+            )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = forecast.carName,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = scheme.contentPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-
-            // Explanation text
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = stringResource(
-                    R.string.forecast_explanation,
-                    forecast.costPerKmForecast?.dataPointsUsed ?: 0
-                ),
+                text = stringResource(R.string.forecast_based_on_months, months),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                fontSize = 12.sp
+                color = scheme.contentSecondary
             )
 
-            // Low data warning
             if (forecast.showLowDataWarning) {
+                Spacer(Modifier.height(14.dp))
                 LowDataWarning()
             }
 
-            // Cost per km forecast
-            forecast.costPerKmForecast?.let { costForecast ->
-                ForecastMetricRow(
+            Spacer(Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ForecastReadout(
                     label = stringResource(R.string.forecast_cost_per_km),
-                    forecast = costForecast,
-                    unit = stringResource(R.string.currency_per_km),
-                    trendExplanation = getTrendExplanation(costForecast.trend)
+                    forecast = forecast.costPerKmForecast,
+                    decimals = 3,
+                    unit = stringResource(R.string.currency_per_km)
                 )
-            }
-
-            // Efficiency forecast
-            forecast.efficiencyForecast?.let { efficiencyForecast ->
-                ForecastMetricRow(
+                ForecastReadout(
                     label = stringResource(R.string.forecast_efficiency),
-                    forecast = efficiencyForecast,
-                    unit = stringResource(R.string.liters_per_100km),
-                    trendExplanation = getTrendExplanation(efficiencyForecast.trend)
+                    forecast = forecast.efficiencyForecast,
+                    decimals = 1,
+                    unit = stringResource(R.string.liters_per_100km)
                 )
             }
 
-            // Car-specific improvement tips
-            HowToImproveTips(forecast = forecast)
+            val confidence = forecast.costPerKmForecast?.confidence
+                ?: forecast.efficiencyForecast?.confidence
+            if (confidence != null) {
+                Spacer(Modifier.height(18.dp))
+                ConfidenceBar(confidence = confidence)
+            }
         }
-    }
-}
 
-/**
- * Get trend explanation text based on trend value.
- */
-@Composable
-private fun getTrendExplanation(trend: Double): String {
-    return when {
-        trend > 0.001 -> stringResource(R.string.forecast_trend_increasing)
-        trend < -0.001 -> stringResource(R.string.forecast_trend_decreasing)
-        else -> stringResource(R.string.forecast_trend_stable)
-    }
-}
-
-/**
- * Single forecast metric row.
- */
-@Composable
-private fun ForecastMetricRow(
-    label: String,
-    forecast: ForecastResult,
-    unit: String,
-    trendExplanation: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = forecast.predictedNextValue.formatNumber(3),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = unit,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-
-                    // Trend indicator
-                    TrendIndicator(trend = forecast.trend)
+        val tips = improvementTips(forecast.carInsights)
+        if (tips.isNotEmpty()) {
+            Spacer(Modifier.height(dimens.spacing.sectionTop))
+            SectionLabel(stringResource(R.string.forecast_tips_for_car, forecast.carName))
+            Spacer(Modifier.height(10.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(dimens.radius.card))
+                    .background(scheme.backgroundCard)
+                    .padding(16.dp)
+            ) {
+                tips.forEachIndexed { index, tip ->
+                    if (index > 0) Spacer(Modifier.height(14.dp))
+                    TipRow(tip)
                 }
             }
-
-            // Confidence badge
-            ConfidenceBadge(confidence = forecast.confidence)
         }
+    }
+}
 
-        // Trend explanation with color coding
-        val trendColor = when {
-            forecast.trend > 0.001 -> Color(0xFFE57373) // Increasing (red/bad)
-            forecast.trend < -0.001 -> Color(0xFF81C784) // Decreasing (green/good)
-            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) // Stable
-        }
+/**
+ * One predicted figure, its unit, and which way it is moving.
+ *
+ * A metric with no forecast is drawn as a dash rather than left out, so the
+ * two cells stay the same width and the card does not change shape between
+ * cars.
+ */
+@Composable
+private fun RowScope.ForecastReadout(
+    label: String,
+    forecast: ForecastResult?,
+    decimals: Int,
+    unit: String
+) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
 
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(dimens.radius.tile))
+            .background(scheme.backgroundSecondary)
+            .padding(14.dp)
+    ) {
         Text(
-            text = trendExplanation,
-            style = MaterialTheme.typography.bodySmall,
-            color = trendColor,
-            fontSize = 11.sp,
-            lineHeight = 14.sp
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = scheme.contentSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
+        Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                text = forecast?.predictedNextValue?.formatNumber(decimals) ?: "—",
+                style = AppNumbers.tile,
+                color = scheme.contentPrimary,
+                maxLines = 1
+            )
+            Spacer(Modifier.width(3.dp))
+            Text(
+                text = unit,
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.contentSecondary,
+                modifier = Modifier.padding(bottom = 2.dp),
+                maxLines = 1
+            )
+        }
+        if (forecast != null) {
+            Spacer(Modifier.height(8.dp))
+            TrendPill(trend = forecast.trend, value = forecast.predictedNextValue)
+        }
     }
 }
 
 /**
- * Trend direction indicator.
+ * Which way the metric is heading, as a percentage of where it is.
+ *
+ * Both metrics on this screen are costs, so down is good and up is not — the
+ * same green and rose the rest of the app uses for exactly that. A trend too
+ * small to matter gets the flat arrow and no colour rather than a precise
+ * figure implying a precision the forecast does not have.
  */
 @Composable
-private fun TrendIndicator(
-    trend: Double,
-    modifier: Modifier = Modifier
-) {
-    val (icon, color) = when {
-        trend > 0.001 -> Icons.AutoMirrored.Filled.TrendingUp to Color(0xFFE57373) // Increasing (red/bad)
-        trend < -0.001 -> Icons.AutoMirrored.Filled.TrendingDown to Color(0xFF81C784) // Decreasing (green/good)
-        else -> Icons.AutoMirrored.Filled.TrendingFlat to Color.Gray // Stable
-    }
+private fun TrendPill(trend: Double, value: Double) {
+    val scheme = LocalAppColorScheme.current
+    val percent = if (value != 0.0) abs(trend / value * 100) else 0.0
+    val flat = percent < 1.0
 
-    Icon(
-        imageVector = icon,
-        contentDescription = null,
-        tint = color,
-        modifier = modifier.size(20.dp)
-    )
-}
-
-/**
- * Confidence score badge with label.
- */
-@Composable
-private fun ConfidenceBadge(
-    confidence: Double,
-    modifier: Modifier = Modifier
-) {
-    val confidencePercent = (confidence * 100).toInt()
-    val color = when {
-        confidence >= 0.7 -> Color(0xFF81C784) // High confidence - green
-        confidence >= 0.4 -> Color(0xFFFFB74D) // Medium confidence - orange
-        else -> Color(0xFFE57373) // Low confidence - red
+    val tint = when {
+        flat -> scheme.contentSecondary
+        trend < 0 -> scheme.statusSuccess
+        else -> scheme.categoryService
     }
+    val icon = when {
+        flat -> Icons.AutoMirrored.Filled.TrendingFlat
+        trend < 0 -> Icons.AutoMirrored.Filled.TrendingDown
+        else -> Icons.AutoMirrored.Filled.TrendingUp
+    }
+    val sign = if (trend < 0) "−" else "+"
+    val text = if (flat) "±${percent.formatNumber(1)}%" else "$sign${percent.formatNumber(1)}%"
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
+            .clip(RoundedCornerShape(LocalAppDimens.current.radius.chip))
+            .background(tint.copy(alpha = 0.14f))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        Text(
-            text = stringResource(R.string.forecast_confidence_label),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            fontSize = 10.sp
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(13.dp)
         )
-        Text(
-            text = "$confidencePercent%",
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
+        Spacer(Modifier.width(4.dp))
+        Text(text = text, style = AppNumbers.tag, color = tint, maxLines = 1)
     }
 }
 
 /**
- * Car-specific tips on how to improve fuel efficiency based on actual data patterns.
+ * How much to trust the two figures above.
+ *
+ * A bar rather than a percentage on its own: "78%" means nothing without
+ * knowing what a good score looks like, and a track that is mostly full says
+ * that at a glance. The colour is the same three-step scale the old badge
+ * used, now mapped onto the palette rather than onto fixed Material reds.
  */
 @Composable
-private fun HowToImproveTips(
-    forecast: FuelForecastUiState,
-    modifier: Modifier = Modifier
-) {
-    val insights = forecast.carInsights
-    val tips = buildList {
-        // Seasonal patterns
-        if (insights.hasSummerConsumptionIssue) {
-            add(stringResource(R.string.forecast_tip_summer_issue))
-        }
-        if (insights.hasWinterConsumptionIssue) {
-            add(stringResource(R.string.forecast_tip_winter_issue))
-        }
+private fun ConfidenceBar(confidence: Double) {
+    val scheme = LocalAppColorScheme.current
+    val percent = (confidence * 100).roundToInt().coerceIn(0, 100)
 
-        // Weather stability
-        if (insights.isWeatherStable) {
-            add(stringResource(R.string.forecast_tip_weather_stable))
-        }
-
-        // Trend-based tips
-        if (insights.hasIncreasingTrend) {
-            add(stringResource(R.string.forecast_tip_increasing_trend))
-        } else if (insights.hasImprovingTrend) {
-            add(stringResource(R.string.forecast_tip_improving_trend))
-        }
-
-        // High variation tips
-        if (insights.avgMonthlyVariation > 0.15) {
-            add(stringResource(R.string.forecast_tip_high_variation))
-        } else if (insights.avgMonthlyVariation < 0.05) {
-            add(stringResource(R.string.forecast_tip_stable_consumption))
-        }
-
-        // General tips (always show at least these)
-        if (isEmpty()) {
-            add(stringResource(R.string.forecast_tip_general_1))
-            add(stringResource(R.string.forecast_tip_general_2))
-            add(stringResource(R.string.forecast_tip_general_3))
-        }
+    val tint = when {
+        confidence >= 0.7 -> scheme.statusSuccess
+        confidence >= 0.4 -> scheme.statusWarning
+        else -> scheme.categoryService
     }
+    val label = stringResource(
+        when {
+            confidence >= 0.7 -> R.string.forecast_confidence_high
+            confidence >= 0.4 -> R.string.forecast_confidence_medium
+            else -> R.string.forecast_confidence_low
+        }
+    )
 
-    if (tips.isEmpty()) return
-
-    StyledCard(
-        modifier = modifier.fillMaxWidth(),
-        tintAlpha = 0.15f
-    ) {
-        Column(
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.forecast_confidence),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelLarge,
+                color = scheme.contentSecondary
+            )
+            Text(
+                text = stringResource(R.string.forecast_confidence_value, percent, label),
+                style = AppNumbers.compact,
+                color = tint,
+                maxLines = 1
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(scheme.backgroundSecondary)
         ) {
-            Text(
-                text = "💡 " + stringResource(R.string.forecast_tips_for_car, forecast.carName),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                fontSize = 12.sp
-            )
-
-            tips.forEach { tip ->
-                Text(
-                    text = "• $tip",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp
+            if (percent > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(percent / 100f)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(tint)
                 )
             }
         }
     }
 }
 
-/**
- * Warning message for insufficient data.
- */
+/** Too little history for the figures above to mean much. */
 @Composable
-private fun LowDataWarning(
-    modifier: Modifier = Modifier
-) {
+private fun LowDataWarning() {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
     Row(
-        modifier = modifier
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(dimens.radius.tile))
+            .background(scheme.statusWarning.copy(alpha = 0.14f))
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.Info,
+            imageVector = Icons.Default.WarningAmber,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
+            tint = scheme.statusWarning,
+            modifier = Modifier.size(18.dp)
         )
-
+        Spacer(Modifier.width(10.dp))
         Text(
             text = stringResource(R.string.forecast_low_data_warning),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-            fontSize = 12.sp
+            color = scheme.statusWarning
         )
+    }
+}
+
+@Composable
+private fun TipRow(tip: String) {
+    val scheme = LocalAppColorScheme.current
+    Row(verticalAlignment = Alignment.Top) {
+        Icon(
+            imageVector = Icons.Default.Lightbulb,
+            contentDescription = null,
+            tint = scheme.actionPrimary,
+            modifier = Modifier
+                .padding(top = 1.dp)
+                .size(17.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = tip,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.contentSecondary
+        )
+    }
+}
+
+/**
+ * Advice drawn from this car's own history, falling back to the general
+ * advice only when nothing specific can be said.
+ */
+@Composable
+private fun improvementTips(insights: CarSpecificInsights): List<String> = buildList {
+    if (insights.hasSummerConsumptionIssue) add(stringResource(R.string.forecast_tip_summer_issue))
+    if (insights.hasWinterConsumptionIssue) add(stringResource(R.string.forecast_tip_winter_issue))
+    if (insights.isWeatherStable) add(stringResource(R.string.forecast_tip_weather_stable))
+    if (insights.hasIncreasingTrend) {
+        add(stringResource(R.string.forecast_tip_increasing_trend))
+    } else if (insights.hasImprovingTrend) {
+        add(stringResource(R.string.forecast_tip_improving_trend))
+    }
+    if (insights.avgMonthlyVariation > 0.15) {
+        add(stringResource(R.string.forecast_tip_high_variation))
+    } else if (insights.avgMonthlyVariation < 0.05) {
+        add(stringResource(R.string.forecast_tip_stable_consumption))
+    }
+    if (isEmpty()) {
+        add(stringResource(R.string.forecast_tip_general_1))
+        add(stringResource(R.string.forecast_tip_general_2))
+        add(stringResource(R.string.forecast_tip_general_3))
     }
 }
 
@@ -377,80 +393,60 @@ private fun LowDataWarning(
 // Preview Composables
 // ============================================
 
-private val reliableForecast = FuelForecastUiState(
+private val previewForecast = FuelForecastUiState(
     carId = 1,
-    carName = "Corolla",
+    carName = "Toyota Corolla",
     costPerKmForecast = ForecastResult(
-        predictedNextValue = 0.148,
-        trend = -0.004,
+        predictedNextValue = 0.142,
+        trend = 0.0044,
         confidence = 0.78,
-        dataPointsUsed = 9
+        dataPointsUsed = 18
     ),
     efficiencyForecast = ForecastResult(
-        predictedNextValue = 6.82,
-        trend = 0.05,
-        confidence = 0.52,
-        dataPointsUsed = 9
+        predictedNextValue = 8.9,
+        trend = -0.018,
+        confidence = 0.78,
+        dataPointsUsed = 18
     ),
     carInsights = CarSpecificInsights(
-        hasSummerConsumptionIssue = true,
-        hasImprovingTrend = true,
-        avgMonthlyVariation = 4.2
+        hasWinterConsumptionIssue = true,
+        hasIncreasingTrend = true
     )
 )
 
-/** Two refills in, nothing can be predicted yet — the warning path. */
-private val lowDataForecast = FuelForecastUiState(
-    carId = 2,
-    carName = "Golf",
-    costPerKmForecast = ForecastResult(
-        predictedNextValue = 0.161,
-        trend = 0.0,
-        confidence = 0.2,
-        dataPointsUsed = 2
-    ),
-    efficiencyForecast = null
-)
-
-@Preview(name = "Forecast section", showBackground = true, widthDp = 400)
+@Preview(name = "Forecast — confident", showBackground = true, widthDp = 390)
 @Composable
-private fun PreviewFuelForecastSection() {
-    CarTrackingAppTheme(darkTheme = false) {
-        FuelForecastSection(forecasts = listOf(reliableForecast, lowDataForecast))
-    }
-}
-
-@Preview(name = "Forecast card", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewFuelForecastCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        FuelForecastCard(forecast = reliableForecast)
-    }
-}
-
-@Preview(name = "Forecast card - low data", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewFuelForecastCardLowData() {
+private fun PreviewFuelForecast() {
     CarTrackingAppTheme(darkTheme = true) {
-        FuelForecastCard(forecast = lowDataForecast)
+        Column(Modifier.padding(18.dp)) {
+            FuelForecastSection(forecast = previewForecast)
+        }
     }
 }
 
-@Preview(name = "Trend and confidence", showBackground = true, widthDp = 400)
+@Preview(name = "Forecast — thin data", showBackground = true, widthDp = 390)
 @Composable
-private fun PreviewTrendAndConfidence() {
+private fun PreviewFuelForecastThin() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(Modifier.padding(18.dp)) {
+            FuelForecastSection(
+                forecast = previewForecast.copy(
+                    carName = "Volkswagen Golf",
+                    costPerKmForecast = ForecastResult(0.137, 0.0005, 0.36, 2),
+                    efficiencyForecast = ForecastResult(8.8, 0.17, 0.36, 2),
+                    carInsights = CarSpecificInsights(avgMonthlyVariation = 0.21)
+                )
+            )
+        }
+    }
+}
+
+@Preview(name = "Forecast — light", showBackground = true, widthDp = 390)
+@Composable
+private fun PreviewFuelForecastLight() {
     CarTrackingAppTheme(darkTheme = false) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            TrendIndicator(trend = 0.006)
-            TrendIndicator(trend = -0.006)
-            TrendIndicator(trend = 0.0)
-            ConfidenceBadge(confidence = 0.82)
-            ConfidenceBadge(confidence = 0.55)
-            ConfidenceBadge(confidence = 0.2)
-            LowDataWarning()
+        Column(Modifier.padding(18.dp)) {
+            FuelForecastSection(forecast = previewForecast)
         }
     }
 }

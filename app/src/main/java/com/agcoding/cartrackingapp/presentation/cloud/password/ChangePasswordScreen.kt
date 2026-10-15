@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cloud.components.PasswordField
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -171,27 +172,12 @@ fun ChangePasswordScreen(
                     )
                 }
 
-                Button(
+                PrimaryButton(
+                    label = stringResource(R.string.cloud_change_password_action),
                     onClick = viewModel::submit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = uiState.canSubmit
-                ) {
-                    if (uiState.isBusy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.cloud_change_password_action),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                    enabled = uiState.canSubmit,
+                    isBusy = uiState.isBusy,
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
             }

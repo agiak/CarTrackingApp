@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -91,14 +90,8 @@ fun PeriodComparisonScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = viewModel::swapPeriods) {
-                        Icon(
-                            imageVector = Icons.Default.SwapVert,
-                            contentDescription = stringResource(R.string.period_comparison_swap)
-                        )
-                    }
-                },
+                // The swap lives between the two period cards now, where the
+                // thing it swaps is visible.
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
@@ -111,6 +104,7 @@ fun PeriodComparisonScreen(
             secondaryFilter = secondaryFilter,
             onEditPrimary = { editingSide = ComparisonSide.PRIMARY },
             onEditSecondary = { editingSide = ComparisonSide.SECONDARY },
+            onSwap = viewModel::swapPeriods,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -140,7 +134,8 @@ private fun PeriodComparisonList(
     secondaryFilter: DateFilter,
     onEditPrimary: () -> Unit,
     onEditSecondary: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSwap: (() -> Unit)? = null
 ) {
     LazyColumn(
         modifier = modifier,
@@ -152,7 +147,8 @@ private fun PeriodComparisonList(
             primaryFilter = primaryFilter,
             secondaryFilter = secondaryFilter,
             onEditPrimary = onEditPrimary,
-            onEditSecondary = onEditSecondary
+            onEditSecondary = onEditSecondary,
+            onSwap = onSwap
         )
     }
 }
@@ -199,7 +195,8 @@ private fun PreviewPeriodComparison() {
             primaryFilter = DateFilter.of(year = 2025),
             secondaryFilter = DateFilter.of(year = 2024),
             onEditPrimary = {},
-            onEditSecondary = {}
+            onEditSecondary = {},
+            onSwap = {}
         )
     }
 }
@@ -213,7 +210,8 @@ private fun PreviewPeriodComparisonDark() {
             primaryFilter = DateFilter(years = setOf(2025), months = setOf(3, 4)),
             secondaryFilter = DateFilter(years = setOf(2024), months = setOf(3, 4)),
             onEditPrimary = {},
-            onEditSecondary = {}
+            onEditSecondary = {},
+            onSwap = {}
         )
     }
 }
@@ -227,7 +225,8 @@ private fun PreviewPeriodComparisonEmpty() {
             primaryFilter = DateFilter.of(year = 2025),
             secondaryFilter = DateFilter.of(year = 2024),
             onEditPrimary = {},
-            onEditSecondary = {}
+            onEditSecondary = {},
+            onSwap = {}
         )
     }
 }

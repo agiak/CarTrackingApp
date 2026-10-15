@@ -25,6 +25,7 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Anomaly
 import com.agcoding.cartrackingapp.domain.model.AnomalySeverity
 import com.agcoding.cartrackingapp.domain.model.AnomalyType
+import com.agcoding.cartrackingapp.presentation.components.HeroSummaryCard
 import com.agcoding.cartrackingapp.presentation.insights.components.AnomalyCard
 import com.agcoding.cartrackingapp.presentation.insights.components.AnomalyFilterChips
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -41,24 +42,18 @@ internal fun SuccessState(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Summary header
+        // How many there are, as the screen's answer rather than as a
+        // sentence above it. The count is the thing a user checks this screen
+        // for; the explanation underneath is for the first visit only.
         item {
-            Column {
-                Text(
-                    text = stringResource(R.string.insights_summary, anomalies.size),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.insights_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            HeroSummaryCard(
+                label = stringResource(R.string.insights_title),
+                value = anomalies.size.toString(),
+                caption = stringResource(R.string.insights_description),
+            )
         }
 
         // Filter chips

@@ -1,195 +1,256 @@
 package com.agcoding.cartrackingapp.presentation.cardetails.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.CarStatistics
+import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.util.formatNumber
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Locale
 
+/**
+ * Who this car is, and the one number that belongs to it alone.
+ *
+ * The old card spent its top half on an 80dp car icon — the same icon on every
+ * card, for a screen you reached by tapping that car's name, so it identified
+ * nothing. The space goes to the name at full size, the plate, and the
+ * odometer as the hero figure.
+ *
+ * Underneath, the paperwork: KTEO, insurance, emissions, road tax, tyres. These
+ * used to live in a separate card that announced "and 3 more fields" without
+ * saying which, so the only way to learn whether the KTEO was due was to open
+ * it. As chips they are all legible at once, and absent ones simply are not
+ * there — which is itself the answer to "have I filled this in?".
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CarHeaderCard(statistics: CarStatistics) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = null
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Bigger car icon
-                Box(
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val car = statistics.car
+    val chips = car.paperworkChips()
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = car.name,
+                style = MaterialTheme.typography.displaySmall,
+                color = scheme.contentPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            if (car.isDefault) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.default_badge),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = scheme.actionPrimary,
                     modifier = Modifier
-                        .size(80.dp)
-                        .padding(end = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    StyledCard(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        border = null
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(scheme.actionSecondary)
+                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+        LicensePlateBadge(plate = car.licensePlate)
+        Spacer(Modifier.height(14.dp))
+
+        StyledCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = stringResource(R.string.current_odometer),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = scheme.contentSecondary,
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = car.currentOdometer.toInt().toLong().formatNumber(),
+                        style = AppNumbers.hero,
+                        color = scheme.contentPrimary,
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "km",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = scheme.contentSecondary,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
+
+                if (chips.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider(
+                        thickness = dimens.size.divider,
+                        color = scheme.borderDefault,
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.DirectionsCar,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .padding(16.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        chips.forEach { chip -> PaperworkChip(chip.label, chip.value) }
                     }
                 }
-
-                // Car info
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = statistics.car.name,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = statistics.car.licensePlate,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            // Separator line
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Current odometer
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Speed,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.current_odometer),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Text(
-                    text = "${statistics.car.currentOdometer.toInt().formatNumber()} km",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
             }
         }
     }
 }
 
-// ============================================
-// Preview Composables
-// ============================================
+/** One fact about the car that is not a measurement: a date, a sum, a size. */
+private data class PaperworkEntry(val label: String, val value: String)
 
-@Preview(name = "Car Header Card - Light", showBackground = true)
 @Composable
-private fun PreviewCarHeaderCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarHeaderCard(
-            statistics = CarStatistics(
-                car = Car(
-                    id = 1,
-                    name = "Toyota Corolla",
-                    licensePlate = "ABC-1234",
-                    currentOdometer = 45000.0,
-                    initialOdometer = 0.0
-                ),
-                totalRefills = 120,
-                averageConsumption = 6.5,
-                totalCost = 8500.0,
-                totalDistance = 45000.0,
-                costPerKilometer = 0.19,
-                serviceExpensesCost = 1200.0,
-                serviceExpenseCount = 8,
-                otherExpensesCost = 300.0,
-                otherExpenseCount = 5,
-                averagePricePerLiter = 1.65,
-                totalLiters = 5200.0,
-                recentRefills = emptyList()
-            )
+private fun PaperworkChip(label: String, value: String) {
+    val scheme = LocalAppColorScheme.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(scheme.backgroundSecondary)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.contentSecondary,
+            maxLines = 1,
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = value,
+            style = AppNumbers.tag,
+            color = scheme.contentPrimary,
+            maxLines = 1,
         )
     }
 }
 
-@Preview(name = "Car Header Card - Dark", showBackground = true)
+/**
+ * The paperwork worth showing, in the order it tends to matter.
+ *
+ * Fields the user has never filled in are left out rather than shown empty: a
+ * chip reading "KTEO —" claims the app knows something about the KTEO.
+ */
 @Composable
-private fun PreviewCarHeaderCardDark() {
-    CarTrackingAppTheme(darkTheme = true) {
-        CarHeaderCard(
-            statistics = CarStatistics(
-                car = Car(
-                    id = 1,
-                    name = "BMW 320i",
-                    licensePlate = "XYZ-5678",
-                    currentOdometer = 82000.0,
-                    initialOdometer = 0.0
-                ),
-                totalRefills = 200,
-                averageConsumption = 7.8,
-                totalCost = 15000.0,
-                totalDistance = 82000.0,
-                costPerKilometer = 0.25,
-                serviceExpensesCost = 2500.0,
-                serviceExpenseCount = 15,
-                otherExpensesCost = 800.0,
-                otherExpenseCount = 10,
-                averagePricePerLiter = 1.70,
-                totalLiters = 8800.0,
-                recentRefills = emptyList()
-            )
+private fun Car.paperworkChips(): List<PaperworkEntry> {
+    val entries = mutableListOf<PaperworkEntry>()
+    kteoExpirationDate?.let {
+        entries += PaperworkEntry(stringResource(R.string.car_chip_kteo), it.asMonthYear())
+    }
+    insuranceExpirationDate?.let {
+        entries += PaperworkEntry(stringResource(R.string.car_chip_insurance), it.asMonthYear())
+    }
+    emissionsCardExpirationDate?.let {
+        entries += PaperworkEntry(stringResource(R.string.car_chip_emissions), it.asMonthYear())
+    }
+    roadTaxAmount?.let {
+        entries += PaperworkEntry(
+            stringResource(R.string.car_chip_road_tax),
+            stringResource(R.string.car_card_currency_eur_format, it.formatNumber(0)),
         )
+    }
+    val tyres = listOfNotNull(
+        tireBrand?.takeIf { it.isNotBlank() },
+        tireDimensions?.takeIf { it.isNotBlank() } ?: tyreSize?.takeIf { it.isNotBlank() },
+    ).joinToString(" ")
+    if (tyres.isNotBlank()) {
+        entries += PaperworkEntry(stringResource(R.string.car_chip_tyres), tyres)
+    }
+    return entries
+}
+
+/** "03/27" — the month is the whole point of these dates; the day never is. */
+private fun Long.asMonthYear(zone: ZoneId = ZoneId.systemDefault()): String {
+    val date = Instant.ofEpochMilli(this).atZone(zone).toLocalDate()
+    return "%02d/%02d".format(Locale.getDefault(), date.monthValue, date.year % 100)
+}
+
+// ── previews ─────────────────────────────────────────────────────────────
+
+private fun previewStatistics(car: Car) = CarStatistics(
+    car = car,
+    totalRefills = 501,
+    averageConsumption = 6.5,
+    totalCost = 15432.50,
+    totalDistance = 125678.0,
+    costPerKilometer = 0.19,
+    serviceExpensesCost = 1200.0,
+    serviceExpenseCount = 8,
+    otherExpensesCost = 300.0,
+    otherExpenseCount = 5,
+    averagePricePerLiter = 1.65,
+    totalLiters = 5200.0,
+    recentRefills = emptyList(),
+)
+
+@Preview(name = "Car header — full", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCarHeaderCard() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(Modifier.padding(18.dp)) {
+            CarHeaderCard(
+                previewStatistics(
+                    Car(
+                        id = 1, name = "Toyota Corolla", licensePlate = "ΙΖΧ-4821",
+                        currentOdometer = 145678.0, initialOdometer = 20000.0, isDefault = true,
+                        kteoExpirationDate = 1800000000000L,
+                        insuranceExpirationDate = 1790000000000L,
+                        roadTaxAmount = 120.0,
+                        tireDimensions = "205/55 R16",
+                    )
+                )
+            )
+        }
+    }
+}
+
+@Preview(name = "Car header — nothing filled in", showBackground = true, widthDp = 380)
+@Composable
+private fun PreviewCarHeaderCardBare() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(Modifier.padding(18.dp)) {
+            CarHeaderCard(
+                previewStatistics(
+                    Car(
+                        id = 2, name = "Tesla Model 3", licensePlate = "",
+                        currentOdometer = 5000.0, initialOdometer = 5000.0,
+                    )
+                )
+            )
+        }
     }
 }

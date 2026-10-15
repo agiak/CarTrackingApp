@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 /**
@@ -43,7 +43,7 @@ fun PasswordField(
     supportingText: String? = null,
     isError: Boolean = false,
 ) {
-    StyledOutlinedTextField(
+    AppTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,

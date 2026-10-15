@@ -151,7 +151,16 @@ fun ConsumptionGraphScreen(
                     viewModel.toggleCarSelection(carId, selected)
                 },
                 onDismiss = { viewModel.hideCarFilter() },
-                onApply = { viewModel.applyCarFilter() }
+                onApply = { viewModel.applyCarFilter() },
+                // Built from the toggle the sheet already has rather than new
+                // ViewModel calls: with one car this is noise, with six it is
+                // the difference between one tap and six.
+                onSelectAll = {
+                    allCars.forEach { viewModel.toggleCarSelection(it.id, true) }
+                },
+                onClearAll = {
+                    allCars.forEach { viewModel.toggleCarSelection(it.id, false) }
+                }
             )
         }
     }

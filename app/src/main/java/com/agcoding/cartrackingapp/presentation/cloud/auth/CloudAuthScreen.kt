@@ -50,7 +50,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.cloud.components.PasswordField
 import com.agcoding.cartrackingapp.presentation.cloud.messageRes
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextButton
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.SegmentedControl
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
@@ -161,6 +164,22 @@ fun CloudAuthScreen(
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Someone arriving here without an account could previously
+                // only discover that creating one was possible by reading to
+                // the bottom of a form they had no reason to fill in.
+                SegmentedControl(
+                    options = listOf(
+                        stringResource(R.string.cloud_sign_in_action),
+                        stringResource(R.string.cloud_sign_up_action),
+                    ),
+                    selectedIndex = if (uiState.mode == CloudAuthMode.SignIn) 0 else 1,
+                    onSelect = { index ->
+                        viewModel.setMode(
+                            if (index == 0) CloudAuthMode.SignIn else CloudAuthMode.SignUp
+                        )
+                    },
+                )
+
                 Text(
                     text = stringResource(
                         if (uiState.mode == CloudAuthMode.SignIn) {
@@ -174,7 +193,7 @@ fun CloudAuthScreen(
                 )
 
                 if (uiState.mode == CloudAuthMode.SignUp) {
-                    StyledOutlinedTextField(
+                    AppTextField(
                         value = uiState.displayName,
                         onValueChange = viewModel::onDisplayNameChange,
                         modifier = Modifier.fillMaxWidth(),
@@ -190,7 +209,7 @@ fun CloudAuthScreen(
                     )
                 }
 
-                StyledOutlinedTextField(
+                AppTextField(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChange,
                     modifier = Modifier.fillMaxWidth(),
@@ -227,45 +246,36 @@ fun CloudAuthScreen(
                     )
                 }
 
-                Button(
+                PrimaryButton(
+                    label = stringResource(
+                        if (uiState.mode == CloudAuthMode.SignIn) {
+                            R.string.cloud_sign_in_action
+                        } else {
+                            R.string.cloud_sign_up_action
+                        }
+                    ),
                     onClick = viewModel::submit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = uiState.canSubmit
-                ) {
-                    if (uiState.isBusy) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(
-                                if (uiState.mode == CloudAuthMode.SignIn) {
-                                    R.string.cloud_sign_in_action
-                                } else {
-                                    R.string.cloud_sign_up_action
-                                }
-                            ),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                    enabled = uiState.canSubmit,
+                    isBusy = uiState.isBusy,
+                )
 
                 if (uiState.mode == CloudAuthMode.SignIn) {
-                    TextButton(
+                    AppTextButton(
+                        label = stringResource(R.string.cloud_forgot_password),
                         onClick = viewModel::openResetDialog,
                         enabled = !uiState.isBusy,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.cloud_forgot_password))
-                    }
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
 
-                TextButton(
+                AppTextButton(
+                    label = stringResource(
+                        if (uiState.mode == CloudAuthMode.SignIn) {
+                            R.string.cloud_switch_to_sign_up
+                        } else {
+                            R.string.cloud_switch_to_sign_in
+                        }
+                    ),
                     onClick = {
                         viewModel.setMode(
                             if (uiState.mode == CloudAuthMode.SignIn) {
@@ -276,18 +286,8 @@ fun CloudAuthScreen(
                         )
                     },
                     enabled = !uiState.isBusy,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        stringResource(
-                            if (uiState.mode == CloudAuthMode.SignIn) {
-                                R.string.cloud_switch_to_sign_up
-                            } else {
-                                R.string.cloud_switch_to_sign_in
-                            }
-                        )
-                    )
-                }
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -338,7 +338,7 @@ private fun ResetPasswordDialog(
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                StyledOutlinedTextField(
+                AppTextField(
                     value = email,
                     onValueChange = onEmailChange,
                     modifier = Modifier.fillMaxWidth(),

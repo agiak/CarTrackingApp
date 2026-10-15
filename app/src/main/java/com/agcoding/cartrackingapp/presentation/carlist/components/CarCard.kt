@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,30 +14,47 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.Route
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.domain.model.Car
+import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import com.agcoding.cartrackingapp.util.formatNumber
 
+/**
+ * One car, as a card: who it is, what it has cost, and the two things the user
+ * came here to do.
+ *
+ * The old card showed four figures in a 2×2 grid, one of which was "Distance".
+ * For almost every car that number equalled the odometer directly above it,
+ * because a car's distance *is* its odometer unless it was bought used and the
+ * initial reading was set — so the card spent a quarter of itself repeating
+ * the figure next to it. It is gone, and the room went to cost per kilometre,
+ * which is the one number that lets two cars be compared.
+ *
+ * The two actions were icon buttons in the header, sharing the top row with
+ * the car's name and sized for a fingertip at 24dp. They are now labelled
+ * buttons on a row of their own: adding a refill is the most common thing
+ * anyone does in this app, and it was the least visible thing on the screen.
+ */
 @Composable
 fun CarCard(
     car: Car,
@@ -45,289 +63,277 @@ fun CarCard(
     onAddServiceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isTablet = com.agcoding.cartrackingapp.util.DeviceUtils.isTablet()
-    val isLandscape = com.agcoding.cartrackingapp.util.DeviceUtils.isLandscape()
-    val isCompactLayout = isTablet || isLandscape
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
 
     StyledCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(if (isCompactLayout) 12.dp else 16.dp)
-        ) {
-            // Header: Car name, license plate, and action buttons
+        Column(modifier = Modifier.padding(dimens.spacing.cardPadding)) {
+
+            // ── who ───────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = car.name,
-                            fontSize = if (isCompactLayout) 16.sp else 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = scheme.contentPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         if (car.isDefault) {
-                            Text(
-                                text = stringResource(R.string.default_badge),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primaryContainer,
-                                        shape = RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
+                            DefaultPill()
                         }
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(Modifier.height(6.dp))
+                    LicensePlateBadge(plate = car.licensePlate)
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                // The odometer leads the card because it is the number the
+                // user reads off the dashboard and comes here to check.
+                Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = car.licensePlate,
-                        fontSize = if (isCompactLayout) 13.sp else 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = stringResource(R.string.car_card_odometer),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = scheme.contentSecondary,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
                     )
-                }
-
-                // Action buttons row
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 2.dp else 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Service icon button
-                    androidx.compose.material3.IconButton(
-                        onClick = onAddServiceClick
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Build,
-                            contentDescription = stringResource(R.string.car_card_add_service_cd),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(if (isCompactLayout) 22.dp else 24.dp)
-                        )
-                    }
-
-                    // Refill icon button
-                    androidx.compose.material3.IconButton(
-                        onClick = onAddRefillClick
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocalGasStation,
-                            contentDescription = stringResource(R.string.car_card_add_refill_cd),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(if (isCompactLayout) 22.dp else 24.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(if (isCompactLayout) 12.dp else 16.dp))
-
-            // 2x2 Grid of metrics inside the same card
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 8.dp else 12.dp)
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    MetricItem(
-                        icon = Icons.Default.Speed,
-                        label = stringResource(R.string.car_card_odometer),
-                        value = stringResource(
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(
                             R.string.car_card_km_format,
-                            car.currentOdometer.formatNumber(0)
+                            car.currentOdometer.formatNumber(0),
                         ),
-                        isCompact = isCompactLayout
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    MetricItem(
-                        icon = Icons.Default.EuroSymbol,
-                        label = stringResource(R.string.car_card_total_cost),
-                        value = stringResource(
-                            R.string.car_card_currency_eur_format,
-                            car.totalCost.formatNumber(2)
-                        ),
-                        isCompact = isCompactLayout
+                        style = AppNumbers.compact,
+                        color = scheme.contentPrimary,
+                        maxLines = 1,
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(if (isCompactLayout) 8.dp else 12.dp))
+            CardRule()
 
+            // ── what it costs ─────────────────────────────────────────────
+            Row(modifier = Modifier.fillMaxWidth()) {
+                CarStat(
+                    label = stringResource(R.string.car_card_total_cost),
+                    value = stringResource(
+                        R.string.car_card_currency_eur_format,
+                        car.totalCost.formatNumber(2),
+                    ),
+                )
+                CarStat(
+                    label = stringResource(R.string.car_card_avg_consumption),
+                    value = if (car.averageConsumption > 0) {
+                        stringResource(
+                            R.string.car_card_consumption_format,
+                            car.averageConsumption.formatNumber(1),
+                        )
+                    } else {
+                        stringResource(R.string.not_available)
+                    },
+                )
+                CarStat(
+                    label = stringResource(R.string.car_card_cost_per_km),
+                    // Without distance this is a division by zero dressed up
+                    // as a statistic, so it says nothing instead.
+                    value = if (car.totalDistance > 0 && car.totalCost > 0) {
+                        stringResource(
+                            R.string.cost_per_km_format,
+                            (car.totalCost / car.totalDistance).formatNumber(2),
+                        )
+                    } else {
+                        stringResource(R.string.not_available)
+                    },
+                )
+            }
+
+            CardRule()
+
+            // ── what to do about it ───────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(if (isCompactLayout) 8.dp else 12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    MetricItem(
-                        icon = Icons.Default.Route,
-                        label = stringResource(R.string.car_card_distance),
-                        value = stringResource(
-                            R.string.car_card_km_format,
-                            car.totalDistance.formatNumber(0)
-                        ),
-                        isCompact = isCompactLayout
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    MetricItem(
-                        icon = Icons.Default.LocalGasStation,
-                        label = stringResource(R.string.car_card_avg_consumption),
-                        value = if (car.averageConsumption > 0) {
-                            stringResource(
-                                R.string.car_card_consumption_format,
-                                car.averageConsumption.formatNumber(1)
-                            )
-                        } else {
-                            stringResource(R.string.not_available)
-                        },
-                        isCompact = isCompactLayout
-                    )
-                }
+                CarAction(
+                    icon = Icons.Default.LocalGasStation,
+                    label = stringResource(R.string.car_card_refill),
+                    contentDescription = stringResource(R.string.car_card_add_refill_cd),
+                    onClick = onAddRefillClick,
+                )
+                CarAction(
+                    icon = Icons.Default.Build,
+                    label = stringResource(R.string.car_card_service),
+                    contentDescription = stringResource(R.string.car_card_add_service_cd),
+                    onClick = onAddServiceClick,
+                )
             }
         }
     }
 }
 
+/** The hairline between the card's three bands, with its breathing room. */
 @Composable
-fun MetricItem(
+private fun CardRule() {
+    val dimens = LocalAppDimens.current
+    Spacer(Modifier.height(16.dp))
+    HorizontalDivider(
+        thickness = dimens.size.divider,
+        color = LocalAppColorScheme.current.borderDefault,
+    )
+    Spacer(Modifier.height(14.dp))
+}
+
+@Composable
+private fun RowScope.CarStat(label: String, value: String) {
+    val scheme = LocalAppColorScheme.current
+    Column(modifier = Modifier.weight(1f)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.contentSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = value,
+            style = AppNumbers.compact,
+            color = scheme.contentPrimary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
+ * A tonal action button. Deliberately not a filled one: two filled buttons
+ * side by side would both claim to be the card's primary action, and the
+ * card's primary action is tapping the card itself.
+ */
+@Composable
+private fun RowScope.CarAction(
     icon: ImageVector,
     label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    isCompact: Boolean = false
+    contentDescription: String,
+    onClick: () -> Unit,
 ) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
     Row(
-        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        modifier = Modifier
+            .weight(1f)
+            .height(44.dp)
+            .clip(RoundedCornerShape(dimens.radius.button))
+            .background(scheme.backgroundSecondary)
+            .clickable(onClick = onClick),
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(if (isCompact) 14.dp else 16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            contentDescription = contentDescription,
+            tint = scheme.actionPrimary,
+            modifier = Modifier.size(18.dp),
         )
-        Spacer(modifier = Modifier.width(if (isCompact) 6.dp else 8.dp))
-        Column {
-            Text(
-                text = label,
-                fontSize = if (isCompact) 11.sp else 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = value,
-                fontSize = if (isCompact) 13.sp else 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.contentPrimary,
+            maxLines = 1,
+        )
     }
 }
 
-@Preview(name = "CarCard Light", showBackground = true)
 @Composable
-private fun PreviewCarCard() {
-    CarTrackingAppTheme {
-        CarCard(
-            car = Car(
-                id = 1L,
-                name = "Toyota Corolla",
-                licensePlate = "ABC-1234",
-                currentOdometer = 45678.0,
-                initialOdometer = 20000.0,
-                totalCost = 5432.50,
-                totalDistance = 25678.0,
-                averageConsumption = 6.5
-            ),
-            onClick = {},
-            onAddRefillClick = {},
-            onAddServiceClick = {}
-        )
-    }
+private fun DefaultPill() {
+    val scheme = LocalAppColorScheme.current
+    Text(
+        text = stringResource(R.string.default_badge),
+        style = MaterialTheme.typography.labelSmall,
+        color = scheme.actionPrimary,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(scheme.actionSecondary)
+            .padding(horizontal = 7.dp, vertical = 2.dp),
+    )
 }
 
-@Preview(name = "CarCard Dark", showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+// ── previews ─────────────────────────────────────────────────────────────
+
+private fun previewCar(
+    name: String = "Toyota Corolla",
+    plate: String = "ΙΖΧ-4821",
+    consumption: Double = 6.5,
+    isDefault: Boolean = true,
+) = Car(
+    id = 1L,
+    name = name,
+    licensePlate = plate,
+    currentOdometer = 145678.0,
+    initialOdometer = 20000.0,
+    totalCost = 15432.50,
+    totalDistance = 125678.0,
+    averageConsumption = consumption,
+    isDefault = isDefault,
+)
+
+@Preview(name = "CarCard Dark", showBackground = true, widthDp = 380)
 @Composable
 private fun PreviewCarCardDark() {
-    CarTrackingAppTheme {
+    CarTrackingAppTheme(darkTheme = true) {
         CarCard(
-            car = Car(
-                id = 1L,
-                name = "Toyota Corolla",
-                licensePlate = "ABC-1234",
-                currentOdometer = 45678.0,
-                initialOdometer = 20000.0,
-                totalCost = 5432.50,
-                totalDistance = 25678.0,
-                averageConsumption = 6.5
-            ),
-            onClick = {},
-            onAddRefillClick = {},
-            onAddServiceClick = {}
+            car = previewCar(),
+            onClick = {}, onAddRefillClick = {}, onAddServiceClick = {},
+            modifier = Modifier.padding(18.dp),
         )
     }
 }
 
-@Preview(name = "CarCard Long Name", showBackground = true)
+@Preview(name = "CarCard Light", showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewCarCardLongName() {
-    CarTrackingAppTheme {
+private fun PreviewCarCardLight() {
+    CarTrackingAppTheme(darkTheme = false) {
         CarCard(
-            car = Car(
-                id = 1L,
-                name = "Mercedes-Benz S-Class AMG",
-                licensePlate = "XYZ-9876",
-                currentOdometer = 125000.0,
-                initialOdometer = 100000.0,
-                totalCost = 12345.99,
-                totalDistance = 25000.0,
-                averageConsumption = 8.2
-            ),
-            onClick = {},
-            onAddRefillClick = {},
-            onAddServiceClick = {}
+            car = previewCar(name = "Mercedes-Benz S-Class AMG", isDefault = false),
+            onClick = {}, onAddRefillClick = {}, onAddServiceClick = {},
+            modifier = Modifier.padding(18.dp),
         )
     }
 }
 
-@Preview(name = "CarCard No Consumption", showBackground = true)
+@Preview(name = "CarCard - no data yet", showBackground = true, widthDp = 380)
 @Composable
-private fun PreviewCarCardNoConsumption() {
-    CarTrackingAppTheme {
+private fun PreviewCarCardEmpty() {
+    CarTrackingAppTheme(darkTheme = true) {
         CarCard(
             car = Car(
-                id = 1L,
+                id = 2L,
                 name = "Tesla Model 3",
-                licensePlate = "EV-2024",
+                licensePlate = "",
                 currentOdometer = 5000.0,
-                initialOdometer = 0.0,
-                totalCost = 250.00,
-                totalDistance = 5000.0,
-                averageConsumption = 0.0
+                initialOdometer = 5000.0,
+                totalCost = 0.0,
+                totalDistance = 0.0,
+                averageConsumption = 0.0,
             ),
-            onClick = {},
-            onAddRefillClick = {},
-            onAddServiceClick = {}
+            onClick = {}, onAddRefillClick = {}, onAddServiceClick = {},
+            modifier = Modifier.padding(18.dp),
         )
     }
 }
-

@@ -34,10 +34,29 @@ data class EditRefillUiState(
     val locationName: String = "",
     val isLoadingLocationName: Boolean = false,
     val carId: Long = 0L,
+    /** Named in the header, so the form says which car it is editing. */
+    val carName: String = "",
+    val carPlate: String = "",
+    /**
+     * The odometer at the refill before this one, derived from the stored
+     * reading and trip distance. The form checks the typed odometer against
+     * this plus the typed distance and says so when they disagree — a
+     * mistyped odometer is the one error here that silently corrupts every
+     * consumption figure after it.
+     */
+    val previousOdometer: Double? = null,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val errorMessage: String? = null
-)
+) {
+    /** The odometer the typed trip distance implies. */
+    val expectedOdometer: Double?
+        get() {
+            val previous = previousOdometer ?: return null
+            val distance = tripDistance.parseLocalizedDouble() ?: return null
+            return if (distance > 0) previous + distance else null
+        }
+}
 
 @HiltViewModel
 class EditRefillViewModel @Inject constructor(
@@ -56,6 +75,41 @@ class EditRefillViewModel @Inject constructor(
     private val _showDatePicker = MutableStateFlow(false)
     val showDatePicker: StateFlow<Boolean> = _showDatePicker.asStateFlow()
 
+    /**
+     * The form as it was loaded.
+     *
+     * Save is pointless until something differs from this, and Discard has
+     * nothing to go back to without it. Comparing the edited state against a
+     * snapshot is cheaper and more honest than a scattering of per-field
+     * "touched" flags, which get out of step the moment a field is edited back
+     * to its original value.
+     */
+    private val _original = MutableStateFlow<EditRefillUiState?>(null)
+
+    private val _isDirty = MutableStateFlow(false)
+    val isDirty: StateFlow<Boolean> = _isDirty.asStateFlow()
+
+    private fun markDirty() {
+        val original = _original.value ?: return
+        val now = _uiState.value
+        _isDirty.value = original.amountPaid != now.amountPaid ||
+            original.litersAdded != now.litersAdded ||
+            original.tripDistance != now.tripDistance ||
+            original.odometerReading != now.odometerReading ||
+            original.notes != now.notes ||
+            original.locationName != now.locationName ||
+            original.selectedDateMillis != now.selectedDateMillis ||
+            original.location != now.location
+    }
+
+    /** Puts every field back as it was loaded. */
+    fun discardChanges() {
+        _original.value?.let {
+            _uiState.value = it
+            _isDirty.value = false
+        }
+    }
+
     init {
         loadRefillData()
     }
@@ -68,7 +122,7 @@ class EditRefillViewModel @Inject constructor(
                 val details = getRefillDetailsUseCase(refillId).firstOrNull()
                 if (details != null) {
                     val refill = details.refill
-                    _uiState.value = EditRefillUiState(
+                    val loaded = EditRefillUiState(
                         amountPaid = refill.amountPaid.toString().replace('.', ','),
                         litersAdded = refill.litersAdded.toString().replace('.', ','),
                         tripDistance = refill.tripDistance.toString().replace('.', ','),
@@ -78,8 +132,15 @@ class EditRefillViewModel @Inject constructor(
                         location = refill.location,
                         locationName = refill.locationName ?: "",
                         carId = refill.carId,
+                        carName = details.car?.name.orEmpty(),
+                        carPlate = details.car?.licensePlate.orEmpty(),
+                        previousOdometer = (refill.odometerReading - refill.tripDistance)
+                            .takeIf { it > 0 },
                         isLoading = false
                     )
+                    _uiState.value = loaded
+                    _original.value = loaded
+                    _isDirty.value = false
 
                     // For older refills that have coordinates but no stored name,
                     // reverse-geocode once to prefill an editable name.
@@ -103,22 +164,27 @@ class EditRefillViewModel @Inject constructor(
 
     fun updateAmountPaid(value: String) {
         _uiState.value = _uiState.value.copy(amountPaid = sanitizeDecimalInput(value), errorMessage = null)
+        markDirty()
     }
 
     fun updateLitersAdded(value: String) {
         _uiState.value = _uiState.value.copy(litersAdded = sanitizeDecimalInput(value), errorMessage = null)
+        markDirty()
     }
 
     fun updateTripDistance(value: String) {
         _uiState.value = _uiState.value.copy(tripDistance = sanitizeDecimalInput(value), errorMessage = null)
+        markDirty()
     }
 
     fun updateOdometerReading(value: String) {
         _uiState.value = _uiState.value.copy(odometerReading = sanitizeIntInput(value), errorMessage = null)
+        markDirty()
     }
 
     fun updateNotes(value: String) {
         _uiState.value = _uiState.value.copy(notes = value)
+        markDirty()
     }
 
     fun showDatePicker() {
@@ -131,11 +197,13 @@ class EditRefillViewModel @Inject constructor(
 
     fun updateDate(dateMillis: Long) {
         _uiState.value = _uiState.value.copy(selectedDateMillis = dateMillis)
+        markDirty()
         hideDatePicker()
     }
 
     fun updateLocationName(value: String) {
         _uiState.value = _uiState.value.copy(locationName = value)
+        markDirty()
     }
 
     fun refreshLocation() {
@@ -152,6 +220,7 @@ class EditRefillViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(locationName = name ?: _uiState.value.locationName)
                 }
                 _uiState.value = _uiState.value.copy(isLoadingLocationName = false)
+                markDirty()
             }
         }
     }
@@ -216,7 +285,12 @@ class EditRefillViewModel @Inject constructor(
                 notes = state.notes.takeIf { it.isNotBlank() },
             )) {
                 is Result.Success -> {
-                    _uiState.value = state.copy(isSaving = false)
+                    val saved = state.copy(isSaving = false)
+                    _uiState.value = saved
+                    // What was just saved is the new baseline, so Save goes
+                    // quiet again instead of offering to save it twice.
+                    _original.value = saved
+                    _isDirty.value = false
                     onSuccess()
                 }
                 is Result.Error -> _uiState.value = state.copy(

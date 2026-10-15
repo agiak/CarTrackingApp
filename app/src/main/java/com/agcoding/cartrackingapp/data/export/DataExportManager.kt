@@ -13,6 +13,7 @@ import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
+import com.agcoding.cartrackingapp.cloud.data.local.LocalDataWiper
 import com.agcoding.cartrackingapp.data.preferences.DataMetadataPreferences
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
@@ -51,6 +52,7 @@ class DataExportManager @Inject constructor(
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
     private val expenseRepository: ExpenseRepository,
+    private val localDataWiper: LocalDataWiper,
     private val dataMetadataPreferences: DataMetadataPreferences
 ) {
     private val json = Json {
@@ -474,12 +476,24 @@ class DataExportManager @Inject constructor(
     /**
      * Clear all existing data from the database
      */
+    /**
+     * Wipes every record on this phone.
+     *
+     * Delegates to [LocalDataWiper] rather than deleting the cars and trusting
+     * the cascade, which was wrong twice over.
+     *
+     * It missed tables: expense categories and notification history are not
+     * children of a car, so they survived a "clear all data".
+     *
+     * And it left `sync_links` behind. Those rows map local ids to live server
+     * rows, so the deletions looked to the next sync like "the user deleted
+     * all of this" and were pushed — a clear on the phone quietly destroyed
+     * the cloud copy and, through it, every other device. The wiper clears the
+     * links in the same transaction as the data, which leaves the server rows
+     * unlinked and therefore untouched.
+     */
     suspend fun clearAllData() {
-        // Get all cars and delete them (cascade should handle refills and expenses)
-        val cars = carRepository.getAllCars().first()
-        for (car in cars) {
-            carRepository.deleteCar(car.id)
-        }
+        localDataWiper.wipe()
     }
 
     private fun saveToDownloadsAsBytes(fileName: String, bytes: ByteArray, mimeType: String): String {

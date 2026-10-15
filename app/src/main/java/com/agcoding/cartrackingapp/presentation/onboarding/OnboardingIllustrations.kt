@@ -1,5 +1,17 @@
 package com.agcoding.cartrackingapp.presentation.onboarding
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -12,11 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,86 +73,139 @@ fun SlideIllustration(
     }
 }
 
-/** Step 1: the total-distance reading, which is what the app asks for up front. */
+/**
+ * Step 1: the two readings on the dashboard, and which of them the app wants.
+ *
+ * It shows both rows rather than only the right one, because the mistake this
+ * step exists to prevent is not "I could not find a number" — it is "I typed
+ * the wrong number". The trip row is dimmed and slightly smaller so the pair
+ * reads as one choice already made, not as two things to compare.
+ */
 @Composable
 private fun OdometerIllustration(accent: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            imageVector = Icons.Default.DirectionsCar,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.height(14.dp))
         MeterPanel(
             label = stringResource(R.string.onboarding_meter_odo),
             digits = "124580",
             unit = stringResource(R.string.onboarding_meter_unit_km),
             accent = accent,
             highlighted = true,
+            tag = stringResource(R.string.onboarding_meter_use_this),
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier.graphicsLayer {
+                scaleX = 0.92f
+                scaleY = 0.92f
+                alpha = 0.4f
+            }
+        ) {
+            MeterPanel(
+                label = stringResource(R.string.onboarding_meter_trip),
+                digits = "6412",
+                unit = stringResource(R.string.onboarding_meter_unit_km),
+                accent = accent,
+                decimalFromEnd = 1,
+            )
+        }
     }
 }
 
 /**
- * Step 2: the same dashboard, but the *trip* row, with the reset shown as the
- * thing you do to it. The arrow is a text glyph rather than an icon so that
- * nothing here depends on an icon name.
+ * Step 2: the same dashboard with the roles swapped, and the reset actually
+ * happening.
+ *
+ * The trip digits drop to zero on a loop and the button pulses while they do.
+ * A still picture of a reset button is a picture of a button; the only way to
+ * show what "reset it" means without a sentence is to let it happen, and this
+ * is the one instruction in the guide that users get wrong by not doing it at
+ * all rather than by doing it badly.
  */
 @Composable
 private fun TripMeterIllustration(accent: Color) {
+    val loop = rememberInfiniteTransition(label = "trip-reset")
+    // Most of the cycle sits on the driven distance, then snaps to zero and
+    // holds just long enough to be read before starting over.
+    val phase by loop.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = LinearEasing),
+        ),
+        label = "trip-phase",
+    )
+    val pulse by loop.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "reset-pulse",
+    )
+    val digits = if (phase < 0.62f) "6412" else "0000"
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            imageVector = Icons.Default.LocalGasStation,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.height(14.dp))
+        Box(
+            modifier = Modifier.graphicsLayer {
+                scaleX = 0.92f
+                scaleY = 0.92f
+                alpha = 0.4f
+            }
+        ) {
+            MeterPanel(
+                label = stringResource(R.string.onboarding_meter_odo),
+                digits = "124580",
+                unit = stringResource(R.string.onboarding_meter_unit_km),
+                accent = accent,
+            )
+        }
+        Spacer(modifier = Modifier.height(12.dp))
         MeterPanel(
             label = stringResource(R.string.onboarding_meter_trip),
-            digits = "4125",
+            digits = digits,
             unit = stringResource(R.string.onboarding_meter_unit_km),
             accent = accent,
             highlighted = true,
             decimalFromEnd = 1,
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(accent.copy(alpha = 0.14f))
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .graphicsLayer {
+                        scaleX = pulse
+                        scaleY = pulse
+                    }
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .background(accent.copy(alpha = 0.18f)),
             ) {
-                Text(
-                    text = "↺  " + stringResource(R.string.onboarding_meter_reset),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = accent
+                Icon(
+                    imageVector = Icons.Default.RestartAlt,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(19.dp),
                 )
             }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = stringResource(R.string.onboarding_meter_reset_hint),
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = stringResource(R.string.onboarding_meter_reset_hint),
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
-/** Step 3: the kinds of thing that are not fuel. Chips, so no icons are needed. */
+/**
+ * Step 3: the kinds of thing that are not fuel, and the reason to record them
+ * — the reminder that comes back later.
+ */
 @Composable
 private fun CostsIllustration(accent: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            imageVector = Icons.Default.Build,
-            contentDescription = null,
-            tint = accent,
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CostChip(stringResource(R.string.onboarding_chip_service), accent)
             CostChip(stringResource(R.string.onboarding_chip_wash), accent)
@@ -152,6 +215,38 @@ private fun CostsIllustration(accent: Color) {
             CostChip(stringResource(R.string.onboarding_chip_tyres), accent)
             CostChip(stringResource(R.string.onboarding_chip_insurance), accent)
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        // Filled rather than outlined, so they read as something the app will
+        // say back to you rather than as two more things to tap.
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ReminderPill(stringResource(R.string.onboarding_reminder_in_days), accent)
+            ReminderPill(stringResource(R.string.onboarding_reminder_in_km), accent)
+        }
+    }
+}
+
+@Composable
+private fun ReminderPill(label: String, accent: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(accent.copy(alpha = 0.18f))
+            .padding(horizontal = 12.dp, vertical = 7.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Notifications,
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(13.dp),
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = accent
+        )
     }
 }
 
@@ -173,35 +268,84 @@ private fun CostChip(label: String, accent: Color) {
     }
 }
 
-/** Step 4: what comes out the other end. Bars, drawn to a fixed shape. */
+/**
+ * Step 4: what comes out the other end — the two figures the whole app is for,
+ * over the shape of a year's spending.
+ */
 @Composable
 private fun StatsIllustration(accent: Color) {
-    val heights = listOf(34.dp, 52.dp, 40.dp, 68.dp, 58.dp, 80.dp)
+    val heights = listOf(26.dp, 40.dp, 31.dp, 52.dp, 44.dp, 36.dp, 60.dp)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatTile(
+                label = stringResource(R.string.car_card_avg_consumption),
+                value = "8,7",
+                unit = "L/100",
+                accent = accent,
+            )
+            StatTile(
+                label = stringResource(R.string.car_card_cost_per_km),
+                value = "0,40",
+                unit = "\u20ac",
+                accent = accent,
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
             verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             heights.forEachIndexed { index, barHeight ->
                 val isLast = index == heights.lastIndex
                 Box(
                     modifier = Modifier
-                        .width(18.dp)
+                        .width(16.dp)
                         .height(barHeight)
-                        .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
-                        .background(
-                            if (isLast) accent else accent.copy(alpha = 0.3f)
-                        )
+                        .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
+                        .background(if (isLast) accent else accent.copy(alpha = 0.28f))
                 )
             }
         }
         Box(
             modifier = Modifier
                 .padding(top = 6.dp)
-                .width(158.dp)
+                .width(160.dp)
                 .height(2.dp)
                 .background(MaterialTheme.colorScheme.outlineVariant)
         )
+    }
+}
+
+@Composable
+private fun StatTile(label: String, value: String, unit: String, accent: Color) {
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(accent.copy(alpha = 0.10f))
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 10.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                text = value,
+                style = AppNumbers.tile,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.width(3.dp))
+            Text(
+                text = unit,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 3.dp),
+            )
+        }
     }
 }
 
@@ -221,6 +365,7 @@ private fun MeterPanel(
     accent: Color,
     highlighted: Boolean = false,
     decimalFromEnd: Int = 0,
+    tag: String? = null,
 ) {
     val panelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f)
     val cellColor = MaterialTheme.colorScheme.surface
@@ -232,13 +377,31 @@ private fun MeterPanel(
             .padding(horizontal = 14.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = label,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 2.sp,
-            color = if (highlighted) accent else cellColor.copy(alpha = 0.7f)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp,
+                color = if (highlighted) accent else cellColor.copy(alpha = 0.7f)
+            )
+            if (tag != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(accent)
+                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = tag,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = panelColor
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.Bottom) {
             digits.forEachIndexed { index, digit ->

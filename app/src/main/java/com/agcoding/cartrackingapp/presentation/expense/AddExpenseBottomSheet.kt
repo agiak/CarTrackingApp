@@ -2,9 +2,7 @@ package com.agcoding.cartrackingapp.presentation.expense
 import androidx.compose.ui.tooling.preview.Preview
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -25,8 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +47,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
+import com.agcoding.cartrackingapp.presentation.components.SheetHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +89,7 @@ fun AddExpenseBottomSheet(
         }
     }
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = {
             scope.launch {
                 sheetState.hide()
@@ -129,20 +126,12 @@ fun AddExpenseBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .padding(bottom = 32.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.add_expense_title),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                IconButton(onClick = {
+            SheetHeader(
+                title = stringResource(R.string.add_expense_title),
+                onClose = {
                     scope.launch {
                         sheetState.hide()
                     }.invokeOnCompletion {
@@ -151,13 +140,8 @@ fun AddExpenseBottomSheet(
                             onDismiss()
                         }
                     }
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
-                    )
                 }
-            }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -177,7 +161,7 @@ fun AddExpenseBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Amount field
-            OutlinedTextField(
+            AppTextField(
                 value = amount,
                 onValueChange = viewModel::updateAmount,
                 label = { Text(stringResource(R.string.expense_amount_eur)) },
@@ -195,7 +179,7 @@ fun AddExpenseBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Date field
-            OutlinedTextField(
+            AppTextField(
                 value = SimpleDateFormat(
                     stringResource(R.string.date_format_dd_mmm_yyyy),
                     Locale.getDefault()
@@ -217,7 +201,7 @@ fun AddExpenseBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Notes field
-            OutlinedTextField(
+            AppTextField(
                 value = notes,
                 onValueChange = viewModel::updateNotes,
                 label = { Text(stringResource(R.string.expense_notes_optional)) },

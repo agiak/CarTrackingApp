@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,7 +25,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,10 +40,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.TonalButton
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillDetailsContent
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.NewTripSheet
 import com.agcoding.cartrackingapp.presentation.refilldetails.components.RefillTripCard
@@ -103,7 +103,7 @@ fun RefillDetailsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             StyledTopAppBar(
-                title = { },
+                title = { Text(stringResource(R.string.refill_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -168,19 +168,21 @@ fun RefillDetailsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
+                        .padding(paddingValues)
+                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = LocalAppColorScheme.current.statusError
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextButton(onClick = viewModel::retry) {
-                        Text(stringResource(R.string.retry))
-                    }
+                    Spacer(modifier = Modifier.height(18.dp))
+                    TonalButton(
+                        label = stringResource(R.string.retry),
+                        onClick = viewModel::retry
+                    )
                 }
             }
         }
@@ -223,34 +225,27 @@ fun RefillDetailsScreen(
         }
 
         if (showDeleteDialog) {
-            AlertDialog(
-                onDismissRequest = { viewModel.hideDeleteDialog() },
-                title = { Text(stringResource(R.string.delete_refill_title)) },
-                text = { Text(stringResource(R.string.delete_refill_confirm)) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.hideDeleteDialog()
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.refill_deleted),
-                                    actionLabel = context.getString(R.string.undo),
-                                    duration = SnackbarDuration.Long
-                                )
-                                if (result == SnackbarResult.Dismissed) {
-                                    viewModel.deleteRefill { onNavigateBack() }
-                                }
-                            }
+            AppConfirmDialog(
+                title = stringResource(R.string.delete_refill_title),
+                message = stringResource(R.string.delete_refill_confirm),
+                confirmLabel = stringResource(R.string.delete),
+                dismissLabel = stringResource(R.string.cancel),
+                icon = Icons.Default.Delete,
+                destructive = true,
+                onConfirm = {
+                    viewModel.hideDeleteDialog()
+                    scope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = context.getString(R.string.refill_deleted),
+                            actionLabel = context.getString(R.string.undo),
+                            duration = SnackbarDuration.Long
+                        )
+                        if (result == SnackbarResult.Dismissed) {
+                            viewModel.deleteRefill { onNavigateBack() }
                         }
-                    ) {
-                        Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { viewModel.hideDeleteDialog() }) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
+                onDismiss = { viewModel.hideDeleteDialog() }
             )
         }
     }

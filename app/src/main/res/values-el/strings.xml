@@ -38,6 +38,9 @@
     <string name="filter_by_car">Ανά αυτοκίνητο</string>
     <string name="select_cars_to_filter">Επιλέξτε ένα ή περισσότερα αυτοκίνητα για να δείτε τα στατιστικά τους</string>
     <string name="apply">Εφαρμογή</string>
+    <string name="select_all">Επιλογή όλων</string>
+    <string name="car_filter_selected_count">%1$d από %2$d επιλεγμένα</string>
+    <string name="car_filter_need_one">Επίλεξε τουλάχιστον ένα όχημα</string>
     <string name="all_cars">Όλα τα αυτοκίνητα</string>
     <string name="cars_selected">%1$d αυτοκίνητα επιλεγμένα</string>
 
@@ -136,6 +139,15 @@
     <string name="onboarding_meter_unit_km">χλμ</string>
     <string name="onboarding_meter_reset">μηδενισμός</string>
     <string name="onboarding_meter_reset_hint">Κράτα πατημένο το κουμπί στο ταμπλό</string>
+    <string name="onboarding_meter_use_this">Αυτό να χρησιμοποιείς</string>
+    <string name="onboarding_permissions_title">Δικαιώματα εφαρμογής</string>
+    <string name="onboarding_theme_preview_label">Προεπισκόπηση</string>
+    <string name="onboarding_theme_preview_car">Toyota Corolla</string>
+    <string name="onboarding_permissions_subtitle">Για να λειτουργεί σωστά, το Caribou χρειάζεται μερικά δικαιώματα</string>
+    <string name="onboarding_permissions_all_granted">Δόθηκαν όλα τα δικαιώματα</string>
+    <string name="onboarding_step_of_format">ΒΗΜΑ %1$d ΑΠΟ %2$d</string>
+    <string name="onboarding_reminder_in_days">σε 30 ημέρες</string>
+    <string name="onboarding_reminder_in_km">σε 1.250 km</string>
     <string name="onboarding_chip_service">Σέρβις</string>
     <string name="onboarding_chip_wash">Πλύσιμο</string>
     <string name="onboarding_chip_tyres">Ελαστικά</string>
@@ -209,11 +221,12 @@
     <!-- Settings Dialogs & Buttons -->
     <string name="import_data_title">Εισαγωγή δεδομένων</string>
     <string name="import_data_confirm">Η εισαγωγή θα αντικαταστήσει όλα τα υπάρχοντα δεδομένα. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί. Θέλετε να συνεχίσετε;</string>
+    <string name="import_formats_supported">Δεκτά: αντίγραφο .json, υπολογιστικό φύλλο .xlsx ή .csv</string>
     <string name="import_action">Εισαγωγή</string>
     <string name="import_unsupported_file">Μη υποστηριζόμενο αρχείο. Επιλέξτε ένα αντίγραφο JSON ή ένα αρχείο Excel/CSV.</string>
     <string name="cancel">Ακύρωση</string>
     <string name="clear_all_data_title">Εκκαθάριση όλων των δεδομένων</string>
-    <string name="clear_all_data_confirm">Αυτό θα διαγράψει μόνιμα όλα τα οχήματα, τους ανεφοδιασμούς και τα έξοδα. Η ενέργεια δεν μπορεί να αναιρεθεί. Είστε σίγουροι;</string>
+    <string name="clear_all_data_confirm">Διαγράφονται όλα τα οχήματα, οι ανεφοδιασμοί, τα έξοδα, οι διαδρομές και τα συνημμένα αυτού του κινητού. Η ενέργεια δεν αναιρείται — κάνε πρώτα εξαγωγή αντιγράφου αν θέλεις να τα κρατήσεις.</string>
     <string name="clear">Εκκαθάριση</string>
     <string name="settings">Ρυθμίσεις</string>
     <string name="notifications_enabled">Οι ειδοποιήσεις ενεργοποιήθηκαν!</string>
@@ -270,6 +283,11 @@
     <string name="last_tire_change">Τελευταία αλλαγή ελαστικών</string>
     <string name="tire_brand_model">Μάρκα / Μοντέλο ελαστικών</string>
     <string name="tire_dimensions">Διαστάσεις ελαστικών</string>
+    <string name="car_chip_kteo">ΚΤΕΟ</string>
+    <string name="car_chip_insurance">Ασφάλεια</string>
+    <string name="car_chip_emissions">Καυσαέρια</string>
+    <string name="car_chip_road_tax">Τέλη</string>
+    <string name="car_chip_tyres">Ελαστικά</string>
     <string name="tire_installation_date">Ημερομηνία τοποθέτησης ελαστικών</string>
     <string name="tyre_size_legacy">Μέγεθος ελαστικών (παλιό)</string>
     <string name="recent_expenses">Πρόσφατα έξοδα</string>
@@ -281,6 +299,12 @@
     <string name="settings_section_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
     <string name="settings_section_help_about">ΒΟΗΘΕΙΑ &amp; ΣΧΕΤΙΚΑ</string>
     <string name="settings_section_developer_options">ΕΠΙΛΟΓΕΣ ΠΡΟΓΡΑΜΜΑΤΙΣΤΗ</string>
+    <string name="settings_section_general">Γενικά</string>
+    <string name="settings_section_data">Δεδομένα</string>
+    <string name="settings_section_privacy">Απόρρητο</string>
+    <string name="theme_name_system">Συστήματος</string>
+    <string name="theme_name_light">Φωτεινό</string>
+    <string name="theme_name_dark">Σκοτεινό</string>
 
     <!-- Settings Groups Navigation -->
     <string name="settings_group_appearance_title">Εμφάνιση &amp; Τοπικοποίηση</string>
@@ -426,9 +450,15 @@
     <string name="car_list_no_cars_title">Δεν έχουν προστεθεί αυτοκίνητα</string>
     <string name="car_list_no_cars_desc">Προσθέστε το πρώτο σας αυτοκίνητο για να ξεκινήσετε την παρακολούθηση των εξόδων</string>
     <string name="car_list_add_car_cd">Προσθήκη αυτοκινήτου</string>
+    <string name="car_list_meta_tracked">%1$s km συνολικά</string>
+    <plurals name="car_list_vehicles_count">
+        <item quantity="one">%1$d όχημα</item>
+        <item quantity="other">%1$d οχήματα</item>
+    </plurals>
 
     <!-- Add Car Dialog -->
     <string name="add_car_title">Προσθήκη νέου αυτοκινήτου</string>
+    <string name="add_car_later_hint">Ελαστικά, ΚΤΕΟ και άλλα στοιχεία μπορούν να μπουν αργότερα.</string>
     <string name="add_car_action">Προσθήκη</string>
     <string name="add_car_field_name">Όνομα αυτοκινήτου</string>
     <string name="add_car_field_license_plate">Πινακίδα</string>
@@ -446,6 +476,7 @@
     <string name="car_card_total_cost">Συνολικό κόστος</string>
     <string name="car_card_distance">Απόσταση</string>
     <string name="car_card_avg_consumption">Μ.Ο. κατανάλωση</string>
+    <string name="car_card_cost_per_km">Κόστος / km</string>
     <string name="car_card_km_format">%1$s km</string>
     <string name="car_card_currency_eur_format">%1$s €</string>
     <string name="car_card_consumption_format">%1$s L/100km</string>
@@ -463,6 +494,7 @@
     <string name="expense_category_hint">Επιλέξτε ή πληκτρολογήστε κατηγορία</string>
     <string name="expense_show_categories">Εμφάνιση κατηγοριών</string>
     <string name="expense_amount_eur">Ποσό (€)</string>
+    <string name="expense_amount_label">Ποσό</string>
     <string name="expense_notes_optional">Σημειώσεις (προαιρετικό)</string>
     <string name="expense_notes_hint">Προσθέστε σημειώσεις…</string>
     <string name="save_expense">Αποθήκευση εξόδου</string>
@@ -486,6 +518,11 @@
 
     <!-- Edit Refill Screen -->
     <string name="edit_refill_title">Επεξεργασία ανεφοδιασμού</string>
+    <string name="edit_discard">Απόρριψη</string>
+    <string name="edit_save_changes">Αποθήκευση αλλαγών</string>
+    <string name="edit_refill_previous_odometer">Προηγούμενος ανεφοδιασμός: %1$s km</string>
+    <string name="edit_refill_odometer_mismatch">Αναμενόταν %1$s km από την απόσταση διαδρομής</string>
+    <string name="edit_expense_category_locked">Για αλλαγή κατηγορίας, διάγραψε το έξοδο και πρόσθεσε νέο.</string>
     <string name="amount_paid_eur">Ποσό πληρωμής (€)</string>
     <string name="amount_paid_hint">π.χ., 65.50</string>
     <string name="liters_added">Λίτρα που προστέθηκαν</string>
@@ -523,6 +560,10 @@
 
     <!-- Refill Details -->
     <string name="refill_details_title">Λεπτομέρειες ανεφοδιασμού</string>
+    <string name="refill_details_fuel_refill">Ανεφοδιασμός</string>
+    <string name="refill_details_consumption_under">%1$s%% κάτω από τον μέσο όρο</string>
+    <string name="refill_details_consumption_over">%1$s%% πάνω από τον μέσο όρο</string>
+    <string name="refill_details_consumption_on_par">Στον μέσο όρο του οχήματος</string>
     <string name="unknown_car">Άγνωστο αυτοκίνητο</string>
     <string name="total_amount_paid">Συνολικό ποσό πληρωμής</string>
     <string name="metric_fuel_volume">Όγκος καυσίμου</string>
@@ -540,6 +581,7 @@
 
     <!-- Expense Details -->
     <string name="expense_details_title">Λεπτομέρειες εξόδου</string>
+    <string name="expense_details_car">Όχημα</string>
     <string name="edit">Επεξεργασία</string>
     <string name="delete_expense_title">Διαγραφή εξόδου</string>
     <string name="delete_expense_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το έξοδο;</string>
@@ -843,9 +885,9 @@
     <string name="spreadsheet_import_title">Εισαγωγή από Excel/CSV</string>
     <string name="spreadsheet_import_description">Εισαγωγή αυτοκινήτων, ανεφοδιασμών, εξόδων και ταξιδιών από αρχείο Excel (.xlsx) ή CSV. Προσθέτει νέα δεδομένα χωρίς να αντικαθιστά τα υπάρχοντα.</string>
     <string name="spreadsheet_import_how_to_title">Πώς να χρησιμοποιήσετε</string>
-    <string name="spreadsheet_import_how_to_1">1. Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
-    <string name="spreadsheet_import_how_to_2">2. Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
-    <string name="spreadsheet_import_how_to_3">3. Χρησιμοποιήστε το κουμπί Εισαγωγή για να προσθέσετε τα δεδομένα σας</string>
+    <string name="spreadsheet_import_step_1">Κατεβάστε το δείγμα αρχείου για να δείτε την απαιτούμενη μορφή</string>
+    <string name="spreadsheet_import_step_2">Συμπληρώστε τα δεδομένα σας ακολουθώντας την ίδια δομή στηλών</string>
+    <string name="spreadsheet_import_step_3">Χρησιμοποιήστε το κουμπί Εισαγωγή για να προσθέσετε τα δεδομένα σας</string>
     <string name="spreadsheet_import_button">Εισαγωγή Excel/CSV</string>
     <string name="spreadsheet_generate_sample">Λήψη Δείγματος Αρχείου</string>
     <string name="spreadsheet_importing">Εισαγωγή…</string>
@@ -995,6 +1037,7 @@
     <string name="car_comparison_select_cars_title">Επιλέξτε δύο αυτοκίνητα για σύγκριση</string>
     <string name="car_comparison_car_1">Αυτοκίνητο 1</string>
     <string name="car_comparison_car_2">Αυτοκίνητο 2</string>
+    <string name="car_comparison_select_car">Επίλεξε όχημα</string>
     <string name="car_comparison_same_car_error">Παρακαλώ επιλέξτε δύο διαφορετικά αυτοκίνητα</string>
     <string name="car_comparison_overall_winner">Συνολικά, το %1$s είναι πιο οικονομικό βάσει κόστους ανά χιλιόμετρο.</string>
     <string name="car_comparison_cost_per_km_insight">Το %1$s είναι %2$s πιο ακριβό ανά km από το %3$s</string>
@@ -1002,6 +1045,8 @@
     <string name="car_comparison_maintenance_insight">Το %1$s κοστίζει %2$s περισσότερο το χρόνο σε συντήρηση από το %3$s</string>
     <string name="car_comparison_equal_performance">Και τα δύο αυτοκίνητα έχουν παρόμοιες επιδόσεις</string>
     <string name="car_comparison_most_economical">Πιο Οικονομικό: %1$s</string>
+    <string name="car_comparison_most_economical_label">Πιο οικονομικό</string>
+    <string name="car_comparison_not_enough_records">Δεν υπάρχουν αρκετές εγγραφές ακόμα: %1$s</string>
     <string name="car_comparison_least_economical">Λιγότερο Οικονομικό: %1$s</string>
     <string name="car_comparison_best_performer">Αυτό το αυτοκίνητο έχει τις καλύτερες επιδόσεις στη συνολική αποδοτικότητα κόστους.</string>
     <string name="car_comparison_needs_attention">Αυτό το αυτοκίνητο μπορεί να χρειάζεται προσοχή για μείωση του κόστους.</string>
@@ -1085,6 +1130,10 @@
     <string name="fuel_forecast_screen_description">Δείτε τις προβλέψεις για το κόστος καυσίμου και την κατανάλωση του επόμενου μήνα με βάση τα ιστορικά δεδομένα ανεφοδιασμού. Οι προβλέψεις αυτές χρησιμοποιούν τον αλγόριθμο Holt\'s Linear Exponential Smoothing για την ανάλυση των τάσεων στην κατανάλωση καυσίμου.</string>
     <string name="forecast_explanation">Με βάση %1$d μήνες ιστορικών δεδομένων, οι προβλεπόμενες τιμές για τον επόμενο μήνα είναι:</string>
     <string name="forecast_cost_per_km">Κόστος ανά km</string>
+    <string name="forecast_next_month">Τον επόμενο μήνα</string>
+    <string name="forecast_based_on_months">Με βάση %1$d μήνες ιστορικών δεδομένων</string>
+    <string name="forecast_confidence">Αξιοπιστία</string>
+    <string name="forecast_confidence_value">%1$d%% · %2$s</string>
     <string name="forecast_cost_per_km_explanation">Αυτό είναι το ποσό που θα ξοδέψετε σε καύσιμο ανά χιλιόμετρο τον επόμενο μήνα. Χαμηλότερη τιμή σημαίνει καλύτερη οικονομία καυσίμου. Ο αλγόριθμος αναλύει τα πρότυπα ανεφοδιασμού σας για να προβλέψει αυτό το κόστος.</string>
     <string name="forecast_efficiency">Κατανάλωση</string>
     <string name="forecast_efficiency_explanation">Αυτή είναι η προβλεπόμενη κατανάλωση καυσίμου σε λίτρα ανά 100 χιλιόμετρα. Χαμηλότερες τιμές υποδεικνύουν πιο αποδοτική χρήση καυσίμου. Αυτή η πρόβλεψη σας βοηθά να εντοπίσετε αλλαγές στις συνήθειες οδήγησης ή στην απόδοση του οχήματος.</string>
@@ -1328,6 +1377,11 @@
     <string name="date_filter_month">Μήνας</string>
     <string name="date_filter_all_time">Όλη η περίοδος</string>
     <string name="date_filter_all_months">Όλοι οι μήνες</string>
+    <string name="date_filter_quick">Γρήγορη επιλογή</string>
+    <string name="date_filter_this_month">Αυτόν τον μήνα</string>
+    <string name="date_filter_last_three_months">Τελευταίοι 3 μήνες</string>
+    <string name="date_filter_this_year">Φέτος</string>
+    <string name="date_filter_reset">Επαναφορά</string>
 
     <!-- Unified transactions list -->
     <string name="transactions_section_header">Συναλλαγές (%1$d)</string>
@@ -1351,6 +1405,7 @@
     <string name="period_comparison_no_data">Καμία από τις δύο περιόδους δεν έχει εγγραφές. Διάλεξε άλλες περιόδους.</string>
     <string name="period_comparison_one_sided">Μόνο η μία από τις δύο περιόδους έχει εγγραφές, οπότε κάθε διαφορά είναι ολόκληρο το ποσό.</string>
     <string name="period_comparison_records">Εγγραφές</string>
+    <string name="period_comparison_record_count">%1$d εγγραφές</string>
     <string name="period_comparison_button">Σύγκριση περιόδων</string>
     <string name="period_comparison_all_cars">Όλα τα αυτοκίνητα</string>
     <string name="period_comparison_cars_selected">%1$d αυτοκίνητα</string>
@@ -1453,8 +1508,9 @@
     <string name="cloud_delete_account_message">Ο λογαριασμός και όλα τα δεδομένα που κρατάει στον διακομιστή διαγράφονται οριστικά. Δεν αναιρείται.</string>
     <string name="cloud_delete_account_action">Διαγραφή</string>
     <string name="cloud_account_deleted">Ο λογαριασμός διαγράφηκε</string>
-    <string name="cloud_wipe_local">Να αφαιρεθούν και τα δεδομένα από αυτό το κινητό</string>
-    <string name="cloud_wipe_local_desc">Αυτοκίνητα, ανεφοδιασμοί, έξοδα, ταξίδια και συνημμένα. Επιτρέπεται μόνο αφού έχει ολοκληρωθεί ένας συγχρονισμός.</string>
+    <string name="cloud_wipe_local_always">Τα οχήματα, οι ανεφοδιασμοί, τα έξοδα και οι διαδρομές αφαιρούνται από αυτό το κινητό. Παραμένουν στον server και επιστρέφουν με την επόμενη σύνδεση.</string>
+    <string name="cloud_delete_wipe_local">Αδειάζει και αυτό το κινητό. Κάνε πρώτα εξαγωγή αντιγράφου αν θέλεις να κρατήσεις τα δεδομένα σου.</string>
+    <string name="settings_clear_signed_in">Όσο είσαι συνδεδεμένος, το κινητό δείχνει τα δεδομένα του λογαριασμού σου. Για να τα διαγράψεις, διάγραψε τον λογαριασμό από την οθόνη Cloud — ή αποσυνδέσου, που αδειάζει το κινητό και αφήνει το αντίγραφο ασφαλείας άθικτο.</string>
 
     <!-- Sync progress -->
     <string name="cloud_stage_connect">Σύνδεση…</string>

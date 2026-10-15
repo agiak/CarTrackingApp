@@ -1,8 +1,5 @@
 package com.agcoding.cartrackingapp.presentation.settings.components
-import androidx.compose.ui.tooling.preview.Preview
-import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,26 +16,41 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledCard
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
+import com.agcoding.cartrackingapp.presentation.components.TonalButton
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
 
+/**
+ * Bringing a spreadsheet in.
+ *
+ * The card used to be a wall: a header, a paragraph, a nested grey card with
+ * three numbered lines in 12sp, then two cramped buttons and a two-line note
+ * in 11sp — six blocks of text to explain two buttons. It is a sequence of
+ * three steps, so it is drawn as three steps, each one a numbered row, and the
+ * paragraph that restated them is gone.
+ *
+ * The order of the buttons follows the order of the steps: download the sample
+ * first, import second. The import is the primary action because it is what
+ * the card is for, but it is the thing you do *after* the other one, so it
+ * sits below rather than beside — side by side at this width the two labels
+ * truncated in Greek anyway.
+ */
 @Composable
 fun SpreadsheetImportCard(
     isImporting: Boolean,
@@ -46,183 +58,155 @@ fun SpreadsheetImportCard(
     onImport: () -> Unit,
     onGenerateSample: () -> Unit
 ) {
-    StyledCard(
-        modifier = Modifier.fillMaxWidth(),
-        tintAlpha = 0.3f
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val busy = isImporting || isGeneratingSample
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimens.radius.card))
+            .background(scheme.backgroundCard)
+            .padding(18.dp)
     ) {
-        Column(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(dimens.size.iconTile)
+                    .clip(RoundedCornerShape(dimens.radius.iconTile))
+                    .background(scheme.actionPrimary.copy(alpha = 0.16f))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Upload,
+                    contentDescription = null,
+                    tint = scheme.actionPrimary,
+                    modifier = Modifier.size(19.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.spreadsheet_import_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = scheme.contentPrimary
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.spreadsheet_file_format),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.contentSecondary
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+        SectionLabel(stringResource(R.string.spreadsheet_import_how_to_title))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ImportStep(1, stringResource(R.string.spreadsheet_import_step_1))
+        Spacer(modifier = Modifier.height(10.dp))
+        ImportStep(2, stringResource(R.string.spreadsheet_import_step_2))
+        Spacer(modifier = Modifier.height(10.dp))
+        ImportStep(3, stringResource(R.string.spreadsheet_import_step_3))
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        TonalButton(
+            label = if (isGeneratingSample) {
+                stringResource(R.string.spreadsheet_generating)
+            } else {
+                stringResource(R.string.spreadsheet_generate_sample)
+            },
+            onClick = onGenerateSample,
+            enabled = !busy,
+            icon = Icons.Default.Download,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        PrimaryButton(
+            label = stringResource(R.string.spreadsheet_import_button),
+            onClick = onImport,
+            enabled = !busy,
+            isBusy = isImporting,
+            icon = Icons.Default.Upload,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.spreadsheet_import_note),
+            style = MaterialTheme.typography.labelSmall,
+            color = scheme.contentDisabled
+        )
+    }
+}
+
+/**
+ * A numbered step.
+ *
+ * The number is in the mono face, in a circle, so three of them line up as a
+ * sequence rather than reading as three unrelated sentences that happen to
+ * start with a digit.
+ */
+@Composable
+private fun ImportStep(number: Int, text: String) {
+    val scheme = LocalAppColorScheme.current
+
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .size(22.dp)
+                .clip(CircleShape)
+                .background(scheme.backgroundSecondary)
         ) {
-            // Header with icon
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Upload,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = stringResource(R.string.spreadsheet_import_title),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.spreadsheet_file_format),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Description
             Text(
-                text = stringResource(R.string.spreadsheet_import_description),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 18.sp
+                text = number.toString(),
+                style = AppNumbers.tag,
+                color = scheme.contentSecondary,
+                textAlign = TextAlign.Center
             )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.contentSecondary,
+            modifier = Modifier.padding(top = 1.dp)
+        )
+    }
+}
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // How to use section
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.spreadsheet_import_how_to_title),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.spreadsheet_import_how_to_1),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = stringResource(R.string.spreadsheet_import_how_to_2),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = stringResource(R.string.spreadsheet_import_how_to_3),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Generate Sample Button
-                OutlinedButton(
-                    onClick = onGenerateSample,
-                    enabled = !isGeneratingSample && !isImporting,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                ) {
-                    if (isGeneratingSample) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (isGeneratingSample) stringResource(R.string.spreadsheet_generating) else stringResource(R.string.spreadsheet_generate_sample),
-                        fontSize = 12.sp,
-                        maxLines = 1
-                    )
-                }
-
-                // Import Button
-                Button(
-                    onClick = onImport,
-                    enabled = !isImporting && !isGeneratingSample,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    if (isImporting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Upload,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (isImporting) stringResource(R.string.spreadsheet_importing) else stringResource(R.string.spreadsheet_import_button),
-                        fontSize = 12.sp,
-                        maxLines = 1
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Note
-            Text(
-                text = stringResource(R.string.spreadsheet_import_note),
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                lineHeight = 14.sp
+@Preview(showBackground = true, widthDp = 380)
+@Composable
+private fun SpreadsheetImportCardPreview() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(18.dp)
+        ) {
+            SpreadsheetImportCard(
+                isImporting = false,
+                isGeneratingSample = false,
+                onImport = {},
+                onGenerateSample = {}
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Importing", showBackground = true, widthDp = 380)
 @Composable
-private fun SpreadsheetImportCardPreview() {
-    CarTrackingAppTheme {
-        SpreadsheetImportCard(isImporting = false, isGeneratingSample = false, onImport = {}, onGenerateSample = {})
+private fun SpreadsheetImportCardBusyPreview() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            SpreadsheetImportCard(
+                isImporting = true,
+                isGeneratingSample = false,
+                onImport = {},
+                onGenerateSample = {}
+            )
+        }
     }
 }

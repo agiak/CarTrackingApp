@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledDatePickerField
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 
 @Composable
@@ -53,7 +53,7 @@ fun TiresSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                StyledOutlinedTextField(
+                AppTextField(
                     value = tireBrand,
                     onValueChange = onTireBrandChange,
                     label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
@@ -62,7 +62,7 @@ fun TiresSection(
                     modifier = Modifier.weight(1f)
                 )
 
-                StyledOutlinedTextField(
+                AppTextField(
                     value = tireDimensions,
                     onValueChange = onTireDimensionsChange,
                     label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },
@@ -72,7 +72,7 @@ fun TiresSection(
                 )
             }
         } else {
-            StyledOutlinedTextField(
+            AppTextField(
                 value = tireBrand,
                 onValueChange = onTireBrandChange,
                 label = { Text(stringResource(R.string.edit_car_field_tire_brand_model)) },
@@ -81,7 +81,7 @@ fun TiresSection(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = tireDimensions,
                 onValueChange = onTireDimensionsChange,
                 label = { Text(stringResource(R.string.edit_car_field_tire_dimensions)) },

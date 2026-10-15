@@ -1,393 +1,379 @@
 package com.agcoding.cartrackingapp.presentation.carcomparison
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.domain.model.CarComparisonData
 import com.agcoding.cartrackingapp.domain.model.MultiCarComparisonResult
+import com.agcoding.cartrackingapp.presentation.components.SectionLabel
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.AppNumbers
+import com.agcoding.cartrackingapp.shared.ui.tokens.categoryService
+import com.agcoding.cartrackingapp.util.formatMoney
+import com.agcoding.cartrackingapp.util.formatMoneyPer
 import com.agcoding.cartrackingapp.util.formatNumber
 
 /**
- * All-cars comparison content with tablet landscape support
+ * Every car, ranked on the three things that decide what one costs to run.
+ *
+ * The verdict goes first and alone: one banner naming the cheapest car, with
+ * its cost per kilometre under it. That is the answer to the question the
+ * screen was opened to ask, and it should not have to be assembled out of
+ * three tables.
+ *
+ * Under it, each metric is a list of bars rather than a column of figures. A
+ * ranked list of numbers tells you the order; it does not tell you whether the
+ * second car is a hair behind the first or half as good again, which is the
+ * part that decides anything. The bars are drawn against the worst value in
+ * the metric, so the spread fills the width even when every car is close.
+ *
+ * Green is the best in each metric and rose the worst, which is the same pair
+ * the deltas and the insights use. Cars with no figure for a metric are left
+ * out of that metric's list and named under it — an empty bar at the bottom of
+ * a ranking reads as "worst", which would be a lie.
  */
 @Composable
 fun AllCarsComparisonContent(result: MultiCarComparisonResult) {
     val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    val useSplitView = screenWidthDp >= 600 || isLandscape
+    val useSplitView = configuration.screenWidthDp >= 600 || isLandscape
+    val dimens = LocalAppDimens.current
 
     if (useSplitView) {
-        // Tablet/Landscape: Two columns side by side
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(dimens.spacing.screenHorizontal),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Left column: Summary + Rankings
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxHeight()
             ) {
-                OverallSummaryCard(result = result)
-
-                MetricRankingCard(
-                    title = stringResource(R.string.car_comparison_cost_per_km),
-                    cars = result.cars,
-                    getValue = { it.costPerKm },
-                    suffix = "€/km",
-                    bestCarId = result.bestCostPerKm,
-                    worstCarId = result.worstCostPerKm,
-                    lowerIsBetter = true
-                )
+                VerdictBanner(result = result)
+                Spacer(modifier = Modifier.height(dimens.spacing.sectionTop))
+                CostPerKmRanking(result)
             }
-
-            // Right column: More rankings
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxHeight()
             ) {
-                MetricRankingCard(
-                    title = stringResource(R.string.car_comparison_avg_consumption),
-                    cars = result.cars,
-                    getValue = { it.avgConsumption },
-                    suffix = "L/100km",
-                    bestCarId = result.bestConsumption,
-                    worstCarId = result.worstConsumption,
-                    lowerIsBetter = true
-                )
-
-                MetricRankingCard(
-                    title = stringResource(R.string.car_comparison_maintenance_per_year),
-                    cars = result.cars,
-                    getValue = { it.maintenancePerYear },
-                    suffix = "€/year",
-                    bestCarId = result.bestMaintenance,
-                    worstCarId = result.worstMaintenance,
-                    lowerIsBetter = true
-                )
+                ConsumptionRanking(result)
+                Spacer(modifier = Modifier.height(dimens.spacing.sectionTop))
+                MaintenanceRanking(result)
             }
         }
     } else {
-        // Phone Portrait: Single column
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(
+                    start = dimens.spacing.screenHorizontal,
+                    end = dimens.spacing.screenHorizontal,
+                    top = 4.dp,
+                    bottom = 28.dp
+                )
         ) {
-            // Overall winner/loser card
-            OverallSummaryCard(result = result)
-
-            // Cost per km ranking
-            MetricRankingCard(
-                title = stringResource(R.string.car_comparison_cost_per_km),
-                cars = result.cars,
-                getValue = { it.costPerKm },
-                suffix = "€/km",
-                bestCarId = result.bestCostPerKm,
-                worstCarId = result.worstCostPerKm,
-                lowerIsBetter = true
-            )
-
-            // Consumption ranking
-            MetricRankingCard(
-                title = stringResource(R.string.car_comparison_avg_consumption),
-                cars = result.cars,
-                getValue = { it.avgConsumption },
-                suffix = "L/100km",
-                bestCarId = result.bestConsumption,
-                worstCarId = result.worstConsumption,
-                lowerIsBetter = true
-            )
-
-            // Maintenance ranking
-            MetricRankingCard(
-                title = stringResource(R.string.car_comparison_maintenance_per_year),
-                cars = result.cars,
-                getValue = { it.maintenancePerYear },
-                suffix = "€/year",
-                bestCarId = result.bestMaintenance,
-                worstCarId = result.worstMaintenance,
-                lowerIsBetter = true
-            )
+            VerdictBanner(result = result)
+            Spacer(modifier = Modifier.height(dimens.spacing.sectionTop))
+            CostPerKmRanking(result)
+            Spacer(modifier = Modifier.height(dimens.spacing.sectionTop))
+            ConsumptionRanking(result)
+            Spacer(modifier = Modifier.height(dimens.spacing.sectionTop))
+            MaintenanceRanking(result)
         }
     }
 }
 
 @Composable
-private fun OverallSummaryCard(result: MultiCarComparisonResult) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+private fun CostPerKmRanking(result: MultiCarComparisonResult) {
+    MetricRanking(
+        title = stringResource(R.string.car_comparison_cost_per_km),
+        cars = result.cars,
+        value = { it.costPerKm },
+        format = { it.formatMoneyPer("km", decimals = 3) },
+        bestCarId = result.bestCostPerKm,
+        worstCarId = result.worstCostPerKm
+    )
+}
+
+@Composable
+private fun ConsumptionRanking(result: MultiCarComparisonResult) {
+    MetricRanking(
+        title = stringResource(R.string.car_comparison_avg_consumption),
+        cars = result.cars,
+        value = { it.avgConsumption },
+        format = { "${it.formatNumber(1)} L/100km" },
+        bestCarId = result.bestConsumption,
+        worstCarId = result.worstConsumption
+    )
+}
+
+@Composable
+private fun MaintenanceRanking(result: MultiCarComparisonResult) {
+    MetricRanking(
+        title = stringResource(R.string.car_comparison_maintenance_per_year),
+        cars = result.cars,
+        value = { it.maintenancePerYear },
+        format = { it.formatMoney(decimals = 0) },
+        bestCarId = result.bestMaintenance,
+        worstCarId = result.worstMaintenance
+    )
+}
+
+/**
+ * The answer, in one card.
+ *
+ * The least economical car is a line at the bottom rather than a second half
+ * of equal weight: knowing which car is cheapest is actionable, knowing which
+ * is dearest is the same fact said backwards.
+ */
+@Composable
+private fun VerdictBanner(result: MultiCarComparisonResult) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    val best = result.cars.firstOrNull { it.carId == result.overallBest }
+    val worst = result.cars.firstOrNull { it.carId == result.overallWorst }
+    if (best == null) return
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimens.radius.card))
+            .background(scheme.actionSecondary)
+            .padding(18.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(dimens.size.iconTile)
+                    .clip(RoundedCornerShape(dimens.radius.iconTile))
+                    .background(scheme.statusSuccess.copy(alpha = 0.18f))
             ) {
                 Icon(
                     imageVector = Icons.Default.EmojiEvents,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    tint = scheme.statusSuccess,
+                    modifier = Modifier.size(20.dp)
                 )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.car_comparison_overall_ranking),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    text = stringResource(R.string.car_comparison_most_economical_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = scheme.contentSecondary,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = best.carName,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = scheme.contentPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
-            // Best car overall
-            result.overallBest?.let { bestCarId ->
-                val bestCar = result.cars.find { it.carId == bestCarId }
-                bestCar?.let { car ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.TrendingDown,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.car_comparison_most_economical, car.carName),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-
+            best.costPerKm?.let { cost ->
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = buildString {
-                            append(stringResource(R.string.car_comparison_best_performer))
-                            car.costPerKm?.let { cost ->
-                                append(" ")
-                                append(stringResource(
-                                    R.string.car_comparison_cost_detail,
-                                    cost.toDouble().formatNumber(2)
-                                ))
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        text = cost.formatNumber(3),
+                        style = AppNumbers.tile,
+                        color = scheme.statusSuccess,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = "€/km",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.contentSecondary,
+                        maxLines = 1
                     )
                 }
             }
+        }
 
-            // Worst car overall
-            result.overallWorst?.let { worstCarId ->
-                val worstCar = result.cars.find { it.carId == worstCarId }
-                worstCar?.let { car ->
-                    HorizontalDivider()
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.TrendingUp,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.car_comparison_least_economical, car.carName),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-
-                    Text(
-                        text = buildString {
-                            append(stringResource(R.string.car_comparison_needs_attention))
-                            car.costPerKm?.let { cost ->
-                                append(" ")
-                                append(stringResource(
-                                    R.string.car_comparison_cost_detail,
-                                    cost.toDouble().formatNumber(2)
-                                ))
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+        if (worst != null && worst.carId != best.carId) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(
+                    R.string.car_comparison_least_economical,
+                    worst.carName
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.contentSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
 
 @Composable
-private fun MetricRankingCard(
+private fun MetricRanking(
     title: String,
     cars: List<CarComparisonData>,
-    getValue: (CarComparisonData) -> Double?,
-    suffix: String,
+    value: (CarComparisonData) -> Double?,
+    format: (Double) -> String,
     bestCarId: Long?,
-    worstCarId: Long?,
-    lowerIsBetter: Boolean
+    worstCarId: Long?
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    val ranked = cars.filter { value(it) != null }.sortedBy { value(it) }
+    val missing = cars.filter { value(it) == null }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionLabel(title)
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (ranked.isEmpty()) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                text = stringResource(R.string.car_comparison_no_data_available),
+                style = MaterialTheme.typography.bodyMedium,
+                color = scheme.contentSecondary
             )
+        } else {
+            // Against the worst value, not against zero: every car's cost per
+            // kilometre is somewhere between 0,12 and 0,19, and bars drawn
+            // from zero would all be the same length.
+            val max = ranked.maxOf { value(it) ?: 0.0 }
 
-            // Sort cars by the metric value
-            val sortedCars = cars.filter { getValue(it) != null }
-                .sortedBy { getValue(it) }
-
-            if (sortedCars.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.car_comparison_no_data_available),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                sortedCars.forEachIndexed { index, car ->
-                    val value = getValue(car)
-                    val isBest = car.carId == bestCarId
-                    val isWorst = car.carId == worstCarId
-                    val rank = index + 1
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            // Rank badge
-                            Surface(
-                                shape = MaterialTheme.shapes.small,
-                                color = when {
-                                    isBest -> MaterialTheme.colorScheme.primaryContainer
-                                    isWorst -> MaterialTheme.colorScheme.errorContainer
-                                    else -> MaterialTheme.colorScheme.surfaceVariant
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Text(
-                                        text = rank.toString(),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = when {
-                                            isBest -> MaterialTheme.colorScheme.onPrimaryContainer
-                                            isWorst -> MaterialTheme.colorScheme.onErrorContainer
-                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                        }
-                                    )
-                                }
-                            }
-
-                            // Car name with badge
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = car.carName,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = if (isBest || isWorst) FontWeight.Bold else FontWeight.Medium
-                                )
-
-                                when {
-                                    isBest -> Icon(
-                                        imageVector = Icons.Default.TrendingDown,
-                                        contentDescription = "Best",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    isWorst -> Icon(
-                                        imageVector = Icons.Default.TrendingUp,
-                                        contentDescription = "Worst",
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(dimens.radius.card))
+                    .background(scheme.backgroundCard)
+                    .padding(16.dp)
+            ) {
+                ranked.forEachIndexed { index, car ->
+                    if (index > 0) Spacer(modifier = Modifier.height(14.dp))
+                    RankedBarRow(
+                        rank = index + 1,
+                        name = car.carName,
+                        text = value(car)?.let(format).orEmpty(),
+                        fraction = if (max > 0.0) {
+                            ((value(car) ?: 0.0) / max).toFloat().coerceIn(0f, 1f)
+                        } else {
+                            0f
+                        },
+                        color = when (car.carId) {
+                            bestCarId -> scheme.statusSuccess
+                            worstCarId -> scheme.categoryService
+                            else -> scheme.actionPrimary
                         }
-
-                        // Value
-                        Text(
-                            text = formatMetricValue(value, suffix),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = when {
-                                isBest -> MaterialTheme.colorScheme.primary
-                                isWorst -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.onSurface
-                            }
-                        )
-                    }
-
-                    if (index < sortedCars.size - 1) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    }
+                    )
                 }
+            }
+        }
+
+        if (missing.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(
+                    R.string.car_comparison_not_enough_records,
+                    missing.joinToString(", ") { it.carName }
+                ),
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.contentDisabled,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun RankedBarRow(
+    rank: Int,
+    name: String,
+    text: String,
+    fraction: Float,
+    color: Color
+) {
+    val scheme = LocalAppColorScheme.current
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = rank.toString().padStart(2, '0'),
+                style = AppNumbers.tag,
+                color = scheme.contentDisabled,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = name,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.contentPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = text,
+                style = AppNumbers.compact,
+                color = color,
+                textAlign = TextAlign.End,
+                maxLines = 1
+            )
+        }
+        Spacer(modifier = Modifier.height(7.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(scheme.backgroundSecondary)
+        ) {
+            if (fraction > 0f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(fraction)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(color)
+                )
             }
         }
     }
@@ -413,26 +399,22 @@ private fun PreviewAllCarsComparisonContentDark() {
     }
 }
 
-@Preview(name = "Overall summary", showBackground = true, widthDp = 400)
+@Preview(name = "Verdict banner", showBackground = true, widthDp = 400)
 @Composable
-private fun PreviewOverallSummaryCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        OverallSummaryCard(result = previewMultiCarResult)
+private fun PreviewVerdictBanner() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            VerdictBanner(result = previewMultiCarResult)
+        }
     }
 }
 
 @Preview(name = "Metric ranking", showBackground = true, widthDp = 400)
 @Composable
-private fun PreviewMetricRankingCard() {
-    CarTrackingAppTheme(darkTheme = false) {
-        MetricRankingCard(
-            title = stringResource(R.string.cost_per_km),
-            cars = previewMultiCarResult.cars,
-            getValue = { it.costPerKm },
-            suffix = " €/km",
-            lowerIsBetter = true,
-            bestCarId = previewMultiCarResult.bestCostPerKm,
-            worstCarId = previewMultiCarResult.worstCostPerKm
-        )
+private fun PreviewMetricRanking() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            CostPerKmRanking(previewMultiCarResult)
+        }
     }
 }

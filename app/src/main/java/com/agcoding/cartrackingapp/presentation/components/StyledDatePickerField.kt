@@ -11,8 +11,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -59,7 +57,7 @@ fun StyledDatePickerField(
                 showDatePicker = true
             }
     ) {
-        StyledOutlinedTextField(
+        AppTextField(
             value = value?.let { dateFormatter.format(Date(it)) } ?: "",
             onValueChange = {},
             label = label,
@@ -73,14 +71,9 @@ fun StyledDatePickerField(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            // Use custom colors to make disabled field look normal
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            // Disabled only so the field stops swallowing the tap that opens
+            // the dialog — it is available, so it must not look greyed out.
+            colors = appTextFieldColors(disabledLooksEnabled = true)
         )
     }
 

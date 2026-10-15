@@ -36,10 +36,20 @@ data class AppColorScheme(
 fun buildColorScheme(brand: BrandTokens, isDark: Boolean): AppColorScheme =
     if (isDark) darkScheme(brand) else lightScheme(brand)
 
+/**
+ * The surfaces are tinted with the brand's own primary, on the same ladder as
+ * every other palette, rather than taken from the neutral ramp.
+ *
+ * The neutrals are near-grey by design — #F9F9FB over #F0EFF3 — so a brand
+ * palette built from them had a grey background and a white card, and looked
+ * identical whichever of the two brands was chosen. Every other palette in the
+ * app tints its surfaces with the colour the user picked; these two are not a
+ * special case.
+ */
 private fun lightScheme(b: BrandTokens) = AppColorScheme(
-    backgroundPrimary      = b.neutral50,
-    backgroundSecondary    = b.neutral100,
-    backgroundCard         = Color.White,
+    backgroundPrimary      = b.primary400.tintWithWhite(LIGHT_BG_TINT),
+    backgroundSecondary    = b.primary400.tintWithWhite(LIGHT_SEC_TINT),
+    backgroundCard         = b.primary400.tintWithWhite(LIGHT_CARD_TINT),
     backgroundOverlay      = Color.Black.copy(alpha = 0.4f),
     contentPrimary         = b.neutral900,
     contentSecondary       = b.neutral600,
@@ -49,7 +59,11 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
     actionContent          = Color.White,
     actionSecondary        = b.primary50,
     actionSecondaryContent = b.primary600,
-    borderDefault          = b.neutral200,
+    // From the primary, like the surfaces it outlines. The neutral ramp is
+    // warm (#D3D1C7), which on a tinted card reads as a muddy edge rather
+    // than a hairline — and since every card carries one now, that edge is
+    // everywhere.
+    borderDefault          = b.primary400.copy(alpha = 0.12f),
     borderFocused          = b.primary400,
     borderStrong           = b.neutral600,
     statusSuccess          = b.success400,
@@ -60,10 +74,11 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
     statusWarningSubtle    = b.warning400.copy(alpha = 0.12f),
 )
 
+/** See [lightScheme]: the same ladder, mixed towards black instead of white. */
 private fun darkScheme(b: BrandTokens) = AppColorScheme(
-    backgroundPrimary      = b.neutral900,
-    backgroundSecondary    = b.neutral600.copy(alpha = 0.25f),
-    backgroundCard         = b.neutral100.copy(alpha = 0.08f),
+    backgroundPrimary      = b.primary400.tintWithBlack(DARK_BG_TINT),
+    backgroundSecondary    = b.primary400.tintWithBlack(DARK_SEC_TINT),
+    backgroundCard         = b.primary400.tintWithBlack(DARK_CARD_TINT),
     backgroundOverlay      = Color.Black.copy(alpha = 0.6f),
     contentPrimary         = b.neutral50,
     contentSecondary       = b.neutral200,
@@ -73,7 +88,9 @@ private fun darkScheme(b: BrandTokens) = AppColorScheme(
     actionContent          = Color.White,
     actionSecondary        = b.primary800,
     actionSecondaryContent = b.primary200,
-    borderDefault          = b.neutral600.copy(alpha = 0.4f),
+    // Lighter than in light mode: a 12% line disappears against a dark
+    // surface, where the eye has far less contrast to work with.
+    borderDefault          = b.primary200.copy(alpha = 0.22f),
     borderFocused          = b.primary400,
     borderStrong           = b.neutral400,
     statusSuccess          = b.success300,
@@ -91,9 +108,15 @@ private const val LIGHT_BG_TINT     = 0.20f
 private const val LIGHT_CARD_TINT   = LIGHT_BG_TINT * 0.40f   // 0.08f
 private const val LIGHT_SEC_TINT    = LIGHT_BG_TINT * 1.20f   // 0.24f
 
-private const val DARK_BG_TINT      = 0.20f
-private const val DARK_CARD_TINT    = DARK_BG_TINT * 0.60f    // 0.12f
-private const val DARK_SEC_TINT     = DARK_BG_TINT * 1.30f    // 0.26f
+// tintWithBlack mixes the primary with black, so a SMALLER number is darker.
+// The dark card used to be 0.12 against a 0.20 background — that is a card
+// darker than the surface it sits on, an inverted ladder. It survived while
+// cards carried a blended tint and a visible border; now that fields, tiles
+// and grouped lists are all flat fills, a card that is darker than its
+// background is a card nobody can see. The three steps go up, not down.
+private const val DARK_BG_TINT      = 0.16f
+private const val DARK_CARD_TINT    = 0.30f
+private const val DARK_SEC_TINT     = 0.44f
 
 private val LIGHT_CONTENT_PRIMARY   = Color(0xFF1A1C1E)
 private val LIGHT_CONTENT_SECONDARY = Color(0xFF44474F)
@@ -139,7 +162,11 @@ fun buildAppColorSchemeFromPrimary(primary: Color, isDark: Boolean): AppColorSch
         AppColorScheme(
             backgroundPrimary      = primary.tintWithWhite(LIGHT_BG_TINT),
             backgroundSecondary    = primary.tintWithWhite(LIGHT_SEC_TINT),
-            backgroundCard         = Color.White,
+            // Not Color.White. LIGHT_CARD_TINT was declared above and then
+            // never used, so every card in light mode came out pure white on
+            // a tinted background — the one surface in the app that ignored
+            // the palette the user picked.
+            backgroundCard         = primary.tintWithWhite(LIGHT_CARD_TINT),
             backgroundOverlay      = Color.Black.copy(alpha = 0.4f),
             contentPrimary         = LIGHT_CONTENT_PRIMARY,
             contentSecondary       = LIGHT_CONTENT_SECONDARY,
@@ -176,6 +203,27 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         onSurface            = contentPrimary,
         surfaceVariant       = backgroundSecondary,
         onSurfaceVariant     = contentSecondary,
+
+        // The surface-container roles, which nothing used to set.
+        //
+        // Material components do not read `surface` — a bottom sheet reaches
+        // for surfaceContainerLow, a dialog and a menu for surfaceContainerHigh,
+        // a navigation bar for surfaceContainer. Left unset they keep the stock
+        // greys from darkColorScheme(), which is why a sheet opened over a
+        // themed screen appeared as a near-black slab while the one screen that
+        // passed its own containerColor looked right.
+        //
+        // They all resolve to the app's own two surfaces: the card colour for
+        // anything that floats above the screen, the quieter one for the two
+        // extremes that are meant to recede.
+        surfaceContainerLowest  = backgroundPrimary,
+        surfaceContainerLow     = backgroundCard,
+        surfaceContainer        = backgroundCard,
+        surfaceContainerHigh    = backgroundCard,
+        surfaceContainerHighest = backgroundSecondary,
+        surfaceBright           = backgroundCard,
+        surfaceDim              = backgroundPrimary,
+
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,
@@ -191,6 +239,27 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         onSurface            = contentPrimary,
         surfaceVariant       = backgroundSecondary,
         onSurfaceVariant     = contentSecondary,
+
+        // The surface-container roles, which nothing used to set.
+        //
+        // Material components do not read `surface` — a bottom sheet reaches
+        // for surfaceContainerLow, a dialog and a menu for surfaceContainerHigh,
+        // a navigation bar for surfaceContainer. Left unset they keep the stock
+        // greys from darkColorScheme(), which is why a sheet opened over a
+        // themed screen appeared as a near-black slab while the one screen that
+        // passed its own containerColor looked right.
+        //
+        // They all resolve to the app's own two surfaces: the card colour for
+        // anything that floats above the screen, the quieter one for the two
+        // extremes that are meant to recede.
+        surfaceContainerLowest  = backgroundPrimary,
+        surfaceContainerLow     = backgroundCard,
+        surfaceContainer        = backgroundCard,
+        surfaceContainerHigh    = backgroundCard,
+        surfaceContainerHighest = backgroundSecondary,
+        surfaceBright           = backgroundCard,
+        surfaceDim              = backgroundPrimary,
+
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,

@@ -23,7 +23,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,8 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.R
-import com.agcoding.cartrackingapp.presentation.components.StyledOutlinedTextField
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.presentation.components.AppBottomSheet
 
 /** Longest a category name may be. Keeps chips and list rows readable. */
 private const val MAX_CATEGORY_LENGTH = 30
@@ -76,7 +76,7 @@ fun CategoryPickerSheet(
     val canCreate = trimmedQuery.isNotEmpty() &&
         categories.none { it.equals(trimmedQuery, ignoreCase = true) }
 
-    ModalBottomSheet(
+    AppBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
@@ -106,7 +106,7 @@ fun CategoryPickerSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            StyledOutlinedTextField(
+            AppTextField(
                 value = query,
                 onValueChange = { if (it.length <= MAX_CATEGORY_LENGTH) query = it },
                 placeholder = { Text(stringResource(R.string.category_search_or_create)) },
