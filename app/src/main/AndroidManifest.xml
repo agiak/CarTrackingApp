@@ -16,6 +16,27 @@
         android:maxSdkVersion="28" />
     <!-- Android 10+ uses scoped storage, no permission needed -->
 
+    <!--
+      The advertising ID, explicitly removed.
+
+      firebase-analytics pulls in play-services-measurement-api, whose own
+      manifest declares this permission, so it is merged into the app without
+      anyone asking for it. This app shows no ads, measures no campaigns and
+      has no attribution to do: Analytics identifies a session by the Firebase
+      app-instance ID and FCM by its token, neither of which is the
+      advertising ID. Shipping a cross-app tracking identifier we never read
+      means declaring it on the Data safety form and answering "yes" to
+      Play's advertising ID question for nothing.
+
+      Removing it here makes the answer to that question "no" and keeps it
+      true. If an ads or attribution SDK is ever added, delete this block and
+      set the declaration back to "yes" — the two have to agree or Play
+      blocks the release.
+    -->
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+
     <!-- Queries for Android 11+ package visibility -->
     <queries>
         <!-- Query for PDF viewers -->
