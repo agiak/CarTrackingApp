@@ -7,9 +7,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,29 +31,26 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import com.agcoding.cartrackingapp.presentation.components.AppTextField
-import com.agcoding.cartrackingapp.presentation.components.appTextFieldColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -57,25 +59,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.domain.model.Car
 import com.agcoding.cartrackingapp.domain.model.ExpenseCategories
+import com.agcoding.cartrackingapp.domain.validation.RefillValidator
+import com.agcoding.cartrackingapp.presentation.components.AppFilterChip
+import com.agcoding.cartrackingapp.presentation.components.AppTextField
+import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
+import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
+import com.agcoding.cartrackingapp.presentation.components.TonalButton
+import com.agcoding.cartrackingapp.presentation.editrefill.components.CalculatedValuesCard
+import com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState
 import com.agcoding.cartrackingapp.presentation.refill.components.VoiceCapturedFieldsRow
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
-import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import com.agcoding.cartrackingapp.util.formatForDecimalInput
-import com.agcoding.cartrackingapp.util.formatMoney
-import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.AndroidEntryPoint
@@ -84,8 +97,15 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Quick Entry Activity - Minimal overlay for fast refill/expense entry
- * Appears as a dialog overlay without launching full app
+ * Quick entry: the refill or expense form, opened straight from the home
+ * screen without starting the app proper.
+ *
+ * It is the same two forms as the in-app screens, cut down to what can be
+ * typed in a hurry — so it is built from the same pieces: the app's one text
+ * field, its calculated-values card, its buttons. It used to be stock Material
+ * in a white `surface` card, under `CarTrackingAppTheme`'s *default* palette
+ * rather than the one the user picked, which made it the one surface in the
+ * app that ignored the theme (see [QuickEntryTheme]).
  */
 @AndroidEntryPoint
 class QuickEntryActivity : AppCompatActivity() {
@@ -97,143 +117,80 @@ class QuickEntryActivity : AppCompatActivity() {
 
         val action = intent.getStringExtra(EXTRA_ACTION) ?: ACTION_ADD_REFILL
 
-        // Car ID is now optional - user will select it in the entry screen
+        // Optional: the 2×2 widget knows its car, the 1×1 shortcuts do not, and
+        // the picker in the form covers the difference.
         val carId = intent.getLongExtra(EXTRA_CAR_ID, -1L)
-
-        // If car ID was provided, set it
         if (carId != -1L) {
             viewModel.setCarId(carId)
             viewModel.loadCarName()
         }
-
-        // Load all cars for selection
         viewModel.loadAllCars()
 
         setContent {
-            CarTrackingAppTheme {
-                // Transparent background
-                // Holds the confirmation to play plus the work to run once it
-                // finishes, so the widget shows the same success animation as the
-                // in-app screens before closing.
+            QuickEntryTheme {
+                // The confirmation to play, and the work to run once it has
+                // finished, so the widget shows the same success animation as
+                // the in-app screens before closing.
                 var successState by remember { mutableStateOf<Pair<Int, () -> Unit>?>(null) }
 
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)),
+                        .background(LocalAppColorScheme.current.backgroundOverlay),
                     contentAlignment = Alignment.Center
                 ) {
-                    when (action) {
-                        ACTION_ADD_REFILL -> QuickRefillDialog(
+                    if (action == ACTION_ADD_EXPENSE) {
+                        QuickExpenseDialog(
                             viewModel = viewModel,
                             onDismiss = { finish() },
-                            onSuccess = { amount, timestamp ->
-                                successState = R.string.refill_saved to {
-                                // Get selected car
-                                val car = viewModel.selectedCar.value
-                                if (car != null) {
-                                    // Create result intent with transaction data
-                                    val resultIntent = createResultIntent(
-                                        type = "Refill",
-                                        amount = amount,
-                                        timestamp = timestamp,
-                                        carName = car.name,
-                                        carId = car.id
-                                    )
-                                    setResult(RESULT_OK, resultIntent)
-
-                                    // Send broadcast with transaction data for widget update
-                                    val broadcastIntent = Intent(ACTION_WIDGET_DATA_CHANGED).apply {
-                                        putExtra(RESULT_TRANSACTION_TYPE, "Refill")
-                                        putExtra(RESULT_TRANSACTION_AMOUNT, amount)
-                                        putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
-                                        putExtra(RESULT_TRANSACTION_CAR_NAME, car.name)
-                                        putExtra(RESULT_TRANSACTION_CAR_ID, car.id)
-                                    }
-                                    sendBroadcast(broadcastIntent)
-                                }
-                                finish()
-                                }
-                            }
-                        )
-
-                        ACTION_VOICE -> QuickRefillDialog(
-                            viewModel = viewModel,
-                            onDismiss = { finish() },
-                            onSuccess = { amount, timestamp ->
-                                successState = R.string.refill_saved to {
-                                // Get selected car
-                                val car = viewModel.selectedCar.value
-                                if (car != null) {
-                                    // Create result intent with transaction data
-                                    val resultIntent = createResultIntent(
-                                        type = "Refill",
-                                        amount = amount,
-                                        timestamp = timestamp,
-                                        carName = car.name,
-                                        carId = car.id
-                                    )
-                                    setResult(RESULT_OK, resultIntent)
-
-                                    // Send broadcast with transaction data for widget update
-                                    val broadcastIntent = Intent(ACTION_WIDGET_DATA_CHANGED).apply {
-                                        putExtra(RESULT_TRANSACTION_TYPE, "Refill")
-                                        putExtra(RESULT_TRANSACTION_AMOUNT, amount)
-                                        putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
-                                        putExtra(RESULT_TRANSACTION_CAR_NAME, car.name)
-                                        putExtra(RESULT_TRANSACTION_CAR_ID, car.id)
-                                    }
-                                    sendBroadcast(broadcastIntent)
-                                }
-                                finish()
-                                }
-                            }
-                        )
-
-                        ACTION_ADD_EXPENSE -> QuickExpenseDialog(
-                            viewModel = viewModel,
-                            onDismiss = { finish() },
-                            onSuccess = { amount, timestamp ->
+                            onSaved = { amount, timestamp ->
                                 successState = R.string.expense_saved to {
-                                // Get selected car
-                                val car = viewModel.selectedCar.value
-                                if (car != null) {
-                                    // Create result intent with transaction data
-                                    val resultIntent = createResultIntent(
-                                        type = "Expense",
-                                        amount = amount,
-                                        timestamp = timestamp,
-                                        carName = car.name,
-                                        carId = car.id
-                                    )
-                                    setResult(RESULT_OK, resultIntent)
-
-                                    // Send broadcast with transaction data for widget update
-                                    val broadcastIntent = Intent(ACTION_WIDGET_DATA_CHANGED).apply {
-                                        putExtra(RESULT_TRANSACTION_TYPE, "Expense")
-                                        putExtra(RESULT_TRANSACTION_AMOUNT, amount)
-                                        putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
-                                        putExtra(RESULT_TRANSACTION_CAR_NAME, car.name)
-                                        putExtra(RESULT_TRANSACTION_CAR_ID, car.id)
-                                    }
-                                    sendBroadcast(broadcastIntent)
+                                    complete(TYPE_EXPENSE, amount, timestamp)
                                 }
-                                finish()
+                            }
+                        )
+                    } else {
+                        QuickRefillDialog(
+                            viewModel = viewModel,
+                            // The widget's microphone button opens this form
+                            // already listening; anything else opens it quiet.
+                            autoStartVoice = action == ACTION_VOICE,
+                            onDismiss = { finish() },
+                            onSaved = { amount, timestamp ->
+                                successState = R.string.refill_saved to {
+                                    complete(TYPE_REFILL, amount, timestamp)
                                 }
                             }
                         )
                     }
 
-                    successState?.let { (messageRes, complete) ->
+                    successState?.let { (messageRes, onFinished) ->
                         SuccessOverlay(
                             visible = true,
                             message = stringResource(messageRes),
-                            onFinished = complete
+                            onFinished = onFinished
                         )
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Hands the saved transaction back — to whoever started us for a result,
+     * and to the widgets over the broadcast they listen on — then closes.
+     *
+     * The three call sites used to carry a copy of this each, differing only
+     * in the word "Refill" or "Expense".
+     */
+    private fun complete(type: String, amount: Double, timestamp: Long) {
+        val car = viewModel.selectedCar.value
+        if (car != null) {
+            val result = createResultIntent(type, amount, timestamp, car.name, car.id)
+            setResult(RESULT_OK, result)
+            sendBroadcast(Intent(ACTION_WIDGET_DATA_CHANGED).putExtras(result))
+        }
+        finish()
     }
 
     companion object {
@@ -245,6 +202,9 @@ class QuickEntryActivity : AppCompatActivity() {
         const val ACTION_WIDGET_DATA_CHANGED =
             "com.agcoding.cartrackingapp.ACTION_WIDGET_DATA_CHANGED"
 
+        private const val TYPE_REFILL = "Refill"
+        private const val TYPE_EXPENSE = "Expense"
+
         // Result data keys
         const val RESULT_TRANSACTION_TYPE = "transaction_type"
         const val RESULT_TRANSACTION_AMOUNT = "transaction_amount"
@@ -252,35 +212,21 @@ class QuickEntryActivity : AppCompatActivity() {
         const val RESULT_TRANSACTION_CAR_NAME = "transaction_car_name"
         const val RESULT_TRANSACTION_CAR_ID = "transaction_car_id"
 
-        fun createRefillIntent(context: Context, carId: Long = -1L): Intent {
-            return Intent(context, QuickEntryActivity::class.java).apply {
-                putExtra(EXTRA_ACTION, ACTION_ADD_REFILL)
-                if (carId != -1L) {
-                    putExtra(EXTRA_CAR_ID, carId)
-                }
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-        }
+        fun createRefillIntent(context: Context, carId: Long = -1L): Intent =
+            entryIntent(context, ACTION_ADD_REFILL, carId)
 
-        fun createExpenseIntent(context: Context, carId: Long = -1L): Intent {
-            return Intent(context, QuickEntryActivity::class.java).apply {
-                putExtra(EXTRA_ACTION, ACTION_ADD_EXPENSE)
-                if (carId != -1L) {
-                    putExtra(EXTRA_CAR_ID, carId)
-                }
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-        }
+        fun createExpenseIntent(context: Context, carId: Long = -1L): Intent =
+            entryIntent(context, ACTION_ADD_EXPENSE, carId)
 
-        fun createVoiceIntent(context: Context, carId: Long = -1L): Intent {
-            return Intent(context, QuickEntryActivity::class.java).apply {
-                putExtra(EXTRA_ACTION, ACTION_VOICE)
-                if (carId != -1L) {
-                    putExtra(EXTRA_CAR_ID, carId)
-                }
+        fun createVoiceIntent(context: Context, carId: Long = -1L): Intent =
+            entryIntent(context, ACTION_VOICE, carId)
+
+        private fun entryIntent(context: Context, action: String, carId: Long): Intent =
+            Intent(context, QuickEntryActivity::class.java).apply {
+                putExtra(EXTRA_ACTION, action)
+                if (carId != -1L) putExtra(EXTRA_CAR_ID, carId)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
-        }
 
         /**
          * Helper to create result intent with transaction data
@@ -291,98 +237,32 @@ class QuickEntryActivity : AppCompatActivity() {
             timestamp: Long,
             carName: String,
             carId: Long
-        ): Intent {
-            return Intent().apply {
-                putExtra(RESULT_TRANSACTION_TYPE, type)
-                putExtra(RESULT_TRANSACTION_AMOUNT, amount)
-                putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
-                putExtra(RESULT_TRANSACTION_CAR_NAME, carName)
-                putExtra(RESULT_TRANSACTION_CAR_ID, carId)
-            }
+        ): Intent = Intent().apply {
+            putExtra(RESULT_TRANSACTION_TYPE, type)
+            putExtra(RESULT_TRANSACTION_AMOUNT, amount)
+            putExtra(RESULT_TRANSACTION_TIMESTAMP, timestamp)
+            putExtra(RESULT_TRANSACTION_CAR_NAME, carName)
+            putExtra(RESULT_TRANSACTION_CAR_ID, carId)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CarSelector(
-    cars: List<com.agcoding.cartrackingapp.domain.model.Car>,
-    selectedCar: com.agcoding.cartrackingapp.domain.model.Car?,
-    onCarSelected: (com.agcoding.cartrackingapp.domain.model.Car) -> Unit,
-    showError: Boolean,
-    enabled: Boolean
-) {
-    var expanded by remember { mutableStateOf(false) }
+/** Between two fields in the same form, as everywhere else in the redesign. */
+private val FieldGap = 14.dp
 
-    Column {
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { if (enabled) expanded = !expanded }
-        ) {
-            AppTextField(
-                value = selectedCar?.name ?: "",
-                onValueChange = { },
-                readOnly = true,
-                label = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(id = R.string.select_vehicle))
-                        Text(" *", color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                colors = appTextFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled),
-                enabled = enabled,
-                isError = showError && selectedCar == null
-            )
+// ─────────────────────────────────────────────────────────────────────────────
+// Refill
+// ─────────────────────────────────────────────────────────────────────────────
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                if (cars.isEmpty()) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(id = R.string.no_cars_available)) },
-                        onClick = { },
-                        enabled = false
-                    )
-                } else {
-                    cars.forEach { car ->
-                        DropdownMenuItem(
-                            text = { Text(car.name) },
-                            onClick = {
-                                onCarSelected(car)
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        if (showError && selectedCar == null) {
-            Text(
-                text = stringResource(id = R.string.error_car_required),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QuickRefillDialog(
     viewModel: QuickEntryViewModel,
+    autoStartVoice: Boolean,
     onDismiss: () -> Unit,
-    onSuccess: (amount: Double, timestamp: Long) -> Unit
+    onSaved: (amount: Double, timestamp: Long) -> Unit
 ) {
     val context = LocalContext.current
+
     var liters by remember { mutableStateOf("") }
     var cost by remember { mutableStateOf("") }
     var distance by remember { mutableStateOf("") }
@@ -394,630 +274,218 @@ private fun QuickRefillDialog(
     val selectedCar by viewModel.selectedCar.collectAsState()
     var showCarError by remember { mutableStateOf(false) }
 
-    // Error states
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var litersError by remember { mutableStateOf<String?>(null) }
     var costError by remember { mutableStateOf<String?>(null) }
     var distanceError by remember { mutableStateOf<String?>(null) }
 
-    // Voice state
     val voiceState by viewModel.voiceState.collectAsState()
     val isVoiceAvailable = viewModel.isVoiceAvailable
 
-    // Handle voice parsed data - auto-fill form fields
-    androidx.compose.runtime.LaunchedEffect(voiceState) {
-        if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed) {
-            val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
+    LaunchedEffect(autoStartVoice, isVoiceAvailable) {
+        if (autoStartVoice && isVoiceAvailable && voiceState is VoiceRefillState.Idle) {
+            viewModel.startVoiceEntry()
+        }
+    }
 
-            // Pre-fill form fields with parsed data as raw comma-decimal field values.
-            // Whole numbers stay whole ("38", not "38,0") — a decimal only appears
-            // when the user actually spoke one.
-            parsedData.cost?.let { cost = it.formatForDecimalInput() }
-            parsedData.liters?.let { liters = it.formatForDecimalInput() }
-            parsedData.distance?.let { distance = it.formatForDecimalInput() }
-
-            // Reset voice state after applying data
+    // Whatever was heard lands in the fields, as raw comma-decimal text. Whole
+    // numbers stay whole ("38", not "38,0") — a decimal only appears when the
+    // user actually spoke one.
+    LaunchedEffect(voiceState) {
+        (voiceState as? VoiceRefillState.Parsed)?.let { parsed ->
+            parsed.data.cost?.let { cost = it.formatForDecimalInput() }
+            parsed.data.liters?.let { liters = it.formatForDecimalInput() }
+            parsed.data.distance?.let { distance = it.formatForDecimalInput() }
             viewModel.confirmVoiceParsedData()
         }
     }
 
-    // Calculated values
-    val pricePerLiter by remember {
-        derivedStateOf {
-            val l = liters.parseLocalizedDouble()
-            val c = cost.parseLocalizedDouble()
-            if (l != null && c != null && l > 0) c / l else null
-        }
+    val canSave by remember {
+        derivedStateOf { liters.isNotBlank() && cost.isNotBlank() }
     }
 
-    val consumption by remember {
-        derivedStateOf {
-            val l = liters.parseLocalizedDouble()
-            val d = distance.parseLocalizedDouble()
-            if (l != null && d != null && d > 0) (l / d) * 100 else null
-        }
-    }
-
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
-
-    // Get dimension resources for responsive layout
-    val maxWidth = context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_max_width)
-    val horizontalPadding =
-        context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_horizontal_padding)
-    val verticalPadding =
-        context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_vertical_padding)
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    QuickEntryCard(
+        title = stringResource(R.string.quick_entry_refill_title),
+        icon = Icons.Default.LocalGasStation,
+        onDismiss = onDismiss
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Card(
-                modifier = Modifier
-                    .widthIn(max = with(androidx.compose.ui.platform.LocalDensity.current) { maxWidth.toDp() })
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = with(androidx.compose.ui.platform.LocalDensity.current) { horizontalPadding.toDp() },
-                            vertical = with(androidx.compose.ui.platform.LocalDensity.current) { verticalPadding.toDp() }
-                        )
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    // Header
-                    Text(
-                        text = stringResource(id = R.string.quick_add_refill_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Voice Entry Section
-                    if (isVoiceAvailable) when (voiceState) {
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle -> {
-                            // Show voice button
-                            OutlinedButton(
-                                onClick = { viewModel.startVoiceEntry() },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = !isLoading
-                            ) {
-                                Icon(
-                                    painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.voice_entry_button))
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening -> {
-                            // Listening state - show partial text and stop button
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = stringResource(R.string.voice_listening),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-
-                                    val listening = voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening
-                                    val partialText = listening.partialText
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    // Turns green field by field; recording ends by
-                                    // itself once all three have been heard.
-                                    VoiceCapturedFieldsRow(captured = listening.captured)
-
-                                    if (partialText.isNotBlank()) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = partialText,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        OutlinedButton(
-                                            onClick = { viewModel.cancelVoiceEntry() },
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Text(stringResource(R.string.cancel))
-                                        }
-
-                                        Button(
-                                            onClick = { viewModel.stopVoiceRecording() },
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Text(stringResource(R.string.voice_stop))
-                                        }
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Processing -> {
-                            // Processing state
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = stringResource(R.string.voice_processing),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error -> {
-                            // Error state
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.voice_error),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-
-                                    val errorMessage = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error).message
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = errorMessage,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        OutlinedButton(
-                                            onClick = { viewModel.cancelVoiceEntry() },
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Text(stringResource(R.string.cancel))
-                                        }
-
-                                        Button(
-                                            onClick = { viewModel.startVoiceEntry() },
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Text(stringResource(R.string.retry))
-                                        }
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed -> {
-                            // Success state - fields will be auto-filled
-                            // Just show brief success message
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.voice_parsed_success),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                    }
-
-                    // Car Selector - Only show if there are multiple cars
-                    if (allCars.size > 1) {
-                        CarSelector(
-                            cars = allCars,
-                            selectedCar = selectedCar,
-                            onCarSelected = {
-                                viewModel.selectCar(it)
-                                showCarError = false
-                            },
-                            showError = showCarError,
-                            enabled = !isLoading
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
-                    // Date field
-                    AppTextField(
-                        value = dateFormatter.format(Date(selectedDate)),
-                        onValueChange = { },
-                        label = { Text(stringResource(id = R.string.date_label)) },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { showDatePicker = true }) {
-                                Icon(
-                                    Icons.Default.DateRange,
-                                    stringResource(id = R.string.select_date)
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Liters field
-                    AppTextField(
-                        value = liters,
-                        onValueChange = {
-                            liters = sanitizeDecimalInput(it)
-                            litersError = null
-                            errorMessage = null
-                        },
-                        label = { Text(stringResource(id = R.string.liters_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = ThousandsSeparatorTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading,
-                        isError = litersError != null,
-                        supportingText = litersError?.let { { Text(it) } }
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Cost field
-                    AppTextField(
-                        value = cost,
-                        onValueChange = {
-                            cost = sanitizeDecimalInput(it)
-                            costError = null
-                            errorMessage = null
-                        },
-                        label = { Text(stringResource(id = R.string.cost_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = ThousandsSeparatorTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading,
-                        isError = costError != null,
-                        supportingText = costError?.let { { Text(it) } }
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Distance field
-                    AppTextField(
-                        value = distance,
-                        onValueChange = {
-                            distance = sanitizeDecimalInput(it)
-                            distanceError = null
-                            errorMessage = null
-                        },
-                        label = { Text(stringResource(id = R.string.distance_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = ThousandsSeparatorTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading,
-                        isError = distanceError != null,
-                        supportingText = distanceError?.let { { Text(it) } }
-                    )
-
-                    // Info section with calculations
-                    if (pricePerLiter != null || consumption != null) {
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(
-                                    alpha = 0.3f
-                                )
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        Icons.Default.Info,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = stringResource(id = R.string.calculated_info_title),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                pricePerLiter?.let { price ->
-                                    InfoRow(
-                                        label = stringResource(id = R.string.price_per_liter_label),
-                                        value = price.formatMoney(3)
-                                    )
-                                }
-
-                                consumption?.let { cons ->
-                                    if (pricePerLiter != null) {
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-                                    InfoRow(
-                                        label = stringResource(id = R.string.fuel_consumption_label),
-                                        value = "${cons.formatNumber(2)} L/100km"
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Error message display
-                    errorMessage?.let { error ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = error,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    // Action buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(
-                            onClick = onDismiss,
-                            enabled = !isLoading
-                        ) {
-                            Text(stringResource(id = R.string.cancel))
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(
-                            onClick = {
-                                // Clear previous errors
-                                litersError = null
-                                costError = null
-                                distanceError = null
-                                errorMessage = null
-
-                                // Validate car selection first
-                                if (selectedCar == null) {
-                                    showCarError = true
-                                    errorMessage = context.getString(R.string.error_car_required)
-                                    return@Button
-                                }
-
-                                // Validate using RefillValidator
-                                val validationResult = com.agcoding.cartrackingapp.domain.validation.RefillValidator.validateRefill(
-                                    context = context,
-                                    liters = liters,
-                                    cost = cost,
-                                    distance = if (distance.isBlank()) "0" else distance
-                                )
-
-                                if (!validationResult.isValid) {
-                                    // Show field-specific errors
-                                    validationResult.errors["liters"]?.let { litersError = it }
-                                    validationResult.errors["cost"]?.let { costError = it }
-                                    validationResult.errors["distance"]?.let { distanceError = it }
-                                    validationResult.errors["consumption"]?.let {
-                                        errorMessage = it
-                                    }
-
-                                    // If no field-specific error, show general error
-                                    if (errorMessage == null && validationResult.errors.isNotEmpty()) {
-                                        errorMessage = validationResult.errors.values.first()
-                                    }
-                                    return@Button
-                                }
-
-                                val litersValue = liters.parseLocalizedDouble()
-                                val costValue = cost.parseLocalizedDouble()
-                                val distanceValue = distance.parseLocalizedDouble() ?: 0.0
-
-                                if (litersValue != null && costValue != null) {
-                                    isLoading = true
-                                    viewModel.saveQuickRefill(
-                                        liters = litersValue,
-                                        cost = costValue,
-                                        distance = distanceValue,
-                                        timestamp = selectedDate,
-                                        onSuccess = onSuccess,
-                                        onError = {
-                                            isLoading = false
-                                            errorMessage = context.getString(R.string.error_saving_refill)
-                                        }
-                                    )
-                                }
-                            },
-                            enabled = !isLoading && liters.isNotBlank() && cost.isNotBlank()
-                        ) {
-                            if (isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text(stringResource(id = R.string.add))
-                            }
-                        }
-                    }
-                }
+        CarPicker(
+            cars = allCars,
+            selected = selectedCar,
+            enabled = !isLoading,
+            isError = showCarError && selectedCar == null,
+            onSelect = {
+                viewModel.selectCar(it)
+                showCarError = false
             }
-        }
-    }
+        )
 
-    // Date picker dialog
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate)
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { selectedDate = it }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text(stringResource(id = R.string.ok))
-                }
+        if (isVoiceAvailable) {
+            Spacer(Modifier.height(FieldGap))
+            VoiceSection(
+                state = voiceState,
+                onStart = { viewModel.startVoiceEntry() },
+                onStop = { viewModel.stopVoiceRecording() },
+                onCancel = { viewModel.cancelVoiceEntry() },
+                enabled = !isLoading
+            )
+        }
+
+        Spacer(Modifier.height(FieldGap))
+
+        DateField(
+            timestamp = selectedDate,
+            enabled = !isLoading,
+            onClick = { showDatePicker = true }
+        )
+
+        Spacer(Modifier.height(FieldGap))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            AppTextField(
+                value = liters,
+                onValueChange = {
+                    liters = sanitizeDecimalInput(it)
+                    litersError = null
+                    errorMessage = null
+                },
+                label = { Text(stringResource(R.string.liters_label)) },
+                suffix = { Text("L") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
+                singleLine = true,
+                isError = litersError != null,
+                supportingText = litersError?.let { { Text(it) } },
+                enabled = !isLoading,
+                modifier = Modifier.weight(1f)
+            )
+            AppTextField(
+                value = cost,
+                onValueChange = {
+                    cost = sanitizeDecimalInput(it)
+                    costError = null
+                    errorMessage = null
+                },
+                label = { Text(stringResource(R.string.cost_label)) },
+                suffix = { Text("€") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                visualTransformation = ThousandsSeparatorTransformation(),
+                singleLine = true,
+                isError = costError != null,
+                supportingText = costError?.let { { Text(it) } },
+                enabled = !isLoading,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(Modifier.height(FieldGap))
+
+        AppTextField(
+            value = distance,
+            onValueChange = {
+                distance = sanitizeDecimalInput(it)
+                distanceError = null
+                errorMessage = null
             },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(stringResource(id = R.string.cancel))
+            label = { Text(stringResource(R.string.distance_label)) },
+            suffix = { Text("km") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = ThousandsSeparatorTransformation(),
+            singleLine = true,
+            isError = distanceError != null,
+            supportingText = distanceError?.let { { Text(it) } },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Price per litre and consumption, in the same grid the edit-refill
+        // screen shows them in. Absent until there is something honest to put
+        // in it.
+        CalculatedValuesCard(
+            amountPaid = cost,
+            litersAdded = liters,
+            tripDistance = distance
+        )
+
+        ErrorNotice(errorMessage)
+
+        Spacer(Modifier.height(20.dp))
+
+        DialogActions(
+            confirmLabel = stringResource(R.string.add),
+            confirmEnabled = canSave,
+            isBusy = isLoading,
+            onCancel = onDismiss,
+            onConfirm = {
+                litersError = null
+                costError = null
+                distanceError = null
+                errorMessage = null
+
+                if (selectedCar == null) {
+                    showCarError = true
+                    errorMessage = context.getString(R.string.error_car_required)
+                    return@DialogActions
+                }
+
+                val validation = RefillValidator.validateRefill(
+                    context = context,
+                    liters = liters,
+                    cost = cost,
+                    distance = distance.ifBlank { "0" }
+                )
+
+                if (!validation.isValid) {
+                    litersError = validation.errors["liters"]
+                    costError = validation.errors["cost"]
+                    distanceError = validation.errors["distance"]
+                    errorMessage = validation.errors["consumption"]
+                        ?: validation.errors.values.firstOrNull()
+                    return@DialogActions
+                }
+
+                val litersValue = liters.parseLocalizedDouble()
+                val costValue = cost.parseLocalizedDouble()
+                if (litersValue != null && costValue != null) {
+                    isLoading = true
+                    viewModel.saveQuickRefill(
+                        liters = litersValue,
+                        cost = costValue,
+                        distance = distance.parseLocalizedDouble() ?: 0.0,
+                        timestamp = selectedDate,
+                        onSuccess = onSaved,
+                        onError = {
+                            isLoading = false
+                            errorMessage = context.getString(R.string.error_saving_refill)
+                        }
+                    )
                 }
             }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
         )
     }
+
+    DatePickerSheet(
+        visible = showDatePicker,
+        timestamp = selectedDate,
+        onDismiss = { showDatePicker = false },
+        onPicked = { selectedDate = it }
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ─────────────────────────────────────────────────────────────────────────────
+// Expense
+// ─────────────────────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QuickExpenseDialog(
     viewModel: QuickEntryViewModel,
     onDismiss: () -> Unit,
-    onSuccess: (amount: Double, timestamp: Long) -> Unit
+    onSaved: (amount: Double, timestamp: Long) -> Unit
 ) {
     val context = LocalContext.current
+    val dimens = LocalAppDimens.current
+
     var cost by remember { mutableStateOf("") }
     var category by remember { mutableStateOf(ExpenseCategories.predefined.first()) }
     var notes by remember { mutableStateOf("") }
@@ -1029,491 +497,598 @@ private fun QuickExpenseDialog(
     val selectedCar by viewModel.selectedCar.collectAsState()
     var showCarError by remember { mutableStateOf(false) }
 
-    // Error states
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var costError by remember { mutableStateOf<String?>(null) }
 
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    QuickEntryCard(
+        title = stringResource(R.string.quick_entry_expense_title),
+        icon = Icons.Default.Receipt,
+        onDismiss = onDismiss
+    ) {
+        CarPicker(
+            cars = allCars,
+            selected = selectedCar,
+            enabled = !isLoading,
+            isError = showCarError && selectedCar == null,
+            onSelect = {
+                viewModel.selectCar(it)
+                showCarError = false
+            }
+        )
 
-    // Get dimension resources for responsive layout
-    val maxWidth = context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_max_width)
-    val horizontalPadding =
-        context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_horizontal_padding)
-    val verticalPadding =
-        context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_vertical_padding)
+        Spacer(Modifier.height(FieldGap))
+
+        DateField(
+            timestamp = selectedDate,
+            enabled = !isLoading,
+            onClick = { showDatePicker = true }
+        )
+
+        Spacer(Modifier.height(FieldGap))
+
+        AppTextField(
+            value = cost,
+            onValueChange = {
+                cost = sanitizeDecimalInput(it)
+                costError = null
+                errorMessage = null
+            },
+            label = { Text(stringResource(R.string.cost_label)) },
+            suffix = { Text("€") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = ThousandsSeparatorTransformation(),
+            singleLine = true,
+            isError = costError != null,
+            supportingText = costError?.let { { Text(it) } },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(Modifier.height(FieldGap))
+
+        Text(
+            text = stringResource(R.string.category_label),
+            style = MaterialTheme.typography.labelLarge,
+            color = LocalAppColorScheme.current.contentSecondary
+        )
+        Spacer(Modifier.height(8.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            ExpenseCategories.predefined.forEach { option ->
+                AppFilterChip(
+                    label = option,
+                    selected = category == option,
+                    onClick = { category = option },
+                    enabled = !isLoading
+                )
+            }
+        }
+
+        Spacer(Modifier.height(dimens.spacing.md))
+
+        AppTextField(
+            value = notes,
+            onValueChange = { notes = it },
+            label = { Text(stringResource(R.string.notes_label)) },
+            minLines = 2,
+            maxLines = 3,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        ErrorNotice(errorMessage)
+
+        Spacer(Modifier.height(20.dp))
+
+        DialogActions(
+            confirmLabel = stringResource(R.string.add),
+            confirmEnabled = cost.isNotBlank(),
+            isBusy = isLoading,
+            onCancel = onDismiss,
+            onConfirm = {
+                costError = null
+                errorMessage = null
+
+                if (selectedCar == null) {
+                    showCarError = true
+                    errorMessage = context.getString(R.string.error_car_required)
+                    return@DialogActions
+                }
+
+                val costValue = cost.parseLocalizedDouble()
+                when {
+                    costValue == null ->
+                        costError = context.getString(R.string.error_cost_invalid)
+
+                    costValue <= 0 ->
+                        costError = context.getString(R.string.error_cost_positive)
+
+                    else -> {
+                        isLoading = true
+                        viewModel.saveQuickExpense(
+                            cost = costValue,
+                            category = category,
+                            notes = notes.ifBlank { null },
+                            timestamp = selectedDate,
+                            onSuccess = onSaved,
+                            onError = {
+                                isLoading = false
+                                errorMessage = context.getString(R.string.error_saving_expense)
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+    DatePickerSheet(
+        visible = showDatePicker,
+        timestamp = selectedDate,
+        onDismiss = { showDatePicker = false },
+        onPicked = { selectedDate = it }
+    )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared pieces
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The card both forms live in: icon tile, title, and a line saying where this
+ * came from, over a scrolling body.
+ *
+ * It is capped at [R.dimen.quick_entry_dialog_max_width] so that on a tablet
+ * the form does not stretch into a banner.
+ */
+@Composable
+private fun QuickEntryCard(
+    title: String,
+    icon: ImageVector,
+    onDismiss: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val context = LocalContext.current
+    val maxWidth = with(LocalDensity.current) {
+        context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_max_width).toDp()
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Box(
+        Column(
             modifier = Modifier
+                .padding(horizontal = 14.dp)
+                .widthIn(max = maxWidth)
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
+                .wrapContentHeight()
+                .clip(RoundedCornerShape(dimens.radius.sheet))
+                .background(scheme.backgroundCard)
+                .border(1.dp, scheme.borderDefault, RoundedCornerShape(dimens.radius.sheet))
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp, vertical = 20.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .widthIn(max = with(androidx.compose.ui.platform.LocalDensity.current) { maxWidth.toDp() })
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
                     modifier = Modifier
-                        .padding(
-                            horizontal = with(androidx.compose.ui.platform.LocalDensity.current) { horizontalPadding.toDp() },
-                            vertical = with(androidx.compose.ui.platform.LocalDensity.current) { verticalPadding.toDp() }
-                        )
-                        .verticalScroll(rememberScrollState())
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(dimens.radius.iconTile))
+                        .background(scheme.actionPrimary),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Header
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = scheme.actionContent,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                Column {
                     Text(
-                        text = stringResource(id = R.string.quick_add_expense_title),
+                        text = title,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = scheme.contentPrimary
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Car Selector - Only show if there are multiple cars
-                    if (allCars.size > 1) {
-                        CarSelector(
-                            cars = allCars,
-                            selectedCar = selectedCar,
-                            onCarSelected = {
-                                viewModel.selectCar(it)
-                                showCarError = false
-                            },
-                            showError = showCarError,
-                            enabled = !isLoading
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
-                    // Date field
-                    AppTextField(
-                        value = dateFormatter.format(Date(selectedDate)),
-                        onValueChange = { },
-                        label = { Text(stringResource(id = R.string.date_label)) },
-                        readOnly = true,
-                        trailingIcon = {
-                            IconButton(onClick = { showDatePicker = true }) {
-                                Icon(
-                                    Icons.Default.DateRange,
-                                    stringResource(id = R.string.select_date)
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Cost field
-                    AppTextField(
-                        value = cost,
-                        onValueChange = {
-                            cost = sanitizeDecimalInput(it)
-                            costError = null
-                            errorMessage = null
-                        },
-                        label = { Text(stringResource(id = R.string.cost_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = ThousandsSeparatorTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading,
-                        isError = costError != null,
-                        supportingText = costError?.let { { Text(it) } }
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Category selector
                     Text(
-                        text = stringResource(id = R.string.category_label),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = stringResource(R.string.quick_entry_from_widget),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.contentSecondary
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    androidx.compose.foundation.layout.FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        ExpenseCategories.predefined.forEach { cat ->
-                            FilterChip(
-                                selected = category == cat,
-                                onClick = { category = cat },
-                                label = { Text(cat, style = MaterialTheme.typography.labelSmall) },
-                                enabled = !isLoading
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Notes field
-                    AppTextField(
-                        value = notes,
-                        onValueChange = { notes = it },
-                        label = { Text(stringResource(id = R.string.notes_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading,
-                        minLines = 2,
-                        maxLines = 3
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Error message display
-                    errorMessage?.let { error ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = error,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    // Action buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(
-                            onClick = onDismiss,
-                            enabled = !isLoading
-                        ) {
-                            Text(stringResource(id = R.string.cancel))
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(
-                            onClick = {
-                                // Clear previous errors
-                                costError = null
-                                errorMessage = null
-
-                                // Validate car selection first
-                                if (selectedCar == null) {
-                                    showCarError = true
-                                    errorMessage = context.getString(R.string.error_car_required)
-                                    return@Button
-                                }
-
-                                val costValue = cost.parseLocalizedDouble()
-
-                                // Validate cost
-                                if (costValue == null) {
-                                    costError = context.getString(R.string.error_cost_invalid)
-                                    return@Button
-                                }
-                                if (costValue <= 0) {
-                                    costError = context.getString(R.string.error_cost_positive)
-                                    return@Button
-                                }
-
-                                isLoading = true
-                                viewModel.saveQuickExpense(
-                                    cost = costValue,
-                                    category = category,
-                                    notes = notes.ifBlank { null },
-                                    timestamp = selectedDate,
-                                    onSuccess = onSuccess,
-                                    onError = {
-                                        isLoading = false
-                                        errorMessage = context.getString(R.string.error_saving_expense)
-                                    }
-                                )
-                            },
-                            enabled = !isLoading && cost.isNotBlank()
-                        ) {
-                            if (isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text(stringResource(id = R.string.add))
-                            }
-                        }
-                    }
                 }
-            } // Close Box
-        } // Close Dialog
-
-        // Date picker dialog
-        if (showDatePicker) {
-            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate)
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            datePickerState.selectedDateMillis?.let { selectedDate = it }
-                            showDatePicker = false
-                        }
-                    ) {
-                        Text(stringResource(id = R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text(stringResource(id = R.string.cancel))
-                    }
-                }
-            ) {
-                DatePicker(state = datePickerState)
             }
+
+            Spacer(Modifier.height(18.dp))
+
+            content()
         }
     }
 }
 
 /**
- * Voice Entry Dialog for quick widget voice input
- * Full implementation with voice recognition, parsing, and pre-fill
+ * Which car this is going on.
+ *
+ * Always visible, even with one car on file — from a home-screen widget the
+ * one thing you cannot check at a glance is what you are about to write to.
+ * It only opens a menu when there is actually a choice to make.
  */
 @Composable
-private fun QuickVoiceDialog(
-    viewModel: QuickEntryViewModel,
-    onDismiss: () -> Unit,
-    onSuccess: (amount: Double, timestamp: Long) -> Unit
+private fun CarPicker(
+    cars: List<Car>,
+    selected: Car?,
+    enabled: Boolean,
+    isError: Boolean,
+    onSelect: (Car) -> Unit
 ) {
-    val context = LocalContext.current
-    val voiceState by viewModel.voiceState.collectAsState()
-    val allCars by viewModel.allCars.collectAsState()
-    val selectedCar by viewModel.selectedCar.collectAsState()
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    var expanded by remember { mutableStateOf(false) }
+    val choosable = enabled && cars.size > 1
+    val shape = RoundedCornerShape(dimens.radius.chip)
 
-    // Auto-start voice recognition when dialog opens
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (voiceState is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle) {
-            viewModel.startVoiceEntry()
-        }
-    }
-
-    Dialog(
-        onDismissRequest = {
-            viewModel.cancelVoiceEntry()
-            onDismiss()
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
-        )
-    ) {
-        Box(
+    Box {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .wrapContentHeight()
-                .padding(16.dp)
+                .fillMaxWidth()
+                .clip(shape)
+                .background(scheme.backgroundSecondary)
+                .border(1.dp, if (isError) scheme.statusError else scheme.borderDefault, shape)
+                .then(
+                    if (choosable) Modifier.clickable { expanded = true } else Modifier
+                )
+                .padding(horizontal = 12.dp, vertical = 11.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    when (voiceState) {
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Idle -> {
-                            // Starting state
-                            CircularProgressIndicator()
-                            Text(
-                                text = stringResource(R.string.voice_initializing),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+            Icon(
+                imageVector = Icons.Default.DirectionsCar,
+                contentDescription = null,
+                tint = scheme.actionPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = selected?.name ?: stringResource(R.string.select_vehicle),
+                style = MaterialTheme.typography.titleSmall,
+                color = if (selected == null) scheme.contentSecondary else scheme.contentPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            selected?.let {
+                Spacer(Modifier.width(8.dp))
+                LicensePlateBadge(it.licensePlate)
+            }
+            if (choosable) {
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = scheme.contentSecondary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            if (cars.isEmpty()) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.no_cars_available)) },
+                    onClick = { },
+                    enabled = false
+                )
+            } else {
+                cars.forEach { car ->
+                    DropdownMenuItem(
+                        text = { Text(car.name) },
+                        trailingIcon = { LicensePlateBadge(car.licensePlate) },
+                        onClick = {
+                            onSelect(car)
+                            expanded = false
                         }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening -> {
-                            // Listening state
-                            Icon(
-                                painter = androidx.compose.ui.res.painterResource(R.drawable.ic_mic),
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-
-                            Text(
-                                text = stringResource(R.string.voice_listening),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            val listening = voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Listening
-                            val partialText = listening.partialText
-
-                            // Turns green field by field; recording ends by itself
-                            // once all three have been heard.
-                            VoiceCapturedFieldsRow(captured = listening.captured)
-
-                            if (partialText.isNotBlank()) {
-                                Text(
-                                    text = partialText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                OutlinedButton(
-                                    onClick = {
-                                        viewModel.cancelVoiceEntry()
-                                        onDismiss()
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(stringResource(R.string.cancel))
-                                }
-
-                                Button(
-                                    onClick = { viewModel.stopVoiceRecording() },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(stringResource(R.string.voice_stop))
-                                }
-                            }
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Processing -> {
-                            // Processing state
-                            CircularProgressIndicator()
-                            Text(
-                                text = stringResource(R.string.voice_processing),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed -> {
-                            // Success - show parsed data and transition to refill form
-                            val parsedData = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Parsed).data
-
-                            Text(
-                                text = stringResource(R.string.voice_parsed_success),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            // Show parsed values
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                parsedData.cost?.let {
-                                    Text("Cost: ${it.formatMoney()}")
-                                }
-                                parsedData.liters?.let {
-                                    Text("Liters: ${it.formatNumber(1)} L")
-                                }
-                                parsedData.distance?.let {
-                                    Text("Distance: ${it.formatNumber(0)} km")
-                                }
-                            }
-
-                            // Apply parsed data and close
-                            androidx.compose.runtime.LaunchedEffect(Unit) {
-                                viewModel.confirmVoiceParsedData()
-                                kotlinx.coroutines.delay(500) // Brief delay to show success
-                                // Get the filled values and save
-                                val amount = parsedData.cost ?: 0.0
-                                if (amount > 0) {
-                                    onSuccess(amount, System.currentTimeMillis())
-                                } else {
-                                    onDismiss()
-                                }
-                            }
-                        }
-
-                        is com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error -> {
-                            // Error state
-                            val error = (voiceState as com.agcoding.cartrackingapp.presentation.refill.VoiceRefillState.Error).message
-
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.error
-                            )
-
-                            Text(
-                                text = stringResource(R.string.voice_error),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Text(
-                                text = error,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                TextButton(
-                                    onClick = onDismiss,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(stringResource(R.string.cancel))
-                                }
-
-                                Button(
-                                    onClick = { viewModel.startVoiceEntry() },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(stringResource(R.string.retry))
-                                }
-                            }
-                        }
-                    }
+                    )
                 }
             }
         }
+    }
+
+    if (isError) {
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.error_car_required),
+            style = MaterialTheme.typography.bodySmall,
+            color = scheme.statusError
+        )
+    }
+}
+
+@Composable
+private fun DateField(timestamp: Long, enabled: Boolean, onClick: () -> Unit) {
+    val formatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+
+    Box {
+        AppTextField(
+            value = formatter.format(Date(timestamp)),
+            onValueChange = { },
+            label = { Text(stringResource(R.string.date_label)) },
+            readOnly = true,
+            singleLine = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = stringResource(R.string.select_date)
+                )
+            },
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth()
+        )
+        // Over the whole field rather than only the icon: a read-only field
+        // that opens a picker should open it wherever it is tapped.
+        if (enabled) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(onClick = onClick)
+            )
+        }
+    }
+}
+
+/**
+ * Voice entry, in four states.
+ *
+ * At rest it is one button. While it is listening the three pills say which of
+ * cost, litres and distance have been heard — recording stops by itself once
+ * all three have — and the partial transcript runs underneath.
+ */
+@Composable
+private fun VoiceSection(
+    state: VoiceRefillState,
+    onStart: () -> Unit,
+    onStop: () -> Unit,
+    onCancel: () -> Unit,
+    enabled: Boolean
+) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+
+    when (state) {
+        is VoiceRefillState.Idle -> TonalButton(
+            label = stringResource(R.string.quick_entry_voice_prompt),
+            onClick = onStart,
+            icon = Icons.Default.Mic,
+            enabled = enabled,
+            contentColor = scheme.actionPrimary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        is VoiceRefillState.Listening -> VoicePanel(
+            icon = Icons.Default.Mic,
+            title = stringResource(R.string.voice_listening),
+            tint = scheme.actionPrimary
+        ) {
+            VoiceCapturedFieldsRow(captured = state.captured)
+
+            if (state.partialText.isNotBlank()) {
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = state.partialText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scheme.contentPrimary
+                )
+            }
+
+            Spacer(Modifier.height(dimens.spacing.md))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TonalButton(
+                    label = stringResource(R.string.cancel),
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                )
+                PrimaryButton(
+                    label = stringResource(R.string.voice_stop),
+                    onClick = onStop,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        is VoiceRefillState.Processing -> VoicePanel(
+            icon = null,
+            title = stringResource(R.string.voice_processing),
+            tint = scheme.actionPrimary
+        ) {
+            Text(
+                text = state.transcript,
+                style = MaterialTheme.typography.bodyMedium,
+                color = scheme.contentSecondary
+            )
+        }
+
+        is VoiceRefillState.Error -> VoicePanel(
+            icon = Icons.Default.MicOff,
+            title = stringResource(R.string.voice_error),
+            tint = scheme.statusError
+        ) {
+            Text(
+                text = state.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = scheme.contentSecondary
+            )
+
+            Spacer(Modifier.height(dimens.spacing.md))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TonalButton(
+                    label = stringResource(R.string.cancel),
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                )
+                PrimaryButton(
+                    label = stringResource(R.string.retry),
+                    onClick = onStart,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        // Parsed is a flicker: the values are copied into the fields and the
+        // state is reset in the same frame, so there is nothing to draw.
+        is VoiceRefillState.Parsed -> Unit
+    }
+}
+
+@Composable
+private fun VoicePanel(
+    icon: ImageVector?,
+    title: String,
+    tint: Color,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val shape = RoundedCornerShape(dimens.radius.tile)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(scheme.backgroundSecondary)
+            .border(1.dp, scheme.borderDefault, shape)
+            .padding(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = tint,
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = tint
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.contentPrimary
+            )
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        content()
+    }
+}
+
+/** Whatever went wrong with the save, in the app's error colour. */
+@Composable
+private fun ErrorNotice(message: String?) {
+    if (message == null) return
+
+    val scheme = LocalAppColorScheme.current
+    val dimens = LocalAppDimens.current
+    val shape = RoundedCornerShape(dimens.radius.button)
+
+    Spacer(Modifier.height(FieldGap))
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(scheme.statusErrorSubtle)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.ErrorOutline,
+            contentDescription = null,
+            tint = scheme.statusError,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = scheme.contentPrimary
+        )
+    }
+}
+
+/**
+ * Cancel and the confirming action, side by side and of equal width.
+ *
+ * They used to be a text button and a button huddled in the bottom-right
+ * corner — two small targets on a dialog opened one-handed from the home
+ * screen, which is the worst place in the app for them.
+ */
+@Composable
+private fun DialogActions(
+    confirmLabel: String,
+    confirmEnabled: Boolean,
+    isBusy: Boolean,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        TonalButton(
+            label = stringResource(R.string.cancel),
+            onClick = onCancel,
+            enabled = !isBusy,
+            modifier = Modifier.weight(1f)
+        )
+        PrimaryButton(
+            label = confirmLabel,
+            onClick = onConfirm,
+            enabled = confirmEnabled,
+            isBusy = isBusy,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerSheet(
+    visible: Boolean,
+    timestamp: Long,
+    onDismiss: () -> Unit,
+    onPicked: (Long) -> Unit
+) {
+    if (!visible) return
+
+    val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    state.selectedDateMillis?.let(onPicked)
+                    onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    ) {
+        DatePicker(state = state)
     }
 }
 
@@ -1522,60 +1097,82 @@ private fun QuickVoiceDialog(
 // ============================================
 
 private val previewCars = listOf(
-    com.agcoding.cartrackingapp.domain.model.Car(
+    Car(
         id = 1,
-        name = "Corolla",
+        name = "Toyota Corolla",
         licensePlate = "ABC-1234",
         currentOdometer = 124_500.0,
         initialOdometer = 90_000.0
     ),
-    com.agcoding.cartrackingapp.domain.model.Car(
+    Car(
         id = 2,
-        name = "Golf",
+        name = "Volkswagen Golf",
         licensePlate = "XYZ-9876",
         currentOdometer = 84_000.0,
         initialOdometer = 12_000.0
     )
 )
 
-@Preview(name = "Car selector", showBackground = true, widthDp = 400)
+@Preview(name = "Car picker", showBackground = true, widthDp = 390)
 @Composable
-private fun PreviewCarSelector() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarSelector(
-            cars = previewCars,
-            selectedCar = previewCars.first(),
-            onCarSelected = {},
-            showError = false,
-            enabled = true
-        )
-    }
-}
-
-@Preview(name = "Car selector - error", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewCarSelectorError() {
-    CarTrackingAppTheme(darkTheme = false) {
-        CarSelector(
-            cars = previewCars,
-            selectedCar = null,
-            onCarSelected = {},
-            showError = true,
-            enabled = true
-        )
-    }
-}
-
-@Preview(name = "Car selector - disabled", showBackground = true, widthDp = 400)
-@Composable
-private fun PreviewCarSelectorDisabled() {
+private fun PreviewCarPicker() {
     CarTrackingAppTheme(darkTheme = true) {
-        CarSelector(
-            cars = previewCars,
-            selectedCar = previewCars.last(),
-            onCarSelected = {},
-            showError = false,
-            enabled = false
-        )
+        Column(Modifier.padding(18.dp)) {
+            CarPicker(
+                cars = previewCars,
+                selected = previewCars.first(),
+                enabled = true,
+                isError = false,
+                onSelect = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "Car picker — none chosen", showBackground = true, widthDp = 390)
+@Composable
+private fun PreviewCarPickerError() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(Modifier.padding(18.dp)) {
+            CarPicker(
+                cars = previewCars,
+                selected = null,
+                enabled = true,
+                isError = true,
+                onSelect = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "Voice — listening", showBackground = true, widthDp = 390)
+@Composable
+private fun PreviewVoiceListening() {
+    CarTrackingAppTheme(darkTheme = true) {
+        Column(Modifier.padding(18.dp)) {
+            VoiceSection(
+                state = VoiceRefillState.Listening(partialText = "thirty six litres, sixty four euros"),
+                onStart = {},
+                onStop = {},
+                onCancel = {},
+                enabled = true
+            )
+        }
+    }
+}
+
+@Preview(name = "Voice — error", showBackground = true, widthDp = 390)
+@Composable
+private fun PreviewVoiceError() {
+    CarTrackingAppTheme(darkTheme = false) {
+        Column(Modifier.padding(18.dp)) {
+            VoiceSection(
+                state = VoiceRefillState.Error("No litres or cost found."),
+                onStart = {},
+                onStop = {},
+                onCancel = {},
+                enabled = true
+            )
+        }
     }
 }

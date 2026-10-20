@@ -1,84 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  What the widget picker shows before the widget is placed.
+
+  It has to match the real thing closely enough that the picker is a decision
+  rather than a surprise, so it is the 2×2 layout: car, plate, the month's
+  spend, three buttons. The colours come from values/colors.xml because the
+  launcher inflates this with no access to the user's chosen palette.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_preview_background"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="14dp">
 
-    <!-- App Branding -->
-    <LinearLayout
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/widget_preview_car"
+        android:textColor="@color/widget_preview_content"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/widget_button_background"
+        android:paddingStart="5dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="2dp"
+        android:text="@string/widget_preview_plate"
+        android:textColor="@color/widget_preview_muted"
+        android:textSize="10sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_preview_month"
+        android:textColor="@color/widget_preview_muted"
+        android:textSize="11sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_preview_amount"
+        android:textColor="@color/widget_preview_content"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:contentDescription="@string/app_name"
-            android:src="@mipmap/ic_launcher_cariboo1_monochrome"
-            app:tint="#B9F6CA" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/app_name"
-            android:textColor="#B9F6CA"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Action Buttons Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <!-- Add Fuel Button -->
-        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/widget_button_background_primary"
+            android:contentDescription="@string/widget_add_fuel"
+            android:padding="11dp"
+            android:src="@drawable/ic_refill"
+            android:tint="@color/widget_preview_on_accent" />
+
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/widget_button_background"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:contentDescription="@string/widget_add_expense"
+            android:padding="11dp"
+            android:src="@drawable/ic_receipt_24dp"
+            android:tint="@color/widget_preview_accent" />
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="@string/widget_add_fuel"
-                android:src="@drawable/ic_refill"
-                android:tint="@color/black" />
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="match_parent" />
 
-        </LinearLayout>
-
-
-        <!-- Add Expense Button -->
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="4dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/widget_button_background"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="@string/widget_add_expense"
-                android:src="@drawable/ic_receipt_24dp"
-                android:tint="@color/black" />
-
-        </LinearLayout>
-
+            android:contentDescription="@string/widget_voice_entry"
+            android:padding="11dp"
+            android:src="@drawable/ic_mic"
+            android:tint="@color/widget_preview_accent" />
     </LinearLayout>
 
 </LinearLayout>
-

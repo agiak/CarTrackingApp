@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The 1×1 expense shortcut: the quiet half, on the app's own surface. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_shortcut_background">
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/widget_add_expense"
+        android:src="@drawable/ic_receipt_24dp"
+        android:tint="@color/widget_preview_accent" />
+
+</FrameLayout>

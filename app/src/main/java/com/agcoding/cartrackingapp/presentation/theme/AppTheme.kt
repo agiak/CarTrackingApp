@@ -1,5 +1,6 @@
 package com.agcoding.cartrackingapp.presentation.theme
 
+import android.content.Context
 import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -35,52 +36,8 @@ fun AppTheme(
 ) {
     val context = LocalContext.current
 
-    // Build AppColorScheme: BrandTokens path for default/ocean, Material3 dynamic
-    // for SYSTEM, and primary-tinting for all other existing palettes.
-    val appColorScheme: AppColorScheme = if (colorPalette == ColorPalette.SYSTEM) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val m3 = if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            remember(isDark) {
-                AppColorScheme(
-                    backgroundPrimary      = m3.background,
-                    backgroundSecondary    = m3.surfaceVariant,
-                    // m3.surface is the background colour itself, so cards on it vanished.
-                    backgroundCard         = m3.surfaceContainer,
-                    backgroundOverlay      = Color.Black.copy(alpha = if (isDark) 0.6f else 0.4f),
-                    contentPrimary         = m3.onBackground,
-                    contentSecondary       = m3.onSurfaceVariant,
-                    contentDisabled        = m3.onSurfaceVariant.copy(alpha = 0.5f),
-                    actionPrimary          = m3.primary,
-                    actionPrimaryHover     = m3.primaryContainer,
-                    actionContent          = m3.onPrimary,
-                    actionSecondary        = m3.primaryContainer,
-                    actionSecondaryContent = m3.onPrimaryContainer,
-                    // outline is Material's strong border; every card now carries this one.
-                    borderDefault          = m3.outlineVariant,
-                    borderFocused          = m3.primary,
-                    borderStrong           = m3.outline,
-                    statusSuccess          = if (isDark) Color(0xFF5DCAA5) else Color(0xFF1D9E75),
-                    statusSuccessSubtle    = (if (isDark) Color(0xFF5DCAA5) else Color(0xFF1D9E75)).copy(alpha = 0.12f),
-                    statusError            = m3.error,
-                    statusErrorSubtle      = m3.error.copy(alpha = 0.12f),
-                    statusWarning          = if (isDark) Color(0xFFFAC775) else Color(0xFFEF9F27),
-                    statusWarningSubtle    = (if (isDark) Color(0xFFFAC775) else Color(0xFFEF9F27)).copy(alpha = 0.12f),
-                )
-            }
-        } else {
-            remember(isDark) { buildColorScheme(DefaultBrandTokens, isDark) }
-        }
-    } else {
-        remember(colorPalette, isDark) {
-            when (colorPalette) {
-                ColorPalette.DEFAULT_BLUE -> buildColorScheme(DefaultBrandTokens, isDark)
-                ColorPalette.OCEAN_TEAL   -> buildColorScheme(OceanTealBrandTokens, isDark)
-                else -> buildAppColorSchemeFromPrimary(
-                    primary = colorPalette.primaryColor(isDark),
-                    isDark  = isDark,
-                )
-            }
-        }
+    val appColorScheme: AppColorScheme = remember(colorPalette, isDark) {
+        resolveAppColorScheme(context, colorPalette, isDark)
     }
 
     CompositionLocalProvider(
@@ -94,6 +51,64 @@ fun AppTheme(
             content     = content,
         )
     }
+}
+
+/**
+ * The palette the user picked, resolved into the app's semantic roles.
+ *
+ * Deliberately not a composable. The home-screen widget has to paint itself in
+ * the same colours as the app, and Glance composes in its own world with no
+ * `MaterialTheme` and no `LocalAppColorScheme` to read from — it only has a
+ * `Context`. Leaving this logic inside [AppTheme] would have meant a second
+ * copy of it in the widget, and two copies of a colour decision drift apart
+ * the first time either is touched.
+ *
+ * BrandTokens for default/ocean, Material3 dynamic colour for SYSTEM on
+ * Android 12+, and primary-tinting for every other palette.
+ */
+fun resolveAppColorScheme(
+    context: Context,
+    colorPalette: ColorPalette,
+    isDark: Boolean,
+): AppColorScheme = when {
+    colorPalette == ColorPalette.SYSTEM && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        val m3 = if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        AppColorScheme(
+            backgroundPrimary      = m3.background,
+            backgroundSecondary    = m3.surfaceVariant,
+            // m3.surface is the background colour itself, so cards on it vanished.
+            backgroundCard         = m3.surfaceContainer,
+            backgroundOverlay      = Color.Black.copy(alpha = if (isDark) 0.6f else 0.4f),
+            contentPrimary         = m3.onBackground,
+            contentSecondary       = m3.onSurfaceVariant,
+            contentDisabled        = m3.onSurfaceVariant.copy(alpha = 0.5f),
+            actionPrimary          = m3.primary,
+            actionPrimaryHover     = m3.primaryContainer,
+            actionContent          = m3.onPrimary,
+            actionSecondary        = m3.primaryContainer,
+            actionSecondaryContent = m3.onPrimaryContainer,
+            // outline is Material's strong border; every card now carries this one.
+            borderDefault          = m3.outlineVariant,
+            borderFocused          = m3.primary,
+            borderStrong           = m3.outline,
+            statusSuccess          = if (isDark) Color(0xFF5DCAA5) else Color(0xFF1D9E75),
+            statusSuccessSubtle    = (if (isDark) Color(0xFF5DCAA5) else Color(0xFF1D9E75)).copy(alpha = 0.12f),
+            statusError            = m3.error,
+            statusErrorSubtle      = m3.error.copy(alpha = 0.12f),
+            statusWarning          = if (isDark) Color(0xFFFAC775) else Color(0xFFEF9F27),
+            statusWarningSubtle    = (if (isDark) Color(0xFFFAC775) else Color(0xFFEF9F27)).copy(alpha = 0.12f),
+        )
+    }
+
+    colorPalette == ColorPalette.SYSTEM ||
+        colorPalette == ColorPalette.DEFAULT_BLUE -> buildColorScheme(DefaultBrandTokens, isDark)
+
+    colorPalette == ColorPalette.OCEAN_TEAL -> buildColorScheme(OceanTealBrandTokens, isDark)
+
+    else -> buildAppColorSchemeFromPrimary(
+        primary = colorPalette.primaryColor(isDark),
+        isDark  = isDark,
+    )
 }
 
 // ── ColorPalette → primary color bridge ──────────────────────────────────────

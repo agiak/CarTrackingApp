@@ -95,10 +95,17 @@
             android:excludeFromRecents="true"
             android:taskAffinity="" />
 
-        <!-- Widget Configuration Activity -->
+        <!--
+          Widget configuration, shown when the quick-add widget is dropped on
+          the home screen and again from its reconfigure gesture.
+
+          Exported because the launcher — another app — is what starts it.
+          It does nothing but read EXTRA_APPWIDGET_ID and store which car that
+          widget belongs to, and finishes immediately if the id is missing.
+        -->
         <activity
             android:name=".widget.QuickAddWidgetConfigActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.CarTrackingApp">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
