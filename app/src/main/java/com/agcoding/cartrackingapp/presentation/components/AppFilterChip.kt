@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,13 +86,15 @@ fun AppFilterChip(
                 )
             )
             .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.4f)
             .padding(horizontal = 14.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            color = content,
+            // Dimmed by colour rather than by a layer over the chip: the layer
+            // came after `background` in the chain, so it faded the label and
+            // left the fill alone. See PrimaryButton.
+            color = if (enabled) content else scheme.contentDisabled,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

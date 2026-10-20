@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
+import com.agcoding.cartrackingapp.shared.ui.tokens.readableContent
 
 /** How tall every full-width action in the redesign is. */
 private val ButtonHeight = 52.dp
@@ -66,20 +66,34 @@ fun PrimaryButton(
     val dimens = LocalAppDimens.current
     // A busy button is not a disabled one, but it must not be pressed twice.
     val clickable = enabled && !isBusy
-    val container = if (destructive) scheme.statusError else scheme.actionPrimary
-    // White on the error red as well: actionContent is whatever reads on the
-    // accent, which is not guaranteed to read on red.
-    val content = if (destructive) Color.White else scheme.actionContent
+    val shape = RoundedCornerShape(dimens.radius.button + 2.dp)
+
+    val accent = if (destructive) scheme.statusError else scheme.actionPrimary
+    // Disabled is a pair of colours, not a `Modifier.alpha` over the finished
+    // button. The alpha layer sat after `background` in the chain, so it faded
+    // the label and left the fill at full strength — a disabled button came
+    // out louder than an enabled one, with ghost text on it.
+    val container = if (enabled) accent else accent.copy(alpha = 0.30f)
+    val content = when {
+        !enabled -> scheme.contentSecondary.copy(alpha = 0.7f)
+        // Worked out from the red rather than borrowed from the accent: in
+        // dark mode statusError is a pale pink (#F09595), on which the white
+        // this used to hardcode scores 2.2:1.
+        destructive -> scheme.statusError.readableContent()
+        else -> scheme.actionContent
+    }
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxWidth()
             .height(ButtonHeight)
-            .clip(RoundedCornerShape(dimens.radius.button + 2.dp))
-            .background(container)
-            .clickable(enabled = clickable, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.4f),
+            // The fill is a plain draw, shaped in place. Clipping first put it
+            // inside a graphics layer for no reason: the only thing that has
+            // to be clipped here is the ripple.
+            .background(container, shape)
+            .clip(shape)
+            .clickable(enabled = clickable, onClick = onClick),
     ) {
         if (isBusy) {
             CircularProgressIndicator(
@@ -131,17 +145,22 @@ fun TonalButton(
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
-    val content = contentColor ?: scheme.contentPrimary
+    val shape = RoundedCornerShape(dimens.radius.button + 2.dp)
+    val ink = contentColor ?: scheme.contentPrimary
+    // See [PrimaryButton]: the state is in the colours, not in a layer over
+    // the top of them.
+    val container =
+        if (enabled) scheme.backgroundSecondary else scheme.backgroundSecondary.copy(alpha = 0.5f)
+    val content = if (enabled) ink else scheme.contentSecondary.copy(alpha = 0.7f)
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxWidth()
             .height(ButtonHeight)
-            .clip(RoundedCornerShape(dimens.radius.button + 2.dp))
-            .background(scheme.backgroundSecondary)
-            .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.4f),
+            .background(container, shape)
+            .clip(shape)
+            .clickable(enabled = enabled, onClick = onClick),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
@@ -181,13 +200,12 @@ fun AppTextButton(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.4f)
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleSmall,
-            color = scheme.actionPrimary,
+            color = if (enabled) scheme.actionPrimary else scheme.contentDisabled,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

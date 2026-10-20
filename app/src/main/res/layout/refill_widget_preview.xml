@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The 1×1 refill shortcut as the picker shows it: the filled half of the pair. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_shortcut_background_primary">
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/widget_add_fuel"
+        android:src="@drawable/ic_refill"
+        android:tint="@color/widget_preview_on_accent" />
+
+</FrameLayout>

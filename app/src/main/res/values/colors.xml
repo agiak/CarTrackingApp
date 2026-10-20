@@ -9,4 +9,18 @@
     <color name="white">#FFFFFFFF</color>
     <color name="ic_launcher_background">#1878A8</color>
     <color name="ic_launcher_alt_background">#E8F8F8</color>
+    <!--
+      The widget picker's preview.
+
+      The launcher renders these layouts from resources alone, long before the
+      app can tell it which palette the user picked, so the preview shows the
+      default blue one. The live widget takes its colours from the user's
+      choice (see WidgetTheme.kt).
+    -->
+    <color name="widget_preview_surface">#EDF4FB</color>
+    <color name="widget_preview_field">#C8DEF4</color>
+    <color name="widget_preview_accent">#1976D2</color>
+    <color name="widget_preview_on_accent">#FFFFFF</color>
+    <color name="widget_preview_content">#1A1C1E</color>
+    <color name="widget_preview_muted">#5F5E5A</color>
 </resources>

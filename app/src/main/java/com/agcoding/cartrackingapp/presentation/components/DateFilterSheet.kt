@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -293,14 +292,25 @@ private fun RowScope.GridCell(
             .weight(1f)
             .height(40.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) scheme.actionPrimary else scheme.backgroundSecondary)
-            .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.28f),
+            .background(
+                when {
+                    !enabled -> scheme.backgroundSecondary.copy(alpha = 0.4f)
+                    selected -> scheme.actionPrimary
+                    else -> scheme.backgroundSecondary
+                }
+            )
+            .clickable(enabled = enabled, onClick = onClick),
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            color = if (selected) scheme.actionContent else scheme.contentPrimary,
+            // See PrimaryButton: a `Modifier.alpha` after `background` fades
+            // only what the Box contains, never the fill behind it.
+            color = when {
+                !enabled -> scheme.contentDisabled
+                selected -> scheme.actionContent
+                else -> scheme.contentPrimary
+            },
             maxLines = 1,
             textAlign = TextAlign.Center,
         )

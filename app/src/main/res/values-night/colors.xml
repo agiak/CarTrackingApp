@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- See values/colors.xml: the same preview, one step along the dark ladder. -->
+    <color name="widget_preview_surface">#0E2A46</color>
+    <color name="widget_preview_field">#113A62</color>
+    <color name="widget_preview_accent">#1976D2</color>
+    <color name="widget_preview_on_accent">#FFFFFF</color>
+    <color name="widget_preview_content">#F9F9FB</color>
+    <color name="widget_preview_muted">#D3D1C7</color>
+</resources>

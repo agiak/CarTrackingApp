@@ -4,9 +4,9 @@
     android:minWidth="40dp"
     android:minHeight="40dp"
     android:previewImage="@drawable/ic_refill"
+    android:previewLayout="@layout/refill_widget_preview"
     android:resizeMode="none"
     android:targetCellWidth="1"
     android:targetCellHeight="1"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen" />
-

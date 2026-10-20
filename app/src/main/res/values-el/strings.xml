@@ -11,9 +11,31 @@
     <string name="widget_no_car">Δεν υπάρχουν διαθέσιμα οχήματα</string>
     <string name="widget_add_car_first">Ανοίξτε την εφαρμογή για να προσθέσετε το πρώτο σας αυτοκίνητο</string>
     <string name="widget_this_month">Αυτόν το μήνα: %1$s</string>
-    <string name="widget_preview_transaction">Ανεφοδιασμός</string>
-    <string name="widget_preview_amount">70,00 €</string>
-    <string name="widget_preview_details">12/02/2026 • Toyota Corolla</string>
+    <string name="widget_preview_car">Toyota Corolla</string>
+    <string name="widget_preview_plate">ABC-1234</string>
+    <string name="widget_preview_month">Οκτώβριος</string>
+    <string name="widget_preview_amount">214,60 €</string>
+
+    <!-- Widget face -->
+    <string name="widget_spent_in">Δαπάνες %1$s</string>
+    <string name="widget_last_refill">Τελευταίος ανεφοδιασμός</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">Ρύθμιση widget</string>
+    <string name="widget_config_subtitle">Οι ανεφοδιασμοί και τα έξοδα από αυτό το widget καταχωρούνται στο αυτοκίνητο που θα επιλέξετε.</string>
+    <string name="widget_config_car">Αυτοκίνητο</string>
+    <string name="widget_config_shown">Εμφάνιση στο widget</string>
+    <string name="widget_config_spend">Δαπάνες του μήνα</string>
+    <string name="widget_config_spend_description">Ανεφοδιασμοί και έξοδα του αυτοκινήτου</string>
+    <string name="widget_config_voice">Κουμπί φωνητικής καταχώρησης</string>
+    <string name="widget_config_voice_description">Απαιτεί άδεια μικροφώνου</string>
+    <string name="widget_config_add">Προσθήκη widget</string>
+
+    <!-- Quick entry -->
+    <string name="quick_entry_refill_title">Προσθήκη ανεφοδιασμού</string>
+    <string name="quick_entry_expense_title">Προσθήκη εξόδου</string>
+    <string name="quick_entry_from_widget">Από το widget της αρχικής οθόνης</string>
+    <string name="quick_entry_voice_prompt">Πείτε το με τη φωνή σας</string>
 
     <!-- 1x1 Widgets -->
     <string name="refill_widget_label">Προσθήκη Ανεφοδιασμού</string>

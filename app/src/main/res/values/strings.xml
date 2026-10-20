@@ -10,9 +10,31 @@
     <string name="widget_no_car">No cars available</string>
     <string name="widget_add_car_first">Open the app to add your first car</string>
     <string name="widget_this_month">This month: %1$s</string>
-    <string name="widget_preview_transaction">Refill</string>
-    <string name="widget_preview_amount">70,00 €</string>
-    <string name="widget_preview_details">12/02/2026 • Toyota Corolla</string>
+    <string name="widget_preview_car">Toyota Corolla</string>
+    <string name="widget_preview_plate">ABC-1234</string>
+    <string name="widget_preview_month">October</string>
+    <string name="widget_preview_amount">214,60 €</string>
+
+    <!-- Widget face -->
+    <string name="widget_spent_in">Spent in %1$s</string>
+    <string name="widget_last_refill">Last refill</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">Set up widget</string>
+    <string name="widget_config_subtitle">Refills and expenses added from this widget go to the car you pick.</string>
+    <string name="widget_config_car">Car</string>
+    <string name="widget_config_shown">Show on widget</string>
+    <string name="widget_config_spend">Spend this month</string>
+    <string name="widget_config_spend_description">Refills and expenses for the car</string>
+    <string name="widget_config_voice">Voice entry button</string>
+    <string name="widget_config_voice_description">Needs microphone permission</string>
+    <string name="widget_config_add">Add widget</string>
+
+    <!-- Quick entry -->
+    <string name="quick_entry_refill_title">Add refill</string>
+    <string name="quick_entry_expense_title">Add expense</string>
+    <string name="quick_entry_from_widget">From the home screen widget</string>
+    <string name="quick_entry_voice_prompt">Say it instead</string>
 
     <!-- 1x1 Widgets -->
     <string name="refill_widget_label">Add Refill</string>
