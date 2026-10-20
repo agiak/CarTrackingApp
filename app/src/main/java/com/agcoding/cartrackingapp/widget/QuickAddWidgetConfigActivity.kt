@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -209,6 +210,11 @@ private fun WidgetConfigScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(scheme.backgroundPrimary)
+            // Below the status bar, above the gesture pill. The screen is
+            // launched by the launcher rather than from inside the app, so it
+            // gets no insets from anywhere else — without this the close
+            // button sits under the clock.
+            .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = dimens.spacing.screenHorizontal)
             .padding(top = 12.dp, bottom = 28.dp)

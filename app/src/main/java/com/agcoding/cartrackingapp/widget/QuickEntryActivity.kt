@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -665,12 +666,18 @@ private fun QuickEntryCard(
         Column(
             modifier = Modifier
                 .padding(horizontal = 14.dp)
+                // A long form — the expense one, with every category chip —
+                // would otherwise run under the status bar.
+                .safeDrawingPadding()
                 .widthIn(max = maxWidth)
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .clip(RoundedCornerShape(dimens.radius.sheet))
-                .background(scheme.backgroundCard)
+                // Filled and outlined in place, then clipped — so the fill is
+                // a plain draw rather than something inside a graphics layer,
+                // and the clip is there only to bound the scrolling content.
+                .background(scheme.backgroundCard, RoundedCornerShape(dimens.radius.sheet))
                 .border(1.dp, scheme.borderDefault, RoundedCornerShape(dimens.radius.sheet))
+                .clip(RoundedCornerShape(dimens.radius.sheet))
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp, vertical = 20.dp)
         ) {

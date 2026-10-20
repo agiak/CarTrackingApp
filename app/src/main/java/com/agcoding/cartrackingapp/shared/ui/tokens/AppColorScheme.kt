@@ -56,7 +56,7 @@ private fun lightScheme(b: BrandTokens) = AppColorScheme(
     contentDisabled        = b.neutral400,
     actionPrimary          = b.primary400,
     actionPrimaryHover     = b.primary600,
-    actionContent          = Color.White,
+    actionContent          = b.primary400.readableContent(),
     actionSecondary        = b.primary50,
     actionSecondaryContent = b.primary600,
     // From the primary, like the surfaces it outlines. The neutral ramp is
@@ -85,7 +85,7 @@ private fun darkScheme(b: BrandTokens) = AppColorScheme(
     contentDisabled        = b.neutral400,
     actionPrimary          = b.primary400,
     actionPrimaryHover     = b.primary200,
-    actionContent          = Color.White,
+    actionContent          = b.primary400.readableContent(),
     actionSecondary        = b.primary800,
     actionSecondaryContent = b.primary200,
     // Lighter than in light mode: a 12% line disappears against a dark
@@ -145,7 +145,7 @@ fun buildAppColorSchemeFromPrimary(primary: Color, isDark: Boolean): AppColorSch
             contentDisabled        = DARK_CONTENT_DISABLED,
             actionPrimary          = primary,
             actionPrimaryHover     = primary.copy(alpha = 0.75f),
-            actionContent          = Color.White,
+            actionContent          = primary.readableContent(),
             actionSecondary        = primary.copy(alpha = 0.15f),
             actionSecondaryContent = primary,
             borderDefault          = primary.copy(alpha = 0.15f),
@@ -173,7 +173,7 @@ fun buildAppColorSchemeFromPrimary(primary: Color, isDark: Boolean): AppColorSch
             contentDisabled        = LIGHT_CONTENT_DISABLED,
             actionPrimary          = primary,
             actionPrimaryHover     = primary.copy(alpha = 0.80f),
-            actionContent          = Color.White,
+            actionContent          = primary.readableContent(),
             actionSecondary        = primary.copy(alpha = 0.12f),
             actionSecondaryContent = primary,
             borderDefault          = primary.copy(alpha = 0.12f),
@@ -227,7 +227,7 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,
-        onError              = Color.White,
+        onError              = statusError.readableContent(),
     ) else lightColorScheme(
         primary              = actionPrimary,
         onPrimary            = actionContent,
@@ -263,11 +263,36 @@ fun AppColorScheme.toMaterial3ColorScheme(): ColorScheme {
         outline              = borderDefault,
         outlineVariant       = borderDefault.copy(alpha = 0.7f),
         error                = statusError,
-        onError              = Color.White,
+        onError              = statusError.readableContent(),
     )
 }
 
 // ── Color helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * The ink to print on this colour: white on a dark fill, near-black on a light
+ * one.
+ *
+ * `actionContent` used to be `Color.White` for every palette, and that is a
+ * statement about light mode only. In dark mode a palette's accent is its
+ * *light* tint — Royal Purple's is `#BA68C8` — and white on it scores 3.6:1,
+ * under the 4.5 the text needs, while black scores 5.9. Every accent-filled
+ * thing in the app read that way in the dark: the primary button, the month
+ * summary, selected chips, the segmented control, the widget's own buttons.
+ *
+ * The threshold is 0.22 rather than the 0.179 where the two contrasts actually
+ * cross over. Right at the crossover the choice is a coin toss decided by the
+ * last digit of a luminance — the default blue, `#1976D2`, computes to 0.178 —
+ * and a button whose label flips from white to black because a palette moved
+ * one shade is worse than a few tenths of a point of contrast. 0.22 keeps
+ * white on every mid-tone accent and switches only where the fill is plainly
+ * light.
+ */
+fun Color.readableContent(): Color =
+    if (luminance() > 0.22f) READABLE_INK else Color.White
+
+/** Not pure black: the same ink the light palettes set text in. */
+private val READABLE_INK = Color(0xFF1A1C1E)
 
 private fun Color.tintWithWhite(amount: Float): Color = Color(
     red   = red   * amount + 1f * (1f - amount),
