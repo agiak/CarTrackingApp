@@ -2,6 +2,7 @@ package com.agcoding.cartrackingapp.widget
 
 import android.content.Context
 import androidx.glance.color.ColorProvider
+import androidx.glance.unit.ColorProvider
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
