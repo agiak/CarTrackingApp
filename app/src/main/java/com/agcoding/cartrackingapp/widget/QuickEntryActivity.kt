@@ -61,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -69,6 +70,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -80,7 +82,7 @@ import com.agcoding.cartrackingapp.presentation.components.AppFilterChip
 import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
-import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
+import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.components.TonalButton
 import com.agcoding.cartrackingapp.presentation.editrefill.components.CalculatedValuesCard
@@ -90,6 +92,7 @@ import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import com.agcoding.cartrackingapp.util.formatForDecimalInput
+import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.AndroidEntryPoint
@@ -129,25 +132,21 @@ class QuickEntryActivity : AppCompatActivity() {
 
         setContent {
             QuickEntryTheme {
-                // The confirmation to play, and the work to run once it has
-                // finished, so the widget shows the same success animation as
-                // the in-app screens before closing.
-                var successState by remember { mutableStateOf<Pair<Int, () -> Unit>?>(null) }
-
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(LocalAppColorScheme.current.backgroundOverlay),
                     contentAlignment = Alignment.Center
                 ) {
+                    // Each form plays the confirmation inside its own card and
+                    // calls back once it has finished, so by the time we are
+                    // here there is nothing left to show.
                     if (action == ACTION_ADD_EXPENSE) {
                         QuickExpenseDialog(
                             viewModel = viewModel,
                             onDismiss = { finish() },
                             onSaved = { amount, timestamp ->
-                                successState = R.string.expense_saved to {
-                                    complete(TYPE_EXPENSE, amount, timestamp)
-                                }
+                                complete(TYPE_EXPENSE, amount, timestamp)
                             }
                         )
                     } else {
@@ -158,18 +157,8 @@ class QuickEntryActivity : AppCompatActivity() {
                             autoStartVoice = action == ACTION_VOICE,
                             onDismiss = { finish() },
                             onSaved = { amount, timestamp ->
-                                successState = R.string.refill_saved to {
-                                    complete(TYPE_REFILL, amount, timestamp)
-                                }
+                                complete(TYPE_REFILL, amount, timestamp)
                             }
-                        )
-                    }
-
-                    successState?.let { (messageRes, onFinished) ->
-                        SuccessOverlay(
-                            visible = true,
-                            message = stringResource(messageRes),
-                            onFinished = onFinished
                         )
                     }
                 }
@@ -251,6 +240,17 @@ class QuickEntryActivity : AppCompatActivity() {
 /** Between two fields in the same form, as everywhere else in the redesign. */
 private val FieldGap = 14.dp
 
+/**
+ * The line under the confirmation: which car, and how much.
+ *
+ * The card is about to close, and from a home-screen widget this is the only
+ * chance the user gets to see that the amount landed on the car they meant.
+ */
+private fun savedDetail(car: Car?, saved: Pair<Double, Long>?): String? {
+    val amount = saved?.first ?: return null
+    return listOfNotNull(car?.name, amount.formatMoney()).joinToString(" · ")
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Refill
 // ─────────────────────────────────────────────────────────────────────────────
@@ -305,10 +305,17 @@ private fun QuickRefillDialog(
         derivedStateOf { liters.isNotBlank() && cost.isNotBlank() }
     }
 
+    // Held rather than handed straight back: the card plays the confirmation
+    // first, and only then is the saved refill reported to the widget.
+    var saved by remember { mutableStateOf<Pair<Double, Long>?>(null) }
+
     QuickEntryCard(
         title = stringResource(R.string.quick_entry_refill_title),
         icon = Icons.Default.LocalGasStation,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        successMessage = if (saved != null) stringResource(R.string.refill_saved) else null,
+        successDetail = savedDetail(selectedCar, saved),
+        onSuccessFinished = { saved?.let { (amount, timestamp) -> onSaved(amount, timestamp) } }
     ) {
         CarPicker(
             cars = allCars,
@@ -454,7 +461,7 @@ private fun QuickRefillDialog(
                         cost = costValue,
                         distance = distance.parseLocalizedDouble() ?: 0.0,
                         timestamp = selectedDate,
-                        onSuccess = onSaved,
+                        onSuccess = { amount, timestamp -> saved = amount to timestamp },
                         onError = {
                             isLoading = false
                             errorMessage = context.getString(R.string.error_saving_refill)
@@ -501,10 +508,16 @@ private fun QuickExpenseDialog(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var costError by remember { mutableStateOf<String?>(null) }
 
+    // See the refill form: confirmation first, report second.
+    var saved by remember { mutableStateOf<Pair<Double, Long>?>(null) }
+
     QuickEntryCard(
         title = stringResource(R.string.quick_entry_expense_title),
         icon = Icons.Default.Receipt,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        successMessage = if (saved != null) stringResource(R.string.expense_saved) else null,
+        successDetail = savedDetail(selectedCar, saved),
+        onSuccessFinished = { saved?.let { (amount, timestamp) -> onSaved(amount, timestamp) } }
     ) {
         CarPicker(
             cars = allCars,
@@ -614,7 +627,7 @@ private fun QuickExpenseDialog(
                             category = category,
                             notes = notes.ifBlank { null },
                             timestamp = selectedDate,
-                            onSuccess = onSaved,
+                            onSuccess = { amount, timestamp -> saved = amount to timestamp },
                             onError = {
                                 isLoading = false
                                 errorMessage = context.getString(R.string.error_saving_expense)
@@ -650,20 +663,46 @@ private fun QuickEntryCard(
     title: String,
     icon: ImageVector,
     onDismiss: () -> Unit,
+    /**
+     * Non-null once the save has gone through. The card then plays the app's
+     * success confirmation in place of the form and calls
+     * [onSuccessFinished] when it settles.
+     */
+    successMessage: String? = null,
+    /** What was saved, under the message: "Toyota Corolla · 64,40 €". */
+    successDetail: String? = null,
+    onSuccessFinished: () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scheme = LocalAppColorScheme.current
     val dimens = LocalAppDimens.current
     val context = LocalContext.current
-    val maxWidth = with(LocalDensity.current) {
+    val density = LocalDensity.current
+    val maxWidth = with(density) {
         context.resources.getDimensionPixelSize(R.dimen.quick_entry_dialog_max_width).toDp()
     }
+    val shape = RoundedCornerShape(dimens.radius.sheet)
+
+    // The height the form settled at, so the confirmation can be played at
+    // exactly the size of the card the user is already looking at. Without it
+    // the card collapses to the height of a checkmark at the moment of saving,
+    // which reads as the dialog closing and then something else opening.
+    var cardHeight by remember { mutableStateOf<Dp?>(null) }
+
+    val showingSuccess = successMessage != null
 
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = { if (!showingSuccess) onDismiss() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            // Nothing dismisses the card while the confirmation is playing:
+            // closing it early would skip the callback that hands the saved
+            // transaction back to the widget.
+            dismissOnBackPress = !showingSuccess,
+            dismissOnClickOutside = !showingSuccess,
+        )
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .padding(horizontal = 14.dp)
                 // A long form — the expense one, with every category chip —
@@ -675,47 +714,67 @@ private fun QuickEntryCard(
                 // Filled and outlined in place, then clipped — so the fill is
                 // a plain draw rather than something inside a graphics layer,
                 // and the clip is there only to bound the scrolling content.
-                .background(scheme.backgroundCard, RoundedCornerShape(dimens.radius.sheet))
-                .border(1.dp, scheme.borderDefault, RoundedCornerShape(dimens.radius.sheet))
-                .clip(RoundedCornerShape(dimens.radius.sheet))
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp, vertical = 20.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(RoundedCornerShape(dimens.radius.iconTile))
-                        .background(scheme.actionPrimary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = scheme.actionContent,
-                        modifier = Modifier.size(22.dp)
-                    )
+                .background(scheme.backgroundCard, shape)
+                .border(1.dp, scheme.borderDefault, shape)
+                .clip(shape)
+                .onSizeChanged {
+                    if (!showingSuccess) {
+                        cardHeight = with(density) { it.height.toDp() }
+                    }
                 }
+        ) {
+            if (successMessage != null) {
+                SuccessAnimation(
+                    message = successMessage,
+                    supportingText = successDetail,
+                    onFinished = onSuccessFinished,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(cardHeight ?: 320.dp)
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 18.dp, vertical = 20.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(RoundedCornerShape(dimens.radius.iconTile))
+                                .background(scheme.actionPrimary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = scheme.actionContent,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
 
-                Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(12.dp))
 
-                Column {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = scheme.contentPrimary
-                    )
-                    Text(
-                        text = stringResource(R.string.quick_entry_from_widget),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.contentSecondary
-                    )
+                        Column {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = scheme.contentPrimary
+                            )
+                            Text(
+                                text = stringResource(R.string.quick_entry_from_widget),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = scheme.contentSecondary
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(18.dp))
+
+                    content()
                 }
             }
-
-            Spacer(Modifier.height(18.dp))
-
-            content()
         }
     }
 }
