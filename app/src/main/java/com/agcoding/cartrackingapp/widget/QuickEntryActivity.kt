@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -96,6 +97,7 @@ import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.parseLocalizedDouble
 import com.agcoding.cartrackingapp.util.sanitizeDecimalInput
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -240,6 +242,12 @@ class QuickEntryActivity : AppCompatActivity() {
 /** Between two fields in the same form, as everywhere else in the redesign. */
 private val FieldGap = 14.dp
 
+/** How long the dialog gets to appear before voice entry starts listening. */
+private const val VOICE_AUTOSTART_SETTLE_MILLIS = 450L
+
+/** How long "filled from what you said" stays under the voice button. */
+private const val VOICE_FILLED_NOTICE_MILLIS = 5_000L
+
 /**
  * The line under the confirmation: which car, and how much.
  *
@@ -284,10 +292,27 @@ private fun QuickRefillDialog(
     val isVoiceAvailable = viewModel.isVoiceAvailable
 
     LaunchedEffect(autoStartVoice, isVoiceAvailable) {
-        if (autoStartVoice && isVoiceAvailable && voiceState is VoiceRefillState.Idle) {
+        if (!autoStartVoice || !isVoiceAvailable) return@LaunchedEffect
+
+        // Not in the same frame as the first composition. The recogniser would
+        // then be listening before the dialog had finished appearing — and its
+        // five-second silence timeout would be running too, so a user who took
+        // a breath before speaking got "no speech detected".
+        delay(VOICE_AUTOSTART_SETTLE_MILLIS)
+
+        // Read again rather than trusting the value captured before the delay:
+        // the voice button is live throughout it, and a user quick enough to
+        // press it would have had the recogniser started twice.
+        if (viewModel.voiceState.value is VoiceRefillState.Idle) {
             viewModel.startVoiceEntry()
         }
     }
+
+    // Set the moment the voice fills the form, cleared a few seconds later.
+    // Without it the panel collapses straight back to the "say it instead"
+    // button and a partial result — two figures out of three — looks exactly
+    // like nothing having happened.
+    var filledByVoice by remember { mutableStateOf(false) }
 
     // Whatever was heard lands in the fields, as raw comma-decimal text. Whole
     // numbers stay whole ("38", not "38,0") — a decimal only appears when the
@@ -298,6 +323,14 @@ private fun QuickRefillDialog(
             parsed.data.liters?.let { liters = it.formatForDecimalInput() }
             parsed.data.distance?.let { distance = it.formatForDecimalInput() }
             viewModel.confirmVoiceParsedData()
+            filledByVoice = true
+        }
+    }
+
+    LaunchedEffect(filledByVoice) {
+        if (filledByVoice) {
+            delay(VOICE_FILLED_NOTICE_MILLIS)
+            filledByVoice = false
         }
     }
 
@@ -332,6 +365,7 @@ private fun QuickRefillDialog(
             Spacer(Modifier.height(FieldGap))
             VoiceSection(
                 state = voiceState,
+                justFilled = filledByVoice,
                 onStart = { viewModel.startVoiceEntry() },
                 onStop = { viewModel.stopVoiceRecording() },
                 onCancel = { viewModel.cancelVoiceEntry() },
@@ -917,6 +951,8 @@ private fun DateField(timestamp: Long, enabled: Boolean, onClick: () -> Unit) {
 @Composable
 private fun VoiceSection(
     state: VoiceRefillState,
+    /** The form was filled from speech a moment ago; say so under the button. */
+    justFilled: Boolean,
     onStart: () -> Unit,
     onStop: () -> Unit,
     onCancel: () -> Unit,
@@ -926,19 +962,39 @@ private fun VoiceSection(
     val dimens = LocalAppDimens.current
 
     when (state) {
-        is VoiceRefillState.Idle -> TonalButton(
-            label = stringResource(R.string.quick_entry_voice_prompt),
-            onClick = onStart,
-            icon = Icons.Default.Mic,
-            enabled = enabled,
-            contentColor = scheme.actionPrimary,
-            modifier = Modifier.fillMaxWidth()
-        )
+        is VoiceRefillState.Idle -> Column {
+            TonalButton(
+                label = stringResource(R.string.quick_entry_voice_prompt),
+                onClick = onStart,
+                icon = Icons.Default.Mic,
+                enabled = enabled,
+                contentColor = scheme.actionPrimary,
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (justFilled) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = scheme.statusSuccess,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.quick_entry_voice_filled),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.statusSuccess
+                    )
+                }
+            }
+        }
 
         is VoiceRefillState.Listening -> VoicePanel(
             icon = Icons.Default.Mic,
             title = stringResource(R.string.voice_listening),
-            tint = scheme.actionPrimary
+            tint = scheme.actionPrimary,
+            container = scheme.actionSecondary
         ) {
             VoiceCapturedFieldsRow(captured = state.captured)
 
@@ -970,7 +1026,8 @@ private fun VoiceSection(
         is VoiceRefillState.Processing -> VoicePanel(
             icon = null,
             title = stringResource(R.string.voice_processing),
-            tint = scheme.actionPrimary
+            tint = scheme.actionPrimary,
+            container = scheme.actionSecondary
         ) {
             Text(
                 text = state.transcript,
@@ -982,7 +1039,8 @@ private fun VoiceSection(
         is VoiceRefillState.Error -> VoicePanel(
             icon = Icons.Default.MicOff,
             title = stringResource(R.string.voice_error),
-            tint = scheme.statusError
+            tint = scheme.statusError,
+            container = scheme.statusErrorSubtle
         ) {
             Text(
                 text = state.message,
@@ -1012,11 +1070,19 @@ private fun VoiceSection(
     }
 }
 
+/**
+ * @param container must not be `backgroundSecondary`. The captured-field pills
+ *   inside it are drawn on Material's `surfaceVariant`, which this app maps to
+ *   exactly that colour — on a panel of the same colour the pills disappear and
+ *   the one thing the listening state is for, showing what has been heard,
+ *   stops being visible.
+ */
 @Composable
 private fun VoicePanel(
     icon: ImageVector?,
     title: String,
     tint: Color,
+    container: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scheme = LocalAppColorScheme.current
@@ -1027,7 +1093,7 @@ private fun VoicePanel(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(scheme.backgroundSecondary)
+            .background(container)
             .border(1.dp, scheme.borderDefault, shape)
             .padding(14.dp)
     ) {
@@ -1218,6 +1284,7 @@ private fun PreviewVoiceListening() {
         Column(Modifier.padding(18.dp)) {
             VoiceSection(
                 state = VoiceRefillState.Listening(partialText = "thirty six litres, sixty four euros"),
+                justFilled = false,
                 onStart = {},
                 onStop = {},
                 onCancel = {},
@@ -1234,6 +1301,7 @@ private fun PreviewVoiceError() {
         Column(Modifier.padding(18.dp)) {
             VoiceSection(
                 state = VoiceRefillState.Error("No litres or cost found."),
+                justFilled = false,
                 onStart = {},
                 onStop = {},
                 onCancel = {},
