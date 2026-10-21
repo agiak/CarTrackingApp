@@ -35,6 +35,7 @@
     <string name="quick_entry_expense_title">Add expense</string>
     <string name="quick_entry_from_widget">From the home screen widget</string>
     <string name="quick_entry_voice_prompt">Say it instead</string>
+    <string name="quick_entry_voice_filled">Filled from what you said — check it and add</string>
 
     <!-- 1x1 Widgets -->
     <string name="refill_widget_label">Add Refill</string>

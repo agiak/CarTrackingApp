@@ -36,6 +36,7 @@
     <string name="quick_entry_expense_title">Προσθήκη εξόδου</string>
     <string name="quick_entry_from_widget">Από το widget της αρχικής οθόνης</string>
     <string name="quick_entry_voice_prompt">Πείτε το με τη φωνή σας</string>
+    <string name="quick_entry_voice_filled">Συμπληρώθηκε από αυτά που είπατε — ελέγξτε και προσθέστε</string>
 
     <!-- 1x1 Widgets -->
     <string name="refill_widget_label">Προσθήκη Ανεφοδιασμού</string>

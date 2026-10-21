@@ -7,8 +7,6 @@ import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.voice.SpeechRecognitionEvent
 import com.agcoding.cartrackingapp.data.voice.SpeechRecognitionService
-import com.agcoding.cartrackingapp.domain.model.Expense
-import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.VoiceParsingResult
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.ExpenseRepository
@@ -24,6 +22,7 @@ import com.agcoding.cartrackingapp.widget.QuickAddWidgetReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -204,14 +203,30 @@ class QuickEntryViewModel @Inject constructor(
     // ========== Voice Recognition Methods ==========
 
     /**
+     * The collector of the current recognition session, so a second one cannot
+     * be started on top of it.
+     *
+     * Two collectors on one microphone is not a race the user can see coming:
+     * the second recogniser cancels the first mid-sentence, and what comes
+     * back is half of what was said — which looks exactly like the recogniser
+     * failing to understand.
+     */
+    private var voiceJob: Job? = null
+
+    /**
      * Start voice entry - begins speech recognition
      */
     fun startVoiceEntry() {
+        if (voiceJob?.isActive == true) {
+            Timber.d("Voice entry already running; ignoring the second start")
+            return
+        }
+
         Timber.d("Starting voice entry")
         voiceAutoStopDetector.reset()
         _voiceState.value = VoiceRefillState.Listening(partialText = "")
 
-        viewModelScope.launch {
+        voiceJob = viewModelScope.launch {
             speechRecognitionService.startListening().collect { event ->
                 when (event) {
                     is SpeechRecognitionEvent.PartialResults -> {
@@ -264,6 +279,8 @@ class QuickEntryViewModel @Inject constructor(
     fun cancelVoiceEntry() {
         Timber.d("Canceling voice entry")
         voiceAutoStopDetector.reset()
+        voiceJob?.cancel()
+        voiceJob = null
         speechRecognitionService.stopListening()
         _voiceState.value = VoiceRefillState.Idle
         parsedVoiceData = null
