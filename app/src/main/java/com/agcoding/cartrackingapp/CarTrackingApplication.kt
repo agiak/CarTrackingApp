@@ -11,6 +11,7 @@ import com.agcoding.cartrackingapp.data.local.database.DatabaseChangeObserver
 import com.agcoding.cartrackingapp.data.preferences.ColorPalettePreferences
 import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.util.LauncherIconManager
+import com.agcoding.cartrackingapp.widget.WidgetAppearanceObserver
 import com.agcoding.cartrackingapp.worker.ReminderCheckWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +44,9 @@ class CarTrackingApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var colorPalettePreferences: ColorPalettePreferences
 
+    @Inject
+    lateinit var widgetAppearanceObserver: WidgetAppearanceObserver
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
@@ -53,6 +57,9 @@ class CarTrackingApplication : Application(), Configuration.Provider {
         pushTokenRegistrar.start()
         scheduleReminderChecks()
         syncLauncherIcon()
+        // Keeps the home-screen widgets on the palette the user picked; they
+        // are drawn outside the app and nothing else tells them it changed.
+        widgetAppearanceObserver.start()
     }
 
     /**
