@@ -388,6 +388,7 @@ dependencies {
     // Hilt
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     // Coroutines
     implementation(libs.bundles.coroutines)

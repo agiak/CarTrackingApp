@@ -59,7 +59,13 @@ class WidgetAppearanceObserver @Inject constructor(
                 // on it would mean redrawing every widget on every cold start
                 // for nothing.
                 .drop(1)
-                .collect { redrawAllWidgets(context) }
+                // Guarded here as well as per widget: a throw out of the
+                // collector would end it, and then no later palette change
+                // would repaint anything for the rest of the process.
+                .collect {
+                    runCatching { redrawAllWidgets(context) }
+                        .onFailure { error -> Timber.w(error, "Could not repaint the widgets") }
+                }
         }
     }
 }

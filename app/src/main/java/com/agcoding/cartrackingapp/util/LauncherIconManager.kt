@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,40 +40,50 @@ class LauncherIconManager @Inject constructor(
     /**
      * Points the launcher at [palette]'s icon. Does nothing if it is already
      * there, so this is safe to call on every palette change.
+     *
+     * Suspending, and off the main thread by itself rather than by agreement
+     * with its callers: `setComponentEnabledSetting` is a synchronous binder
+     * call that has the package manager write the new state to disk, and
+     * there can be a handful of them in one switch. Run from the palette
+     * picker's own coroutine — which is the main one — that is enough to
+     * freeze the UI while the user is still tapping through colours.
      */
-    fun apply(palette: ColorPalette) {
+    suspend fun apply(palette: ColorPalette) {
         val wanted = aliasFor(palette)
         val packageManager = context.packageManager
 
-        runCatching {
-            // Read the whole set first. Asking is cheap and writing is not —
-            // each write is persisted by the package manager — so this both
-            // skips the 40 pointless disables of the common case and notices
-            // when the state is wrong in a way a single check would miss. Two
-            // aliases can end up live at once: the process can die between the
-            // enable and the disables below, and `adb shell pm enable` on one
-            // of them does the same thing. Without a full read that leaves two
-            // icons on the home screen with nothing to ever repair them.
-            val enabledNow = ALL_ALIASES.filter { isEnabled(packageManager, it) }
-            if (enabledNow == listOf(wanted)) return
+        withContext(Dispatchers.IO) {
+            runCatching {
+                // Read the whole set first. Asking is cheap and writing is not
+                // — each write is persisted by the package manager — so this
+                // both skips the 40 pointless disables of the common case and
+                // notices when the state is wrong in a way a single check
+                // would miss. Two aliases can end up live at once: the process
+                // can die between the enable and the disables below, and
+                // `adb shell pm enable` on one of them does the same thing.
+                // Without a full read that leaves two icons on the home screen
+                // with nothing to ever repair them.
+                val enabledNow = ALL_ALIASES.filter { isEnabled(packageManager, it) }
+                if (enabledNow == listOf(wanted)) return@runCatching
 
-            // Enable before disabling: for the moment in between two entries
-            // are live, which a launcher shows as a duplicate icon for a
-            // frame. The other order leaves a moment with none.
-            if (wanted !in enabledNow) setEnabled(packageManager, wanted, enabled = true)
-            enabledNow.filterNot { it == wanted }.forEach { alias ->
-                setEnabled(packageManager, alias, enabled = false)
+                // Enable before disabling: for the moment in between two
+                // entries are live, which a launcher shows as a duplicate icon
+                // for a frame. The other order leaves a moment with none.
+                if (wanted !in enabledNow) setEnabled(packageManager, wanted, enabled = true)
+                enabledNow.filterNot { it == wanted }.forEach { alias ->
+                    setEnabled(packageManager, alias, enabled = false)
+                }
+                Timber.d("Launcher icon switched to $wanted")
+            }.onFailure {
+                // A launcher icon is not worth taking the app down for, and
+                // some OEM builds refuse the call outright.
+                Timber.w(it, "Could not switch the launcher icon to $wanted")
             }
-            Timber.d("Launcher icon switched to $wanted")
-        }.onFailure {
-            // A launcher icon is not worth taking the app down for, and some
-            // OEM builds refuse the call outright.
-            Timber.w(it, "Could not switch the launcher icon to $wanted")
         }
     }
 
     /** Back to the icon the app ships with, for when the user turns this off. */
-    fun reset() = apply(DEFAULT_PALETTE)
+    suspend fun reset() = apply(DEFAULT_PALETTE)
 
     private fun isEnabled(packageManager: PackageManager, alias: String): Boolean =
         when (packageManager.getComponentEnabledSetting(component(alias))) {
