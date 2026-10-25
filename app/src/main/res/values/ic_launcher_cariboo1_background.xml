@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_cariboo1_background">#FFFFFF</color>
+    <!-- The teal the Play Store listing's icon sits on. The launcher icon and
+         the store icon are the same picture to a user scrolling past, so they
+         cannot be two different colours. -->
+    <color name="ic_launcher_cariboo1_background">#4DB6AC</color>
 </resources>
