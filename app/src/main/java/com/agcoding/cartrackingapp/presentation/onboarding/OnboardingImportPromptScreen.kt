@@ -5,16 +5,13 @@ package com.agcoding.cartrackingapp.presentation.onboarding
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +30,6 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +59,8 @@ import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.Kpi
 import com.agcoding.cartrackingapp.presentation.components.KpiGrid
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
-import com.agcoding.cartrackingapp.presentation.components.ProgressRing
+import com.agcoding.cartrackingapp.presentation.components.TransferProgress
+import com.agcoding.cartrackingapp.shared.ui.brand.RoadProgressLoop
 import com.agcoding.cartrackingapp.data.export.ImportProgress
 import com.agcoding.cartrackingapp.data.export.ImportStep
 import com.agcoding.cartrackingapp.presentation.settings.ImportSummary
@@ -314,25 +311,17 @@ private fun ImportingContent(progress: ImportProgress? = null) {
 
     // Determinate once the importer knows how many rows it is dealing with.
     // Before that — and for a JSON restore, which is one indivisible read —
-    // a spinner is the honest answer rather than a number that is made up.
+    // the car keeps driving without a figure, rather than a number that is
+    // made up.
     Box(contentAlignment = Alignment.Center) {
+        // The same road as the first sync. Importing a file and pulling an
+        // account down are the same wait from the user's side, and they happen
+        // one after the other on a first run; two different treatments would
+        // read as two different kinds of operation.
         if (progress != null) {
-            val animated by animateFloatAsState(
-                targetValue = progress.fraction.coerceIn(0f, 1f),
-                animationSpec = tween(400),
-                label = "importProgress"
-            )
-            // The same ring as the first sync. Importing a file and pulling an
-            // account down are the same wait from the user's side, and they
-            // happen one after the other on a first run; two different
-            // treatments would read as two different kinds of operation.
-            ProgressRing(progress = animated, diameter = 150.dp, thickness = 10.dp)
+            TransferProgress(progress = progress.fraction.coerceIn(0f, 1f))
         } else {
-            CircularProgressIndicator(
-                modifier = Modifier.size(84.dp),
-                strokeWidth = 6.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
+            RoadProgressLoop()
         }
     }
 

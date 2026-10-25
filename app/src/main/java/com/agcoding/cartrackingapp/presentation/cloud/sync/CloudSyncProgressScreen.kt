@@ -2,8 +2,6 @@ package com.agcoding.cartrackingapp.presentation.cloud.sync
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,7 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import com.agcoding.cartrackingapp.presentation.components.ProgressRing
+import com.agcoding.cartrackingapp.presentation.components.TransferProgress
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppDimens
 import androidx.compose.foundation.layout.Box
@@ -191,14 +189,9 @@ private val DATA_STAGES = listOf(
 
 @Composable
 private fun WorkingPage(uiState: CloudSyncProgressUiState) {
-    // A second smoothing pass on top of the ViewModel's pacing: the state
-    // updates in 40 ms steps, and tweening between them is what turns a
-    // sequence of jumps into a ring that moves.
-    val progress by animateFloatAsState(
-        targetValue = uiState.progress,
-        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
-        label = "cloud-sync-progress"
-    )
+    // No tween here: the ViewModel paces the state in 40 ms steps and
+    // TransferProgress smooths between them itself, so a second pass at this
+    // level would only add lag between the real figure and the one on screen.
     val scheme = LocalAppColorScheme.current
 
     Column(
@@ -209,7 +202,7 @@ private fun WorkingPage(uiState: CloudSyncProgressUiState) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProgressRing(progress = progress)
+        TransferProgress(progress = uiState.progress)
 
         Spacer(modifier = Modifier.height(24.dp))
 
