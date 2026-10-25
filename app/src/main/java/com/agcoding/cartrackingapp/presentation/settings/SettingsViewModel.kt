@@ -37,7 +37,6 @@ import com.agcoding.cartrackingapp.domain.repository.NotificationHistoryReposito
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.shared.domain.result.Result
-import com.agcoding.cartrackingapp.util.LauncherIconManager
 import com.agcoding.cartrackingapp.util.NotificationHelper
 import com.agcoding.cartrackingapp.util.StorageCheckResult
 import com.agcoding.cartrackingapp.util.StorageUtil
@@ -135,7 +134,6 @@ class SettingsViewModel @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val dataMetadataPreferences: DataMetadataPreferences,
     private val cloudRepository: CloudRepository,
-    private val launcherIconManager: LauncherIconManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -277,28 +275,6 @@ class SettingsViewModel @Inject constructor(
     fun updateColorPalette(palette: ColorPalette) {
         viewModelScope.launch {
             colorPalettePreferences.setColorPalette(palette)
-            if (settingsPreferences.settingsFlow.first().iconFollowsTheme) {
-                launcherIconManager.apply(palette)
-            }
-        }
-    }
-
-    /**
-     * Turns the matching launcher icon on or off.
-     *
-     * Switching it off puts the icon back to the one the app ships with rather
-     * than leaving it on whatever palette happened to be current — otherwise
-     * "off" would mean "frozen on a colour I picked once", which is not a
-     * state the user can reason about.
-     */
-    fun updateIconFollowsTheme(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsPreferences.updateIconFollowsTheme(enabled)
-            if (enabled) {
-                launcherIconManager.apply(colorPalettePreferences.selectedPaletteFlow.first())
-            } else {
-                launcherIconManager.reset()
-            }
         }
     }
 

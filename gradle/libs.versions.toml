@@ -17,6 +17,7 @@ firebaseBom = "33.5.1"
 
 # Core Dependencies
 coreKtx = "1.15.0"
+coreSplashscreen = "1.0.1"
 appcompat = "1.7.1"
 material = "1.13.0"
 
@@ -87,6 +88,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 
 # Core Android
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 

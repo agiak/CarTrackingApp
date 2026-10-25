@@ -1652,7 +1652,5 @@
     <string name="station_refills_title">Ανεφοδιασμοί</string>
 
     <!-- Εικονίδιο εφαρμογής -->
-    <string name="icon_follows_theme">Το εικονίδιο ακολουθεί το θέμα</string>
-    <string name="icon_follows_theme_description">Το εικονίδιο στην αρχική οθόνη παίρνει το χρώμα της παλέτας που διαλέγεις. Σε μερικούς launchers χρειάζεται να το ξαναβάλεις στην αρχική οθόνη μετά την αλλαγή.</string>
 
 </resources>

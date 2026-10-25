@@ -6,6 +6,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -17,10 +21,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.agcoding.cartrackingapp.cloud.domain.sync.CloudSync
 import com.agcoding.cartrackingapp.data.export.AutoBackupManager
@@ -31,6 +39,7 @@ import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.presentation.navigation.AppNavigation
 import com.agcoding.cartrackingapp.presentation.theme.AppTheme
+import com.agcoding.cartrackingapp.shared.ui.brand.FuelGaugeSplash
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -60,6 +69,11 @@ class MainActivity : AppCompatActivity() {
     private var notificationExpenseId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Before super.onCreate: this is what swaps the window from the splash
+        // theme to the app's own, and AppCompat reads the theme during its
+        // onCreate. It also gives Android 11 and below the same system splash
+        // that 12+ draws by itself, so there is one appearance to reason about.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         // Handle widget and notification deep links
@@ -111,6 +125,19 @@ class MainActivity : AppCompatActivity() {
                             widgetCarId            = this@MainActivity.widgetCarId,
                             notificationExpenseId  = this@MainActivity.notificationExpenseId,
                         )
+                    }
+
+                    // Over the app rather than instead of it, so the first
+                    // screen is composed and ready by the time the car drives
+                    // off. rememberSaveable because a rotation recreates the
+                    // activity, and nobody wants the opening titles twice.
+                    var splashDone by rememberSaveable { mutableStateOf(false) }
+                    AnimatedVisibility(
+                        visible = !splashDone,
+                        enter = EnterTransition.None,
+                        exit = fadeOut(animationSpec = tween(durationMillis = 300)),
+                    ) {
+                        FuelGaugeSplash(onFinished = { splashDone = true })
                     }
 
                     if (dbStatus == DatabaseStatus.MigrationFailed) {

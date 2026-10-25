@@ -33,7 +33,6 @@ import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
 import com.agcoding.cartrackingapp.presentation.settings.components.AppearanceCard
 import com.agcoding.cartrackingapp.presentation.settings.components.ColorPaletteCard
-import com.agcoding.cartrackingapp.presentation.settings.components.IconFollowsThemeCard
 import com.agcoding.cartrackingapp.presentation.settings.components.LanguageCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
@@ -111,13 +110,6 @@ fun AppearanceSettingsScreen(
             ColorPaletteCard(
                 selectedPalette = selectedPalette,
                 onPaletteSelected = viewModel::updateColorPalette
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            IconFollowsThemeCard(
-                enabled = uiState.appSettings.iconFollowsTheme,
-                onToggle = viewModel::updateIconFollowsTheme
             )
 
             Spacer(modifier = Modifier.height(24.dp))

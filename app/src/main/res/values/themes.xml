@@ -2,6 +2,24 @@
     <!-- Base application theme. -->
     <style name="Theme.CarTrackingApp" parent="Theme.AppCompat.DayNight.NoActionBar" />
 
+    <!--
+        The launch theme. Android 12+ always draws a system splash before the
+        app gets a frame; core-splashscreen gives older versions the same one,
+        so there is a single appearance to reason about instead of two.
+
+        No values-night copy on purpose: the splash is the brand's teal in both
+        modes, and a dark variant would make the hand-off into the animation —
+        which is teal either way — a visible colour jump.
+
+        postSplashScreenTheme is what installSplashScreen() switches the window
+        to, before AppCompat looks at it.
+    -->
+    <style name="Theme.CarTrackingApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/cariboo_teal_bottom</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_glyph</item>
+        <item name="postSplashScreenTheme">@style/Theme.CarTrackingApp</item>
+    </style>
+
     <!-- Translucent theme for QuickEntry overlay -->
     <style name="Theme.QuickEntry.Translucent" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>

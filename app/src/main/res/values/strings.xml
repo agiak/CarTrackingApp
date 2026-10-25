@@ -1674,7 +1674,5 @@
     <string name="station_refills_title">Refills</string>
 
     <!-- Launcher icon -->
-    <string name="icon_follows_theme">App icon follows the theme</string>
-    <string name="icon_follows_theme_description">The home screen icon takes the colour of the palette you pick. Some launchers need the icon added to the home screen again after it changes.</string>
 
 </resources>

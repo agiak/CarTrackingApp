@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The brand's Ocean Teal, used by the launcher icon and the splash.
+
+        Deliberately not drawn from the chosen palette: the system splash's
+        background is a theme attribute the framework reads before any of the
+        app's code runs, so it cannot follow a value stored in DataStore. Since
+        the window behind the animation has to be a fixed colour, the animation
+        is painted in the same one, and the hand-off from the system splash to
+        the Compose one is invisible.
+    -->
+    <color name="cariboo_teal_top">#89BDB7</color>
+    <color name="cariboo_teal_bottom">#2B6963</color>
+    <color name="cariboo_glyph_light">#FBFEFE</color>
+    <color name="cariboo_glyph_shade">#D4EAE7</color>
+</resources>
