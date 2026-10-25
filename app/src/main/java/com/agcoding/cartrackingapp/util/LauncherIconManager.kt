@@ -1,15 +1,21 @@
 package com.agcoding.cartrackingapp.util
 
+import android.app.Activity
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import com.agcoding.cartrackingapp.data.preferences.ColorPalette
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Keeps the launcher icon on the colour the app is painted in.
@@ -27,6 +33,12 @@ import javax.inject.Singleton
  *    duplicate icon for a frame. The other order leaves a moment with none,
  *    and a launcher that refreshes just then drops the app off the home
  *    screen for good.
+ *  - Nothing is switched while an activity of the app is on screen. The task
+ *    the user is in was started from one of the aliases, and disabling that
+ *    one makes the system finish the task — the app closes the moment a
+ *    palette is picked, with the process still alive. So [request] only
+ *    records what is wanted, and it is written once the app goes to the
+ *    background.
  *  - [PackageManager.DONT_KILL_APP] on every call. Without it the system is
  *    free to kill the process mid-change, which would strand the aliases
  *    half-switched and take the user out of Settings while they were still
@@ -37,9 +49,63 @@ class LauncherIconManager @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val startedActivities = AtomicInteger(0)
+
+    @Volatile
+    private var pending: ColorPalette? = null
+
+    /**
+     * Hooks the foreground/background tracking up. Called once from the
+     * Application, before any activity exists.
+     */
+    fun attach(application: Application) {
+        application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: Activity) {
+                startedActivities.incrementAndGet()
+            }
+
+            override fun onActivityStopped(activity: Activity) {
+                // A rotation stops and restarts the activity; that is not the
+                // user leaving.
+                if (activity.isChangingConfigurations) {
+                    startedActivities.decrementAndGet()
+                    return
+                }
+                if (startedActivities.decrementAndGet() == 0) flushPending()
+            }
+
+            override fun onActivityCreated(activity: Activity, savedInstanceState: android.os.Bundle?) = Unit
+            override fun onActivityResumed(activity: Activity) = Unit
+            override fun onActivityPaused(activity: Activity) = Unit
+            override fun onActivitySaveInstanceState(activity: Activity, outState: android.os.Bundle) = Unit
+            override fun onActivityDestroyed(activity: Activity) = Unit
+        })
+    }
+
+    /**
+     * Asks for [palette]'s icon. It takes effect when the app next goes to the
+     * background — never at once, not even when no activity is up yet: at a
+     * cold start the launch is already under way and the alias it came from
+     * is the one that would be turned off. The last request wins, so tapping
+     * through palettes costs one write, not one per tap.
+     */
+    fun request(palette: ColorPalette) {
+        pending = palette
+    }
+
+    /** Back to the icon the app ships with, for when the user turns this off. */
+    fun requestReset() = request(DEFAULT_PALETTE)
+
+    private fun flushPending() {
+        val palette = pending ?: return
+        pending = null
+        scope.launch { apply(palette) }
+    }
+
     /**
      * Points the launcher at [palette]'s icon. Does nothing if it is already
-     * there, so this is safe to call on every palette change.
+     * there.
      *
      * Suspending, and off the main thread by itself rather than by agreement
      * with its callers: `setComponentEnabledSetting` is a synchronous binder
@@ -48,7 +114,7 @@ class LauncherIconManager @Inject constructor(
      * picker's own coroutine — which is the main one — that is enough to
      * freeze the UI while the user is still tapping through colours.
      */
-    suspend fun apply(palette: ColorPalette) {
+    private suspend fun apply(palette: ColorPalette) {
         val wanted = aliasFor(palette)
         val packageManager = context.packageManager
 
@@ -81,9 +147,6 @@ class LauncherIconManager @Inject constructor(
             }
         }
     }
-
-    /** Back to the icon the app ships with, for when the user turns this off. */
-    suspend fun reset() = apply(DEFAULT_PALETTE)
 
     private fun isEnabled(packageManager: PackageManager, alias: String): Boolean =
         when (packageManager.getComponentEnabledSetting(component(alias))) {

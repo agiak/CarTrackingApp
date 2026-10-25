@@ -56,6 +56,7 @@ class CarTrackingApplication : Application(), Configuration.Provider {
         // been told about, and it is told here.
         pushTokenRegistrar.start()
         scheduleReminderChecks()
+        launcherIconManager.attach(this)
         syncLauncherIcon()
         // Keeps the home-screen widgets on the palette the user picked; they
         // are drawn outside the app and nothing else tells them it changed.
@@ -71,14 +72,15 @@ class CarTrackingApplication : Application(), Configuration.Provider {
      * without this their icon would stay on the default until they happened to
      * open the palette picker and tap something.
      *
-     * Off the main thread: switching a component is a binder round trip, and
-     * this runs on every cold start.
+     * Only records the wish: the switch itself waits until the app is in the
+     * background, because the activity the user launched from is the alias
+     * being turned off. Reading the preferences stays off the main thread.
      */
     private fun syncLauncherIcon() {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             runCatching {
                 if (settingsPreferences.settingsFlow.first().iconFollowsTheme) {
-                    launcherIconManager.apply(colorPalettePreferences.selectedPaletteFlow.first())
+                    launcherIconManager.request(colorPalettePreferences.selectedPaletteFlow.first())
                 }
             }.onFailure { Timber.w(it, "Could not sync the launcher icon at startup") }
         }

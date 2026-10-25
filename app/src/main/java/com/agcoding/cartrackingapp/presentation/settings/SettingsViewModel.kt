@@ -278,7 +278,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             colorPalettePreferences.setColorPalette(palette)
             if (settingsPreferences.settingsFlow.first().iconFollowsTheme) {
-                launcherIconManager.apply(palette)
+                launcherIconManager.request(palette)
             }
         }
     }
@@ -295,9 +295,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsPreferences.updateIconFollowsTheme(enabled)
             if (enabled) {
-                launcherIconManager.apply(colorPalettePreferences.selectedPaletteFlow.first())
+                launcherIconManager.request(colorPalettePreferences.selectedPaletteFlow.first())
             } else {
-                launcherIconManager.reset()
+                launcherIconManager.requestReset()
             }
         }
     }
