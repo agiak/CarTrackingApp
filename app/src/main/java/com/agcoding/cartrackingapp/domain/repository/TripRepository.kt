@@ -10,6 +10,9 @@ interface TripRepository {
     fun getRecentTripsByCarId(carId: Long, limit: Int): Flow<List<Trip>>
     fun getTripById(tripId: Long): Flow<Trip?>
     fun getTripCountByCarId(carId: Long): Flow<Int>
+
+    /** Trip id to name, for labelling a refill without loading every trip's refills. */
+    fun observeTripNames(): Flow<Map<Long, String>>
     suspend fun insertTrip(trip: Trip): Result<Long>
     suspend fun updateTrip(trip: Trip): Result<Unit>
     suspend fun deleteTrip(tripId: Long): Result<Unit>

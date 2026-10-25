@@ -1609,4 +1609,46 @@
     <string name="toggle_quick_pick">Γρήγορη επιλογή</string>
     <string name="more_categories">Περισσότερα…</string>
 
+    <!-- Πρατήρια & Μεγαλύτεροι ανεφοδιασμοί -->
+    <string name="fuel_stations_title">Πρατήρια</string>
+    <string name="fuel_stations_subtitle">Πού βάζεις βενζίνη και πόσα</string>
+    <string name="top_refills_title">Μεγαλύτεροι ανεφοδιασμοί</string>
+    <string name="top_refills_subtitle">Τα πιο ακριβά γεμίσματα</string>
+    <string name="fuel_stations_tab_stations">Πρατήρια</string>
+    <string name="fuel_stations_tab_top">Μεγαλύτεροι</string>
+    <string name="period_last_6_months">6 μήνες</string>
+    <string name="period_1_year">1 έτος</string>
+    <string name="fuel_stations_spent_label">Έξοδα καυσίμων</string>
+    <string name="fuel_stations_hero_meta">%1$s · %2$s</string>
+    <plurals name="fuel_stations_station_count">
+        <item quantity="one">%d πρατήριο</item>
+        <item quantity="other">%d πρατήρια</item>
+    </plurals>
+    <plurals name="fuel_stations_refill_count">
+        <item quantity="one">%d ανεφοδιασμός</item>
+        <item quantity="other">%d ανεφοδιασμοί</item>
+    </plurals>
+    <string name="fuel_stations_row_meta">%1$s · %2$s</string>
+    <string name="fuel_stations_unknown">Άγνωστο πρατήριο</string>
+    <string name="fuel_stations_liters">Λίτρα</string>
+    <string name="fuel_stations_avg_price">Μέση τιμή</string>
+    <string name="fuel_stations_avg_refill">Μέσος ανεφοδιασμός</string>
+    <string name="fuel_stations_cheapest">Φθηνότερο ανά λίτρο</string>
+    <string name="fuel_stations_dearest">Ακριβότερο ανά λίτρο</string>
+    <string name="fuel_stations_show_refills">Δες τους ανεφοδιασμούς</string>
+    <string name="fuel_stations_empty">Δεν υπάρχουν ανεφοδιασμοί σε αυτή την περίοδο</string>
+    <string name="top_refills_sort_cost">Συνολικό κόστος</string>
+    <string name="top_refills_sort_price">Τιμή ανά λίτρο</string>
+    <string name="top_refills_sort_liters">Λίτρα</string>
+    <string name="top_refills_row_title">%1$s · %2$s</string>
+    <string name="top_refills_row_meta">%1$s · %2$s</string>
+    <string name="top_refills_total">Σύνολο</string>
+    <string name="top_refills_price">Τιμή</string>
+    <string name="top_refills_odometer">Χιλιόμετρα</string>
+    <string name="top_refills_station">Πρατήριο</string>
+    <string name="top_refills_trip">Ταξίδι</string>
+    <string name="top_refills_consumption">Κατανάλωση</string>
+    <string name="top_refills_open">Άνοιγμα συναλλαγής</string>
+    <string name="station_refills_title">Ανεφοδιασμοί</string>
+
 </resources>

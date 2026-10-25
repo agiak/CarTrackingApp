@@ -1627,4 +1627,50 @@
     <string name="cloud_account_created">Account created</string>
     <string name="cloud_signed_in_message">Signed in</string>
 
+    <!-- Fuel stations & Top refills -->
+    <string name="fuel_stations_title">Fuel stations</string>
+    <string name="fuel_stations_subtitle">Where you fill up &amp; how much</string>
+    <string name="top_refills_title">Top refills</string>
+    <string name="top_refills_subtitle">Most expensive fill-ups</string>
+    <string name="fuel_stations_tab_stations">Stations</string>
+    <string name="fuel_stations_tab_top">Top refills</string>
+    <string name="period_last_6_months">6 months</string>
+    <string name="period_1_year">1 year</string>
+    <string name="fuel_stations_spent_label">Fuel spent</string>
+    <!-- "3 stations · 56 refills": the two counts behind the total above it. -->
+    <string name="fuel_stations_hero_meta">%1$s · %2$s</string>
+    <plurals name="fuel_stations_station_count">
+        <item quantity="one">%d station</item>
+        <item quantity="other">%d stations</item>
+    </plurals>
+    <plurals name="fuel_stations_refill_count">
+        <item quantity="one">%d refill</item>
+        <item quantity="other">%d refills</item>
+    </plurals>
+    <!-- "12 refills · 34%": a station row's own share of the period. -->
+    <string name="fuel_stations_row_meta">%1$s · %2$s</string>
+    <string name="fuel_stations_unknown">Unknown station</string>
+    <string name="fuel_stations_liters">Liters</string>
+    <string name="fuel_stations_avg_price">Avg price</string>
+    <string name="fuel_stations_avg_refill">Avg refill</string>
+    <string name="fuel_stations_cheapest">Cheapest per liter</string>
+    <string name="fuel_stations_dearest">Most expensive per liter</string>
+    <string name="fuel_stations_show_refills">Show refills</string>
+    <string name="fuel_stations_empty">No refills in this period</string>
+    <string name="top_refills_sort_cost">Total cost</string>
+    <string name="top_refills_sort_price">Price per liter</string>
+    <string name="top_refills_sort_liters">Liters</string>
+    <!-- "Shell · 52,4 L": what the refill was and how big it was. -->
+    <string name="top_refills_row_title">%1$s · %2$s</string>
+    <!-- "18 Jul 2026 · Honda Civic". -->
+    <string name="top_refills_row_meta">%1$s · %2$s</string>
+    <string name="top_refills_total">Total</string>
+    <string name="top_refills_price">Price</string>
+    <string name="top_refills_odometer">Odometer</string>
+    <string name="top_refills_station">Station</string>
+    <string name="top_refills_trip">Trip</string>
+    <string name="top_refills_consumption">Consumption</string>
+    <string name="top_refills_open">Open transaction</string>
+    <string name="station_refills_title">Refills</string>
+
 </resources>

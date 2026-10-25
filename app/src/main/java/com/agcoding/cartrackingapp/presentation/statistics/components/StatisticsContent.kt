@@ -23,9 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AutoGraph
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -67,6 +69,8 @@ fun StatisticsContent(
     onCarComparisonClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
+    onFuelStationsClick: () -> Unit = {},
+    onTopRefillsClick: () -> Unit = {},
     forecastingEnabled: Boolean = false,
     summarySection: @Composable () -> Unit,
     perCarBreakdownCards: @Composable () -> Unit,
@@ -149,7 +153,9 @@ fun StatisticsContent(
                     onPeriodComparisonClick = if (distinctYears >= 1) onPeriodComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
                     onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
-                    onInsightsClick = onInsightsClick
+                    onInsightsClick = onInsightsClick,
+                    onFuelStationsClick = if (statistics.totalRefills > 0) onFuelStationsClick else null,
+                    onTopRefillsClick = if (statistics.totalRefills > 0) onTopRefillsClick else null
                 )
             }
 
@@ -216,7 +222,9 @@ fun StatisticsContent(
                     onPeriodComparisonClick = if (distinctYears >= 1) onPeriodComparisonClick else null,
                     onCarComparisonClick = if (statistics.perCarStatistics.size >= 2) onCarComparisonClick else null,
                     onFuelForecastClick = if (forecastingEnabled) onFuelForecastClick else null,
-                    onInsightsClick = onInsightsClick
+                    onInsightsClick = onInsightsClick,
+                    onFuelStationsClick = if (statistics.totalRefills > 0) onFuelStationsClick else null,
+                    onTopRefillsClick = if (statistics.totalRefills > 0) onTopRefillsClick else null
                 )
             }
 
@@ -298,8 +306,9 @@ private fun SectionHeader(
 // ============================================
 
 /**
- * The four ways to dig further: compare periods, compare cars, forecast fuel,
- * read the insights.
+ * The ways to dig further: compare periods, compare cars, forecast fuel, read
+ * the insights, and the two readings of the refill history — by station, and
+ * by single fill-up.
  *
  * They used to be small outlined buttons in a row, which made them read as
  * secondary controls on a screen full of data. They are the only doors on this
@@ -316,6 +325,8 @@ private fun AnalysisButtonsGrid(
     onCarComparisonClick: (() -> Unit)?,
     onFuelForecastClick: (() -> Unit)?,
     onInsightsClick: (() -> Unit)?,
+    onFuelStationsClick: (() -> Unit)? = null,
+    onTopRefillsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val tiles = buildList {
@@ -359,6 +370,31 @@ private fun AnalysisButtonsGrid(
                     title = stringResource(R.string.insights_title),
                     subtitle = stringResource(R.string.overall_summary),
                     accent = RowAccent.Service,
+                    onClick = it,
+                )
+            )
+        }
+        // The two readings of the refill history. Absent rather than disabled
+        // when there are no refills, like the tiles above: both would open on
+        // an empty list.
+        onFuelStationsClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.Default.LocationOn,
+                    title = stringResource(R.string.fuel_stations_title),
+                    subtitle = stringResource(R.string.fuel_stations_subtitle),
+                    accent = RowAccent.Primary,
+                    onClick = it,
+                )
+            )
+        }
+        onTopRefillsClick?.let {
+            add(
+                ExploreTile(
+                    icon = Icons.Default.ArrowUpward,
+                    title = stringResource(R.string.top_refills_title),
+                    subtitle = stringResource(R.string.top_refills_subtitle),
+                    accent = RowAccent.Other,
                     onClick = it,
                 )
             )

@@ -3,6 +3,7 @@ package com.agcoding.cartrackingapp.presentation.navigation
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -81,9 +82,18 @@ import com.agcoding.cartrackingapp.presentation.settings.expensecategories.Expen
 import com.agcoding.cartrackingapp.presentation.settings.helpabout.HelpAboutSettingsScreen
 import com.agcoding.cartrackingapp.presentation.settings.permissions.PermissionsSettingsScreen
 import com.agcoding.cartrackingapp.presentation.trash.TrashScreen
+import com.agcoding.cartrackingapp.domain.model.StationPeriod
 import com.agcoding.cartrackingapp.presentation.statistics.FuelForecastScreen
+import com.agcoding.cartrackingapp.presentation.statistics.FuelStationsScreen
+import com.agcoding.cartrackingapp.presentation.statistics.FUEL_STATIONS_TAB_ARG
+import com.agcoding.cartrackingapp.presentation.statistics.FuelStationsTab
 import com.agcoding.cartrackingapp.presentation.statistics.MonthDetailsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.MonthlyTrendsScreen
+import com.agcoding.cartrackingapp.presentation.statistics.STATION_CARS_ARG
+import com.agcoding.cartrackingapp.presentation.statistics.STATION_KEY_ARG
+import com.agcoding.cartrackingapp.presentation.statistics.STATION_KEY_UNKNOWN
+import com.agcoding.cartrackingapp.presentation.statistics.STATION_PERIOD_ARG
+import com.agcoding.cartrackingapp.presentation.statistics.StationRefillsScreen
 import com.agcoding.cartrackingapp.presentation.statistics.StatisticsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.TransactionsScreen
 import com.agcoding.cartrackingapp.presentation.transactions.model.TransactionType
@@ -163,6 +173,32 @@ sealed class Screen(val route: String) {
     object CarComparison : Screen("car_comparison")
     object FuelForecast : Screen("fuel_forecast")
     object Insights : Screen("insights")
+
+    /** Fuel stations and Top refills, on whichever tab the entry tile asked for. */
+    object FuelStations : Screen("fuel_stations?tab={tab}") {
+        fun createRoute(tab: FuelStationsTab) = "fuel_stations?tab=${tab.name}"
+    }
+
+    /**
+     * One station's refills, carrying the filters the station list was under.
+     *
+     * The station arrives as its grouping key rather than as the raw location
+     * strings behind it: those are free text of any length, and the key is
+     * enough for [StationRefillsViewModel] to find the station again.
+     */
+    object StationRefills :
+        Screen("station_refills?stationKey={stationKey}&period={period}&cars={cars}") {
+        fun createRoute(
+            stationKey: String,
+            period: StationPeriod,
+            carIds: Set<Long>,
+        ): String {
+            val key = stationKey.ifEmpty { STATION_KEY_UNKNOWN }
+            return "station_refills?stationKey=${Uri.encode(key)}" +
+                "&period=${period.name}" +
+                "&cars=${carIds.joinToString(",")}"
+        }
+    }
     object ManageExpenseCategories : Screen("manage_expense_categories")
     object AddExpense : Screen("add_expense/{carId}") {
         fun createRoute(carId: Long) = "add_expense/$carId"
@@ -490,6 +526,16 @@ fun AppNavigation(
                     },
                     onFuelForecastClick = {
                         navController.navigate(Screen.FuelForecast.route)
+                    },
+                    onFuelStationsClick = {
+                        navController.navigate(
+                            Screen.FuelStations.createRoute(FuelStationsTab.STATIONS)
+                        )
+                    },
+                    onTopRefillsClick = {
+                        navController.navigate(
+                            Screen.FuelStations.createRoute(FuelStationsTab.TOP_REFILLS)
+                        )
                     },
                     onTripAnalyticsClick = {
                         navController.navigate(Screen.TripAnalytics.route)
@@ -1209,6 +1255,63 @@ fun AppNavigation(
                     },
                     onNavigateToExpenseDetails = { expenseId ->
                         navController.navigate(Screen.ExpenseDetails.createRoute(expenseId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.FuelStations.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument(FUEL_STATIONS_TAB_ARG) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                FuelStationsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onStationRefillsClick = { station, period, carIds ->
+                        navController.navigate(
+                            Screen.StationRefills.createRoute(station.key, period, carIds)
+                        )
+                    },
+                    onRefillClick = { refillId ->
+                        navController.navigate(Screen.RefillDetails.createRoute(refillId))
+                    }
+                )
+            }
+
+            animatedComposable(
+                route = Screen.StationRefills.route,
+                animationConfig = NavigationAnimations.HorizontalSlide,
+                arguments = listOf(
+                    navArgument(STATION_KEY_ARG) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = STATION_KEY_UNKNOWN
+                    },
+                    navArgument(STATION_PERIOD_ARG) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    navArgument(STATION_CARS_ARG) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                StationRefillsScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onRefillClick = { refillId ->
+                        navController.navigate(Screen.RefillDetails.createRoute(refillId))
                     }
                 )
             }

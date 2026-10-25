@@ -42,6 +42,16 @@ interface TripDao {
     @Query("SELECT COUNT(*) FROM trips WHERE carId = :carId AND deletedAt IS NULL")
     fun getTripCountByCarId(carId: Long): Flow<Int>
 
+    /**
+     * Just the names, for screens that show which trip a refill belongs to.
+     *
+     * [getAllTripsWithRefills] would answer this too, but it pulls every refill
+     * of every trip along with it — a whole second copy of the fuel history to
+     * print one label.
+     */
+    @Query("SELECT id, name FROM trips WHERE deletedAt IS NULL")
+    fun observeTripNames(): Flow<List<TripNameRow>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrip(trip: TripEntity): Long
 

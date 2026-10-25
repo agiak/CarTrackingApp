@@ -49,6 +49,119 @@ interface FuelRefillDao {
     @Query("DELETE FROM fuel_refills WHERE id = :refillId AND deletedAt IS NOT NULL")
     suspend fun permanentlyDeleteRefill(refillId: Long)
 
+    // Fuel stations & Top refills
+    //
+    // Every one of these takes the car selection as `allCars` plus `carIds`
+    // rather than a nullable id: the screen's car filter is multi-select, and
+    // `IN ()` on an empty list matches nothing, which would read as "you have
+    // never refuelled" the moment somebody cleared the filter.
+    //
+    // Price per litre is recomputed as `amountPaid / litersAdded` instead of
+    // being read from the stored `pricePerLiter`. That column is written by an
+    // unguarded division, so a refill saved with zero litres holds an infinity
+    // — and infinity sorts above every real price, permanently.
+
+    @Query(
+        """
+        SELECT TRIM(COALESCE(locationName, '')) AS rawName,
+               SUM(amountPaid) AS totalCost,
+               SUM(litersAdded) AS totalLiters,
+               COUNT(*) AS refillCount,
+               MAX(timestamp) AS lastRefillAt
+        FROM fuel_refills
+        WHERE deletedAt IS NULL
+          AND timestamp BETWEEN :startMillis AND :endMillis
+          AND (:allCars = 1 OR carId IN (:carIds))
+        GROUP BY rawName
+        """
+    )
+    fun observeStationTotals(
+        startMillis: Long,
+        endMillis: Long,
+        allCars: Boolean,
+        carIds: List<Long>,
+    ): Flow<List<StationTotalsRow>>
+
+    @Query(
+        """
+        SELECT * FROM fuel_refills
+        WHERE deletedAt IS NULL
+          AND timestamp BETWEEN :startMillis AND :endMillis
+          AND (:allCars = 1 OR carId IN (:carIds))
+        ORDER BY amountPaid DESC, timestamp DESC
+        LIMIT :limit
+        """
+    )
+    fun observeTopRefillsByCost(
+        startMillis: Long,
+        endMillis: Long,
+        allCars: Boolean,
+        carIds: List<Long>,
+        limit: Int,
+    ): Flow<List<FuelRefillEntity>>
+
+    @Query(
+        """
+        SELECT * FROM fuel_refills
+        WHERE deletedAt IS NULL
+          AND litersAdded > 0
+          AND timestamp BETWEEN :startMillis AND :endMillis
+          AND (:allCars = 1 OR carId IN (:carIds))
+        ORDER BY (amountPaid / litersAdded) DESC, timestamp DESC
+        LIMIT :limit
+        """
+    )
+    fun observeTopRefillsByPricePerLiter(
+        startMillis: Long,
+        endMillis: Long,
+        allCars: Boolean,
+        carIds: List<Long>,
+        limit: Int,
+    ): Flow<List<FuelRefillEntity>>
+
+    @Query(
+        """
+        SELECT * FROM fuel_refills
+        WHERE deletedAt IS NULL
+          AND timestamp BETWEEN :startMillis AND :endMillis
+          AND (:allCars = 1 OR carId IN (:carIds))
+        ORDER BY litersAdded DESC, timestamp DESC
+        LIMIT :limit
+        """
+    )
+    fun observeTopRefillsByLiters(
+        startMillis: Long,
+        endMillis: Long,
+        allCars: Boolean,
+        carIds: List<Long>,
+        limit: Int,
+    ): Flow<List<FuelRefillEntity>>
+
+    /**
+     * Every refill at one station, for the "Show refills" list.
+     *
+     * Matched on the whole stored string rather than on the parsed station
+     * name, because SQLite cannot run the same splitting rules: the caller
+     * passes all the spellings its grouping merged into one station.
+     */
+    @Query(
+        """
+        SELECT * FROM fuel_refills
+        WHERE deletedAt IS NULL
+          AND timestamp BETWEEN :startMillis AND :endMillis
+          AND (:allCars = 1 OR carId IN (:carIds))
+          AND TRIM(COALESCE(locationName, '')) IN (:rawNames)
+        ORDER BY timestamp DESC
+        """
+    )
+    fun observeRefillsAtStation(
+        startMillis: Long,
+        endMillis: Long,
+        allCars: Boolean,
+        carIds: List<Long>,
+        rawNames: List<String>,
+    ): Flow<List<FuelRefillEntity>>
+
     // Sync — trashed rows included on purpose; see CarDao.getAllForSync.
 
     @Query("SELECT * FROM fuel_refills ORDER BY id ASC")

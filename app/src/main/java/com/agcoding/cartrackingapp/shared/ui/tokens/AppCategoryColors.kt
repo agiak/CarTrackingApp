@@ -43,6 +43,28 @@ private const val SERVICE_HUE_SHIFT = -45f
 private const val OTHER_HUE_SHIFT = 227f
 
 /**
+ * [count] colours for a chart whose series are not a fixed set of categories —
+ * the stations bar, where the bands are whatever places the user refuelled at.
+ *
+ * Built the same way as the three above, by turning the chosen primary around
+ * the wheel, so a stations chart belongs to the user's palette exactly as the
+ * cost breakdown does. The first band is the primary itself, which keeps the
+ * biggest share the accent colour here too.
+ *
+ * The spread stops short of a full lap so the last colour cannot come back
+ * round to look like the first.
+ */
+fun AppColorScheme.seriesColors(count: Int): List<Color> {
+    if (count <= 0) return emptyList()
+    if (count == 1) return listOf(actionPrimary)
+    val step = SERIES_ARC / (count - 1)
+    return List(count) { index -> actionPrimary.rotateHue(index * step) }
+}
+
+/** Short of 360° on purpose: see [seriesColors]. */
+private const val SERIES_ARC = 280f
+
+/**
  * Turns a colour around the hue wheel, keeping how saturated and how bright it
  * is. A grey has no hue to turn, so it is returned untouched rather than
  * becoming an arbitrary colour.
