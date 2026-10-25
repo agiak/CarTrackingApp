@@ -33,7 +33,9 @@ data class AppSettings(
     val language: AppLanguage = AppLanguage.ENGLISH,
     val notificationsEnabled: Boolean = true,
     val llmModel: LLMModel = LLMModel.DEFAULT,
-    val forecastingEnabled: Boolean = true
+    val forecastingEnabled: Boolean = true,
+    /** Whether the launcher icon follows the chosen palette; see LauncherIconManager. */
+    val iconFollowsTheme: Boolean = true
 )
 
 @Singleton
@@ -46,6 +48,7 @@ class SettingsPreferences @Inject constructor(
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val LLM_MODEL = stringPreferencesKey("llm_model")
         val FORECASTING_ENABLED = booleanPreferencesKey("forecasting_enabled")
+        val ICON_FOLLOWS_THEME = booleanPreferencesKey("icon_follows_theme")
     }
 
     val settingsFlow: Flow<AppSettings> = context.settingsDataStore.data.map { preferences ->
@@ -60,7 +63,8 @@ class SettingsPreferences @Inject constructor(
             llmModel = preferences[Keys.LLM_MODEL]?.let { modelId ->
                 LLMModel.fromModelId(modelId)
             } ?: LLMModel.DEFAULT,
-            forecastingEnabled = preferences[Keys.FORECASTING_ENABLED] ?: true
+            forecastingEnabled = preferences[Keys.FORECASTING_ENABLED] ?: true,
+            iconFollowsTheme = preferences[Keys.ICON_FOLLOWS_THEME] ?: true
         )
     }
 
@@ -91,6 +95,12 @@ class SettingsPreferences @Inject constructor(
     suspend fun updateForecastingEnabled(enabled: Boolean) {
         context.settingsDataStore.edit { preferences ->
             preferences[Keys.FORECASTING_ENABLED] = enabled
+        }
+    }
+
+    suspend fun updateIconFollowsTheme(enabled: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[Keys.ICON_FOLLOWS_THEME] = enabled
         }
     }
 
