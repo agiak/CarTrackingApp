@@ -30,6 +30,9 @@ class TripRepositoryImpl @Inject constructor(
     override fun getTripCountByCarId(carId: Long): Flow<Int> =
         tripDao.getTripCountByCarId(carId)
 
+    override fun observeTripNames(): Flow<Map<Long, String>> =
+        tripDao.observeTripNames().map { rows -> rows.associate { it.id to it.name } }
+
     override suspend fun insertTrip(trip: Trip): Result<Long> = try {
         Result.Success(tripDao.insertTrip(trip.toEntity()))
     } catch (e: Exception) {

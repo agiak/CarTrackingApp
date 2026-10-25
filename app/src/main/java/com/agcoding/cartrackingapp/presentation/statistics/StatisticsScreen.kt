@@ -73,6 +73,9 @@ fun StatisticsScreen(
     onCarComparisonClick: () -> Unit = {},
     onInsightsClick: () -> Unit = {},
     onFuelForecastClick: () -> Unit = {},
+    /** Both open the same screen; they differ only in which tab it lands on. */
+    onFuelStationsClick: () -> Unit = {},
+    onTopRefillsClick: () -> Unit = {},
     onTripAnalyticsClick: () -> Unit = {},
     onMonthClick: (month: Int, year: Int) -> Unit = { _, _ -> },
     /** Opens the dedicated statistics screen for one car from the per-car breakdown. */
@@ -134,6 +137,8 @@ fun StatisticsScreen(
                     onCarComparisonClick = onCarComparisonClick,
                     onFuelForecastClick = onFuelForecastClick,
                     onInsightsClick = onInsightsClick,
+                    onFuelStationsClick = onFuelStationsClick,
+                    onTopRefillsClick = onTopRefillsClick,
                     forecastingEnabled = forecastingEnabled,
                     summarySection = {
                         SummarySection(
