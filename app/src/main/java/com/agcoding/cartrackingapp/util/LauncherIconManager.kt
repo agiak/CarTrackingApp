@@ -44,10 +44,22 @@ class LauncherIconManager @Inject constructor(
         val packageManager = context.packageManager
 
         runCatching {
-            if (isEnabled(packageManager, wanted)) return
+            // Read the whole set first. Asking is cheap and writing is not —
+            // each write is persisted by the package manager — so this both
+            // skips the 40 pointless disables of the common case and notices
+            // when the state is wrong in a way a single check would miss. Two
+            // aliases can end up live at once: the process can die between the
+            // enable and the disables below, and `adb shell pm enable` on one
+            // of them does the same thing. Without a full read that leaves two
+            // icons on the home screen with nothing to ever repair them.
+            val enabledNow = ALL_ALIASES.filter { isEnabled(packageManager, it) }
+            if (enabledNow == listOf(wanted)) return
 
-            setEnabled(packageManager, wanted, enabled = true)
-            ALL_ALIASES.filterNot { it == wanted }.forEach { alias ->
+            // Enable before disabling: for the moment in between two entries
+            // are live, which a launcher shows as a duplicate icon for a
+            // frame. The other order leaves a moment with none.
+            if (wanted !in enabledNow) setEnabled(packageManager, wanted, enabled = true)
+            enabledNow.filterNot { it == wanted }.forEach { alias ->
                 setEnabled(packageManager, alias, enabled = false)
             }
             Timber.d("Launcher icon switched to $wanted")
