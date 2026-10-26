@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,7 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
-import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.expensedetails.components.ExpenseDetailsContent
@@ -128,10 +129,17 @@ fun ExpenseDetailsScreen(
         }
     }
 
-    SuccessOverlay(
+    DeletedSheet(
         visible = showDeleted,
         message = stringResource(R.string.expense_deleted),
-        onFinished = onNavigateBack,
+        onUndo = {
+            showDeleted = false
+            viewModel.restoreExpense()
+        },
+        onFinished = {
+            showDeleted = false
+            onNavigateBack()
+        },
     )
 
     if (showDeleteDialog) {

@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.presentation.components.ActiveFilter
 import com.agcoding.cartrackingapp.presentation.components.ActiveFiltersRow
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
@@ -90,6 +92,7 @@ fun RefillHistoryScreen(
     var showSortMenu by remember { mutableStateOf(false) }
     var showAddToTripDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var deletedCount by remember { mutableStateOf<Int?>(null) }
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -468,11 +471,9 @@ fun RefillHistoryScreen(
                     onClick = {
                         showDeleteConfirmDialog = false
                         viewModel.deleteSelectedRefills(
-                            onSuccess = { count ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Deleted $count refill(s)")
-                                }
-                            },
+                            // The count decides the wording, so it is what the
+                            // sheet is keyed on; null means nothing is showing.
+                            onSuccess = { count -> deletedCount = count },
                             onError = { error ->
                                 scope.launch { snackbarHostState.showSnackbar(error) }
                             }
@@ -582,6 +583,18 @@ fun RefillHistoryScreen(
                 }
             },
             dismissButton = {}
+        )
+    }
+
+    deletedCount?.let { count ->
+        DeletedSheet(
+            visible = true,
+            message = pluralStringResource(R.plurals.refills_deleted, count, count),
+            onUndo = {
+                deletedCount = null
+                viewModel.restoreLastDeletedRefills()
+            },
+            onFinished = { deletedCount = null },
         )
     }
 }

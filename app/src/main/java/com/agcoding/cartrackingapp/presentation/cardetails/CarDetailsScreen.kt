@@ -78,6 +78,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.presentation.cardetails.components.CarHeaderCard
 import com.agcoding.cartrackingapp.presentation.cardetails.components.IncompleteInformationBanner
 import com.agcoding.cartrackingapp.presentation.cardetails.components.ComparePeriodsCard
@@ -111,6 +112,7 @@ fun CarDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    var showDeleted by remember { mutableStateOf(false) }
     val tripCount by viewModel.tripCount.collectAsState()
     val recentTrips by viewModel.recentTrips.collectAsState()
     val refillTripNames by viewModel.refillTripNames.collectAsState()
@@ -491,7 +493,7 @@ fun CarDetailsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteCar(onSuccess = onNavigateBack)
+                        viewModel.deleteCar(onSuccess = { showDeleted = true })
                     }
                 ) {
                     Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
@@ -504,6 +506,19 @@ fun CarDetailsScreen(
             }
         )
     }
+
+    DeletedSheet(
+        visible = showDeleted,
+        message = stringResource(R.string.car_deleted),
+        onUndo = {
+            showDeleted = false
+            viewModel.restoreCar()
+        },
+        onFinished = {
+            showDeleted = false
+            onNavigateBack()
+        },
+    )
 }
 
 /** How many transactions the car details screen previews before "See all". */

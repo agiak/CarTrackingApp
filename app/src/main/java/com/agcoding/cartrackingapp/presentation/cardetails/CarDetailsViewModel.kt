@@ -223,6 +223,19 @@ class CarDetailsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Undoes the delete.
+     *
+     * Deleting a car only marks the car; its refills and expenses are never
+     * touched, so clearing that one column brings all of it back.
+     */
+    fun restoreCar() {
+        viewModelScope.launch {
+            runCatching { carRepository.restoreCar(carId) }
+                .onSuccess { QuickAddWidgetReceiver.updateWidgets(context) }
+        }
+    }
+
     fun setDefaultCar() {
         viewModelScope.launch {
             carRepository.setDefaultCar(carId)

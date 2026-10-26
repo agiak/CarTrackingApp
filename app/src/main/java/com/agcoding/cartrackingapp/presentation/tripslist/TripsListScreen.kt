@@ -35,6 +35,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +62,7 @@ fun TripsListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    var showDeleted by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -171,7 +176,10 @@ fun TripsListScreen(
             text = { Text(stringResource(R.string.delete_trip_confirm)) },
             confirmButton = {
                 TextButton(
-                    onClick = { viewModel.deleteTrip() }
+                    // Only once it is actually gone: announcing the delete
+                    // before the write lands is what makes a failed one look
+                    // like a successful one.
+                    onClick = { viewModel.deleteTrip(onSuccess = { showDeleted = true }) }
                 ) {
                     Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
@@ -183,6 +191,18 @@ fun TripsListScreen(
             }
         )
     }
+
+    // Nowhere to navigate: this is the list the trip was on, and it has
+    // already lost the row.
+    DeletedSheet(
+        visible = showDeleted,
+        message = stringResource(R.string.trip_deleted),
+        onUndo = {
+            showDeleted = false
+            viewModel.restoreLastDeletedTrip()
+        },
+        onFinished = { showDeleted = false },
+    )
 }
 
 @Preview(showBackground = true)

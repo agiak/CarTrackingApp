@@ -74,6 +74,14 @@ class ExpenseDetailsViewModel @Inject constructor(
         _showDeleteDialog.value = false
     }
 
+    /** Undoes the delete; the details flow repopulates by itself. */
+    fun restoreExpense() {
+        viewModelScope.launch {
+            runCatching { expenseRepository.restoreExpense(expenseId) }
+                .onFailure { Timber.e(it, "Could not restore expense %d", expenseId) }
+        }
+    }
+
     /**
      * Deletes the expense, and says so either way.
      *

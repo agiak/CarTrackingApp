@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
-import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.TonalButton
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
@@ -257,10 +257,17 @@ fun RefillDetailsScreen(
 
     // A modal sheet, so where it sits in the tree does not decide what it
     // covers: the scrim takes the top bar with it either way.
-    SuccessOverlay(
+    DeletedSheet(
         visible = showDeleted,
         message = stringResource(R.string.refill_deleted),
-        onFinished = onNavigateBack,
+        onUndo = {
+            showDeleted = false
+            viewModel.restoreRefill()
+        },
+        onFinished = {
+            showDeleted = false
+            onNavigateBack()
+        },
     )
 }
 

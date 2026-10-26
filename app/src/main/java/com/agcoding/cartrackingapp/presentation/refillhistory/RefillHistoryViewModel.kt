@@ -9,6 +9,7 @@ import com.agcoding.cartrackingapp.domain.repository.CarRepository
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.repository.TripRepository
 import com.agcoding.cartrackingapp.domain.usecase.refill.DeleteRefillUseCase
+import com.agcoding.cartrackingapp.domain.usecase.refill.RestoreRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import com.agcoding.cartrackingapp.shared.ui.utils.simpleMessage
@@ -29,6 +30,7 @@ class RefillHistoryViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val addRefillsToTripUseCase: AddRefillsToTripUseCase,
     private val deleteRefillUseCase: DeleteRefillUseCase,
+    private val restoreRefillUseCase: RestoreRefillUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -173,26 +175,44 @@ class RefillHistoryViewModel @Inject constructor(
         _selectedRefillIds.value = emptySet()
     }
 
+    /**
+     * The ids that actually went through on the last bulk delete.
+     *
+     * Only those: undoing a partial failure by restoring everything that was
+     * selected would bring back rows the delete never touched, which from the
+     * user's side is a delete that undid itself.
+     */
+    private var lastDeletedIds: List<Long> = emptyList()
+
     fun deleteSelectedRefills(onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
         val ids = _selectedRefillIds.value.toList()
         if (ids.isEmpty()) return
 
         viewModelScope.launch {
-            var deletedCount = 0
+            val deleted = mutableListOf<Long>()
             var lastError: String? = null
             ids.forEach { id ->
                 when (val result = deleteRefillUseCase(id)) {
-                    is Result.Success -> deletedCount++
+                    is Result.Success -> deleted += id
                     is Result.Error -> lastError = result.error.simpleMessage
                 }
             }
+            lastDeletedIds = deleted
             clearSelection()
-            if (lastError != null && deletedCount == 0) {
+            if (lastError != null && deleted.isEmpty()) {
                 onError(lastError!!)
             } else {
-                onSuccess(deletedCount)
+                onSuccess(deleted.size)
             }
         }
+    }
+
+    /** Puts the last bulk delete back. Does nothing if there is none. */
+    fun restoreLastDeletedRefills() {
+        val ids = lastDeletedIds
+        if (ids.isEmpty()) return
+        lastDeletedIds = emptyList()
+        viewModelScope.launch { ids.forEach { restoreRefillUseCase(it) } }
     }
 
     fun addSelectedToTrip(tripId: Long, onSuccess: () -> Unit, onError: (String) -> Unit) {

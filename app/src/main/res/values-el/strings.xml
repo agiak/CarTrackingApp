@@ -1267,6 +1267,13 @@
     <string name="refill_deleted">Ο ανεφοδιασμός διαγράφηκε</string>
     <string name="refill_delete_failed">Δεν ήταν δυνατή η διαγραφή του ανεφοδιασμού. Δοκιμάστε ξανά.</string>
     <string name="expense_delete_failed">Δεν ήταν δυνατή η διαγραφή του εξόδου. Δοκιμάστε ξανά.</string>
+    <string name="category_deleted">Η κατηγορία διαγράφηκε</string>
+    <string name="car_deleted">Το όχημα διαγράφηκε</string>
+    <string name="trip_deleted">Το ταξίδι διαγράφηκε</string>
+    <plurals name="refills_deleted">
+        <item quantity="one">Διαγράφηκε %d ανεφοδιασμός</item>
+        <item quantity="other">Διαγράφηκαν %d ανεφοδιασμοί</item>
+    </plurals>
     <string name="expense_deleted">Το έξοδο διαγράφηκε</string>
     <string name="car_added_successfully">Το αυτοκίνητο προστέθηκε</string>
     <string name="expense_saved">Το έξοδο αποθηκεύτηκε</string>

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.domain.usecase.refill.DeleteRefillUseCase
+import com.agcoding.cartrackingapp.domain.usecase.refill.RestoreRefillUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.GetRefillDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.refill.RefillDetails
 import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
@@ -56,6 +57,7 @@ sealed class RefillDetailsUiState {
 class RefillDetailsViewModel @Inject constructor(
     private val getRefillDetailsUseCase: GetRefillDetailsUseCase,
     private val deleteRefillUseCase: DeleteRefillUseCase,
+    private val restoreRefillUseCase: RestoreRefillUseCase,
     private val getTripsByCarUseCase: GetTripsByCarUseCase,
     private val addRefillsToTripUseCase: AddRefillsToTripUseCase,
     private val createTripUseCase: CreateTripUseCase,
@@ -158,6 +160,16 @@ class RefillDetailsViewModel @Inject constructor(
                 is Result.Error -> { hideDeleteDialog(); onError() }
             }
         }
+    }
+
+    /**
+     * Undoes the delete.
+     *
+     * The details flow is watching the same row, so clearing the mark is all
+     * it takes: the screen behind the sheet repopulates by itself.
+     */
+    fun restoreRefill() {
+        viewModelScope.launch { restoreRefillUseCase(refillId) }
     }
 
     /** Moves the refill into [trip]; reassigning from another trip is the same write. */

@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.AddCategoryDialog
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.DeleteCategoryDialog
 import com.agcoding.cartrackingapp.presentation.expensecategories.components.ManageExpenseCategoriesContent
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +44,7 @@ fun ManageExpenseCategoriesScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf<String?>(null) }
+    var deletedCategory by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -152,9 +154,23 @@ fun ManageExpenseCategoriesScreen(
             onConfirm = {
                 viewModel.deleteCategory(categoryName)
                 showDeleteDialog = null
+                deletedCategory = categoryName
             }
         )
     }
+
+    // No navigation when it lapses: this is the list the category was on, and
+    // it has already lost the row.
+    DeletedSheet(
+        visible = deletedCategory != null,
+        message = stringResource(R.string.category_deleted),
+        supportingText = deletedCategory,
+        onUndo = {
+            deletedCategory = null
+            viewModel.restoreLastDeletedCategory()
+        },
+        onFinished = { deletedCategory = null },
+    )
 }
 
 @Preview(showBackground = true)

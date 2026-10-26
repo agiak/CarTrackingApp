@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.DeletedSheet
 import com.agcoding.cartrackingapp.util.formatMoney
 import com.agcoding.cartrackingapp.util.formatNumber
 import com.agcoding.cartrackingapp.domain.model.TripStatistics
@@ -72,6 +73,7 @@ fun TripDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    var showDeleted by remember { mutableStateOf(false) }
     val showAddRefillsDialog by viewModel.showAddRefillsDialog.collectAsState()
     val availableRefills by viewModel.availableRefills.collectAsState()
     val selectedRefillIds by viewModel.selectedRefillIds.collectAsState()
@@ -151,7 +153,7 @@ fun TripDetailsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteTrip(onSuccess = onNavigateBack)
+                        viewModel.deleteTrip(onSuccess = { showDeleted = true })
                     }
                 ) {
                     Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
@@ -278,6 +280,19 @@ fun TripDetailsScreen(
             }
         )
     }
+
+    DeletedSheet(
+        visible = showDeleted,
+        message = stringResource(R.string.trip_deleted),
+        onUndo = {
+            showDeleted = false
+            viewModel.restoreTrip()
+        },
+        onFinished = {
+            showDeleted = false
+            onNavigateBack()
+        },
+    )
 }
 
 @Preview(showBackground = true)

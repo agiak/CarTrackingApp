@@ -1262,6 +1262,13 @@
     <string name="refill_deleted">Refill deleted</string>
     <string name="refill_delete_failed">Could not delete the refill. Please try again.</string>
     <string name="expense_delete_failed">Could not delete the expense. Please try again.</string>
+    <string name="category_deleted">Category deleted</string>
+    <string name="car_deleted">Car deleted</string>
+    <string name="trip_deleted">Trip deleted</string>
+    <plurals name="refills_deleted">
+        <item quantity="one">%d refill deleted</item>
+        <item quantity="other">%d refills deleted</item>
+    </plurals>
     <string name="expense_deleted">Expense deleted</string>
     <string name="car_added_successfully">Car added successfully</string>
     <string name="expense_saved">Expense saved</string>

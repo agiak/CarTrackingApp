@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class CategoryWithQuickPick(val name: String, val isQuickPick: Boolean)
@@ -130,13 +131,32 @@ class ManageExpenseCategoriesViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The row that was last deleted, kept so that undo can put it back.
+     *
+     * This table has no `deletedAt` — a category is there or it is not — so
+     * undo means re-inserting the entity rather than clearing a mark. Holding
+     * the whole row keeps its id, so the category comes back as itself rather
+     * than as a new one with the same name.
+     */
+    private var lastDeleted: ExpenseCategoryEntity? = null
+
     fun deleteCategory(name: String) {
         viewModelScope.launch {
-            try {
+            runCatching {
+                lastDeleted = expenseCategoryDao.getCategoryByName(name)
                 expenseCategoryDao.deleteCategoryByName(name)
-            } catch (e: Exception) {
-                // Handle error
-            }
+            }.onFailure { Timber.e(it, "Could not delete category %s", name) }
+        }
+    }
+
+    /** Puts the last deleted category back. Does nothing if there is none. */
+    fun restoreLastDeletedCategory() {
+        val category = lastDeleted ?: return
+        lastDeleted = null
+        viewModelScope.launch {
+            runCatching { expenseCategoryDao.insertCategory(category) }
+                .onFailure { Timber.e(it, "Could not restore category %s", category.name) }
         }
     }
 

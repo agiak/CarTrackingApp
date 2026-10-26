@@ -8,6 +8,7 @@ import com.agcoding.cartrackingapp.domain.model.TripStatistics
 import com.agcoding.cartrackingapp.domain.repository.RefillRepository
 import com.agcoding.cartrackingapp.domain.usecase.trip.AddRefillsToTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.DeleteTripUseCase
+import com.agcoding.cartrackingapp.domain.usecase.trip.RestoreTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetTripDetailsUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.RemoveRefillsFromTripUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class TripDetailsViewModel @Inject constructor(
     private val getTripDetailsUseCase: GetTripDetailsUseCase,
     private val deleteTripUseCase: DeleteTripUseCase,
+    private val restoreTripUseCase: RestoreTripUseCase,
     private val addRefillsToTripUseCase: AddRefillsToTripUseCase,
     private val removeRefillsFromTripUseCase: RemoveRefillsFromTripUseCase,
     private val refillRepository: RefillRepository,
@@ -84,6 +86,11 @@ class TripDetailsViewModel @Inject constructor(
                 is Result.Error -> hideDeleteDialog()
             }
         }
+    }
+
+    /** Undoes the delete; the trip's refills were never marked, only the trip. */
+    fun restoreTrip() {
+        viewModelScope.launch { restoreTripUseCase(tripId) }
     }
 
     fun showAddRefillsDialog() {

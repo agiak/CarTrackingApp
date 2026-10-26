@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcoding.cartrackingapp.domain.model.Trip
 import com.agcoding.cartrackingapp.domain.usecase.trip.DeleteTripUseCase
+import com.agcoding.cartrackingapp.domain.usecase.trip.RestoreTripUseCase
 import com.agcoding.cartrackingapp.domain.usecase.trip.GetTripsByCarUseCase
 import com.agcoding.cartrackingapp.shared.domain.result.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class TripsListViewModel @Inject constructor(
     private val getTripsByCarUseCase: GetTripsByCarUseCase,
     private val deleteTripUseCase: DeleteTripUseCase,
+    private val restoreTripUseCase: RestoreTripUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -63,13 +65,28 @@ class TripsListViewModel @Inject constructor(
         _tripToDelete.value = null
     }
 
-    fun deleteTrip() {
+    /** The trip that was last deleted, so that undo knows what to put back. */
+    private var lastDeletedTripId: Long? = null
+
+    fun deleteTrip(onSuccess: () -> Unit = {}) {
         val tripId = _tripToDelete.value ?: return
         viewModelScope.launch {
             when (deleteTripUseCase(tripId)) {
-                is Result.Success, is Result.Error -> hideDeleteDialog()
+                is Result.Success -> {
+                    lastDeletedTripId = tripId
+                    hideDeleteDialog()
+                    onSuccess()
+                }
+                is Result.Error -> hideDeleteDialog()
             }
         }
+    }
+
+    /** Puts the last deleted trip back. Does nothing if there is none. */
+    fun restoreLastDeletedTrip() {
+        val tripId = lastDeletedTripId ?: return
+        lastDeletedTripId = null
+        viewModelScope.launch { restoreTripUseCase(tripId) }
     }
 }
 
