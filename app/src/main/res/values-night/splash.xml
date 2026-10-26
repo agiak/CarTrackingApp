@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- See values/splash.xml. The dark backgrounds land between #121525 and #312508. -->
+    <color name="splash_background">#14181A</color>
+    <color name="splash_glyph">#E6E8EA</color>
+</resources>

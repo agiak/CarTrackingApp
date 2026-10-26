@@ -17,10 +17,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
+import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -31,8 +34,15 @@ import kotlin.math.sin
  *
  * It runs after the system splash, not instead of it — Android 12+ always
  * draws its own first, and `core-splashscreen` gives earlier versions the same
- * one. Both are painted in [CaribooTeal], so the hand-off from the window to
- * this composable is not visible.
+ * one.
+ *
+ * The car is painted in the chosen palette. The field behind it cannot be:
+ * the system splash's background is a theme attribute the framework reads
+ * before any of the app's code runs, so it is a fixed near-neutral that every
+ * palette's own background sits within a couple of shades of (see
+ * `@color/splash_background`). Drawing this on [surface] therefore hands over
+ * from the window without a visible seam, and still follows the palette for
+ * everything that carries colour.
  *
  * [onFinished] fires once, when the run ends. It is kept in a
  * [rememberUpdatedState] so that a recomposition with a new lambda does not
@@ -42,6 +52,8 @@ import kotlin.math.sin
 fun FuelGaugeSplash(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
+    surface: Color = LocalAppColorScheme.current.backgroundPrimary,
+    colors: BrandColors = rememberBrandColors(surface = surface),
     loop: Boolean = false,
 ) {
     val finished by rememberUpdatedState(onFinished)
@@ -55,8 +67,8 @@ fun FuelGaugeSplash(
         finished()
     }
 
-    Box(modifier.fillMaxSize().background(CaribooTeal.Background)) {
-        Canvas(Modifier.fillMaxSize()) { drawGaugeScene(time.value) }
+    Box(modifier.fillMaxSize().background(surface)) {
+        Canvas(Modifier.fillMaxSize()) { drawGaugeScene(time.value, colors) }
     }
 }
 
@@ -86,14 +98,14 @@ private fun carX(t: Float, w: Float): Float {
     } * k
 }
 
-private fun DrawScope.drawGaugeScene(t: Float) {
+private fun DrawScope.drawGaugeScene(t: Float, colors: BrandColors) {
     val w = size.width
     val k = w / 1080f
     val carW = 670f * k
     val carH = carW * CaribooCar.HEIGHT / CaribooCar.WIDTH
     val cy = size.height * 0.458f
     val road = cy + carH / 2 + 12f * k
-    val g = CaribooTeal.Glyph
+    val g = colors.line
 
     drawLine(g.copy(alpha = .22f), Offset(0f, road), Offset(w, road), 4f * k, StrokeCap.Round)
 
@@ -152,8 +164,8 @@ private fun DrawScope.drawGaugeScene(t: Float) {
         topLeft = Offset((w - carW) / 2 + x, cy - carH / 2),
         widthPx = carW,
         glyph = g,
-        shade = CaribooTeal.GlyphShade,
-        hub = CaribooTeal.Bottom,
+        shade = colors.lineShade,
+        hub = colors.hub,
         wheelDeg = wheel,
         tiltDeg = tilt,
         swayDeg = sway,
@@ -163,5 +175,7 @@ private fun DrawScope.drawGaugeScene(t: Float) {
 @Preview(showBackground = true, widthDp = 380, heightDp = 760)
 @Composable
 private fun FuelGaugeSplashPreview() {
-    FuelGaugeSplash(onFinished = {}, loop = true)
+    CarTrackingAppTheme(darkTheme = true) {
+        FuelGaugeSplash(onFinished = {}, loop = true)
+    }
 }

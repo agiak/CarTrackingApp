@@ -7,16 +7,16 @@
         app gets a frame; core-splashscreen gives older versions the same one,
         so there is a single appearance to reason about instead of two.
 
-        No values-night copy on purpose: the splash is the brand's teal in both
-        modes, and a dark variant would make the hand-off into the animation —
-        which is teal either way — a visible colour jump.
+        One style, two colour sets: the colours it points at carry the -night
+        variants (see values/splash.xml), so there is no second theme to keep
+        in step with this one.
 
         postSplashScreenTheme is what installSplashScreen() switches the window
         to, before AppCompat looks at it.
     -->
     <style name="Theme.CarTrackingApp.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/cariboo_teal_bottom</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_glyph</item>
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.CarTrackingApp</item>
     </style>
 

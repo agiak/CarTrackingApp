@@ -37,6 +37,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.FailedKind
+import com.agcoding.cartrackingapp.presentation.components.FailureNotice
+import com.agcoding.cartrackingapp.presentation.components.SavedKind
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.AmountInputCard
 import com.agcoding.cartrackingapp.presentation.components.Kpi
@@ -94,6 +97,7 @@ fun AddRefillBottomSheet(
         if (showSuccess) {
             SuccessAnimation(
                 message = stringResource(R.string.refill_saved),
+                kind = SavedKind.REFILL,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp),
@@ -339,14 +343,12 @@ fun AddRefillBottomSheet(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Error message
-            if (uiState.errorMessage != null) {
-                Text(
-                    text = uiState.errorMessage!!,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            // Why the save did not go through, with the matching animation.
+            // Beside the form rather than over it: the user has to be able to
+            // reach the field that caused it.
+            val errorMessage = uiState.errorMessage
+            if (errorMessage != null) {
+                FailureNotice(kind = FailedKind.REFILL, message = errorMessage)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 

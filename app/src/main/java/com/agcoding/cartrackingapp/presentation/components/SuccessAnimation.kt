@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -34,6 +36,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.agcoding.cartrackingapp.presentation.theme.AppSuccess
 import com.agcoding.cartrackingapp.presentation.theme.CarTrackingAppTheme
+import com.agcoding.cartrackingapp.shared.ui.brand.ExpenseSaved
+import com.agcoding.cartrackingapp.shared.ui.brand.RefillSaved
+import com.agcoding.cartrackingapp.shared.ui.brand.WelcomeAboard
+import com.agcoding.cartrackingapp.shared.ui.brand.rememberBrandColors
+import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -163,17 +170,51 @@ fun SuccessCheckmark(
 }
 
 /**
- * Full-surface success state: the animated checkmark above a short confirmation
+ * Which confirmation a save shows.
+ *
+ * [GENERIC] is the tick that every save used to get. The others are the
+ * branded animations — a tank filling, a coin landing in a wallet, the caribou
+ * arriving — which say what was saved as well as that it was, and are worth
+ * the extra second only where the thing saved is the point of the screen.
+ */
+enum class SavedKind { GENERIC, REFILL, EXPENSE, ACCOUNT }
+
+/** How long the last frame is held before the sheet closes over it. */
+private const val SETTLE_MILLIS = 550L
+
+/** Wide enough to read the tank's level and the coin's face at arm's length. */
+private val ANIMATION_WIDTH = 190.dp
+
+/**
+ * Full-surface success state: the animation above a short confirmation
  * message. Drop this in place of a form's content once a save succeeds, and use
  * [onFinished] to close the sheet or screen when the animation settles.
+ *
+ * [surface] is the colour behind this — the sheet's card, the screen's
+ * background — because the branded animations cut their ticks and wheel hubs
+ * out of whatever they sit on rather than painting them a colour of their own.
  */
 @Composable
 fun SuccessAnimation(
     message: String,
     modifier: Modifier = Modifier,
     supportingText: String? = null,
+    kind: SavedKind = SavedKind.GENERIC,
+    surface: Color = LocalAppColorScheme.current.backgroundCard,
     onFinished: (() -> Unit)? = null
 ) {
+    val scope = rememberCoroutineScope()
+    // The branded animations end on their last frame and say so immediately;
+    // the tick holds by itself. Giving them the same pause means every
+    // confirmation in the app is on screen for the same length of time.
+    val finishAfterHold: () -> Unit = {
+        scope.launch {
+            delay(SETTLE_MILLIS)
+            onFinished?.invoke()
+        }
+    }
+    val brand = rememberBrandColors(surface = surface)
+
     Surface(
         modifier = modifier,
         color = Color.Transparent
@@ -185,7 +226,24 @@ fun SuccessAnimation(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            SuccessCheckmark(size = 112.dp, onAnimationEnd = onFinished)
+            when (kind) {
+                SavedKind.GENERIC -> SuccessCheckmark(size = 112.dp, onAnimationEnd = onFinished)
+                SavedKind.REFILL -> RefillSaved(
+                    modifier = Modifier.width(ANIMATION_WIDTH),
+                    colors = brand,
+                    onFinished = finishAfterHold,
+                )
+                SavedKind.EXPENSE -> ExpenseSaved(
+                    modifier = Modifier.width(ANIMATION_WIDTH),
+                    colors = brand,
+                    onFinished = finishAfterHold,
+                )
+                SavedKind.ACCOUNT -> WelcomeAboard(
+                    modifier = Modifier.width(ANIMATION_WIDTH),
+                    colors = brand,
+                    onFinished = finishAfterHold,
+                )
+            }
 
             Text(
                 text = message,
@@ -226,11 +284,13 @@ fun SuccessOverlay(
     message: String,
     modifier: Modifier = Modifier,
     supportingText: String? = null,
+    kind: SavedKind = SavedKind.GENERIC,
     onFinished: () -> Unit
 ) {
     if (!visible) return
 
     val blocker = remember { MutableInteractionSource() }
+    val scheme = LocalAppColorScheme.current
 
     Box(
         modifier = modifier
@@ -245,6 +305,10 @@ fun SuccessOverlay(
         SuccessAnimation(
             message = message,
             supportingText = supportingText,
+            kind = kind,
+            // Matches the Box above, so the animation's negative space is the
+            // screen showing through rather than a card-coloured patch.
+            surface = scheme.backgroundPrimary,
             onFinished = onFinished
         )
     }

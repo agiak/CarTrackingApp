@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The system splash's colours.
+
+        They cannot come from the chosen palette: the framework reads this
+        theme before any of the app's code runs, so there is nothing to ask.
+        What they can do is get out of the way. Every palette's own background
+        is its primary mixed 90% into white, which lands between #ECF8F7 and
+        #FFF7E6 — so a near-neutral here is within a couple of shades of
+        whichever one the user has, and the hand-off to the Compose animation
+        underneath it is not visible.
+
+        The glyph is the app's ink for the same reason: neutral sits with any
+        palette, where a fixed brand colour would clash with half of them.
+    -->
+    <color name="splash_background">#F4F6F7</color>
+    <color name="splash_glyph">#1A1C1E</color>
+</resources>

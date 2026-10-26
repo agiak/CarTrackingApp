@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The splash mark, tinted rather than baked.
+
+    ic_splash_glyph is a white glyph on transparent; on the near-white splash
+    background it would be invisible. Wrapping it in a tint lets the one asset
+    serve both light and dark, since @color/splash_glyph has a -night variant.
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_splash_glyph"
+    android:tint="@color/splash_glyph" />

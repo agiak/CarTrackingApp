@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import com.agcoding.cartrackingapp.presentation.components.AppTextField
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -41,6 +40,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
+import com.agcoding.cartrackingapp.presentation.components.FailedKind
+import com.agcoding.cartrackingapp.presentation.components.FailureNotice
+import com.agcoding.cartrackingapp.presentation.components.SavedKind
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
@@ -73,12 +75,11 @@ fun AddExpenseBottomSheet(
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = androidx.compose.runtime.rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-
     // Once the expense is stored the form is swapped for a success animation; the
     // sheet closes when that animation settles rather than snapping shut instantly.
     var showSuccess by remember { mutableStateOf(false) }
     var savedSummary by remember { mutableStateOf<String?>(null) }
+    var saveError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.clearFields()
@@ -106,6 +107,7 @@ fun AddExpenseBottomSheet(
             SuccessAnimation(
                 message = stringResource(R.string.expense_saved),
                 supportingText = savedSummary,
+                kind = SavedKind.EXPENSE,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp),
@@ -213,9 +215,17 @@ fun AddExpenseBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Why the save did not go through, with the matching animation.
+            val currentError = saveError
+            if (currentError != null) {
+                FailureNotice(kind = FailedKind.EXPENSE, message = currentError)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // Save button
             Button(
                 onClick = {
+                    saveError = null
                     val summaryCategory = category
                     val summaryAmount = amount
                     viewModel.saveExpense(
@@ -229,11 +239,10 @@ fun AddExpenseBottomSheet(
                             }
                             showSuccess = true
                         },
-                        onError = { error ->
-                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                snackbarHostState.showSnackbar(error)
-                            }
-                        }
+                        // Shown in the sheet rather than as a snackbar: a
+                        // snackbar from inside a bottom sheet comes up behind
+                        // it, which is a message the user never sees.
+                        onError = { error -> saveError = error }
                     )
                 },
                 enabled = !isSaving && category.isNotBlank() && amount.isNotBlank(),

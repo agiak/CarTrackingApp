@@ -13,22 +13,6 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vector.PathParser
 
-/**
- * The brand's Ocean Teal, as Compose colours.
- *
- * The same values as `res/values/brand_colors.xml`, which the splash window
- * and the launcher icon use. They are fixed rather than taken from the chosen
- * palette because the system splash's background is read from the theme before
- * any app code runs, and the animation has to match it.
- */
-object CaribooTeal {
-    val Top = Color(0xFF89BDB7)
-    val Bottom = Color(0xFF2B6963)
-    val Glyph = Color(0xFFFBFEFE)
-    val GlyphShade = Color(0xFFD4EAE7)
-    val Background = Brush.linearGradient(listOf(Top, Bottom))
-}
-
 /** The design space the paths below are drawn in. */
 object CaribooCar {
     const val WIDTH = 200f

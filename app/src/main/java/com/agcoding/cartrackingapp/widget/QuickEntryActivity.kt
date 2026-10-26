@@ -83,6 +83,7 @@ import com.agcoding.cartrackingapp.presentation.components.AppFilterChip
 import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.LicensePlateBadge
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
+import com.agcoding.cartrackingapp.presentation.components.SavedKind
 import com.agcoding.cartrackingapp.presentation.components.SuccessAnimation
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import com.agcoding.cartrackingapp.presentation.components.TonalButton
@@ -347,6 +348,7 @@ private fun QuickRefillDialog(
         icon = Icons.Default.LocalGasStation,
         onDismiss = onDismiss,
         successMessage = if (saved != null) stringResource(R.string.refill_saved) else null,
+        successKind = SavedKind.REFILL,
         successDetail = savedDetail(selectedCar, saved),
         onSuccessFinished = { saved?.let { (amount, timestamp) -> onSaved(amount, timestamp) } }
     ) {
@@ -550,6 +552,7 @@ private fun QuickExpenseDialog(
         icon = Icons.Default.Receipt,
         onDismiss = onDismiss,
         successMessage = if (saved != null) stringResource(R.string.expense_saved) else null,
+        successKind = SavedKind.EXPENSE,
         successDetail = savedDetail(selectedCar, saved),
         onSuccessFinished = { saved?.let { (amount, timestamp) -> onSaved(amount, timestamp) } }
     ) {
@@ -705,6 +708,8 @@ private fun QuickEntryCard(
     successMessage: String? = null,
     /** What was saved, under the message: "Toyota Corolla · 64,40 €". */
     successDetail: String? = null,
+    /** Which confirmation animation plays; see [SavedKind]. */
+    successKind: SavedKind = SavedKind.GENERIC,
     onSuccessFinished: () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -761,6 +766,10 @@ private fun QuickEntryCard(
                 SuccessAnimation(
                     message = successMessage,
                     supportingText = successDetail,
+                    kind = successKind,
+                    // The dialog's own card, which is what the animation's
+                    // ticks and hubs are cut out of.
+                    surface = scheme.backgroundCard,
                     onFinished = onSuccessFinished,
                     modifier = Modifier
                         .fillMaxWidth()
