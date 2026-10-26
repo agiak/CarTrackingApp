@@ -23,7 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.components.TonalButton
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
@@ -63,6 +63,7 @@ fun RefillDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    var showDeleted by remember { mutableStateOf(false) }
     val trips by viewModel.trips.collectAsState()
     val currentTrip by viewModel.currentTrip.collectAsState()
     val tripMessage by viewModel.tripMessage.collectAsState()
@@ -232,23 +233,36 @@ fun RefillDetailsScreen(
                 dismissLabel = stringResource(R.string.cancel),
                 icon = Icons.Default.Delete,
                 destructive = true,
+                // Deletes on confirm, rather than after an undo snackbar has
+                // run its course. That snackbar was shown by this screen and
+                // awaited in this screen's scope, so going back — which is
+                // what anyone does once a dialog says the refill is gone —
+                // cancelled the wait and the refill was never deleted at all.
                 onConfirm = {
-                    viewModel.hideDeleteDialog()
-                    scope.launch {
-                        val result = snackbarHostState.showSnackbar(
-                            message = context.getString(R.string.refill_deleted),
-                            actionLabel = context.getString(R.string.undo),
-                            duration = SnackbarDuration.Long
-                        )
-                        if (result == SnackbarResult.Dismissed) {
-                            viewModel.deleteRefill { onNavigateBack() }
-                        }
-                    }
+                    viewModel.deleteRefill(
+                        onSuccess = { showDeleted = true },
+                        onError = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    context.getString(R.string.refill_delete_failed)
+                                )
+                            }
+                        },
+                    )
                 },
                 onDismiss = { viewModel.hideDeleteDialog() }
             )
         }
     }
+
+    // Outside the Scaffold on purpose: it has to cover the top bar too. Edit
+    // and back stay tappable under an overlay that only fills the content
+    // area, and this one is on its way out of the screen.
+    SuccessOverlay(
+        visible = showDeleted,
+        message = stringResource(R.string.refill_deleted),
+        onFinished = onNavigateBack,
+    )
 }
 
 private fun openGoogleMaps(context: Context, latitude: Double, longitude: Double) {

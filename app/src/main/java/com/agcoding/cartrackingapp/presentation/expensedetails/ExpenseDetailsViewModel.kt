@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import timber.log.Timber
 
 sealed class ExpenseDetailsUiState {
     object Loading : ExpenseDetailsUiState()
@@ -73,15 +74,23 @@ class ExpenseDetailsViewModel @Inject constructor(
         _showDeleteDialog.value = false
     }
 
-    fun deleteExpense(onSuccess: () -> Unit) {
+    /**
+     * Deletes the expense, and says so either way.
+     *
+     * The failure used to be swallowed by an empty catch, which left the user
+     * looking at the row they had just confirmed removing with nothing to tell
+     * them the write had not happened.
+     */
+    fun deleteExpense(onSuccess: () -> Unit, onError: () -> Unit) {
         viewModelScope.launch {
             try {
                 expenseRepository.softDeleteExpense(expenseId)
+                hideDeleteDialog()
                 onSuccess()
             } catch (e: Exception) {
-                // Handle error
-            } finally {
+                Timber.e(e, "Could not delete expense %d", expenseId)
                 hideDeleteDialog()
+                onError()
             }
         }
     }

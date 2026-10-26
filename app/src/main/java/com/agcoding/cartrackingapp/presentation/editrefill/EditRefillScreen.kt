@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
+import com.agcoding.cartrackingapp.presentation.components.SavedKind
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.editrefill.components.EditRefillContent
 
@@ -162,6 +163,7 @@ fun EditRefillScreen(
         SuccessOverlay(
             visible = showSuccess,
             message = stringResource(R.string.changes_saved),
+            kind = SavedKind.REFILL,
             onFinished = onNavigateBack
         )
     }

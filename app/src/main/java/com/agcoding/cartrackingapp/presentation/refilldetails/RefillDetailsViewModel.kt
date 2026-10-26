@@ -144,11 +144,18 @@ class RefillDetailsViewModel @Inject constructor(
         _showDeleteDialog.value = false
     }
 
-    fun deleteRefill(onSuccess: () -> Unit) {
+    /**
+     * Deletes the refill, and says so either way.
+     *
+     * [onError] is not optional by accident: a delete that fails silently
+     * leaves the user looking at the row they just confirmed removing, with
+     * nothing to tell them the write did not happen.
+     */
+    fun deleteRefill(onSuccess: () -> Unit, onError: () -> Unit) {
         viewModelScope.launch {
             when (deleteRefillUseCase(refillId)) {
                 is Result.Success -> { hideDeleteDialog(); onSuccess() }
-                is Result.Error -> hideDeleteDialog()
+                is Result.Error -> { hideDeleteDialog(); onError() }
             }
         }
     }

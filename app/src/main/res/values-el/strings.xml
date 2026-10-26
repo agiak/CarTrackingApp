@@ -1265,6 +1265,8 @@
     <!-- Undo / delete feedback -->
     <string name="undo">Αναίρεση</string>
     <string name="refill_deleted">Ο ανεφοδιασμός διαγράφηκε</string>
+    <string name="refill_delete_failed">Δεν ήταν δυνατή η διαγραφή του ανεφοδιασμού. Δοκιμάστε ξανά.</string>
+    <string name="expense_delete_failed">Δεν ήταν δυνατή η διαγραφή του εξόδου. Δοκιμάστε ξανά.</string>
     <string name="expense_deleted">Το έξοδο διαγράφηκε</string>
     <string name="car_added_successfully">Το αυτοκίνητο προστέθηκε</string>
     <string name="expense_saved">Το έξοδο αποθηκεύτηκε</string>

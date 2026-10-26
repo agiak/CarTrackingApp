@@ -13,16 +13,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
+import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.shared.ui.theme.LocalAppColorScheme
 import com.agcoding.cartrackingapp.presentation.expensedetails.components.ExpenseDetailsContent
@@ -48,6 +48,7 @@ fun ExpenseDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
+    var showDeleted by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -127,6 +128,12 @@ fun ExpenseDetailsScreen(
         }
     }
 
+    SuccessOverlay(
+        visible = showDeleted,
+        message = stringResource(R.string.expense_deleted),
+        onFinished = onNavigateBack,
+    )
+
     if (showDeleteDialog) {
         AppConfirmDialog(
             title = stringResource(R.string.delete_expense_title),
@@ -135,18 +142,20 @@ fun ExpenseDetailsScreen(
             dismissLabel = stringResource(R.string.cancel),
             icon = Icons.Default.Delete,
             destructive = true,
+            // See RefillDetailsScreen: the delete used to wait on an undo
+            // snackbar awaited in this screen's own scope, so leaving the
+            // screen cancelled it and nothing was ever deleted.
             onConfirm = {
-                viewModel.hideDeleteDialog()
-                scope.launch {
-                    val result = snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.expense_deleted),
-                        actionLabel = context.getString(R.string.undo),
-                        duration = SnackbarDuration.Long
-                    )
-                    if (result == SnackbarResult.Dismissed) {
-                        viewModel.deleteExpense(onSuccess = onNavigateBack)
-                    }
-                }
+                viewModel.deleteExpense(
+                    onSuccess = { showDeleted = true },
+                    onError = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                context.getString(R.string.expense_delete_failed)
+                            )
+                        }
+                    },
+                )
             },
             onDismiss = { viewModel.hideDeleteDialog() }
         )
