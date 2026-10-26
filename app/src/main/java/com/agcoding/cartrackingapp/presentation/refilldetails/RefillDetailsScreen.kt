@@ -255,9 +255,8 @@ fun RefillDetailsScreen(
         }
     }
 
-    // Outside the Scaffold on purpose: it has to cover the top bar too. Edit
-    // and back stay tappable under an overlay that only fills the content
-    // area, and this one is on its way out of the screen.
+    // A modal sheet, so where it sits in the tree does not decide what it
+    // covers: the scrim takes the top bar with it either way.
     SuccessOverlay(
         visible = showDeleted,
         message = stringResource(R.string.refill_deleted),

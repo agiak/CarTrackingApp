@@ -54,6 +54,7 @@ import com.agcoding.cartrackingapp.presentation.components.AmountInputCard
 import com.agcoding.cartrackingapp.presentation.components.PrimaryButton
 import com.agcoding.cartrackingapp.presentation.components.AppTextField
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
+import com.agcoding.cartrackingapp.presentation.components.SavedKind
 import com.agcoding.cartrackingapp.presentation.components.SuccessOverlay
 import com.agcoding.cartrackingapp.presentation.components.ThousandsSeparatorTransformation
 import kotlinx.coroutines.launch
@@ -413,6 +414,7 @@ fun AddExpenseScreen(
         SuccessOverlay(
             visible = showSuccess,
             message = stringResource(R.string.expense_saved),
+            kind = SavedKind.EXPENSE,
             onFinished = {
                 onExpenseSaved()
                 onNavigateBack()

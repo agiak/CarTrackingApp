@@ -8,8 +8,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -267,17 +267,24 @@ fun SuccessAnimation(
 }
 
 /**
- * The app-wide success confirmation: a full-surface overlay that covers whatever
- * screen is underneath, plays [SuccessAnimation], and calls [onFinished] when it
- * settles — typically to navigate back or close a dialog.
+ * The app-wide success confirmation: a bottom sheet that plays
+ * [SuccessAnimation] and calls [onFinished] when it settles — typically to
+ * navigate back or close a dialog.
  *
- * Use this for every "saved successfully" moment so the confirmation looks and
- * lasts the same everywhere. For a bottom sheet, prefer swapping the sheet's own
- * content for [SuccessAnimation] instead, so the sheet keeps its shape.
+ * A sheet rather than the full-screen overlay this used to be, so that every
+ * confirmation in the app arrives the same way. Saving from a sheet already
+ * played its animation in that sheet; saving from a screen covered the screen
+ * instead, which made the same event look like two different ones depending
+ * on where it was triggered from.
  *
- * Renders nothing while [visible] is false. Pointer input is swallowed while it
- * shows, so the form underneath cannot be tapped mid-animation.
+ * It also means the confirmation is never mistaken for the next screen: the
+ * one underneath stays visible behind the scrim, so "saved" reads as something
+ * that happened to the screen the user is on rather than as navigation that
+ * has already taken place.
+ *
+ * Renders nothing while [visible] is false.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessOverlay(
     visible: Boolean,
@@ -289,27 +296,40 @@ fun SuccessOverlay(
 ) {
     if (!visible) return
 
-    val blocker = remember { MutableInteractionSource() }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     val scheme = LocalAppColorScheme.current
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            // The screen's background, not a card surface: this covers the
-            // display edge to edge, and a card colour at full width reads as a
-            // card that has lost its edges rather than as a new screen.
-            .background(MaterialTheme.colorScheme.background)
-            .clickable(interactionSource = blocker, indication = null) { },
-        contentAlignment = Alignment.Center
+    AppBottomSheet(
+        // Swiping it away is the same answer as waiting for it: the work is
+        // already done, and the caller is owed its onFinished either way.
+        // Dropping the request instead would leave a sheet the user has
+        // pulled halfway down and a screen that never moves on.
+        onDismissRequest = onFinished,
+        modifier = modifier,
+        sheetState = sheetState,
+        // No handle. The sheet leaves on its own a second and a half from now,
+        // and a grab bar invites a drag that only skips the confirmation.
+        showDragHandle = false,
     ) {
         SuccessAnimation(
             message = message,
             supportingText = supportingText,
             kind = kind,
-            // Matches the Box above, so the animation's negative space is the
-            // screen showing through rather than a card-coloured patch.
-            surface = scheme.backgroundPrimary,
-            onFinished = onFinished
+            // The sheet's own container, which is what the animation's ticks
+            // and wheel hubs are cut out of.
+            surface = scheme.backgroundCard,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            onFinished = {
+                // Let the sheet slide out before the caller navigates, so the
+                // screen change happens behind a sheet that is already gone
+                // rather than under one that vanishes mid-animation.
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) onFinished()
+                }
+            }
         )
     }
 }
