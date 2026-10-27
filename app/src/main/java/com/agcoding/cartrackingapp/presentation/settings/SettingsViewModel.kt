@@ -12,6 +12,7 @@ import androidx.work.WorkManager
 import com.agcoding.cartrackingapp.BuildConfig
 import com.agcoding.cartrackingapp.R
 import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
+import com.agcoding.cartrackingapp.data.export.AutoBackupManager
 import com.agcoding.cartrackingapp.data.export.DataExportManager
 import com.agcoding.cartrackingapp.data.export.ExportResult
 import com.agcoding.cartrackingapp.data.export.ImportProgress
@@ -134,6 +135,7 @@ class SettingsViewModel @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val dataMetadataPreferences: DataMetadataPreferences,
     private val cloudRepository: CloudRepository,
+    private val autoBackupManager: AutoBackupManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -308,6 +310,21 @@ class SettingsViewModel @Inject constructor(
     fun updateForecastingEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsPreferences.updateForecastingEnabled(enabled)
+        }
+    }
+
+    /**
+     * Turns the rolling backup to Downloads on or off.
+     *
+     * Switching it on writes one straight away. Waiting for the next edit
+     * would leave the user looking at a Downloads folder that has not changed
+     * and a switch that appears to have done nothing — and the file that is
+     * there, if any, would be however old it was when they switched it off.
+     */
+    fun updateAutoBackupToDownloads(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsPreferences.updateAutoBackupToDownloads(enabled)
+            if (enabled) autoBackupManager.requestBackup()
         }
     }
 

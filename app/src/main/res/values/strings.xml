@@ -350,6 +350,10 @@
     <string name="settings_section_language">LANGUAGE</string>
     <string name="settings_section_preferences">PREFERENCES</string>
     <string name="settings_section_data_storage">DATA &amp; STORAGE</string>
+    <string name="auto_backup_downloads">Keep a backup in Downloads</string>
+    <string name="auto_backup_downloads_on">A spreadsheet in Downloads is kept up to date with every change.</string>
+    <string name="auto_backup_downloads_off">New changes are not written to Downloads. A file already there stays as it is.</string>
+    <string name="auto_backup_downloads_signed_out">Always on while you are signed out: this file is your only backup.</string>
     <string name="settings_section_help_about">HELP &amp; ABOUT</string>
     <string name="settings_section_developer_options">DEVELOPER OPTIONS</string>
     <string name="settings_section_general">General</string>

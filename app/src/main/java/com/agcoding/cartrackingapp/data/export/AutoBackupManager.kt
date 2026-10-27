@@ -7,7 +7,9 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.room.InvalidationTracker
+import com.agcoding.cartrackingapp.cloud.domain.repository.CloudRepository
 import com.agcoding.cartrackingapp.data.local.database.CarDatabase
+import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.domain.model.FuelRefill
 import com.agcoding.cartrackingapp.domain.model.Expense
 import com.agcoding.cartrackingapp.domain.repository.CarRepository
@@ -38,7 +40,9 @@ class AutoBackupManager @Inject constructor(
     private val dataExportManager: DataExportManager,
     private val carRepository: CarRepository,
     private val refillRepository: RefillRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val settingsPreferences: SettingsPreferences,
+    private val cloudRepository: CloudRepository,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -61,8 +65,27 @@ class AutoBackupManager @Inject constructor(
         })
     }
 
+    /**
+     * Runs a backup now, without waiting for the next write to the database.
+     *
+     * Switching the setting back on is the case this exists for: without it
+     * the file in Downloads would stay as it was until the user happened to
+     * edit something, which from their side is a switch that did nothing.
+     */
+    fun requestBackup() {
+        scope.launch { trigger.emit(Unit) }
+    }
+
     private suspend fun runBackup() {
         try {
+            // Checked before the data is gathered, not after: building the
+            // workbook reads every refill and expense of every car, and there
+            // is no point paying for that to throw it away.
+            if (!shouldWriteToDownloads()) {
+                Timber.d("Auto backup to Downloads is switched off; skipping")
+                return
+            }
+
             val cars = carRepository.getAllCars().first()
             val allRefills = mutableListOf<FuelRefill>()
             val allExpenses = mutableListOf<Expense>()
@@ -81,6 +104,26 @@ class AutoBackupManager @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Auto backup failed")
         }
+    }
+
+    /**
+     * Whether the rolling backup should be written at all.
+     *
+     * The switch only applies while signed in. Signed out, this file is the
+     * only copy of the data that exists anywhere — there is no account holding
+     * a second one — so there is nothing to weigh it against and it is always
+     * written. That also means signing out quietly turns the backup back on,
+     * which is the safe direction for a setting to move in by itself.
+     *
+     * Both reads are guarded: a backup is not worth failing over a preference
+     * that could not be read, and the safe answer to either question is to
+     * write the file.
+     */
+    private suspend fun shouldWriteToDownloads(): Boolean {
+        val signedIn = runCatching { cloudRepository.state.first().isSignedIn }.getOrDefault(false)
+        if (!signedIn) return true
+        return runCatching { settingsPreferences.settingsFlow.first().autoBackupToDownloads }
+            .getOrDefault(true)
     }
 
     private fun saveReplacing(bytes: ByteArray) {

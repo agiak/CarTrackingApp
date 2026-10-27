@@ -34,6 +34,14 @@ data class AppSettings(
     val notificationsEnabled: Boolean = true,
     val llmModel: LLMModel = LLMModel.DEFAULT,
     val forecastingEnabled: Boolean = true,
+    /**
+     * Whether the rolling Excel backup is written to Downloads.
+     *
+     * Only ever consulted while signed in. Signed out, the file in Downloads
+     * is the only copy of the data that exists anywhere, so there is nothing
+     * to trade it against and it is written regardless — see AutoBackupManager.
+     */
+    val autoBackupToDownloads: Boolean = true,
 )
 
 @Singleton
@@ -46,6 +54,7 @@ class SettingsPreferences @Inject constructor(
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val LLM_MODEL = stringPreferencesKey("llm_model")
         val FORECASTING_ENABLED = booleanPreferencesKey("forecasting_enabled")
+        val AUTO_BACKUP_TO_DOWNLOADS = booleanPreferencesKey("auto_backup_to_downloads")
     }
 
     val settingsFlow: Flow<AppSettings> = context.settingsDataStore.data.map { preferences ->
@@ -61,6 +70,7 @@ class SettingsPreferences @Inject constructor(
                 LLMModel.fromModelId(modelId)
             } ?: LLMModel.DEFAULT,
             forecastingEnabled = preferences[Keys.FORECASTING_ENABLED] ?: true,
+            autoBackupToDownloads = preferences[Keys.AUTO_BACKUP_TO_DOWNLOADS] ?: true,
         )
     }
 
@@ -85,6 +95,12 @@ class SettingsPreferences @Inject constructor(
     suspend fun updateLLMModel(model: LLMModel) {
         context.settingsDataStore.edit { preferences ->
             preferences[Keys.LLM_MODEL] = model.modelId
+        }
+    }
+
+    suspend fun updateAutoBackupToDownloads(enabled: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[Keys.AUTO_BACKUP_TO_DOWNLOADS] = enabled
         }
     }
 

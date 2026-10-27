@@ -52,6 +52,7 @@ import com.agcoding.cartrackingapp.presentation.components.AppConfirmDialog
 import com.agcoding.cartrackingapp.presentation.components.StyledCard
 import com.agcoding.cartrackingapp.presentation.components.StyledTopAppBar
 import com.agcoding.cartrackingapp.presentation.settings.SettingsViewModel
+import com.agcoding.cartrackingapp.presentation.settings.components.AutoBackupCard
 import com.agcoding.cartrackingapp.presentation.settings.components.ForecastCard
 import com.agcoding.cartrackingapp.presentation.settings.components.SectionHeader
 import com.agcoding.cartrackingapp.presentation.settings.components.SettingsContent
@@ -283,6 +284,16 @@ fun DataStorageSettingsScreen(
                 onExportExcel = { viewModel.exportToExcel() },
                 onImport = { showImportConfirmDialog = true },
                 onClear = { showClearConfirmDialog = true }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Directly under the export buttons: it is the same file in the
+            // same folder, written by itself instead of on a tap.
+            AutoBackupCard(
+                enabled = uiState.appSettings.autoBackupToDownloads,
+                isSignedIn = uiState.isSignedIn,
+                onToggle = viewModel::updateAutoBackupToDownloads,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
