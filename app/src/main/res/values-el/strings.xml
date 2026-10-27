@@ -320,6 +320,7 @@
     <string name="settings_section_language">ΓΛΩΣΣΑ</string>
     <string name="settings_section_preferences">ΠΡΟΤΙΜΗΣΕΙΣ</string>
     <string name="settings_section_data_storage">ΔΕΔΟΜΕΝΑ &amp; ΑΠΟΘΗΚΕΥΣΗ</string>
+    <string name="splash_tagline">Καύσιμα &amp; έξοδα αυτοκινήτου</string>
     <string name="auto_backup_downloads">Αντίγραφο στις Λήψεις</string>
     <string name="auto_backup_downloads_on">Ένα αρχείο Excel στις Λήψεις ενημερώνεται με κάθε αλλαγή.</string>
     <string name="auto_backup_downloads_off">Οι νέες αλλαγές δεν γράφονται στις Λήψεις. Όποιο αρχείο υπάρχει ήδη μένει ως έχει.</string>

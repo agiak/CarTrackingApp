@@ -350,6 +350,9 @@
     <string name="settings_section_language">LANGUAGE</string>
     <string name="settings_section_preferences">PREFERENCES</string>
     <string name="settings_section_data_storage">DATA &amp; STORAGE</string>
+    <!-- The brand name. Not translated: it is a name, not a word. -->
+    <string name="splash_wordmark" translatable="false">Cariboo</string>
+    <string name="splash_tagline">Fuel &amp; car expenses</string>
     <string name="auto_backup_downloads">Keep a backup in Downloads</string>
     <string name="auto_backup_downloads_on">A spreadsheet in Downloads is kept up to date with every change.</string>
     <string name="auto_backup_downloads_off">New changes are not written to Downloads. A file already there stays as it is.</string>

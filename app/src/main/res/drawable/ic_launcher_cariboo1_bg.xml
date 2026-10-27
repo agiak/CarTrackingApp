@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The launcher icon's background.
+
+    A gradient rather than the flat teal it used to be, matching the store
+    listing's icon (see the design kit's tokens.json: #7bc0b7 to #1d7269 at
+    135 degrees).
+
+    Android measures the angle counter-clockwise from the positive x-axis and
+    the gradient runs along (cos a, -sin a), so 315 is the top-left to
+    bottom-right that CSS calls 135deg. Written as a drawable because an
+    adaptive icon's background takes any drawable, and a <color> can only be
+    one colour.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="315"
+        android:startColor="#7BC0B7"
+        android:endColor="#1D7269" />
+</shape>

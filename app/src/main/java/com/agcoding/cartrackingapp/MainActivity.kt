@@ -39,7 +39,7 @@ import com.agcoding.cartrackingapp.data.preferences.SettingsPreferences
 import com.agcoding.cartrackingapp.data.preferences.ThemePreferences
 import com.agcoding.cartrackingapp.presentation.navigation.AppNavigation
 import com.agcoding.cartrackingapp.presentation.theme.AppTheme
-import com.agcoding.cartrackingapp.shared.ui.brand.FuelGaugeSplash
+import com.agcoding.cartrackingapp.shared.ui.brand.ScenicRoadSplash
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                         enter = EnterTransition.None,
                         exit = fadeOut(animationSpec = tween(durationMillis = 300)),
                     ) {
-                        FuelGaugeSplash(onFinished = { splashDone = true })
+                        ScenicRoadSplash(onFinished = { splashDone = true })
                     }
 
                     if (dbStatus == DatabaseStatus.MigrationFailed) {
